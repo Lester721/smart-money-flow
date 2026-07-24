@@ -83,9 +83,13 @@ describe("tradeGreeks", () => {
     expect(g.theta).toBeLessThan(0);
   });
 
-  it("precio imposible → todo null/0", () => {
-    const g = tradeGreeks(1, 200, 100, 0.25, true); // precio < intrínseco (100)
-    expect(g.iv).toBeNull();
-    expect(g.delta).toBeNull();
+  it("deep-ITM que imprime bajo el intrínseco → delta límite ±1 (no null)", () => {
+    // Put $335, subyacente $322 → intrínseco $13; imprime a $8.50 (bajo intrínseco)
+    const p = tradeGreeks(8.5, 322, 335, 3 / 365, false);
+    expect(p.iv).toBeNull();
+    expect(p.delta).toBe(-1);
+    // Call deep-ITM análogo → +1
+    const c = tradeGreeks(3, 200, 100, 0.25, true); // intrínseco 100, precio 3 << intrínseco
+    expect(c.delta).toBe(1);
   });
 });

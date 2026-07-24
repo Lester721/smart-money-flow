@@ -125,7 +125,16 @@ export function tradeGreeks(
   isCall: boolean,
 ): TradeGreeks {
   const iv = impliedVol(tradePrice, spot, strike, T, isCall);
-  if (iv == null) return { iv: null, delta: null, gamma: 0, theta: 0, vega: 0 };
+  if (iv == null) {
+    // Sin solución de IV. Caso típico: opción MUY ITM que imprime a/por debajo de su
+    // intrínseco → sin valor temporal → delta en el límite (±1). Así el filtro |Δ|>0.60
+    // no la excluye por error. Sin fallback devolvíamos delta 0 (incorrecto).
+    const intrinsic = Math.max(isCall ? spot - strike : strike - spot, 0);
+    if (intrinsic > 0 && tradePrice <= intrinsic + 0.02 * Math.max(spot, 1)) {
+      return { iv: null, delta: isCall ? 1 : -1, gamma: 0, theta: 0, vega: 0 };
+    }
+    return { iv: null, delta: null, gamma: 0, theta: 0, vega: 0 };
+  }
   return {
     iv,
     delta: bsDelta(spot, strike, T, iv, isCall),
