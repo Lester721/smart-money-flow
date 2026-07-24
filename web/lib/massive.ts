@@ -1,6 +1,7 @@
 // Cliente de Massive (massive.com — antes Polygon.io). Solo se usa en el servidor.
 
 import type { CompanyInfo, DailyBar, RawContract, TfBar } from "./types";
+import type { MassiveTrade, MassiveQuote } from "./massiveFlow";
 
 const BASE_URL = "https://api.massive.com";
 
@@ -263,4 +264,60 @@ function describeStatus(status: number, ticker: string, body: string): string {
     default:
       return `Massive respondió ${status}. ${body.slice(0, 200)}`.trim();
   }
+}
+
+// ---------------------------------------------------------------------------
+// Time & Sales de opciones (Massive Advanced): tape (trades) + BBO (quotes).
+// ---------------------------------------------------------------------------
+
+export interface TapeQuery {
+  gteNs?: number; // ventana: timestamp >= (epoch ns)
+  lteNs?: number; // ventana: timestamp <= (epoch ns)
+  limit?: number; // por página (máx 50000)
+  maxPages?: number;
+}
+
+/** Recorre todas las páginas de un endpoint /v3 (paginado por `next_url`). */
+async function fetchAllV3<T>(firstPath: string, cap: number): Promise<T[]> {
+  const key = apiKey();
+  const out: T[] = [];
+  let url: string | null = `${BASE_URL}${firstPath}`;
+  let page = 0;
+  while (url) {
+    page += 1;
+    const res: Response = await fetch(url, {
+      headers: { Authorization: `Bearer ${key}` },
+      cache: "no-store",
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      throw new MassiveError(describeStatus(res.status, "", body), res.status);
+    }
+    const json: { results?: T[]; next_url?: string } = await res.json();
+    for (const r of json.results ?? []) out.push(r);
+    if (page >= cap) break;
+    url = json.next_url ?? null;
+  }
+  return out;
+}
+
+function tapePath(kind: "trades" | "quotes", optionTicker: string, q: TapeQuery): string {
+  const params = new URLSearchParams();
+  params.set("limit", String(q.limit ?? 50000));
+  params.set("order", "asc");
+  params.set("sort", "timestamp");
+  if (q.gteNs) params.set("timestamp.gte", String(q.gteNs));
+  if (q.lteNs) params.set("timestamp.lte", String(q.lteNs));
+  // optionTicker es "O:AAPL260724C00315000" — chars seguros; no lo codificamos para no romper "O:".
+  return `/v3/${kind}/${optionTicker}?${params.toString()}`;
+}
+
+/** Tape (operaciones) de un contrato de opción. Formato ticker: "O:AAPL260724C00315000". */
+export function fetchOptionTrades(optionTicker: string, q: TapeQuery = {}): Promise<MassiveTrade[]> {
+  return fetchAllV3<MassiveTrade>(tapePath("trades", optionTicker, q), q.maxPages ?? 10);
+}
+
+/** Quotes (BBO) de un contrato de opción, para clasificar el agresor de cada trade. */
+export function fetchOptionQuotes(optionTicker: string, q: TapeQuery = {}): Promise<MassiveQuote[]> {
+  return fetchAllV3<MassiveQuote>(tapePath("quotes", optionTicker, q), q.maxPages ?? 10);
 }
