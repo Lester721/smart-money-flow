@@ -11,9 +11,37 @@
 import type { RawTrade } from "./flow";
 import type { RawContract } from "./types";
 import { tradeGreeks } from "./greeks";
-import { sideFor, underlyingAt } from "./databento";
 import { isMultiLegCondition, isCanceledCondition } from "./conditions";
 import { fetchOptionChain, fetchBars, fetchOptionTrades, fetchAsOfQuote } from "./massive";
+
+/** Clasifica el agresor con los strings que reconoce `aggressionOf` en flow.ts. */
+export function sideFor(price: number, bid: number | null, ask: number | null): string {
+  if (bid == null || ask == null || !(ask > 0) || ask < bid) return "MIDMKT";
+  if (price > ask) return "ABOVE_ASK";
+  if (price === ask) return "AT_ASK";
+  if (price < bid) return "BELOW_BID";
+  if (price === bid) return "AT_BID";
+  return "MIDMKT";
+}
+
+/** Precio del subyacente en (o justo antes de) `tsMs`. Búsqueda binaria. */
+export function underlyingAt(bars: [number, number][], tsMs: number): number | null {
+  if (!bars.length) return null;
+  if (tsMs < bars[0][0]) return bars[0][1];
+  let lo = 0;
+  let hi = bars.length - 1;
+  let best: number | null = null;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (bars[mid][0] <= tsMs) {
+      best = bars[mid][1];
+      lo = mid + 1;
+    } else {
+      hi = mid - 1;
+    }
+  }
+  return best;
+}
 
 /** Trade crudo de Massive: /v3/trades/{O:...} */
 export interface MassiveTrade {

@@ -6,6 +6,8 @@ import {
   occFromMassive,
   massiveTradesToRawTrades,
   selectContracts,
+  sideFor,
+  underlyingAt,
   type MassiveTrade,
   type MassiveQuote,
   type MassiveContractContext,
@@ -20,6 +22,27 @@ const ns = (ms: number) => ms * 1_000_000;
 describe("occFromMassive", () => {
   it("quita el prefijo O: → OCC de Victor", () => {
     expect(occFromMassive("O:AAPL260724C00315000")).toBe("AAPL260724C00315000");
+  });
+});
+
+describe("sideFor (agresor por BBO exacto)", () => {
+  it("clasifica above/at ask, below/at bid y mid", () => {
+    expect(sideFor(7.2, 6.65, 7.05)).toBe("ABOVE_ASK");
+    expect(sideFor(7.05, 6.65, 7.05)).toBe("AT_ASK");
+    expect(sideFor(5.4, 5.5, 7.0)).toBe("BELOW_BID");
+    expect(sideFor(5.5, 5.5, 7.0)).toBe("AT_BID");
+    expect(sideFor(6.35, 5.5, 7.0)).toBe("MIDMKT");
+    expect(sideFor(6.35, null, null)).toBe("MIDMKT"); // sin BBO
+  });
+});
+
+describe("underlyingAt", () => {
+  const bars: [number, number][] = [[1000, 100], [2000, 101], [3000, 102]];
+  it("toma la última barra <= al instante", () => {
+    expect(underlyingAt(bars, 2500)).toBe(101);
+    expect(underlyingAt(bars, 3000)).toBe(102);
+    expect(underlyingAt(bars, 500)).toBe(100);
+    expect(underlyingAt([], 500)).toBeNull();
   });
 });
 
