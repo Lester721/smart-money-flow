@@ -2,11 +2,11 @@
 // Lean: filtra duro a transacciones notables, tabla chica + score 0-10. No trae el tape completo.
 
 import { aggressionScore, classifyFlow, convictionScore, unusualityScore, type FlowRow } from "@/lib/flow";
-import { fetchFlow, MarketSnackError } from "@/lib/marketsnack";
+import { fetchFlow } from "@/lib/massiveFlow";
 import { saveTrades } from "@/lib/store";
 import { ivContextScore, type IvContextScore } from "@/lib/ivcontext";
 import { loadIvHistory, saveIvSnapshot } from "@/lib/ivStore";
-import { fetchDailyBars } from "@/lib/massive";
+import { fetchDailyBars, MassiveError } from "@/lib/massive";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -64,7 +64,7 @@ export async function GET(request: Request) {
       });
     } catch (err) {
       const message =
-        err instanceof MarketSnackError ? err.message : "Error al consultar MarketSnack.";
+        err instanceof MassiveError ? err.message : "Error al consultar Massive.";
       return Response.json({ error: message }, { status: 502 });
     }
   }
@@ -81,7 +81,7 @@ export async function GET(request: Request) {
           return;
         }
 
-        send({ type: "step", label: "Conectando con MarketSnack…" });
+        send({ type: "step", label: "Conectando con Massive…" });
         send({ type: "step", label: `Buscando transacciones ≥ $${(MIN_PREMIUM / 1000).toFixed(0)}K de ${ticker}…` });
 
         const { trades, truncated } = await fetchFlow(ticker, {
@@ -208,7 +208,7 @@ export async function GET(request: Request) {
         });
       } catch (err) {
         const message =
-          err instanceof MarketSnackError ? err.message : "Error inesperado al consultar MarketSnack.";
+          err instanceof MassiveError ? err.message : "Error inesperado al consultar Massive.";
         send({ type: "error", message });
       } finally {
         controller.close();

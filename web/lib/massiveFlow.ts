@@ -9,9 +9,11 @@
 // El resultado es el mismo RawTrade[] que daba MarketSnack.
 
 import type { RawTrade } from "./flow";
+import type { RawContract } from "./types";
 import { tradeGreeks } from "./greeks";
 import { sideFor, underlyingAt } from "./databento";
 import { isMultiLegCondition, isCanceledCondition } from "./conditions";
+import { fetchOptionChain, fetchBars, fetchOptionTrades, fetchAsOfQuote } from "./massive";
 
 /** Trade crudo de Massive: /v3/trades/{O:...} */
 export interface MassiveTrade {
@@ -155,4 +157,141 @@ export function massiveTradesToRawTrades(
     });
   }
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// Orquestador: fetchFlow(ticker) — drop-in del fetchFlow de MarketSnack, sobre Massive.
+// ---------------------------------------------------------------------------
+
+export interface SelectedContract {
+  ticker: string; // "O:AAPL260724C00315000"
+  strike: number;
+  expiration: string;
+  isCall: boolean;
+  openInterest: number;
+  volume: number;
+}
+
+/**
+ * Elige los contratos que vale la pena escanear: activos (volumen>0) y CAPACES de contener
+ * un trade ≥ minPremium (volumen×precio×100). Ordena por volumen y limita a `cap` para acotar
+ * las llamadas. Puro y testeable.
+ */
+export function selectContracts(
+  contracts: RawContract[],
+  minPremium: number,
+  cap: number,
+): SelectedContract[] {
+  const out: SelectedContract[] = [];
+  for (const c of contracts) {
+    const ticker = c.details?.ticker;
+    const strike = c.details?.strike_price;
+    const expiration = c.details?.expiration_date;
+    const ct = c.details?.contract_type;
+    const volume = c.day?.volume ?? 0;
+    const close = c.day?.close ?? c.last_trade?.price ?? 0;
+    if (!ticker || !strike || !expiration || !ct || volume <= 0) continue;
+    // ¿podría un solo trade de este contrato llegar a minPremium?
+    if (minPremium > 0 && volume * close * 100 < minPremium) continue;
+    out.push({
+      ticker,
+      strike,
+      expiration,
+      isCall: ct === "call",
+      openInterest: c.open_interest ?? 0,
+      volume,
+    });
+  }
+  out.sort((a, b) => b.volume - a.volume);
+  return cap > 0 ? out.slice(0, cap) : out;
+}
+
+/** Ejecuta `fn` sobre `items` con concurrencia limitada (respeta el rate limit). */
+async function pMap<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let i = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (i < items.length) {
+      const idx = i++;
+      results[idx] = await fn(items[idx]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+export interface FetchFlowOptions {
+  period?: string;
+  maxPages?: number;
+  minPremium?: number;
+  targetDays?: number;
+  onPage?: (page: number, accumulated: number) => void | Promise<void>;
+  contractCap?: number; // tope de contratos a escanear (default 60)
+  concurrency?: number; // llamadas en paralelo (default 6)
+}
+
+export interface FlowResult {
+  trades: RawTrade[];
+  pages: number;
+  truncated: boolean;
+}
+
+function periodDays(period?: string): number {
+  if (!period) return 5;
+  const n = parseInt(period, 10) || 1;
+  if (period.endsWith("m")) return n * 30;
+  return n; // "5d" → 5
+}
+
+/**
+ * Time & Sales de un ticker desde Massive: selecciona contratos capaces, baja su tape,
+ * filtra los trades notables (≥ minPremium), consigue el BBO as-of de cada uno, y arma el
+ * RawTrade[] con agresor + griegas + condiciones OPRA. Mismo shape que MarketSnack.
+ */
+export async function fetchFlow(ticker: string, opts: FetchFlowOptions = {}): Promise<FlowResult> {
+  const days = opts.targetDays ?? periodDays(opts.period);
+  const minPremium = opts.minPremium ?? 0;
+  const cap = opts.contractCap ?? 60;
+  const nowMs = Date.now();
+  const gteNs = (nowMs - days * 86_400_000) * 1_000_000;
+  const lteNs = nowMs * 1_000_000;
+
+  // 1. Cadena (para elegir contratos) + barras de minuto del subyacente (asset_price).
+  const [{ contracts }, bars] = await Promise.all([
+    fetchOptionChain(ticker),
+    fetchBars(ticker, 1, "minute", days),
+  ]);
+  const underlyingBars: [number, number][] = bars.map((b) => [b.time * 1000, b.close]);
+
+  // 2. Selección de contratos capaces de tener un trade notable.
+  const selected = selectContracts(contracts, minPremium, cap);
+
+  // 3. Por contrato: tape → notables → BBO as-of por notable → RawTrade[].
+  let page = 0;
+  const perContract = await pMap(selected, opts.concurrency ?? 6, async (c) => {
+    const rawTrades = await fetchOptionTrades(c.ticker, {
+      gteNs, lteNs, maxPages: opts.maxPages ?? 10,
+    });
+    const notable = rawTrades.filter((t) => (t.price || 0) * (t.size || 0) * 100 >= minPremium);
+    if (notable.length === 0) return [] as RawTrade[];
+    // BBO as-of de cada notable (una llamada por trade notable).
+    const quotes = await pMap(notable, 8, (t) => fetchAsOfQuote(c.ticker, t.sip_timestamp));
+    const validQuotes = quotes.filter((q): q is NonNullable<typeof q> => q != null);
+    const ctx: MassiveContractContext = {
+      massiveSymbol: c.ticker,
+      strike: c.strike,
+      expiration: c.expiration,
+      isCall: c.isCall,
+      openInterest: c.openInterest,
+      volume: c.volume,
+      underlyingBars,
+    };
+    const rows = massiveTradesToRawTrades(notable, validQuotes, ctx);
+    page += 1;
+    await opts.onPage?.(page, rows.length);
+    return rows;
+  });
+
+  const trades = perContract.flat().map((t, i) => ({ ...t, id: i }));
+  return { trades, pages: selected.length, truncated: false };
 }

@@ -5,10 +5,12 @@ import {
   primaryConditionId,
   occFromMassive,
   massiveTradesToRawTrades,
+  selectContracts,
   type MassiveTrade,
   type MassiveQuote,
   type MassiveContractContext,
 } from "./massiveFlow";
+import type { RawContract } from "./types";
 import { isMultiLegCondition } from "./conditions";
 import { aggressionOf } from "./flow";
 
@@ -96,5 +98,34 @@ describe("massiveTradesToRawTrades", () => {
     expect(rows[0].delta).toBeGreaterThan(0.5); // call ITM corto plazo
     expect(rows[0].implied_volatility).toBeGreaterThan(0);
     expect(rows[0].asset_price).toBeCloseTo(322.5, 6);
+  });
+});
+
+describe("selectContracts", () => {
+  const mk = (ticker: string, vol: number, close: number, strike = 300, ct = "call"): RawContract => ({
+    details: { ticker, strike_price: strike, expiration_date: "2026-08-21", contract_type: ct },
+    day: { volume: vol, close },
+    open_interest: 1000,
+  });
+
+  it("descarta sin volumen y los incapaces de llegar a minPremium", () => {
+    const contracts = [
+      mk("O:A", 0, 10), // sin volumen → fuera
+      mk("O:B", 5, 2), // 5×2×100 = $1,000 < $100k → fuera
+      mk("O:C", 500, 5), // 500×5×100 = $250k ≥ $100k → entra
+    ];
+    const sel = selectContracts(contracts, 100_000, 60);
+    expect(sel.map((s) => s.ticker)).toEqual(["O:C"]);
+  });
+
+  it("ordena por volumen y respeta el cap", () => {
+    const contracts = [mk("O:A", 100, 50), mk("O:B", 300, 50), mk("O:C", 200, 50)];
+    const sel = selectContracts(contracts, 0, 2);
+    expect(sel.map((s) => s.ticker)).toEqual(["O:B", "O:C"]); // top-2 por volumen
+  });
+
+  it("mapea call/put y campos", () => {
+    const sel = selectContracts([mk("O:P", 100, 50, 290, "put")], 0, 10);
+    expect(sel[0]).toMatchObject({ ticker: "O:P", strike: 290, isCall: false, volume: 100 });
   });
 });

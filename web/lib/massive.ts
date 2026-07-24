@@ -321,3 +321,18 @@ export function fetchOptionTrades(optionTicker: string, q: TapeQuery = {}): Prom
 export function fetchOptionQuotes(optionTicker: string, q: TapeQuery = {}): Promise<MassiveQuote[]> {
   return fetchAllV3<MassiveQuote>(tapePath("quotes", optionTicker, q), q.maxPages ?? 10);
 }
+
+/**
+ * El BBO vigente en (o justo antes de) `tsNs` para un contrato — una sola llamada.
+ * Eficiente para clasificar el agresor de un trade notable sin bajar todos los quotes.
+ */
+export async function fetchAsOfQuote(optionTicker: string, tsNs: number): Promise<MassiveQuote | null> {
+  const params = new URLSearchParams({
+    "timestamp.lte": String(tsNs),
+    order: "desc",
+    sort: "timestamp",
+    limit: "1",
+  });
+  const arr = await fetchAllV3<MassiveQuote>(`/v3/quotes/${optionTicker}?${params.toString()}`, 1);
+  return arr[0] ?? null;
+}
