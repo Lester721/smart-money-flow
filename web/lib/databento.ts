@@ -28,6 +28,22 @@ export interface DbRecord {
   levels?: DbLevel[];
 }
 
+/**
+ * Metadatos y LIMITACIONES de esta fuente, para que la interfaz muestre una nota honesta.
+ * Databento OPRA no expone las condiciones de operación de OPRA (se pierden en su
+ * normalización; es una función pendiente en su roadmap), así que multileg y el filtro de
+ * cancelados quedan inactivos con esta fuente. Se resuelven con Massive Advanced ($199/mes),
+ * que sí trae las condiciones OPRA.
+ */
+export const DATABENTO_SOURCE = {
+  id: "databento",
+  label: "Databento OPRA (tape exacto)",
+  limitations: [
+    "Multileg: no disponible (Databento no expone la condición OPRA).",
+    "Filtro de cancelados: inactivo (misma razón).",
+  ],
+} as const;
+
 /** OSI de Databento (root con espacios, "AAPL  260724C00320000") → OCC de Victor (sin espacios). */
 export function osiToOcc(osi: string): string {
   return osi.replace(/\s+/g, "");
