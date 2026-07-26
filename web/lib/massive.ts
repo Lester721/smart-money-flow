@@ -35,6 +35,28 @@ function maxPages(): number {
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : 40;
 }
 
+// Reintento ante rate-limit (429) y errores transitorios (5xx). Al cargar un ticker
+// la página dispara ~13 llamadas a la vez; Massive limita por velocidad (no por dinero:
+// el plan es plano) y algunas devolvían vacío. El backoff con JITTER espacia los
+// reintentos para que no choquen todos a la vez. Tras MAX_RETRIES, devuelve la última
+// respuesta (degradación elegante, igual que antes).
+const RETRYABLE = new Set([429, 500, 502, 503, 504]);
+const MAX_RETRIES = 3;
+
+function backoffMs(attempt: number, retryAfter: string | null): number {
+  const ra = Number(retryAfter);
+  if (Number.isFinite(ra) && ra > 0) return Math.min(ra * 1000, 8000); // respeta Retry-After
+  return 500 * 2 ** attempt + Math.floor(Math.random() * 250); // 0.5s/1s/2s + jitter
+}
+
+async function massiveFetch(url: string, init?: RequestInit): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(url, init);
+    if (!RETRYABLE.has(res.status) || attempt >= MAX_RETRIES) return res;
+    await new Promise((r) => setTimeout(r, backoffMs(attempt, res.headers.get("retry-after"))));
+  }
+}
+
 export interface FetchProgress {
   /** Se llama al terminar cada página, con el número de página y el total acumulado. */
   onPage?: (page: number, accumulated: number) => void | Promise<void>;
@@ -69,7 +91,7 @@ export async function fetchOptionChain(
 
   while (url) {
     page += 1;
-    const res: Response = await fetch(url, {
+    const res: Response = await massiveFetch(url, {
       headers: { Authorization: `Bearer ${key}` },
       cache: "no-store",
     });
@@ -129,7 +151,7 @@ interface StockSnapshot {
 
 async function getJson<T>(path: string): Promise<T | null> {
   const key = apiKey();
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const res = await massiveFetch(`${BASE_URL}${path}`, {
     headers: { Authorization: `Bearer ${key}` },
     cache: "no-store",
   });
@@ -372,7 +394,7 @@ async function fetchAllV3<T>(firstPath: string, cap: number): Promise<T[]> {
   let page = 0;
   while (url) {
     page += 1;
-    const res: Response = await fetch(url, {
+    const res: Response = await massiveFetch(url, {
       headers: { Authorization: `Bearer ${key}` },
       cache: "no-store",
     });
