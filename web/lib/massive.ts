@@ -423,3 +423,22 @@ export async function fetchAsOfQuote(optionTicker: string, tsNs: number): Promis
   const arr = await fetchAllV3<MassiveQuote>(`/v3/quotes/${optionTicker}?${params.toString()}`, 1);
   return arr[0] ?? null;
 }
+
+/**
+ * Open interest + volumen del día de UN contrato (snapshot de un solo contrato).
+ * Lo usa el worker de /ideas: del firehose llega el trade pero no su OI/volumen,
+ * y estos alimentan el flag exceededOI y el volumeScore. `underlying` es el ticker
+ * (ej. "AAPL"); `optionTicker` es "O:AAPL260724C00315000" (con "O:", sin codificar).
+ */
+export async function fetchContractStats(
+  underlying: string,
+  optionTicker: string,
+): Promise<{ openInterest: number; volume: number }> {
+  const json = await getJson<{
+    results?: { open_interest?: number; day?: { volume?: number } };
+  }>(`/v3/snapshot/options/${encodeURIComponent(underlying)}/${optionTicker}`).catch(() => null);
+  return {
+    openInterest: json?.results?.open_interest ?? 0,
+    volume: json?.results?.day?.volume ?? 0,
+  };
+}

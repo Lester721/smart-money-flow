@@ -6,10 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "worker": "tsx worker/ideasWorker.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
+    "ioredis": "^5.4.2",
     "lightweight-charts": "^4.2.3",
     "next": "15.1.6",
     "react": "19.0.0",
@@ -19,6 +24,7 @@
     "@types/node": "22.10.7",
     "@types/react": "19.0.7",
     "@types/react-dom": "19.0.3",
+    "tsx": "^4.19.2",
     "typescript": "5.7.3",
     "vitest": "3.0.4"
   }

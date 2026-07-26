@@ -8,7 +8,7 @@
 // y nunca llega al servidor. Esta ruta devuelve los griegos; el cliente aplica sizeFlow.
 
 import { classifyFlow, type FlowRow } from "@/lib/flow";
-import { fetchMarketFlow, MarketSnackError } from "@/lib/marketsnack";
+import { loadMarketFlow, IdeasStoreError } from "@/lib/ideasStore";
 import { isTradeableIdea, passesQualityFilter } from "@/lib/risk";
 import { loadTrades, saveTrades } from "@/lib/store";
 import { fetchDailyBars } from "@/lib/massive";
@@ -19,8 +19,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Parámetros del escaneo (ajustables).
-const MIN_PREMIUM = 500_000; // piso server-side: solo dinero institucional
-const MAX_PAGES = 8;
+// El piso de premium lo aplica el WORKER (IDEAS_MIN_PREMIUM); aquí es solo informativo.
+const MIN_PREMIUM = 500_000; // piso institucional (debe coincidir con el del worker)
 const PERIOD = "1d"; // el sizing usa el precio del trade → cuanto más fresco, mejor
 const MAX_IDEAS = 60; // tope de filas devueltas
 const MAX_HISTORY_TICKERS = 25; // tope de llamadas a Massive por escaneo
@@ -60,19 +60,11 @@ export async function GET() {
       const send = (e: SseEvent) => controller.enqueue(encoder.encode(sse(e)));
 
       try {
-        send({ type: "step", label: "Escaneando el flujo de todo el mercado…" });
+        send({ type: "step", label: "Leyendo el flujo notable del mercado…" });
 
-        const { trades, pages, truncated } = await fetchMarketFlow({
-          period: PERIOD,
-          minPremium: MIN_PREMIUM,
-          maxPages: MAX_PAGES,
-          onPage: (page, accumulated) => {
-            send({
-              type: "step",
-              label: `Página ${page} — ${accumulated} operaciones grandes`,
-            });
-          },
-        });
+        // El worker (web/worker/ideasWorker.ts) mantiene el búfer en Redis en vivo;
+        // aquí solo lo leemos. Ya viene filtrado por premium y con agresor/griegas exactos.
+        const { trades, pages, truncated } = await loadMarketFlow();
 
         send({ type: "step", label: `Clasificando ${trades.length} operaciones…` });
         const { rows } = classifyFlow(trades, now);
@@ -178,7 +170,7 @@ export async function GET() {
         });
       } catch (err) {
         const message =
-          err instanceof MarketSnackError
+          err instanceof IdeasStoreError
             ? err.message
             : "Error inesperado al escanear el mercado.";
         send({ type: "error", message });

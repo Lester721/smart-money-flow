@@ -372,8 +372,9 @@ export default function IdeasPage() {
             <strong>No se pudo escanear.</strong>
             <p>{error}</p>
             <p className="muted">
-              Si menciona la sesión de MarketSnack, hay que refrescar
-              <code> MARKETSNACK_COOKIE</code> en <code>web/.env.local</code>.
+              Si menciona <code>REDIS_URL</code>, revisa que apunte al mismo Redis del
+              worker en <code>web/.env.local</code>. Si el búfer está vacío, el worker
+              (Railway) aún no ha visto flujo notable —espera a que corra el mercado.
             </p>
           </section>
         )}
