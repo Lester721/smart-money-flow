@@ -43,10 +43,20 @@ export default function ProWallsCard({
   useEffect(() => {
     let cancelled = false;
     setBars(null);
-    fetch(`/api/bars?ticker=${encodeURIComponent(ticker)}&tf=1y`)
-      .then((r) => r.json())
-      .then((d) => { if (!cancelled) setBars(Array.isArray(d.bars) ? d.bars.slice(-90) : []); })
-      .catch(() => { if (!cancelled) setBars([]); });
+    // Reintenta si las barras vuelven vacías (perdió la carrera del burst de ~13
+    // llamadas): Massive se recupera en ~1s, así el mini-gráfico no queda "Sin datos".
+    (async () => {
+      for (let i = 0; i < 3; i++) {
+        try {
+          const d = await fetch(`/api/bars?ticker=${encodeURIComponent(ticker)}&tf=1y`).then((r) => r.json());
+          if (cancelled) return;
+          if (Array.isArray(d.bars) && d.bars.length > 0) { setBars(d.bars.slice(-90)); return; }
+        } catch { /* reintenta */ }
+        if (cancelled) return;
+        await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+      }
+      if (!cancelled) setBars([]);
+    })();
     return () => { cancelled = true; };
   }, [ticker]);
 

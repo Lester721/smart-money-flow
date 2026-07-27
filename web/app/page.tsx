@@ -291,9 +291,20 @@ export default function Dashboard() {
         setChainRows(d.rows); setChainMeta(d.meta); setStructure(d.structure ?? null);
         setChainHistory(d.history ?? []);
         chainDoneRef.current = true; finish(); c.close();
-        fetch(`/api/history?ticker=${encodeURIComponent(d.meta.ticker)}`)
-          .then((r) => r.json()).then((h) => setBars(Array.isArray(h.bars) ? h.bars : []))
-          .catch(() => setBars([]));
+        // Barras para el GEX. Si vuelven vacías (una llamada perdió la carrera del
+        // burst), reintenta: Massive se recupera en ~1s, y así un tropiezo momentáneo
+        // no deja el GEX (muros/movimiento esperado) en cero.
+        (async () => {
+          const tk = d.meta.ticker;
+          for (let i = 0; i < 3; i++) {
+            try {
+              const h = await fetch(`/api/history?ticker=${encodeURIComponent(tk)}`).then((r) => r.json());
+              if (Array.isArray(h.bars) && h.bars.length > 0) { setBars(h.bars); return; }
+            } catch { /* reintenta */ }
+            await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+          }
+          setBars([]); // se rindió tras 3 intentos
+        })();
       } else if (d.type === "error") { setChainErr(d.message); chainDoneRef.current = true; finish(); c.close(); }
     };
     c.onerror = () => { chainDoneRef.current = true; finish(); c.close(); };
