@@ -280,7 +280,32 @@ export default function Dashboard() {
       .catch(() => {})
       .finally(() => setCalibReady(true));
 
-    // Stream 1 — Massive: empresa + option chain + estructura
+    // Stream 2 (DIFERIDO) — flow: agresividad + convicción + inusualidad + IV context.
+    // Es el fetch MÁS pesado (pagina todo el tape, ~15s) y saturaba la key compartida
+    // durante la ventana crítica, dejando sin barras al chain/GEX → tarjeta PRO en ceros.
+    // Ahora arranca DESPUÉS de que el chain y las barras del GEX carguen: el sentiment
+    // sale unos segundos más tarde, pero la tarjeta PRO y el precio salen primero y firmes.
+    const startFlow = () => {
+      const f = new EventSource(`/api/flow?ticker=${encodeURIComponent(tk)}`);
+      flowEs.current = f;
+      f.onmessage = (ev) => {
+        const d = JSON.parse(ev.data) as FlowEvent;
+        if (d.type === "step") addStep(d.label);
+        else if (d.type === "done") {
+          setNotable(d.rows); setAggScore(d.score);
+          setConviction(d.conviction ?? null);
+          setConvRows(d.convictionRows ?? null);
+          setConvMeta(d.convictionMeta ?? null);
+          setUnusuality(d.unusuality ?? null);
+          setUnusualRows(d.unusualRows ?? null);
+          setIvContext(d.ivContext ?? null);
+          setFlowMeta(d.meta); flowDoneRef.current = true; finish(); f.close();
+        } else if (d.type === "error") { setFlowErr(d.message); flowDoneRef.current = true; finish(); f.close(); }
+      };
+      f.onerror = () => { flowDoneRef.current = true; finish(); f.close(); };
+    };
+
+    // Stream 1 — Massive: empresa + option chain + estructura (PRIORIDAD, arranca ya).
     const c = new EventSource(`/api/chain?ticker=${encodeURIComponent(tk)}`);
     chainEs.current = c;
     c.onmessage = (ev) => {
@@ -291,42 +316,24 @@ export default function Dashboard() {
         setChainRows(d.rows); setChainMeta(d.meta); setStructure(d.structure ?? null);
         setChainHistory(d.history ?? []);
         chainDoneRef.current = true; finish(); c.close();
-        // Barras para el GEX. Si vuelven vacías (una llamada perdió la carrera del
-        // burst), reintenta: Massive se recupera en ~1s, y así un tropiezo momentáneo
-        // no deja el GEX (muros/movimiento esperado) en cero.
+        // Barras del GEX en ventana limpia (el flow pesado aún no arrancó). Reintenta si
+        // vuelven vacías; y AL TERMINAR, recién ahí arranca el flow.
         (async () => {
-          const tk = d.meta.ticker;
-          for (let i = 0; i < 3; i++) {
+          const tkm = d.meta.ticker;
+          let ok = false;
+          for (let i = 0; i < 3 && !ok; i++) {
             try {
-              const h = await fetch(`/api/history?ticker=${encodeURIComponent(tk)}`).then((r) => r.json());
-              if (Array.isArray(h.bars) && h.bars.length > 0) { setBars(h.bars); return; }
+              const h = await fetch(`/api/history?ticker=${encodeURIComponent(tkm)}`).then((r) => r.json());
+              if (Array.isArray(h.bars) && h.bars.length > 0) { setBars(h.bars); ok = true; }
             } catch { /* reintenta */ }
-            await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+            if (!ok) await new Promise((r) => setTimeout(r, 800 * (i + 1)));
           }
-          setBars([]); // se rindió tras 3 intentos
+          if (!ok) setBars([]);
+          startFlow(); // el flow arranca DESPUÉS de las barras → no acapara la ventana crítica
         })();
-      } else if (d.type === "error") { setChainErr(d.message); chainDoneRef.current = true; finish(); c.close(); }
+      } else if (d.type === "error") { setChainErr(d.message); chainDoneRef.current = true; finish(); c.close(); startFlow(); }
     };
-    c.onerror = () => { chainDoneRef.current = true; finish(); c.close(); };
-
-    // Stream 2 — MarketSnack: agresividad + convicción + inusualidad
-    const f = new EventSource(`/api/flow?ticker=${encodeURIComponent(tk)}`);
-    flowEs.current = f;
-    f.onmessage = (ev) => {
-      const d = JSON.parse(ev.data) as FlowEvent;
-      if (d.type === "step") addStep(d.label);
-      else if (d.type === "done") {
-        setNotable(d.rows); setAggScore(d.score);
-        setConviction(d.conviction ?? null);
-        setConvRows(d.convictionRows ?? null);
-        setConvMeta(d.convictionMeta ?? null);
-        setUnusuality(d.unusuality ?? null);
-        setUnusualRows(d.unusualRows ?? null);
-        setIvContext(d.ivContext ?? null);
-        setFlowMeta(d.meta); flowDoneRef.current = true; finish(); f.close();
-      } else if (d.type === "error") { setFlowErr(d.message); flowDoneRef.current = true; finish(); f.close(); }
-    };
-    f.onerror = () => { flowDoneRef.current = true; finish(); f.close(); };
+    c.onerror = () => { chainDoneRef.current = true; finish(); c.close(); startFlow(); };
   }
 
   const started = steps.length > 0 || company != null || aggScore != null;
@@ -444,7 +451,7 @@ export default function Dashboard() {
             )}
             {!levels && <NewsCard ticker={ticker} company={company} callPct={callPct} />}
 
-            {structure && <ProWallsCard ticker={ticker} structure={structure} gex={gex} horizonDays={horizonDays} levels={levels} />}
+            {structure && <ProWallsCard ticker={ticker} structure={structure} gex={gex} horizonDays={horizonDays} levels={levels} dailyBars={bars} />}
 
             {heatmap && heatmap.cells.length > 0 && <GexHeatmapCard h={heatmap} />}
 

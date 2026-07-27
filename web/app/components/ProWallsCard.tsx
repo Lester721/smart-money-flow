@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { StructureScore } from "@/lib/structure";
 import type { GexAnalysis } from "@/lib/gex";
-import type { TfBar } from "@/lib/types";
+import type { DailyBar, TfBar } from "@/lib/types";
 import type { LevelsReport } from "@/lib/levels";
 import { conePoints, expectedMove, levelProbabilities, predictionPath } from "@/lib/expectedMove";
 import PriceChart, { type ChartTarget } from "./chart/PriceChart";
@@ -31,34 +31,27 @@ export default function ProWallsCard({
   gex,
   horizonDays,
   levels: srLevels,
+  dailyBars,
 }: {
   ticker: string;
   structure: StructureScore;
   gex: GexAnalysis | null;
   horizonDays: number;
   levels?: LevelsReport | null;
+  dailyBars: DailyBar[] | null;
 }) {
-  const [bars, setBars] = useState<TfBar[] | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setBars(null);
-    // Reintenta si las barras vuelven vacías (perdió la carrera del burst de ~13
-    // llamadas): Massive se recupera en ~1s, así el mini-gráfico no queda "Sin datos".
-    (async () => {
-      for (let i = 0; i < 3; i++) {
-        try {
-          const d = await fetch(`/api/bars?ticker=${encodeURIComponent(ticker)}&tf=1y`).then((r) => r.json());
-          if (cancelled) return;
-          if (Array.isArray(d.bars) && d.bars.length > 0) { setBars(d.bars.slice(-90)); return; }
-        } catch { /* reintenta */ }
-        if (cancelled) return;
-        await new Promise((r) => setTimeout(r, 800 * (i + 1)));
-      }
-      if (!cancelled) setBars([]);
-    })();
-    return () => { cancelled = true; };
-  }, [ticker]);
+  // Reusa las barras que la página YA cargó (de /api/history) en vez de pedir otra vez
+  // /api/bars — una sola llamada de barras (no compite con el burst) y el gráfico usa las
+  // mismas velas que el GEX. `time` "YYYY-MM-DD" → segundos unix (lo que espera PriceChart).
+  const bars: TfBar[] | null = useMemo(() => {
+    if (dailyBars === null) return null;
+    return dailyBars
+      .map((b) => ({
+        time: Math.floor(Date.parse(`${b.time}T00:00:00Z`) / 1000),
+        open: b.open, high: b.high, low: b.low, close: b.close,
+      }))
+      .slice(-90);
+  }, [dailyBars]);
 
   const spot = gex?.spot ?? 0;
   const iv = gex?.iv ?? 0.4;
