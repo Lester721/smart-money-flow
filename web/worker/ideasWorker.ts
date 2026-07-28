@@ -78,9 +78,15 @@ const statsCache = new Map<string, { oi: number; vol: number; at: number }>();
 async function getBars(ticker: string): Promise<[number, number][]> {
   const c = barsCache.get(ticker);
   if (c && Date.now() - c.at < BARS_TTL) return c.bars;
-  const bars = await fetchBars(ticker, 1, "minute", 1).catch(() => []);
-  const arr = bars.map((b) => [b.time * 1000, b.close] as [number, number]);
-  barsCache.set(ticker, { bars: arr, at: Date.now() });
+  // Barras CRÍTICAS: sin spot, las griegas salen en 0. Reintenta si vuelven vacías (throttling)
+  // y NO cachees el vacío (si no, un tropiezo deja al ticker sin griegas por BARS_TTL entero).
+  let arr: [number, number][] = [];
+  for (let i = 0; i < 3 && arr.length === 0; i++) {
+    const bars = await fetchBars(ticker, 1, "minute", 1).catch(() => []);
+    arr = bars.map((b) => [b.time * 1000, b.close] as [number, number]);
+    if (arr.length === 0 && i < 2) await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+  }
+  if (arr.length > 0) barsCache.set(ticker, { bars: arr, at: Date.now() });
   return arr;
 }
 

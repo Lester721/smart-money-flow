@@ -9,7 +9,7 @@
 // El resultado es el mismo RawTrade[] que daba MarketSnack.
 
 import type { RawTrade } from "./flow";
-import type { RawContract } from "./types";
+import type { RawContract, TfBar } from "./types";
 import { tradeGreeks } from "./greeks";
 import { isMultiLegCondition, isCanceledCondition } from "./conditions";
 import { fetchOptionChain, fetchBars, fetchOptionTrades, fetchAsOfQuote } from "./massive";
@@ -272,6 +272,19 @@ function periodDays(period?: string): number {
 }
 
 /**
+ * Barras de minuto del subyacente con reintento si vuelven vacías. Son CRÍTICAS: sin ellas
+ * no hay spot y las griegas (delta/IV) del flujo salen en 0. Massive se recupera en ~1s.
+ */
+async function fetchUnderlyingBars(ticker: string, days: number): Promise<TfBar[]> {
+  for (let i = 0; i < 3; i++) {
+    const bars = await fetchBars(ticker, 1, "minute", days).catch(() => [] as TfBar[]);
+    if (bars.length > 0) return bars;
+    if (i < 2) await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+  }
+  return [];
+}
+
+/**
  * Time & Sales de un ticker desde Massive: selecciona contratos capaces, baja su tape,
  * filtra los trades notables (≥ minPremium), consigue el BBO as-of de cada uno, y arma el
  * RawTrade[] con agresor + griegas + condiciones OPRA. Mismo shape que MarketSnack.
@@ -287,7 +300,7 @@ export async function fetchFlow(ticker: string, opts: FetchFlowOptions = {}): Pr
   // 1. Cadena (para elegir contratos) + barras de minuto del subyacente (asset_price).
   const [{ contracts }, bars] = await Promise.all([
     fetchOptionChain(ticker),
-    fetchBars(ticker, 1, "minute", days),
+    fetchUnderlyingBars(ticker, days),
   ]);
   const underlyingBars: [number, number][] = bars.map((b) => [b.time * 1000, b.close]);
 
