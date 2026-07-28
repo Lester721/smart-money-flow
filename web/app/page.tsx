@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { AggressionScore, ConvictionScore, FlowRow } from "@/lib/flow";
+import { flowSummary } from "@/lib/flowSummary";
 import type { ChainEvent, ChainMeta, CompanyInfo, DailyBar, Row } from "@/lib/types";
 import type { StructureScore } from "@/lib/structure";
 import type { IvContextScore } from "@/lib/ivcontext";
@@ -27,6 +28,7 @@ import MoneyFlowCard from "./components/MoneyFlowCard";
 import NewsCard from "./components/NewsCard";
 import LevelsCard from "./components/LevelsCard";
 import ProWallsCard from "./components/ProWallsCard";
+import FlowSummaryCard from "./components/FlowSummaryCard";
 import GexHeatmapCard from "./components/GexHeatmapCard";
 import TradesFeed from "./components/TradesFeed";
 import CompanyHeader from "./components/CompanyHeader";
@@ -348,6 +350,12 @@ export default function Dashboard() {
     { name: "Confirmación de Precio", note: "¿El precio valida o absorbe?", score: validation?.score ?? null, weight: 15 },
   ];
 
+  // Resumen en lenguaje sencillo (determinístico) — va al tope del Pro.
+  const summary = useMemo(
+    () => (ticker ? flowSummary(ticker, notable, aggScore, conviction, structure) : null),
+    [ticker, notable, aggScore, conviction, structure],
+  );
+
   return (
     <>
       <HeaderBar ticker={ticker} company={company} busy={busy} onSearch={runSearch} />
@@ -431,6 +439,7 @@ export default function Dashboard() {
 
             {view === "pro" && (
               <>
+            {summary && <FlowSummaryCard summary={summary} />}
             <div className="grid-2">
               <SentimentCard ticker={ticker} parts={sentimentParts} />
               <PredictionCard ticker={ticker} prediction={prediction} horizonDays={horizonDays} onHorizon={setHorizonDays} topFlows={topFlows} />
