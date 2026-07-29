@@ -6,9 +6,9 @@ import type { FlowRow } from "@/lib/flow";
 import { money, px } from "../format";
 
 const KIND: Record<Scenario["kind"], { label: string; color: string; bg: string }> = {
-  bear: { label: "Bear case", color: "#d92d20", bg: "#fef3f2" },
-  base: { label: "Base case", color: "#101828", bg: "#f8f9fb" },
-  bull: { label: "Bull case", color: "#027a48", bg: "#f6fef9" },
+  bear: { label: "Bear case", color: "#f97066", bg: "#2e1512" },
+  base: { label: "Base case", color: "#98a2b3", bg: "#1b2233" },
+  bull: { label: "Bull case", color: "#32d583", bg: "#0f2a20" },
 };
 
 function ScenarioBox({ s }: { s: Scenario }) {
