@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import type { TfBar } from "@/lib/types";
+import { useMemo } from "react";
+import type { TfBar, DailyBar } from "@/lib/types";
 import type { LevelsReport } from "@/lib/levels";
 import { conePoints, predictionPath } from "@/lib/expectedMove";
 import PriceChart, { type ChartSeries, type ChartTarget } from "./chart/PriceChart";
@@ -53,6 +53,7 @@ export default function SimpleChart({
   horizonDays,
   scenarios,
   levels,
+  dailyBars,
 }: {
   ticker: string;
   spot: number;
@@ -60,18 +61,19 @@ export default function SimpleChart({
   horizonDays: number;
   scenarios: Scenarios | null;
   levels: LevelsReport | null;
+  /** Barras diarias que la página ya cargó de /api/history (ventana limpia con
+   *  reintentos). Se REUSAN en vez de pedir /api/bars por separado: esa llamada
+   *  competía con la ráfaga del análisis, la frenaban (429) y el gráfico quedaba vacío. */
+  dailyBars: DailyBar[] | null;
 }) {
-  const [bars, setBars] = useState<TfBar[] | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setBars(null);
-    fetch(`/api/bars?ticker=${encodeURIComponent(ticker)}&tf=1y`)
-      .then((r) => r.json())
-      .then((d) => { if (!cancelled) setBars(Array.isArray(d.bars) ? d.bars.slice(-70) : []); })
-      .catch(() => { if (!cancelled) setBars([]); });
-    return () => { cancelled = true; };
-  }, [ticker]);
+  // DailyBar (time: "YYYY-MM-DD") → TfBar (time: unix segundos) que espera PriceChart.
+  const bars = useMemo<TfBar[] | null>(() => {
+    if (dailyBars === null) return null;
+    return dailyBars.slice(-70).map((d) => ({
+      time: Math.floor(Date.parse(`${d.time}T00:00:00Z`) / 1000),
+      open: d.open, high: d.high, low: d.low, close: d.close,
+    }));
+  }, [dailyBars]);
 
   const cone = useMemo(
     () => (spot > 0 ? conePoints(spot, iv, horizonDays, 24) : []),
@@ -131,7 +133,7 @@ export default function SimpleChart({
             series={series}
             targets={targets}
             levels={nearLevels}
-            theme="light"
+            theme="dark"
             height="100%"
             animate
           />

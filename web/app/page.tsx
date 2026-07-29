@@ -418,6 +418,7 @@ export default function Dashboard() {
                     horizonDays={horizonDays}
                     scenarios={prediction ? { bear: prediction.bear.target, base: prediction.base.target, bull: prediction.bull.target } : null}
                     levels={levels}
+                    dailyBars={bars}
                   />
                 </div>
 
