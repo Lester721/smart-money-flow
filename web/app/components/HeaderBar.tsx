@@ -5,7 +5,7 @@ import type { CompanyInfo } from "@/lib/types";
 import { pct, px } from "../format";
 import NavTabs from "./NavTabs";
 
-const QUICK = ["TSLA", "NVDA", "SPY", "AAPL"];
+const QUICK = ["HOOD", "TSLA", "NVDA", "QQQ"];
 
 export default function HeaderBar({
   ticker,
@@ -31,7 +31,7 @@ export default function HeaderBar({
     <div className="hb">
       <div className="hb-brand">
         <div className="hb-logo">E</div>
-        <div className="hb-name">Eva</div>
+        <div className="hb-name">EVA</div>
         <div className="hb-chip">AI Options Agent</div>
       </div>
       <NavTabs />

@@ -102,7 +102,7 @@ export const BROKERS: BrokerAdapter[] = [
   },
   {
     id: "none",
-    name: "Solo en Eva",
+    name: "Solo en EVA",
     kind: "none",
     granularity: "none",
   },

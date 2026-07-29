@@ -11,6 +11,7 @@ const TABS = [
   { href: "/ideas", label: "Ideas", icon: "💡" },
   { href: "/wheel", label: "Wheel", icon: "🎡" },
   { href: "/flow", label: "Time & Sales", icon: "⚡" },
+  { href: "/0dte", label: "0DTE", icon: "🎯" },
 ];
 
 export default function NavTabs({ standalone = false }: { standalone?: boolean }) {

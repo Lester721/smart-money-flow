@@ -8,7 +8,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Eva — Options AI",
+  title: "EVA — Options AI",
   description: "AI Options Agent — scorecard, flujo y predicción.",
 };
 

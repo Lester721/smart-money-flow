@@ -66,7 +66,7 @@ export default function WheelPage() {
       <div className="hb">
         <div className="hb-brand">
           <div className="hb-logo">E</div>
-          <div className="hb-name">Eva</div>
+          <div className="hb-name">EVA</div>
           <div className="hb-chip">Wheel · ingreso con puts</div>
         </div>
         <NavTabs />
