@@ -441,7 +441,7 @@ export default function Dashboard() {
               <>
             {summary && <FlowSummaryCard summary={summary} />}
             <div className="grid-2">
-              <SentimentCard ticker={ticker} parts={sentimentParts} />
+              <SentimentCard ticker={ticker} parts={sentimentParts} lean={summary?.lean ?? null} dirScore={summary?.dirScore ?? null} />
               <PredictionCard ticker={ticker} prediction={prediction} horizonDays={horizonDays} onHorizon={setHorizonDays} topFlows={topFlows} />
             </div>
 

@@ -30,6 +30,7 @@ describe("flowSummary", () => {
     const rows = [mk("put", "ask", 4e6), mk("put", "ask", 5e6)];
     const s = flowSummary("TSLA", rows, agg(0.85), conv(9), null)!;
     expect(s.lean).toBe("bajista");
+    expect(s.dirScore).toBeLessThan(50); // marcador al lado bajista
     expect(s.text).toContain("BAJISTA");
     expect(s.text).toContain("puts");
     expect(s.text).toContain("pesado"); // $9M ≥ $5M

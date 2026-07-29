@@ -15,6 +15,8 @@ export type Lean = "alcista" | "bajista" | "mixto";
 
 export interface FlowSummary {
   lean: Lean;
+  /** Posición direccional 0-100 (0 = todo bajista, 50 = neutral, 100 = todo alcista). */
+  dirScore: number;
   headline: string;
   text: string;
   warning: string | null;
@@ -98,5 +100,5 @@ export function flowSummary(
     ? "Cadena de baja liquidez — la señal es poco fiable; no operar sobre ella."
     : null;
 
-  return { lean, headline, text, warning };
+  return { lean, dirScore: Math.round(bullPct * 100), headline, text, warning };
 }
