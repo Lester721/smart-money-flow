@@ -1,0 +1,13 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="evaG" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2f6bff"/>
+      <stop offset="1" stop-color="#12b76a"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#evaG)"/>
+  <ellipse cx="16" cy="15.5" rx="7" ry="8.4" fill="#ffffff"/>
+  <rect x="9" y="10.8" width="14" height="6.6" rx="3.3" fill="#0b1220"/>
+  <ellipse cx="13.3" cy="14.1" rx="1.05" ry="1.75" fill="#37c8ff" transform="rotate(20 13.3 14.1)"/>
+  <ellipse cx="18.7" cy="14.1" rx="1.05" ry="1.75" fill="#37c8ff" transform="rotate(-20 18.7 14.1)"/>
+</svg>

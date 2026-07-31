@@ -5,6 +5,7 @@ import RiskProfileCard, { DEFAULT_PROFILE, loadProfile } from "@/app/components/
 import WheelPresetCard from "@/app/components/WheelPresetCard";
 import WheelTable from "@/app/components/WheelTable";
 import NavTabs from "@/app/components/NavTabs";
+import EvaLogo from "@/app/components/EvaLogo";
 import { sortByAffordThenScore } from "@/lib/wheelAfford";
 import type { PresetId, WheelCandidate } from "@/lib/wheel";
 import type { RiskProfile } from "@/lib/risk";
@@ -65,7 +66,7 @@ export default function WheelPage() {
     <main className="ideas-page">
       <div className="hb">
         <div className="hb-brand">
-          <div className="hb-logo">E</div>
+          <div className="hb-logo"><EvaLogo /></div>
           <div className="hb-name">EVA</div>
           <div className="hb-chip">Wheel · ingreso con puts</div>
         </div>

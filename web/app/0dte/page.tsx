@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import NavTabs from "../components/NavTabs";
+import EvaLogo from "../components/EvaLogo";
 
 export const metadata: Metadata = {
   title: "0DTE — EVA",
@@ -12,7 +13,7 @@ export default function ZeroDtePage() {
     <main className="ideas-page">
       <div className="hb">
         <div className="hb-brand">
-          <div className="hb-logo">E</div>
+          <div className="hb-logo"><EvaLogo /></div>
           <div className="hb-name">EVA</div>
           <div className="hb-chip">0DTE · expiran hoy</div>
         </div>

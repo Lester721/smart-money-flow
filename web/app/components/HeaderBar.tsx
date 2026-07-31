@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { CompanyInfo } from "@/lib/types";
 import { pct, px } from "../format";
 import NavTabs from "./NavTabs";
+import EvaLogo from "./EvaLogo";
 
 const QUICK = ["HOOD", "TSLA", "NVDA", "QQQ"];
 
@@ -30,7 +31,7 @@ export default function HeaderBar({
   return (
     <div className="hb">
       <div className="hb-brand">
-        <div className="hb-logo">E</div>
+        <div className="hb-logo"><EvaLogo /></div>
         <div className="hb-name">EVA</div>
         <div className="hb-chip">AI Options Agent</div>
       </div>

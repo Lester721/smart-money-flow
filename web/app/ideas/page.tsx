@@ -7,6 +7,7 @@ import RiskProfileCard, { DEFAULT_PROFILE, loadProfile } from "@/app/components/
 import IdeasTable, { type SizedIdea } from "@/app/components/IdeasTable";
 import WatchlistCard from "@/app/components/WatchlistCard";
 import NavTabs from "@/app/components/NavTabs";
+import EvaLogo from "@/app/components/EvaLogo";
 import {
   brokerById,
   buildEntry,
@@ -309,7 +310,7 @@ export default function IdeasPage() {
     <main className="ideas-page">
       <div className="hb">
         <div className="hb-brand">
-          <div className="hb-logo">E</div>
+          <div className="hb-logo"><EvaLogo /></div>
           <div className="hb-name">EVA</div>
           <div className="hb-chip">Ideas del mercado</div>
         </div>
