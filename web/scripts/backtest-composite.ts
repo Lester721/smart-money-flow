@@ -33,7 +33,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 interface DBar { time: string; close: number }
 const barMs = (b: DBar) => Date.parse(`${b.time}T20:00:00Z`);
 
-interface Row { pnl: number; aggr: number; conv: number; unus: number; ivp: number; composite: number }
+interface Row { pnl: number; aggr: number; conv: number; unus: number; ivp: number }
 
 function barIdxAt(bars: DBar[], ms: number): number {
   let idx = -1;
@@ -95,9 +95,7 @@ function scoreRow(r: FlowRow, bars: DBar[]): Row | null {
   const conv = spreadScore(spreadPct(r.bid, r.ask));
   const unus = unusualTradeScore(r).total;
   const ivp = ivProxyScore(ivEntry, realizedVol(bars, entryIdx));
-  // Compuesto ponderado por los pesos del scorecard (Agr 20, Conv 20, Inus 20, IV 10) → /7.
-  const composite = (2 * aggr + 2 * conv + 2 * unus + 1 * ivp) / 7;
-  return { pnl, aggr, conv, unus, ivp, composite };
+  return { pnl, aggr, conv, unus, ivp };
 }
 
 async function forTicker(ticker: string): Promise<Row[]> {
@@ -147,10 +145,26 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     await sleep(2500);
   }
 
-  // Tiers del compuesto
-  const alto = all.filter((r) => r.composite >= 7);
-  const medio = all.filter((r) => r.composite >= 5 && r.composite < 7);
-  const bajo = all.filter((r) => r.composite < 5);
+  // Barrido de PESOS alternativos sobre el compuesto de 4 componentes [aggr, conv, unus, ivp].
+  const composite = (r: Row, w: number[]) => {
+    const s = w[0] + w[1] + w[2] + w[3];
+    return (w[0] * r.aggr + w[1] * r.conv + w[2] * r.unus + w[3] * r.ivp) / s;
+  };
+  const WEIGHT_SETS: { name: string; w: number[] }[] = [
+    { name: "Victor 20/20/20/10", w: [2, 2, 2, 1] },
+    { name: "Igual 1/1/1/1", w: [1, 1, 1, 1] },
+    { name: "IV-heavy (baja Inus)", w: [2, 2, 1, 4] },
+    { name: "Costo/riesgo (Conv+IV)", w: [1, 3, 1, 3] },
+    { name: "Sin Inusualidad", w: [2, 2, 0, 2] },
+    { name: "Solo Contexto IV", w: [0, 0, 0, 1] },
+    { name: "Solo Convicción", w: [0, 1, 0, 0] },
+  ];
+  const sweepLines = WEIGHT_SETS.map(({ name, w }) => {
+    const hi = stat(all.filter((r) => composite(r, w) >= 7));
+    const lo = stat(all.filter((r) => composite(r, w) < 5));
+    const sep = hi.mean != null && lo.mean != null ? (hi.mean - lo.mean).toFixed(1) : "—";
+    return `- **${name}** — alto≥7: ${fmt(hi)} · bajo<5: ${fmt(lo)} · separación: ${sep} pts`;
+  });
   // Cada componente solo (alto ≥7 vs bajo <7) para ver cuál manda
   const comp = (key: keyof Row) => ({
     hi: stat(all.filter((r) => (r[key] as number) >= 7)),
@@ -165,12 +179,10 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     "",
     `**Muestra:** ${TICKERS.join(", ")} · ${DAYS}d · prima ≥ $${(MIN_PREMIUM / 1e6).toFixed(1)}M · **${all.length} flujos resueltos**.`,
     "",
-    "## Score compuesto por tier (la pregunta central)",
-    `- **Compuesto ALTO (≥7)**: ${fmt(stat(alto))}`,
-    `- Compuesto medio (5-7): ${fmt(stat(medio))}`,
-    `- Compuesto bajo (<5): ${fmt(stat(bajo))}`,
+    "## Pesos alternativos: ¿qué ponderación separa mejor? (alto ≥7 vs bajo <5)",
+    ...sweepLines,
     "",
-    "**Si el P&L sube monótono con el tier, el scorecard COMBINADO tiene poder — más que cualquier señal sola.**",
+    "**Separación = media(alto) − media(bajo). Más alta = esa ponderación distingue mejor ganadores de perdedores. Compara 'Victor' contra las demás para ver si sus pesos son óptimos.**",
     "",
     "## Cada componente por separado (¿cuál manda?)",
     `- Agresividad — alta: ${fmt(A.hi)} | baja: ${fmt(A.lo)}`,
