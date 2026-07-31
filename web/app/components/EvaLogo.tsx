@@ -3,7 +3,7 @@
  * ojos cyan inclinados. Diseño original inspirado en esa estética (no es arte del
  * personaje). Va SIN fondo: se coloca dentro de `.hb-logo`, que aporta el degradado.
  */
-export default function EvaLogo({ size = "100%" }: { size?: number | string }) {
+export default function EvaLogo({ size = "72%" }: { size?: number | string }) {
   return (
     <svg
       viewBox="0 0 32 32"
