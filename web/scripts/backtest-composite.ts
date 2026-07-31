@@ -150,8 +150,11 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     const s = w[0] + w[1] + w[2] + w[3];
     return (w[0] * r.aggr + w[1] * r.conv + w[2] * r.unus + w[3] * r.ivp) / s;
   };
+  // OJO: solo son 4 de las 6 categorías de Victor (faltan Estructura 15 y Confirmación 15,
+  // no medibles hacia atrás). "Ratio Victor" = su proporción 20:20:20:10 SOLO entre estos 4,
+  // renormalizada — NO es su ponderación real de 6 categorías. Esa se valida en el forward-test.
   const WEIGHT_SETS: { name: string; w: number[] }[] = [
-    { name: "Victor 20/20/20/10", w: [2, 2, 2, 1] },
+    { name: "Ratio Victor entre los 4 (20:20:20:10)", w: [2, 2, 2, 1] },
     { name: "Igual 1/1/1/1", w: [1, 1, 1, 1] },
     { name: "IV-heavy (baja Inus)", w: [2, 2, 1, 4] },
     { name: "Costo/riesgo (Conv+IV)", w: [1, 3, 1, 3] },
@@ -182,7 +185,7 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     "## Pesos alternativos: ¿qué ponderación separa mejor? (alto ≥7 vs bajo <5)",
     ...sweepLines,
     "",
-    "**Separación = media(alto) − media(bajo). Más alta = esa ponderación distingue mejor ganadores de perdedores. Compara 'Victor' contra las demás para ver si sus pesos son óptimos.**",
+    "**Separación = media(alto) − media(bajo). Más alta = esa ponderación distingue mejor ganadores de perdedores. NOTA: solo son 4 de las 6 categorías de Victor (faltan Estructura e Confirmación); el 'ratio Victor' es su proporción entre estos 4, no su ponderación real de 6.**",
     "",
     "## Cada componente por separado (¿cuál manda?)",
     `- Agresividad — alta: ${fmt(A.hi)} | baja: ${fmt(A.lo)}`,
