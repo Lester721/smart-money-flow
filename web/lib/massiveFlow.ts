@@ -198,12 +198,19 @@ export interface SelectedContract {
   isCall: boolean;
   openInterest: number;
   volume: number;
+  /** Dólar-volumen del día = volume×close×100. Es el criterio de ranking (ver abajo). */
+  dollarVolume: number;
 }
 
 /**
  * Elige los contratos que vale la pena escanear: activos (volumen>0) y CAPACES de contener
- * un trade ≥ minPremium (volumen×precio×100). Ordena por volumen y limita a `cap` para acotar
- * las llamadas. Puro y testeable.
+ * un trade ≥ minPremium (volumen×precio×100). Ordena por **dólar-volumen** (no por número de
+ * contratos) y limita a `cap` para acotar las llamadas. Puro y testeable.
+ *
+ * Por qué dólar-volumen y no share-volume: rankear por número de contratos sesga hacia lotos
+ * baratos de 0DTE (mucho volumen, poco dinero) y ENTIERRA los contratos caros/ITM donde las
+ * instituciones ponen $1M+ con pocos contratos. En acciones caras con mucho 0DTE (TSLA) eso
+ * dejaba el top-`cap` sin un solo trade notable → 0 flujos. Dólar-volumen los rescata.
  */
 export function selectContracts(
   contracts: RawContract[],
@@ -219,8 +226,9 @@ export function selectContracts(
     const volume = c.day?.volume ?? 0;
     const close = c.day?.close ?? c.last_trade?.price ?? 0;
     if (!ticker || !strike || !expiration || !ct || volume <= 0) continue;
+    const dollarVolume = volume * close * 100;
     // ¿podría un solo trade de este contrato llegar a minPremium?
-    if (minPremium > 0 && volume * close * 100 < minPremium) continue;
+    if (minPremium > 0 && dollarVolume < minPremium) continue;
     out.push({
       ticker,
       strike,
@@ -228,9 +236,10 @@ export function selectContracts(
       isCall: ct === "call",
       openInterest: c.open_interest ?? 0,
       volume,
+      dollarVolume,
     });
   }
-  out.sort((a, b) => b.volume - a.volume);
+  out.sort((a, b) => b.dollarVolume - a.dollarVolume);
   return cap > 0 ? out.slice(0, cap) : out;
 }
 

@@ -144,7 +144,18 @@ describe("selectContracts", () => {
   it("ordena por volumen y respeta el cap", () => {
     const contracts = [mk("O:A", 100, 50), mk("O:B", 300, 50), mk("O:C", 200, 50)];
     const sel = selectContracts(contracts, 0, 2);
-    expect(sel.map((s) => s.ticker)).toEqual(["O:B", "O:C"]); // top-2 por volumen
+    expect(sel.map((s) => s.ticker)).toEqual(["O:B", "O:C"]); // top-2 por dólar-volumen (close igual)
+  });
+
+  it("rankea por dólar-volumen, no por número de contratos (bug TSLA)", () => {
+    // El loto barato tiene 3× el volumen pero el contrato caro mueve más dinero.
+    const contracts = [
+      mk("O:CHEAP", 3000, 2), // 3000×2×100 = $600k
+      mk("O:RICH", 300, 50), //   300×50×100 = $1.5M
+    ];
+    const sel = selectContracts(contracts, 0, 1);
+    expect(sel.map((s) => s.ticker)).toEqual(["O:RICH"]);
+    expect(sel[0].dollarVolume).toBe(1_500_000);
   });
 
   it("mapea call/put y campos", () => {
