@@ -54,7 +54,9 @@ Este medidor te dice **dos cosas separadas**:
 | DIRECCIÓN (etiqueta + marcador) | Hacia dónde apuesta el flujo: Bearish (bajista) · Neutral · Bullish (alcista). |
 | FUERZA (0-100) | Qué tan fuerte es la señal (promedio de los 6 sub-agentes). Alta ≥60, media 45-59, baja <45. |
 
-`Bearish (bajista) ———|——— Neutral ———|——— Bullish (alcista)`  — el marcador se mueve por la DIRECCIÓN del flujo.
+![El medidor: la barra va de Bearish a Bullish y el marcador señala la DIRECCIÓN del flujo; la fuerza (0-100) es un dato aparte.](img/sentiment.png)
+
+_El medidor: la barra va de Bearish a Bullish y el marcador señala la DIRECCIÓN del flujo; la fuerza (0-100) es un dato aparte._
 
 **Importante:** una señal puede ser **fuerte pero bajista** (mucho dinero comprando puts agresivo). Por eso Eva separa dirección de fuerza — no confundas 'fuerte' con 'alcista'.
 
@@ -72,6 +74,21 @@ El sentiment sale del promedio de estos 6. Cada uno mira una cosa distinta:
 | Contexto IV | ¿La volatilidad implícita está limpia o inflada? Evita pagar prima cara. | 10% |
 | Confirmación de Precio | ¿El precio VALIDÓ flujos pasados o los absorbió? (el backtest, ver §9). | 15% |
 
+![Cada sub-agente puntúa 0-10; el AI Sentiment Score es su promedio ponderado por los pesos.](img/subagentes.png)
+
+_Cada sub-agente puntúa 0-10; el AI Sentiment Score es su promedio ponderado por los pesos._
+
+
+### El scorecard puesto a prueba (bitácora — se actualiza)
+
+No basta con saber qué mira cada sub-agente: hay que medir cuáles de verdad dan ventaja. Aquí anoto cada avance de backtest, con números reales, para irte enseñando el score. (n = tamaño de la muestra: cuántos casos entraron en la prueba; mientras más grande, más confiable el %.)
+
+| Fecha | Qué se probó | Resultado |
+|---|---|---|
+| 2026-07-31 | Comprar el contrato del flujo (**calls y puts**, en largo; sostener 10 sesiones) filtrando por la señal **Inusualidad** — que ya junta 6 sub-señales: **tamaño + delta + theta + gamma + patas + vencimiento** — y cruzándola con el **Agresor** (compra al ask). | **55% de win** con Inusualidad alta (vs 39% baja). El cruce con el agresor apuntó igual, con muestra chica. Preliminar: **n = 29 casos**, 3 tickers; falta re-correr limpio. |
+
+_Resultados preliminares de backtest, NO promesas ni consejo. El fin es didáctico: aprender, con evidencia, qué señales separan ganadores de perdedores. Un número prometedor con muestra chica puede evaporarse con más datos._
+
 
 ## 7. Muros de strikes (GEX) y movimiento esperado
 
@@ -83,6 +100,10 @@ En la tarjeta PRO 'Strike Walls' ves:
 | Muro de puts (morado) | Strike con mucho dinero en puts abajo del precio = suele actuar de SOPORTE. |
 | Nivel imán | El nivel de mayor peso: hacia donde el precio tiende a gravitar. |
 | Cono de movimiento esperado | El rango estadístico (±1σ ≈ 68%, ±2σ ≈ 95%) según IV y tiempo. |
+
+![Oro = muros de calls (resistencia) arriba del precio; morado = muros de puts (soporte) abajo; la franja es el cono ±1σ.](img/walls.png)
+
+_Oro = muros de calls (resistencia) arriba del precio; morado = muros de puts (soporte) abajo; la franja es el cono ±1σ._
 
 
 ## 8. Reglas de liquidez (aviso clave)
@@ -104,17 +125,6 @@ Sí, Eva aprende — y aquí está exactamente cómo, dónde y en qué acciones:
 **En cuáles acciones corre:** al cargar cualquier ticker (rutas de validación y predicción) y en el radar de Ideas. **Mientras más uses Eva en un ticker, más historial acumula y más confiable se vuelve su lectura de '¿este patrón ha funcionado antes?'.**
 
 > 💡 Esto es la base de la CONFIANZA: no 'creemos' que la señal funciona — Eva lo mide contra lo que el precio realmente hizo. (Próximo paso pendiente: un 'chequeo de confianza' que mida el backtest de los 6 sub-agentes uno por uno.)
-
-
-## 9B. Bitácora de pruebas de confianza (se actualiza)
-
-Cada vez que un backtest muestra un avance positivo, lo anoto aquí — con números reales — para irte enseñando qué sub-agentes de verdad funcionan y cómo se combinan.
-
-| Fecha | Qué se probó | Resultado |
-|---|---|---|
-| 2026-07-31 | Comprar el contrato del flujo (calls y puts, en largo; sostener 10 sesiones) filtrando por la señal **Inusualidad** — que ya junta 6 sub-señales: **tamaño + delta + theta + gamma + patas + vencimiento** — y cruzándola con el **Agresor** (compra al ask). | **55% de win** en la banda de Inusualidad alta (vs 39% en la baja). El cruce con el agresor apuntó igual, pero con muestra muy chica. Preliminar: n=29, 3 tickers; falta re-correr limpio. |
-
-_Resultados preliminares de backtest, NO promesas ni consejo. El fin de esta bitácora es didáctico: aprender, con evidencia, qué señales separan ganadores de perdedores. Un número prometedor con muestra chica puede evaporarse con más datos._
 
 
 ## 10. Ejemplos de estrategia (educativo, NO consejo)
@@ -164,3 +174,4 @@ _Eva y yo no somos asesores financieros. Damos contexto y análisis; las decisio
 | Multileg | Una operación de varias patas a la vez (spread) — más difícil de leer que una sola pata. |
 | LEAP | Opción de vencimiento largo (~1 año o más). |
 | Hit rate | % de veces que el precio validó el flujo históricamente (el backtest de Eva). |
+| n (tamaño de muestra) | Cuántos casos entraron en una prueba. Un % sobre n grande es más confiable que sobre n chico. |

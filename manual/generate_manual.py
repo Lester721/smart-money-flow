@@ -6,7 +6,8 @@ from reportlab.lib.units import mm
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
-                                PageBreak, HRFlowable)
+                                PageBreak, HRFlowable, Image)
+from reportlab.lib.utils import ImageReader
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -73,7 +74,7 @@ C = [
    ["DIRECCIÓN (etiqueta + marcador)", "Hacia dónde apuesta el flujo: Bearish (bajista) · Neutral · Bullish (alcista)."],
    ["FUERZA (0-100)", "Qué tan fuerte es la señal (promedio de los 6 sub-agentes). Alta ≥60, media 45-59, baja <45."],
  ]),
- ("band",),
+ ("image", "sentiment.png", "El medidor: la barra va de Bearish a Bullish y el marcador señala la DIRECCIÓN del flujo; la fuerza (0-100) es un dato aparte."),
  ("p", "**Importante:** una señal puede ser **fuerte pero bajista** (mucho dinero comprando puts agresivo). Por eso Eva separa dirección de fuerza — no confundas 'fuerte' con 'alcista'."),
 
  ("h1", "6. Los 6 sub-agentes (el corazón de Eva)"),
@@ -86,6 +87,14 @@ C = [
    ["Contexto IV", "¿La volatilidad implícita está limpia o inflada? Evita pagar prima cara.", "10%"],
    ["Confirmación de Precio", "¿El precio VALIDÓ flujos pasados o los absorbió? (el backtest, ver §9).", "15%"],
  ]),
+ ("image", "subagentes.png", "Cada sub-agente puntúa 0-10; el AI Sentiment Score es su promedio ponderado por los pesos."),
+
+ ("h2", "El scorecard puesto a prueba (bitácora — se actualiza)"),
+ ("p", "No basta con saber qué mira cada sub-agente: hay que medir cuáles de verdad dan ventaja. Aquí anoto cada avance de backtest, con números reales, para irte enseñando el score. (n = tamaño de la muestra: cuántos casos entraron en la prueba; mientras más grande, más confiable el %.)"),
+ ("table", ["Fecha", "Qué se probó", "Resultado"], [
+   ["2026-07-31", "Comprar el contrato del flujo (**calls y puts**, en largo; sostener 10 sesiones) filtrando por la señal **Inusualidad** — que ya junta 6 sub-señales: **tamaño + delta + theta + gamma + patas + vencimiento** — y cruzándola con el **Agresor** (compra al ask).", "**55% de win** con Inusualidad alta (vs 39% baja). El cruce con el agresor apuntó igual, con muestra chica. Preliminar: **n = 29 casos**, 3 tickers; falta re-correr limpio."],
+ ]),
+ ("disclaimer", "Resultados preliminares de backtest, NO promesas ni consejo. El fin es didáctico: aprender, con evidencia, qué señales separan ganadores de perdedores. Un número prometedor con muestra chica puede evaporarse con más datos."),
 
  ("h1", "7. Muros de strikes (GEX) y movimiento esperado"),
  ("p", "En la tarjeta PRO 'Strike Walls' ves:"),
@@ -95,6 +104,7 @@ C = [
    ["Nivel imán", "El nivel de mayor peso: hacia donde el precio tiende a gravitar."],
    ["Cono de movimiento esperado", "El rango estadístico (±1σ ≈ 68%, ±2σ ≈ 95%) según IV y tiempo."],
  ]),
+ ("image", "walls.png", "Oro = muros de calls (resistencia) arriba del precio; morado = muros de puts (soporte) abajo; la franja es el cono ±1σ."),
 
  ("h1", "8. Reglas de liquidez (aviso clave)"),
  ("callout", "warn", "Si la cadena de opciones es POCO LÍQUIDA (bajo volumen/OI, spreads anchos), Eva marca la señal como 'datos poco fiables' y recomienda NO operarla. SIEMPRE lee este aviso primero — una señal sobre datos malos no vale nada."),
@@ -109,13 +119,6 @@ C = [
  ]),
  ("p", "**En cuáles acciones corre:** al cargar cualquier ticker (rutas de validación y predicción) y en el radar de Ideas. **Mientras más uses Eva en un ticker, más historial acumula y más confiable se vuelve su lectura de '¿este patrón ha funcionado antes?'.**"),
  ("callout", "info", "Esto es la base de la CONFIANZA: no 'creemos' que la señal funciona — Eva lo mide contra lo que el precio realmente hizo. (Próximo paso pendiente: un 'chequeo de confianza' que mida el backtest de los 6 sub-agentes uno por uno.)"),
-
- ("h1", "9B. Bitácora de pruebas de confianza (se actualiza)"),
- ("p", "Cada vez que un backtest muestra un avance positivo, lo anoto aquí — con números reales — para irte enseñando qué sub-agentes de verdad funcionan y cómo se combinan."),
- ("table", ["Fecha", "Qué se probó", "Resultado"], [
-   ["2026-07-31", "Comprar el contrato del flujo (calls y puts, en largo; sostener 10 sesiones) filtrando por la señal **Inusualidad** — que ya junta 6 sub-señales: **tamaño + delta + theta + gamma + patas + vencimiento** — y cruzándola con el **Agresor** (compra al ask).", "**55% de win** en la banda de Inusualidad alta (vs 39% en la baja). El cruce con el agresor apuntó igual, pero con muestra muy chica. Preliminar: n=29, 3 tickers; falta re-correr limpio."],
- ]),
- ("disclaimer", "Resultados preliminares de backtest, NO promesas ni consejo. El fin de esta bitácora es didáctico: aprender, con evidencia, qué señales separan ganadores de perdedores. Un número prometedor con muestra chica puede evaporarse con más datos."),
 
  ("h1", "10. Ejemplos de estrategia (educativo, NO consejo)"),
  ("p", "Cómo la información de Eva **suele mapearse** a estrategias comunes de opciones. Son ejemplos educativos, no recomendaciones:"),
@@ -155,6 +158,7 @@ C = [
    ["Multileg", "Una operación de varias patas a la vez (spread) — más difícil de leer que una sola pata."],
    ["LEAP", "Opción de vencimiento largo (~1 año o más)."],
    ["Hit rate", "% de veces que el precio validó el flujo históricamente (el backtest de Eva)."],
+   ["n (tamaño de muestra)", "Cuántos casos entraron en una prueba. Un % sobre n grande es más confiable que sobre n chico."],
  ]),
 ]
 
@@ -171,7 +175,9 @@ def build_pdf(path):
                             leftMargin=18*mm, rightMargin=18*mm, title="Manual de Eva")
     ss = getSampleStyleSheet()
     h1 = ParagraphStyle("h1", parent=ss["Heading1"], textColor=TEALD, fontName=BASEBOLD, fontSize=15, spaceBefore=14, spaceAfter=6, leading=18)
+    h2 = ParagraphStyle("h2", parent=ss["Heading2"], textColor=TEALD, fontName=BASEBOLD, fontSize=11.5, spaceBefore=10, spaceAfter=4, leading=15)
     body = ParagraphStyle("body", parent=ss["Normal"], textColor=INK, fontName=BASEFONT, fontSize=10.2, leading=15, spaceAfter=5)
+    cap = ParagraphStyle("cap", parent=ss["Normal"], textColor=MUTED, fontName=BASEFONT, fontSize=8.4, leading=11, alignment=1, spaceBefore=3, spaceAfter=2)
     disc = ParagraphStyle("disc", parent=body, textColor=MUTED, fontSize=8.6, leading=12)
     cellh = ParagraphStyle("cellh", parent=body, textColor=colors.white, fontSize=9.4, leading=12)
     cell = ParagraphStyle("cell", parent=body, fontSize=9.2, leading=12, spaceAfter=0)
@@ -193,6 +199,18 @@ def build_pdf(path):
         elif kind == "h1":
             story.append(Paragraph(rl_inline(blk[1]), h1))
             story.append(HRFlowable(width="100%", thickness=1.2, color=TEAL, spaceBefore=1, spaceAfter=6))
+        elif kind == "h2":
+            story.append(Paragraph(rl_inline(blk[1]), h2))
+        elif kind == "image":
+            p = os.path.join(HERE, "img", blk[1])
+            iw, ih = ImageReader(p).getSize()
+            W = 150 * mm
+            im = Image(p, width=W, height=W * ih / iw)
+            im.hAlign = "CENTER"
+            story.append(im)
+            if len(blk) > 2 and blk[2]:
+                story.append(Paragraph(rl_inline(blk[2]), cap))
+            story.append(Spacer(1, 8))
         elif kind == "p":
             story.append(Paragraph(rl_inline(blk[1]), body))
         elif kind == "disclaimer":
@@ -281,6 +299,10 @@ def build_md(path):
         k = blk[0]
         if k == "cover": continue
         if k == "h1": out.append("\n## " + blk[1] + "\n")
+        elif k == "h2": out.append("\n### " + blk[1] + "\n")
+        elif k == "image":
+            out.append("![" + blk[2] + "](img/" + blk[1] + ")\n")
+            out.append("_" + blk[2] + "_\n")
         elif k == "p": out.append(md_inline(blk[1]) + "\n")
         elif k == "disclaimer": out.append("_" + md_inline(blk[1]) + "_\n")
         elif k == "callout":
