@@ -242,6 +242,32 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
   }
   lines.push("Robusto SOLO si el Top⅓ EVA gana a TODAS/Bottom **Y** aguanta en las DOS mitades OOS. Si se voltea entre mitades → cherry-picking/régimen (como pasó con la gestión).", "");
 
+  // ETAPA 5 — OOS del Top⅓-EVA en TODAS las celdas del credit spread (matar el cherry-picking).
+  const creditOOS = (dte: number, sm: number) => {
+    const rec = all.map(({ sig, bars }) => ({ pnl: creditSpreadPnl(sig, bars, dte, sm), eva: sig.evaComp, ms: sig.entryMs }))
+      .filter((x) => x.pnl != null) as { pnl: number; eva: number; ms: number }[];
+    if (rec.length < 9) return null;
+    const k = Math.max(1, Math.floor(rec.length / 3));
+    const top = [...rec].sort((a, b) => a.eva - b.eva).slice(rec.length - k);
+    const ts = [...top].sort((a, b) => a.ms - b.ms);
+    const mid = Math.floor(ts.length / 2);
+    return { all_: stat(top.map((x) => x.pnl)), early: stat(ts.slice(0, mid).map((x) => x.pnl)), late: stat(ts.slice(mid).map((x) => x.pnl)) };
+  };
+  lines.push("## ETAPA 5 — Credit spread: Top⅓ EVA + OOS en TODAS las celdas", "", "| DTE | 1σ: todas → vieja / nueva | 1.5σ: todas → vieja / nueva |", "|---|---|---|");
+  let robust = 0, total = 0;
+  for (const dte of DTES) {
+    const cells = SIGMAS.map((sm) => {
+      const r = creditOOS(dte, sm);
+      if (!r) return "—";
+      total++;
+      const ok = (r.early.mean ?? -1) > 0 && (r.late.mean ?? -1) > 0;
+      if (ok) robust++;
+      return `${r.all_.mean}% → ${r.early.mean}% / ${r.late.mean}% ${ok ? "✅" : "✗"} (n=${r.all_.n})`;
+    });
+    lines.push(`| ${dte}d | ${cells[0]} | ${cells[1]} |`);
+  }
+  lines.push("", `**Celdas robustas (Top-EVA positivo en las DOS mitades OOS): ${robust}/${total}.** Muchas ✅ → el edge es AMPLIO (no fue suerte de una celda). Pocas → cherry-picking.`, "");
+
   lines.push(
     "**Cómo leerlo:** credit/naked (vender prima) ganan seguido pero pierden grande → mira la MEDIA, no solo el win%. El debit spread pierde seguido pero gana grande. Candidata = media positiva con win razonable.",
     "",
