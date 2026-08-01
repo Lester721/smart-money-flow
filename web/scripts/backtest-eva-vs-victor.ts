@@ -71,8 +71,13 @@ function buildRow(r: FlowRow, bars: DBar[]): Row | null {
   const exitVal = tExit <= 0
     ? Math.max(isCall ? exitBar.close - r.strike : r.strike - exitBar.close, 0)
     : bsPrice(exitBar.close, r.strike, tExit, ivEntry, isCall ? "call" : "put");
+  // COSTO DE EJECUCIÓN: entras al precio real del trade (r.price) y SALES AL BID
+  // (= valor justo menos media horquilla). Penaliza los contratos de spread ancho,
+  // que es justo lo que el veto de liquidez protege y el backtest antes ignoraba.
+  const sp = spreadPct(r.bid, r.ask);
+  const exitNet = exitVal * (1 - (sp ?? 0) / 200); // /200 = mitad del spread (sp está en %)
   return {
-    pnl: exitVal / r.price - 1,
+    pnl: exitNet / r.price - 1,
     aggr: executionScore(executionLevel(r.price, r.bid, r.ask, r.side)),
     conv: spreadScore(spreadPct(r.bid, r.ask)),
     unus: unusualTradeScore(r).total,
@@ -86,6 +91,11 @@ function buildRow(r: FlowRow, bars: DBar[]): Row | null {
 function victorScore(r: Row): number {
   const pts = (r.aggr / 10) * 20 + (r.conv / 10) * 20 + (r.unus / 10) * 20 + (r.ivp / 10) * 10;
   return (pts / 70) * 100;
+}
+// EVA pesos SOLOS (Conv 30, Inus 20, IV 15, Agr 10), SIN vetos — para aislar el efecto de re-pesar.
+function evaWeightsScore(r: Row): number {
+  const pts = (r.conv / 10) * 30 + (r.unus / 10) * 20 + (r.ivp / 10) * 15 + (r.aggr / 10) * 10;
+  return (pts / 75) * 100;
 }
 // EVA-tuned: evaScore con pesos nuevos + vetos + modificadores (los medibles).
 function evaOf(r: Row): { composite: number; vetoed: boolean } {
@@ -139,37 +149,36 @@ function terciles(rows: Row[], scoreOf: (r: Row) => number) {
   }
 
   const V = terciles(all, victorScore);
-  const E = terciles(all, (r) => evaOf(r).composite);
+  const Ew = terciles(all, evaWeightsScore);
   const vetoed = all.filter((r) => evaOf(r).vetoed).map((r) => r.pnl);
   const notVetoed = all.filter((r) => !evaOf(r).vetoed).map((r) => r.pnl);
   const vTrade = all.filter((r) => victorScore(r) >= 70).map((r) => r.pnl);
   const eTrade = all.filter((r) => { const e = evaOf(r); return !e.vetoed && e.composite >= 70; }).map((r) => r.pnl);
 
   const lines = [
-    "# Validación EVA-tuned vs Victor (mismos flujos, mismo P&L)",
+    "# Validación EVA-tuned vs Victor — CON costo de ejecución (salida al bid)",
     "",
-    `**Muestra:** ${TICKERS.join(", ")} · ${DAYS}d · **${all.length} flujos resueltos**. Solo cambia el scoring.`,
+    `**Muestra:** ${TICKERS.join(", ")} · ${DAYS}d · **${all.length} flujos**. Ahora la salida paga media horquilla (spread). Solo cambia el scoring.`,
     "",
-    "## 1. Poder de ranking (top⅓ vs bottom⅓ por score, misma n)",
-    `- **Victor** — top⅓: ${fmt(V.hi)} · bottom⅓: ${fmt(V.lo)} · **separación media: ${V.sep} pts · win: ${V.sepWin} pts**`,
-    `- **EVA-tuned** — top⅓: ${fmt(E.hi)} · bottom⅓: ${fmt(E.lo)} · **separación media: ${E.sep} pts · win: ${E.sepWin} pts**`,
+    "## 1. PESOS solos, sin vetos: ¿re-pesar rankea mejor? (top⅓ vs bottom⅓)",
+    `- **Victor** (20/20/20/10) — top⅓: ${fmt(V.hi)} · bottom⅓: ${fmt(V.lo)} · **sep media ${V.sep} · win ${V.sepWin}**`,
+    `- **EVA pesos** (Conv30/Inus20/IV15/Agr10) — top⅓: ${fmt(Ew.hi)} · bottom⅓: ${fmt(Ew.lo)} · **sep media ${Ew.sep} · win ${Ew.sepWin}**`,
     "",
-    "El que tenga MÁS separación (media y win) rankea mejor ganadores de perdedores.",
-    "",
-    "## 2. Valor de los vetos (¿los flujos vetados de verdad pierden?)",
+    "## 2. VETOS solos, YA con costo de ejecución: ¿los ilíquidos pierden ahora?",
     `- **Vetados por EVA** (spread>15% / OI<250 / vol<100): ${fmt(stat(vetoed))}`,
     `- No vetados: ${fmt(stat(notVetoed))}`,
     "",
-    "Si los vetados rinden peor, el veto está justificado (te ahorra malas entradas).",
+    "Con el costo del spread, si los vetados ahora rinden PEOR, el veto está justificado.",
     "",
-    "## 3. Lo que cada método OPERARÍA (score ≥ 70)",
+    "## 3. EVA-tuned completo (pesos+vetos) vs Victor — lo que operaría (≥70)",
     `- **Victor** (≥70): ${fmt(stat(vTrade))}`,
     `- **EVA-tuned** (≥70, sin veto): ${fmt(stat(eTrade))}`,
     "",
     "## Caveats",
+    "- Costo de ejecución = media horquilla en la SALIDA (entrada = precio real del trade). Aproximación honesta, no exacta.",
     "- Solo 4 de 6 categorías (faltan Estructura y Confirmación → forward-test).",
-    "- Vetos de spread/OI/volumen SÍ aplicados; IV Rank y modificadores earnings/GEX NO (sin dato histórico).",
-    "- Long-only, IV constante, horizonte fijo. El P&L de opciones es asimétrico → win% y mediana > media.",
+    "- Vetos spread/OI/volumen aplicados; IV Rank y modificadores earnings/GEX NO (sin dato histórico).",
+    "- Long-only, IV constante, horizonte fijo. P&L de opciones asimétrico → win% y mediana > media.",
   ];
   const report = lines.join("\n") + "\n";
   writeFileSync(OUT, report, "utf8");
