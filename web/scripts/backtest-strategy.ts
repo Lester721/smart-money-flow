@@ -218,23 +218,29 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     { name: "Credit spread 5d @ 1σ", fn: creditSpreadPnl, dte: 5, sm: 1 },
     { name: "Naked 90d @ 1σ", fn: nakedPnl, dte: 90, sm: 1 },
   ];
-  lines.push("## ETAPA 4 — filtro de fuerza (¿la alta convicción rinde mejor?)", "");
+  lines.push("## ETAPA 4 — filtro de convicción + OUT-OF-SAMPLE del hilo prometedor", "");
   for (const c of cands) {
-    const rec = all.map(({ sig, bars }) => ({ pnl: c.fn(sig, bars, c.dte, c.sm), eva: sig.evaComp, vic: sig.victorComp }))
-      .filter((x) => x.pnl != null) as { pnl: number; eva: number; vic: number }[];
+    const rec = all.map(({ sig, bars }) => ({ pnl: c.fn(sig, bars, c.dte, c.sm), eva: sig.evaComp, vic: sig.victorComp, ms: sig.entryMs }))
+      .filter((x) => x.pnl != null) as { pnl: number; eva: number; vic: number; ms: number }[];
     const k = Math.max(1, Math.floor(rec.length / 3));
-    const topEva = [...rec].sort((a, b) => a.eva - b.eva).slice(rec.length - k).map((x) => x.pnl);
-    const botEva = [...rec].sort((a, b) => a.eva - b.eva).slice(0, k).map((x) => x.pnl);
-    const topVic = [...rec].sort((a, b) => a.vic - b.vic).slice(rec.length - k).map((x) => x.pnl);
+    const byEva = [...rec].sort((a, b) => a.eva - b.eva);
+    const topEva = byEva.slice(rec.length - k);
+    const botEva = byEva.slice(0, k);
+    const topVic = [...rec].sort((a, b) => a.vic - b.vic).slice(rec.length - k);
+    // OOS: partir el Top⅓-EVA por fecha (mitad vieja vs nueva)
+    const topSorted = [...topEva].sort((a, b) => a.ms - b.ms);
+    const mid = Math.floor(topSorted.length / 2);
+    const early = topSorted.slice(0, mid).map((x) => x.pnl);
+    const late = topSorted.slice(mid).map((x) => x.pnl);
     lines.push(
       `### ${c.name}`,
       `- TODAS: ${fmt(stat(rec.map((x) => x.pnl)))}`,
-      `- **Top⅓ por EVA:** ${fmt(stat(topEva))} · Bottom⅓ EVA: ${fmt(stat(botEva))}`,
-      `- Top⅓ por Victor: ${fmt(stat(topVic))}`,
+      `- **Top⅓ EVA:** ${fmt(stat(topEva.map((x) => x.pnl)))} · Bottom⅓ EVA: ${fmt(stat(botEva.map((x) => x.pnl)))} · Top⅓ Victor: ${fmt(stat(topVic.map((x) => x.pnl)))}`,
+      `- **OOS del Top⅓ EVA** → mitad VIEJA: ${fmt(stat(early))} · mitad NUEVA: ${fmt(stat(late))}`,
       "",
     );
   }
-  lines.push("Si el Top⅓ por EVA supera a TODAS y al Bottom⅓, el scorecard como FILTRO agrega valor. Si EVA-top > Victor-top, Eva filtra mejor.", "");
+  lines.push("Robusto SOLO si el Top⅓ EVA gana a TODAS/Bottom **Y** aguanta en las DOS mitades OOS. Si se voltea entre mitades → cherry-picking/régimen (como pasó con la gestión).", "");
 
   lines.push(
     "**Cómo leerlo:** credit/naked (vender prima) ganan seguido pero pierden grande → mira la MEDIA, no solo el win%. El debit spread pierde seguido pero gana grande. Candidata = media positiva con win razonable.",
