@@ -15,7 +15,7 @@ const TICKERS = (process.env.BT_TICKERS || "AAPL,MSFT,NVDA,AMZN,GOOGL,META,TSLA,
 const DAYS = Number(process.env.BT_DAYS) || 180;
 const MIN_PREMIUM = Number(process.env.BT_MIN_PREMIUM) || 1_000_000;
 const OUT = process.env.BT_OUT || "scripts/backtest-strategy-reporte.md";
-const DTES = [3, 5, 7, 30, 60, 90];
+const DTES = [3, 5, 7, 30, 60, 90, 180, 365];
 const SIGMAS = [1, 1.5];
 const WIDTH_EM = 0.5; // ancho del spread = 0.5σ (pata protectora más OTM)
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -152,7 +152,7 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
       const { trades } = await fetchFlow(t, { targetDays: DAYS, minPremium: MIN_PREMIUM, contractCap: 25, maxPages: 6 });
       const { rows } = classifyFlow(trades, new Date());
       let bars: DBar[] = [];
-      for (let i = 0; i < 4; i++) { bars = (await fetchDailyBars(t, 400).catch(() => [])) as DBar[]; if (bars.length > 0) break; await sleep(800 * (i + 1)); }
+      for (let i = 0; i < 4; i++) { bars = (await fetchDailyBars(t, 800).catch(() => [])) as DBar[]; if (bars.length > 0) break; await sleep(800 * (i + 1)); }
       const sigs = bars.length ? signals(rows, bars) : [];
       for (const sig of sigs) all.push({ sig, bars });
       console.log(`[${t}] señales: ${sigs.length}`);
