@@ -7,8 +7,10 @@
 
 import { writeFileSync } from "node:fs";
 import { fetchFlow } from "../lib/massiveFlow";
-import { classifyFlow, type FlowRow } from "../lib/flow";
-import { bsPrice } from "../lib/blackScholes";
+import {
+  classifyFlow, executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow,
+} from "../lib/flow";
+import { bsPrice, impliedVol } from "../lib/blackScholes";
 import { fetchDailyBars } from "../lib/massive";
 
 const TICKERS = (process.env.BT_TICKERS || "AAPL,MSFT,NVDA,AMZN,GOOGL,META,TSLA,AMD,NFLX,QQQ,SPY,HOOD").split(",").map((t) => t.trim()).filter(Boolean);
@@ -40,25 +42,53 @@ function realizedVol(bars: DBar[], endIdx: number, lookback = 20): number | null
   const v = rets.reduce((s, x) => s + (x - m) ** 2, 0) / (rets.length - 1);
   return Math.sqrt(v) * Math.sqrt(252);
 }
+function ivProxyScore(iv: number, rv: number | null): number {
+  if (rv == null || !(rv > 0)) return 5;
+  const ratio = iv / rv;
+  if (ratio < 0.9) return 10;
+  if (ratio <= 1.2) return 7;
+  if (ratio <= 1.6) return 4;
+  return 0;
+}
 
-interface Signal { entryIdx: number; spot: number; rv: number; dir: 1 | -1 }
+interface Signal { entryIdx: number; spot: number; rv: number; dir: 1 | -1; evaComp: number; victorComp: number }
+const YR = 365 * 24 * 3600 * 1000;
 
-// Agrupa el flujo por DÍA y saca la dirección neta (a favor del dinero).
+// Agrupa el flujo por DÍA: dirección neta (a favor del dinero) + composite de fuerza Eva/Victor
+// (promedio ponderado por premium de los 4 sub-scores por-flujo, con los pesos de cada uno).
 function signals(rows: FlowRow[], bars: DBar[]): Signal[] {
-  const byDay = new Map<string, number>(); // fecha -> neto de premium con signo
+  const byDay = new Map<string, FlowRow[]>();
   for (const r of rows) {
     const d = r.timestamp.slice(0, 10);
-    const s = r.sentiment === "bullish" ? 1 : r.sentiment === "bearish" ? -1 : 0;
-    if (s !== 0) byDay.set(d, (byDay.get(d) ?? 0) + s * r.premium);
+    const arr = byDay.get(d); if (arr) arr.push(r); else byDay.set(d, [r]);
   }
   const out: Signal[] = [];
-  for (const [d, net] of byDay) {
-    if (net === 0) continue;
+  for (const [d, dayRows] of byDay) {
     const entryIdx = barIdxOnOrBefore(bars, Date.parse(`${d}T20:00:00Z`));
     if (entryIdx < 20 || entryIdx >= bars.length - 1) continue;
     const rv = realizedVol(bars, entryIdx);
     if (rv == null || !(rv > 0)) continue;
-    out.push({ entryIdx, spot: bars[entryIdx].close, rv, dir: net > 0 ? 1 : -1 });
+    const spot = bars[entryIdx].close;
+    let net = 0, totP = 0, aA = 0, aC = 0, aU = 0, aI = 0;
+    for (const r of dayRows) {
+      const s = r.sentiment === "bullish" ? 1 : r.sentiment === "bearish" ? -1 : 0;
+      if (s !== 0) net += s * r.premium;
+      if (r.strike == null || !r.expiration || !(r.price > 0)) continue;
+      const T = (Date.parse(`${r.expiration}T20:00:00Z`) - Date.parse(`${d}T20:00:00Z`)) / YR;
+      if (T <= 0) continue;
+      const iv = impliedVol(r.price, spot, r.strike, T, r.type === "call" ? "call" : "put");
+      if (iv == null || !(iv > 0)) continue;
+      aA += executionScore(executionLevel(r.price, r.bid, r.ask, r.side)) * r.premium;
+      aC += spreadScore(spreadPct(r.bid, r.ask)) * r.premium;
+      aU += unusualTradeScore(r).total * r.premium;
+      aI += ivProxyScore(iv, rv) * r.premium;
+      totP += r.premium;
+    }
+    if (net === 0 || totP <= 0) continue;
+    const wa = aA / totP, wc = aC / totP, wu = aU / totP, wi = aI / totP;
+    const victorComp = ((wa / 10) * 20 + (wc / 10) * 20 + (wu / 10) * 20 + (wi / 10) * 10) / 70 * 100;
+    const evaComp = ((wc / 10) * 30 + (wu / 10) * 20 + (wi / 10) * 15 + (wa / 10) * 10) / 75 * 100;
+    out.push({ entryIdx, spot, rv, dir: net > 0 ? 1 : -1, evaComp, victorComp });
   }
   return out;
 }
@@ -182,6 +212,30 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     }
     lines.push("");
   }
+
+  // ETAPA 4 — ¿filtrar por alta convicción (Eva/Victor) mejora la estrategia?
+  const cands: { name: string; fn: (s: Signal, b: DBar[], dte: number, sm: number) => number | null; dte: number; sm: number }[] = [
+    { name: "Credit spread 5d @ 1σ", fn: creditSpreadPnl, dte: 5, sm: 1 },
+    { name: "Naked 90d @ 1σ", fn: nakedPnl, dte: 90, sm: 1 },
+  ];
+  lines.push("## ETAPA 4 — filtro de fuerza (¿la alta convicción rinde mejor?)", "");
+  for (const c of cands) {
+    const rec = all.map(({ sig, bars }) => ({ pnl: c.fn(sig, bars, c.dte, c.sm), eva: sig.evaComp, vic: sig.victorComp }))
+      .filter((x) => x.pnl != null) as { pnl: number; eva: number; vic: number }[];
+    const k = Math.max(1, Math.floor(rec.length / 3));
+    const topEva = [...rec].sort((a, b) => a.eva - b.eva).slice(rec.length - k).map((x) => x.pnl);
+    const botEva = [...rec].sort((a, b) => a.eva - b.eva).slice(0, k).map((x) => x.pnl);
+    const topVic = [...rec].sort((a, b) => a.vic - b.vic).slice(rec.length - k).map((x) => x.pnl);
+    lines.push(
+      `### ${c.name}`,
+      `- TODAS: ${fmt(stat(rec.map((x) => x.pnl)))}`,
+      `- **Top⅓ por EVA:** ${fmt(stat(topEva))} · Bottom⅓ EVA: ${fmt(stat(botEva))}`,
+      `- Top⅓ por Victor: ${fmt(stat(topVic))}`,
+      "",
+    );
+  }
+  lines.push("Si el Top⅓ por EVA supera a TODAS y al Bottom⅓, el scorecard como FILTRO agrega valor. Si EVA-top > Victor-top, Eva filtra mejor.", "");
+
   lines.push(
     "**Cómo leerlo:** credit/naked (vender prima) ganan seguido pero pierden grande → mira la MEDIA, no solo el win%. El debit spread pierde seguido pero gana grande. Candidata = media positiva con win razonable.",
     "",
