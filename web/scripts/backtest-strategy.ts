@@ -51,7 +51,7 @@ function ivProxyScore(iv: number, rv: number | null): number {
   return 0;
 }
 
-interface Signal { entryIdx: number; spot: number; rv: number; dir: 1 | -1; evaComp: number; victorComp: number }
+interface Signal { entryIdx: number; spot: number; rv: number; dir: 1 | -1; evaComp: number; victorComp: number; entryMs: number }
 const YR = 365 * 24 * 3600 * 1000;
 
 // Agrupa el flujo por DÍA: dirección neta (a favor del dinero) + composite de fuerza Eva/Victor
@@ -88,7 +88,7 @@ function signals(rows: FlowRow[], bars: DBar[]): Signal[] {
     const wa = aA / totP, wc = aC / totP, wu = aU / totP, wi = aI / totP;
     const victorComp = ((wa / 10) * 20 + (wc / 10) * 20 + (wu / 10) * 20 + (wi / 10) * 10) / 70 * 100;
     const evaComp = ((wc / 10) * 30 + (wu / 10) * 20 + (wi / 10) * 15 + (wa / 10) * 10) / 75 * 100;
-    out.push({ entryIdx, spot, rv, dir: net > 0 ? 1 : -1, evaComp, victorComp });
+    out.push({ entryIdx, spot, rv, dir: net > 0 ? 1 : -1, evaComp, victorComp, entryMs: Date.parse(`${d}T20:00:00Z`) });
   }
   return out;
 }
