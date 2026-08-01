@@ -142,7 +142,18 @@ C = [
  ]),
  ("disclaimer", "Eva y yo no somos asesores financieros. Damos contexto y análisis; las decisiones de inversión — y su riesgo — son enteramente tuyas."),
 
- ("h1", "12. Glosario"),
+ ("h1", "12. Hacia dónde va EVA — 5 mejoras en desarrollo"),
+ ("p", "Estas cinco mejoras son las que separarían a EVA de un simple lector de flujo estático (como el sistema base). No son magia garantizada — son las apuestas donde hay MÁS chance de un salto real. Cada una se construye y se valida con backtest y forward-test antes de confiar en ella."),
+ ("table", ["Mejora", "Qué hace", "Qué añade a tu análisis"], [
+   ["1. Conciencia de régimen", "EVA sabe en qué 'clima' está el mercado (tranquilo, volátil, en tendencia) y ajusta su lectura según eso.", "Una señal que en promedio es ruido puede ser FUERTE en un régimen específico. Deja de tratar todos los días igual."],
+   ["2. Lado del dealer (GEX)", "Ve hacia dónde los market makers están FORZADOS a comprar/vender para cubrirse (gamma), no solo quién opera.", "Anticipa squeezes (gamma negativa acelera el precio) y frenos (gamma positiva lo revierte) que el flujo por sí solo no muestra. Es la base del 'Power Monday'."],
+   ["3. Bucle de aprendizaje", "Mide sus propios aciertos y RE-CALIBRA sus pesos sola con el tiempo.", "Mejora continua. El sistema base es estático; EVA aprende de lo que funcionó y lo que no."],
+   ["4. Resultados como distribución", "En vez de un '80/100', dice: '45% de aciertos, resultado típico 0%, y 5% de chance de +300%'.", "Honestidad para dimensionar el riesgo. Un número solo engaña; la distribución te dice la verdad de lo que puede pasar."],
+   ["5. Motor señal → vehículo", "No solo dice 'alcista'; dice 'y dada esta IV, la mejor forma de jugarlo es este spread', no un call pelado.", "Convierte el análisis en una acción concreta: del QUÉ (dirección) al CÓMO (la estructura óptima)."],
+ ]),
+ ("disclaimer", "Mejoras en desarrollo, NO promesas. Cada una se valida con datos antes de confiar en ella. El objetivo es un salto real y medido, no una ilusión — y si los datos dicen que una no sirve, se descarta con honestidad."),
+
+ ("h1", "13. Glosario"),
  ("table", ["Término", "Qué es"], [
    ["Agresor (ask/bid)", "Quién forzó la operación: al ASK = comprador agresivo; al BID = vendedor agresivo."],
    ["Premium", "El dinero total de una operación (precio × contratos × 100)."],
