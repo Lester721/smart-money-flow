@@ -1,0 +1,178 @@
+// Validación EVA-tuned vs Victor — MISMOS flujos, MISMO P&L, solo cambia el scoring.
+// Puntúa cada flujo dos veces (pesos de Victor vs evaScore con pesos nuevos + vetos + modif.)
+// y compara cuál separa mejor ganadores de perdedores.
+// Uso: node --env-file=.env.local --import tsx scripts/backtest-eva-vs-victor.ts
+
+import { writeFileSync } from "node:fs";
+import { fetchFlow } from "../lib/massiveFlow";
+import {
+  classifyFlow, unusualTradeScore, executionLevel, executionScore, spreadScore, spreadPct, type FlowRow,
+} from "../lib/flow";
+import { bsPrice, impliedVol } from "../lib/blackScholes";
+import { fetchDailyBars } from "../lib/massive";
+import { evaScore, classifyIntent, type EvaScores } from "../lib/scorecardEva";
+
+const TICKERS = (process.env.BT_TICKERS || "AAPL,MSFT,NVDA,AMZN,GOOGL,META,TSLA,AMD,NFLX,QQQ,SPY,HOOD").split(",").map((t) => t.trim()).filter(Boolean);
+const DAYS = Number(process.env.BT_DAYS) || 180;
+const MIN_PREMIUM = Number(process.env.BT_MIN_PREMIUM) || 1_000_000;
+const HOLD = Number(process.env.BT_HOLD) || 10;
+const OUT = process.env.BT_OUT || "scripts/backtest-eva-vs-victor-reporte.md";
+const YEAR_MS = 365 * 24 * 3600 * 1000;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+interface DBar { time: string; close: number }
+const barMs = (b: DBar) => Date.parse(`${b.time}T20:00:00Z`);
+function barIdxAt(bars: DBar[], ms: number): number {
+  let idx = -1;
+  for (let i = 0; i < bars.length; i++) { if (Date.parse(`${bars[i].time}T00:00:00Z`) <= ms) idx = i; else break; }
+  return idx;
+}
+function realizedVol(bars: DBar[], entryIdx: number, lookback = 20): number | null {
+  const start = Math.max(1, entryIdx - lookback);
+  const rets: number[] = [];
+  for (let i = start; i <= entryIdx; i++) if (bars[i - 1].close > 0 && bars[i].close > 0) rets.push(Math.log(bars[i].close / bars[i - 1].close));
+  if (rets.length < 5) return null;
+  const m = rets.reduce((s, x) => s + x, 0) / rets.length;
+  const v = rets.reduce((s, x) => s + (x - m) ** 2, 0) / (rets.length - 1);
+  return Math.sqrt(v) * Math.sqrt(252);
+}
+function ivProxyScore(iv: number, rv: number | null): number {
+  if (rv == null || !(rv > 0)) return 5;
+  const ratio = iv / rv;
+  if (ratio < 0.9) return 10;
+  if (ratio <= 1.2) return 7;
+  if (ratio <= 1.6) return 4;
+  return 0;
+}
+
+interface Row {
+  pnl: number; aggr: number; conv: number; unus: number; ivp: number;
+  spreadPct: number | null; oi: number; volume: number; dte: number | null;
+  side: string; exceededOI: boolean; isCall: boolean;
+}
+
+function buildRow(r: FlowRow, bars: DBar[]): Row | null {
+  if (r.type === "unknown" || r.strike == null || !r.expiration || !(r.price > 0)) return null;
+  const entryMs = Date.parse(r.timestamp);
+  const expMs = Date.parse(`${r.expiration}T20:00:00Z`);
+  const entryIdx = barIdxAt(bars, entryMs);
+  if (entryIdx < 0) return null;
+  const isCall = r.type === "call";
+  const sEntry = bars[entryIdx].close;
+  const tEntry = (expMs - barMs(bars[entryIdx])) / YEAR_MS;
+  if (tEntry <= 0) return null;
+  const ivEntry = impliedVol(r.price, sEntry, r.strike, tEntry, isCall ? "call" : "put");
+  if (ivEntry == null || !(ivEntry > 0)) return null;
+  const expIdx = barIdxAt(bars, expMs);
+  const cap = expIdx >= 0 ? Math.min(entryIdx + HOLD, expIdx) : entryIdx + HOLD;
+  if (cap >= bars.length) return null;
+  const exitBar = bars[cap];
+  const tExit = (expMs - barMs(exitBar)) / YEAR_MS;
+  const exitVal = tExit <= 0
+    ? Math.max(isCall ? exitBar.close - r.strike : r.strike - exitBar.close, 0)
+    : bsPrice(exitBar.close, r.strike, tExit, ivEntry, isCall ? "call" : "put");
+  return {
+    pnl: exitVal / r.price - 1,
+    aggr: executionScore(executionLevel(r.price, r.bid, r.ask, r.side)),
+    conv: spreadScore(spreadPct(r.bid, r.ask)),
+    unus: unusualTradeScore(r).total,
+    ivp: ivProxyScore(ivEntry, realizedVol(bars, entryIdx)),
+    spreadPct: spreadPct(r.bid, r.ask), oi: r.openInterest, volume: r.volume, dte: r.dte,
+    side: r.side, exceededOI: r.flags.exceededOI, isCall,
+  };
+}
+
+// Victor: pesos del código (Agr 20, Conv 20, Inus 20, IV 10) renormalizados entre los 4.
+function victorScore(r: Row): number {
+  const pts = (r.aggr / 10) * 20 + (r.conv / 10) * 20 + (r.unus / 10) * 20 + (r.ivp / 10) * 10;
+  return (pts / 70) * 100;
+}
+// EVA-tuned: evaScore con pesos nuevos + vetos + modificadores (los medibles).
+function evaOf(r: Row): { composite: number; vetoed: boolean } {
+  const scores: EvaScores = { aggression: r.aggr, conviction: r.conv, unusuality: r.unus, structure: null, ivContext: r.ivp, validation: null };
+  const intent = classifyIntent(r.side, r.exceededOI, r.isCall);
+  const res = evaScore(scores,
+    { spreadPct: r.spreadPct, totalOI: r.oi, volume: r.volume, ivRank: null, dte: r.dte },
+    { intentIndeterminate: intent.intent === "indeterminado", lowLiquidity: r.spreadPct != null && r.spreadPct > 10, earningsWithinDte: false, gexConfluence: false });
+  return { composite: res.composite, vetoed: res.vetoed };
+}
+
+interface Stat { n: number; win: number | null; mean: number | null; median: number | null }
+function stat(pnls: number[]): Stat {
+  if (pnls.length === 0) return { n: 0, win: null, mean: null, median: null };
+  const s = [...pnls].sort((a, b) => a - b);
+  return {
+    n: s.length,
+    win: Math.round((s.filter((x) => x > 0).length / s.length) * 100),
+    mean: Math.round((s.reduce((a, x) => a + x, 0) / s.length) * 1000) / 10,
+    median: Math.round(s[Math.floor(s.length / 2)] * 1000) / 10,
+  };
+}
+const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% · mediana ${s.median}% (n=${s.n})`;
+
+// terciles por score: top⅓ vs bottom⅓ (misma n para ambos métodos = justo)
+function terciles(rows: Row[], scoreOf: (r: Row) => number) {
+  const sorted = [...rows].sort((a, b) => scoreOf(a) - scoreOf(b));
+  const k = Math.floor(sorted.length / 3);
+  const low = sorted.slice(0, k).map((r) => r.pnl);
+  const high = sorted.slice(sorted.length - k).map((r) => r.pnl);
+  const hi = stat(high), lo = stat(low);
+  const sep = hi.mean != null && lo.mean != null ? Math.round((hi.mean - lo.mean) * 10) / 10 : null;
+  const sepWin = hi.win != null && lo.win != null ? hi.win - lo.win : null;
+  return { hi, lo, sep, sepWin };
+}
+
+(async () => {
+  console.log(`EVA-tuned vs Victor · ${TICKERS.length} tickers · ${DAYS}d · hold ${HOLD}`);
+  const all: Row[] = [];
+  for (const t of TICKERS) {
+    try {
+      const { trades } = await fetchFlow(t, { targetDays: DAYS, minPremium: MIN_PREMIUM, contractCap: 25, maxPages: 6 });
+      const { rows } = classifyFlow(trades, new Date());
+      let bars: DBar[] = [];
+      for (let i = 0; i < 4; i++) { bars = (await fetchDailyBars(t, 400).catch(() => [])) as DBar[]; if (bars.length > 0) break; await sleep(800 * (i + 1)); }
+      const rr = rows.map((r) => buildRow(r, bars)).filter((x): x is Row => x != null);
+      all.push(...rr);
+      console.log(`[${t}] ${rr.length}`);
+    } catch (e) { console.error(`[${t}] ERROR:`, (e as Error).message); }
+    await sleep(2500);
+  }
+
+  const V = terciles(all, victorScore);
+  const E = terciles(all, (r) => evaOf(r).composite);
+  const vetoed = all.filter((r) => evaOf(r).vetoed).map((r) => r.pnl);
+  const notVetoed = all.filter((r) => !evaOf(r).vetoed).map((r) => r.pnl);
+  const vTrade = all.filter((r) => victorScore(r) >= 70).map((r) => r.pnl);
+  const eTrade = all.filter((r) => { const e = evaOf(r); return !e.vetoed && e.composite >= 70; }).map((r) => r.pnl);
+
+  const lines = [
+    "# Validación EVA-tuned vs Victor (mismos flujos, mismo P&L)",
+    "",
+    `**Muestra:** ${TICKERS.join(", ")} · ${DAYS}d · **${all.length} flujos resueltos**. Solo cambia el scoring.`,
+    "",
+    "## 1. Poder de ranking (top⅓ vs bottom⅓ por score, misma n)",
+    `- **Victor** — top⅓: ${fmt(V.hi)} · bottom⅓: ${fmt(V.lo)} · **separación media: ${V.sep} pts · win: ${V.sepWin} pts**`,
+    `- **EVA-tuned** — top⅓: ${fmt(E.hi)} · bottom⅓: ${fmt(E.lo)} · **separación media: ${E.sep} pts · win: ${E.sepWin} pts**`,
+    "",
+    "El que tenga MÁS separación (media y win) rankea mejor ganadores de perdedores.",
+    "",
+    "## 2. Valor de los vetos (¿los flujos vetados de verdad pierden?)",
+    `- **Vetados por EVA** (spread>15% / OI<250 / vol<100): ${fmt(stat(vetoed))}`,
+    `- No vetados: ${fmt(stat(notVetoed))}`,
+    "",
+    "Si los vetados rinden peor, el veto está justificado (te ahorra malas entradas).",
+    "",
+    "## 3. Lo que cada método OPERARÍA (score ≥ 70)",
+    `- **Victor** (≥70): ${fmt(stat(vTrade))}`,
+    `- **EVA-tuned** (≥70, sin veto): ${fmt(stat(eTrade))}`,
+    "",
+    "## Caveats",
+    "- Solo 4 de 6 categorías (faltan Estructura y Confirmación → forward-test).",
+    "- Vetos de spread/OI/volumen SÍ aplicados; IV Rank y modificadores earnings/GEX NO (sin dato histórico).",
+    "- Long-only, IV constante, horizonte fijo. El P&L de opciones es asimétrico → win% y mediana > media.",
+  ];
+  const report = lines.join("\n") + "\n";
+  writeFileSync(OUT, report, "utf8");
+  console.log("\n" + report);
+  console.log(`=== reporte en ${OUT} ===`);
+})();
