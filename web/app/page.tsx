@@ -33,6 +33,7 @@ import GexHeatmapCard from "./components/GexHeatmapCard";
 import TradesFeed from "./components/TradesFeed";
 import CompanyHeader from "./components/CompanyHeader";
 import ScorecardPanel from "./components/ScorecardPanel";
+import EvaScorecardPanel from "./components/EvaScorecardPanel";
 import AggressionScoreCard from "./components/AggressionScoreCard";
 import ConvictionCard from "./components/ConvictionCard";
 import ConvictionTransactions, { type ConvictionMeta } from "./components/ConvictionTransactions";
@@ -65,6 +66,7 @@ export default function Dashboard() {
   const [ticker, setTicker] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [steps, setSteps] = useState<string[]>([]);
+  const [scMode, setScMode] = useState<"victor" | "eva">("victor");
 
   const [company, setCompany] = useState<CompanyInfo | null>(null);
   const [chainRows, setChainRows] = useState<Row[] | null>(null);
@@ -477,7 +479,17 @@ export default function Dashboard() {
               </summary>
               <div className="detalle-inner">
                 {company && <CompanyHeader company={company} />}
-                <ScorecardPanel aggression={aggScore} conviction={conviction} unusuality={unusuality} structure={structure} ivContext={ivContext} validation={validation} />
+                <div>
+                  <div className="view-toggle" style={{ marginBottom: 12 }}>
+                    <button className={scMode === "victor" ? "active" : ""} onClick={() => setScMode("victor")}>Victor</button>
+                    <button className={scMode === "eva" ? "active" : ""} onClick={() => setScMode("eva")}>EVA-tuned</button>
+                  </div>
+                  {scMode === "victor" ? (
+                    <ScorecardPanel aggression={aggScore} conviction={conviction} unusuality={unusuality} structure={structure} ivContext={ivContext} validation={validation} />
+                  ) : (
+                    <EvaScorecardPanel aggression={aggScore} conviction={conviction} unusuality={unusuality} structure={structure} ivContext={ivContext} validation={validation} />
+                  )}
+                </div>
                 {aggScore && <AggressionScoreCard score={aggScore} />}
                 {conviction && <ConvictionCard conviction={conviction} />}
                 {convRows && convMeta && convRows.length > 0 && (
