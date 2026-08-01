@@ -90,6 +90,52 @@ function creditSpreadPnl(sig: Signal, bars: DBar[], dte: number, sigmaMult: numb
   return risk > 0 ? pnl / risk : pnl / width; // retorno sobre riesgo
 }
 
+// ETAPA 2a — Debit spread DIRECCIONAL a favor (riesgo = débito pagado). Long ATM, short en el strike σ.
+function debitSpreadPnl(sig: Signal, bars: DBar[], dte: number, sigmaMult: number): number | null {
+  const { spot, rv, entryIdx, dir } = sig;
+  const T = dte / 365;
+  const em = spot * rv * Math.sqrt(dte / 365);
+  if (!(em > 0)) return null;
+  const bull = dir === 1;
+  const type = bull ? "call" : "put";
+  const longK = spot;                                                    // ATM
+  const shortK = bull ? spot + sigmaMult * em : spot - sigmaMult * em;   // cap en σ
+  if (shortK <= 0) return null;
+  const debit = bsPrice(spot, longK, T, rv, type) - bsPrice(spot, shortK, T, rv, type);
+  if (!(debit > 0)) return null;
+  const expMs = Date.parse(`${bars[entryIdx].time}T20:00:00Z`) + dte * 86_400_000;
+  const expIdx = barIdxOnOrAfter(bars, expMs);
+  if (expIdx < 0) return null;
+  const sExp = bars[expIdx].close;
+  const longIntr = bull ? Math.max(sExp - longK, 0) : Math.max(longK - sExp, 0);
+  const shortIntr = bull ? Math.max(sExp - shortK, 0) : Math.max(shortK - sExp, 0);
+  const value = longIntr - shortIntr;
+  return (value - debit) / debit; // retorno sobre riesgo (débito)
+}
+
+// ETAPA 2b — Naked (SIN red). Riesgo teóricamente ilimitado; retorno sobre MARGEN estilo broker
+// (Reg-T aprox: max(20% del subyacente − OTM, 10% del subyacente)). Ojo: la cola es catastrófica.
+function nakedPnl(sig: Signal, bars: DBar[], dte: number, sigmaMult: number): number | null {
+  const { spot, rv, entryIdx, dir } = sig;
+  const T = dte / 365;
+  const em = spot * rv * Math.sqrt(dte / 365);
+  if (!(em > 0)) return null;
+  const bull = dir === 1;
+  const type = bull ? "put" : "call";
+  const shortK = bull ? spot - sigmaMult * em : spot + sigmaMult * em;
+  if (shortK <= 0) return null;
+  const credit = bsPrice(spot, shortK, T, rv, type);
+  if (!(credit > 0)) return null;
+  const expMs = Date.parse(`${bars[entryIdx].time}T20:00:00Z`) + dte * 86_400_000;
+  const expIdx = barIdxOnOrAfter(bars, expMs);
+  if (expIdx < 0) return null;
+  const sExp = bars[expIdx].close;
+  const intr = bull ? Math.max(shortK - sExp, 0) : Math.max(sExp - shortK, 0);
+  const pnl = credit - intr;
+  const margin = Math.max(0.20 * spot - sigmaMult * em, 0.10 * spot); // Reg-T aprox por acción
+  return margin > 0 ? pnl / margin : null;
+}
+
 interface Stat { n: number; win: number | null; mean: number | null; median: number | null }
 function stat(v: number[]): Stat {
   if (v.length === 0) return { n: 0, win: null, mean: null, median: null };
@@ -114,31 +160,36 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     await sleep(2500);
   }
 
-  const lines = [
-    "# Backtest de estrategia — ETAPA 1: venta de prima CON red (credit spread)",
-    "",
-    `**Señales:** ${all.length} (dirección neta del flujo por día, a favor). Vende prima fuera del movimiento esperado, sostiene a vencimiento. Retorno = P&L / riesgo (max pérdida). BS con IV≈vol realizada 20d.`,
-    "",
-    "## Resultado por temporalidad y distancia (retorno sobre riesgo)",
-    "| DTE | Short a 1σ | Short a 1.5σ |",
-    "|---|---|---|",
+  const VEHICLES: { name: string; note: string; fn: (s: Signal, b: DBar[], dte: number, sm: number) => number | null }[] = [
+    { name: "Venta de prima CON red (credit spread)", note: "retorno sobre riesgo = pérdida máx del spread", fn: creditSpreadPnl },
+    { name: "Debit spread direccional (a favor)", note: "retorno sobre riesgo = débito pagado", fn: debitSpreadPnl },
+    { name: "Naked / venta SIN red", note: "retorno sobre margen Reg-T aprox — OJO: cola catastrófica no capada", fn: nakedPnl },
   ];
-  for (const dte of DTES) {
-    const cells = SIGMAS.map((sm) => {
-      const pnls = all.map(({ sig, bars }) => creditSpreadPnl(sig, bars, dte, sm)).filter((x): x is number => x != null);
-      return fmt(stat(pnls));
-    });
-    lines.push(`| ${dte}d | ${cells[0]} | ${cells[1]} |`);
+  const lines = [
+    "# Backtest de estrategia (ETAPAS 1+2) — 3 vehículos",
+    "",
+    `**Señales:** ${all.length} (dirección neta del flujo por día, a favor). Fuera del movimiento esperado (short a 1σ/1.5σ), 3/5/7/30/60/90d, hold a vencimiento. BS con IV≈vol realizada 20d.`,
+    "",
+  ];
+  for (const v of VEHICLES) {
+    lines.push(`## ${v.name}`, `_${v.note}._`, "", "| DTE | 1σ | 1.5σ |", "|---|---|---|");
+    for (const dte of DTES) {
+      const cells = SIGMAS.map((sm) => {
+        const pnls = all.map(({ sig, bars }) => v.fn(sig, bars, dte, sm)).filter((x): x is number => x != null);
+        return fmt(stat(pnls));
+      });
+      lines.push(`| ${dte}d | ${cells[0]} | ${cells[1]} |`);
+    }
+    lines.push("");
   }
   lines.push(
+    "**Cómo leerlo:** credit/naked (vender prima) ganan seguido pero pierden grande → mira la MEDIA, no solo el win%. El debit spread pierde seguido pero gana grande. Candidata = media positiva con win razonable.",
     "",
-    "**Cómo leerlo:** vender prima gana seguido (win alto) pero cada pérdida es grande (por eso mira la MEDIA de retorno-sobre-riesgo, no solo el win%). Una temporalidad/distancia con media positiva y win alto es candidata.",
-    "",
-    "## Caveats (ETAPA 1)",
-    "- Solo credit spread aún (naked, debit, 0DTE vienen en etapas 2-3).",
-    "- Ancho del spread = 0.5σ. Sostiene a vencimiento (sin gestión).",
-    "- IV = vol realizada 20d (aprox; sin smile). Vencimiento por calendario. Sin comisiones.",
-    "- Dirección = flujo neto del día (misma para Eva y Victor; el filtro de fuerza es etapa 4).",
+    "## Caveats",
+    "- 0DTE (por delta) y filtro de fuerza Eva/Victor vienen en etapas 3-4.",
+    "- Ancho credit/debit = σ; naked con riesgo ilimitado (margen Reg-T aprox). Hold a vencimiento, sin gestión.",
+    "- IV = vol realizada 20d (aprox, sin smile). Vencimiento por calendario. Sin comisiones.",
+    "- Dirección = flujo neto del día (misma Eva/Victor; el filtro de fuerza es etapa 4).",
   );
   const report = lines.join("\n") + "\n";
   writeFileSync(OUT, report, "utf8");
