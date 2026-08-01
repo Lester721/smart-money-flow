@@ -4,8 +4,8 @@ import {
   type EvaScores, type VetoInputs, type ModifierInputs,
 } from "./scorecardEva";
 
-const OK_VETO: VetoInputs = { spreadPct: 3, totalOI: 5000, volume: 1000, ivRank: 40, dte: 45 };
-const NO_MODS: ModifierInputs = { intentIndeterminate: false, lowLiquidity: false, earningsWithinDte: false, gexConfluence: false };
+const OK_VETO: VetoInputs = { totalOI: 5000, volume: 1000, ivRank: 40, dte: 45 };
+const NO_MODS: ModifierInputs = { intentIndeterminate: false, wideSpread: false, lowLiquidity: false, earningsWithinDte: false, gexConfluence: false };
 const allScores = (n: number): EvaScores => ({
   aggression: n, conviction: n, unusuality: n, structure: n, ivContext: n, validation: n,
 });
@@ -37,8 +37,7 @@ describe("evaVetos", () => {
   it("sin problemas → sin vetos", () => {
     expect(evaVetos(OK_VETO)).toEqual([]);
   });
-  it("spread ancho, OI bajo, volumen bajo, IVRank extremo + DTE corto", () => {
-    expect(evaVetos({ ...OK_VETO, spreadPct: 20 })).toContain("spread>15%");
+  it("OI bajo, volumen bajo, IVRank extremo + DTE corto (spread ya NO vetea)", () => {
     expect(evaVetos({ ...OK_VETO, totalOI: 100 })).toContain("OI<250");
     expect(evaVetos({ ...OK_VETO, volume: 50 })).toContain("volumen<100");
     expect(evaVetos({ ...OK_VETO, ivRank: 100, dte: 7 })).toContain("IVRank100+DTE<14");
@@ -49,11 +48,13 @@ describe("evaVetos", () => {
 });
 
 describe("evaModifiers", () => {
-  it("acumula factores multiplicativos", () => {
+  it("acumula factores; spread ancho ×0.60 tiene prioridad sobre baja liquidez", () => {
     expect(evaModifiers({ ...NO_MODS }).factor).toBe(1);
     expect(evaModifiers({ ...NO_MODS, lowLiquidity: true }).factor).toBeCloseTo(0.7);
+    expect(evaModifiers({ ...NO_MODS, wideSpread: true }).factor).toBeCloseTo(0.6);
+    expect(evaModifiers({ ...NO_MODS, wideSpread: true, lowLiquidity: true }).factor).toBeCloseTo(0.6);
     expect(evaModifiers({ ...NO_MODS, gexConfluence: true }).factor).toBeCloseTo(1.1);
-    expect(evaModifiers({ intentIndeterminate: true, lowLiquidity: true, earningsWithinDte: false, gexConfluence: false }).factor).toBeCloseTo(0.56);
+    expect(evaModifiers({ ...NO_MODS, intentIndeterminate: true, wideSpread: true }).factor).toBeCloseTo(0.48);
   });
 });
 
@@ -73,12 +74,17 @@ describe("evaScore", () => {
     expect(r.verdict).toBe("CONVICCION_ALTA");
     expect(r.vetoed).toBe(false);
   });
-  it("un veto fuerza composite 0 y DESCARTE, sin importar los scores", () => {
-    const r = evaScore(allScores(10), { ...OK_VETO, spreadPct: 20 }, NO_MODS);
+  it("un veto (OI bajo) fuerza composite 0 y DESCARTE, sin importar los scores", () => {
+    const r = evaScore(allScores(10), { ...OK_VETO, totalOI: 100 }, NO_MODS);
     expect(r.composite).toBe(0);
     expect(r.vetoed).toBe(true);
-    expect(r.vetos).toContain("spread>15%");
+    expect(r.vetos).toContain("OI<250");
     expect(r.verdict).toBe("DESCARTE");
+  });
+  it("spread ancho ahora PENALIZA (no vetea): baja el score pero no lo mata", () => {
+    const r = evaScore(allScores(9), OK_VETO, { ...NO_MODS, wideSpread: true });
+    expect(r.vetoed).toBe(false);
+    expect(r.composite).toBeCloseTo(54); // 90 × 0.60
   });
   it("modificador de baja liquidez recorta el score (×0.70)", () => {
     const base = evaScore(allScores(8), OK_VETO, NO_MODS).composite; // 80

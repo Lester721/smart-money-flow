@@ -44,19 +44,24 @@ export function classifyIntent(side: string, exceededOI: boolean, isCall: boolea
   return { intent: "indeterminado", bias: "neutral" };
 }
 
-// ── Vetos duros (Documento Maestro §5). Cualquiera fuerza el score a 0. ───────
+// ── Vetos duros. Cualquiera fuerza el score a 0. ─────────────────────────────
+// NOTA (ajuste post-backtest n=1274): el spread ancho ya NO es veto — esos flujos igual ganan
+// seguido, expulsarlos era muy duro → pasó a PENALIZACIÓN (modificador wideSpread). OI/volumen
+// SÍ siguen como veto: ahí el contrato es literalmente inoperable (no entras/sales), algo que el
+// backtest no puede ver (asume que siempre llenas). El spec tenía spread como veto; divergimos
+// con evidencia (el mandato de recalibración lo permite).
 export interface VetoInputs {
-  spreadPct: number | null; // (ask−bid)/mid en %
-  totalOI: number;          // OI del strike
-  volume: number;           // volumen del contrato en la sesión
-  ivRank: number | null;    // 0-100
+  totalOI: number;       // OI del strike
+  volume: number;        // volumen del contrato en la sesión
+  ivRank: number | null; // 0-100
   dte: number | null;
 }
-export const VETO = { MAX_SPREAD_PCT: 15, MIN_OI: 250, MIN_VOLUME: 100, IVRANK_EXTREME: 100, IVRANK_MIN_DTE: 14 };
+export const VETO = { MIN_OI: 250, MIN_VOLUME: 100, IVRANK_EXTREME: 100, IVRANK_MIN_DTE: 14 };
+export const WIDE_SPREAD_PCT = 15;    // spread > esto → penalización wideSpread (×0.60)
+export const MOD_LIQ_SPREAD_PCT = 10; // spread en (10,15] → penalización lowLiquidity (×0.70)
 
 export function evaVetos(v: VetoInputs): string[] {
   const out: string[] = [];
-  if (v.spreadPct != null && v.spreadPct > VETO.MAX_SPREAD_PCT) out.push("spread>15%");
   if (v.totalOI < VETO.MIN_OI) out.push("OI<250");
   if (v.volume < VETO.MIN_VOLUME) out.push("volumen<100");
   if (v.ivRank != null && v.ivRank >= VETO.IVRANK_EXTREME && v.dte != null && v.dte < VETO.IVRANK_MIN_DTE) {
@@ -65,10 +70,11 @@ export function evaVetos(v: VetoInputs): string[] {
   return out;
 }
 
-// ── Modificadores (Documento Maestro §5). Se aplican DESPUÉS de la suma ponderada. ──
+// ── Modificadores. Se aplican DESPUÉS de la suma ponderada. ──────────────────
 export interface ModifierInputs {
   intentIndeterminate: boolean;
-  lowLiquidity: boolean;
+  wideSpread: boolean;   // spread>15% (antes veto, ahora penaliza ×0.60)
+  lowLiquidity: boolean; // spread moderado 10-15% (×0.70)
   earningsWithinDte: boolean;
   gexConfluence: boolean;
 }
@@ -76,7 +82,8 @@ export function evaModifiers(m: ModifierInputs): { factor: number; applied: stri
   let factor = 1;
   const applied: string[] = [];
   if (m.intentIndeterminate) { factor *= 0.8; applied.push("intención_indeterminada×0.80"); }
-  if (m.lowLiquidity) { factor *= 0.7; applied.push("baja_liquidez×0.70"); }
+  if (m.wideSpread) { factor *= 0.6; applied.push("spread_ancho×0.60"); }
+  else if (m.lowLiquidity) { factor *= 0.7; applied.push("baja_liquidez×0.70"); }
   if (m.earningsWithinDte) { factor *= 0.85; applied.push("earnings×0.85"); }
   if (m.gexConfluence) { factor *= 1.1; applied.push("confluencia_GEX×1.10"); }
   return { factor, applied };

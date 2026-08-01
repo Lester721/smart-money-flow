@@ -101,9 +101,15 @@ function evaWeightsScore(r: Row): number {
 function evaOf(r: Row): { composite: number; vetoed: boolean } {
   const scores: EvaScores = { aggression: r.aggr, conviction: r.conv, unusuality: r.unus, structure: null, ivContext: r.ivp, validation: null };
   const intent = classifyIntent(r.side, r.exceededOI, r.isCall);
+  const sp = r.spreadPct;
   const res = evaScore(scores,
-    { spreadPct: r.spreadPct, totalOI: r.oi, volume: r.volume, ivRank: null, dte: r.dte },
-    { intentIndeterminate: intent.intent === "indeterminado", lowLiquidity: r.spreadPct != null && r.spreadPct > 10, earningsWithinDte: false, gexConfluence: false });
+    { totalOI: r.oi, volume: r.volume, ivRank: null, dte: r.dte },
+    {
+      intentIndeterminate: intent.intent === "indeterminado",
+      wideSpread: sp != null && sp > 15,          // spread ancho: penaliza (ya no vetea)
+      lowLiquidity: sp != null && sp > 10 && sp <= 15,
+      earningsWithinDte: false, gexConfluence: false,
+    });
   return { composite: res.composite, vetoed: res.vetoed };
 }
 
@@ -164,8 +170,8 @@ function terciles(rows: Row[], scoreOf: (r: Row) => number) {
     `- **Victor** (20/20/20/10) — top⅓: ${fmt(V.hi)} · bottom⅓: ${fmt(V.lo)} · **sep media ${V.sep} · win ${V.sepWin}**`,
     `- **EVA pesos** (Conv30/Inus20/IV15/Agr10) — top⅓: ${fmt(Ew.hi)} · bottom⅓: ${fmt(Ew.lo)} · **sep media ${Ew.sep} · win ${Ew.sepWin}**`,
     "",
-    "## 2. VETOS solos, YA con costo de ejecución: ¿los ilíquidos pierden ahora?",
-    `- **Vetados por EVA** (spread>15% / OI<250 / vol<100): ${fmt(stat(vetoed))}`,
+    "## 2. VETOS (ya solo OI<250 / vol<100 — spread pasó a penalización): ¿los inoperables pierden?",
+    `- **Vetados por EVA** (OI<250 / vol<100): ${fmt(stat(vetoed))}`,
     `- No vetados: ${fmt(stat(notVetoed))}`,
     "",
     "Con el costo del spread, si los vetados ahora rinden PEOR, el veto está justificado.",
