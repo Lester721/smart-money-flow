@@ -75,6 +75,8 @@ C = [
    ["Amplitud", "Una 'celda' = una combinación (ej. '90 días a 1σ'). ¿El edge es de UNA celda con suerte, o de casi todas?", "PASA — sale en 13 de 14 combinaciones (es amplio, no casualidad de una)"],
    ["Costos", "¿El slippage (lo que pierdes al operar) se come el edge?", "PASA — sobrevive hasta 15% de slippage"],
  ]),
+ ("p", "**La prueba de AMPLITUD, en simple:** una 'celda' es una **versión** específica de la jugada — un plazo (ej. 90 días) y una distancia (ej. 1σ). Probamos **14 versiones** distintas (7 plazos × 2 distancias). El peligro: que el edge saliera bien en UNA sola por pura casualidad. (Si pruebas 14 cosas al azar, es fácil que una salga bien de suerte.)"),
+ ("p", "**Piénsalo así:** es como tirar canastas desde **14 puntos** distintos de la cancha. Si solo encestas desde 1, pudo ser chiripa. Pero si encestas desde **13 de 14**, de verdad sabes tirar — no fue suerte de un lugar. Nuestro edge salió en **13 de 14 versiones** → es **real y amplio**, no la casualidad de una sola combinación. (La única que falló, 60 días a 1.5σ, es normal: nada es perfecto, y 13 de 14 es muy fuerte.)"),
 
  ("h1", "4. DÓNDE ESTÁ EL EDGE (sobre ~1 año de datos)"),
  ("p", "Recordatorio: esto es sobre **~1 año** de datos, no varios años. Cada barra es una combinación de plazo (DTE) y distancia (σ). Verde = el edge aguantó; rojo = falló. El edge es **amplio**: vive en casi todos los plazos, más fuerte a **1σ** (más cerca) y en plazos largos (90-180 días)."),
@@ -83,7 +85,10 @@ C = [
  ("image", "informe_cono.png", "El cono de σ: vendemos en el borde del rango normal y cobramos por ello."),
 
  ("h1", "5. EL VALOR DE EVA: EL FILTRO"),
- ("p", "**'Separar bueno de malo' significa:** EVA puede DISTINGUIR de antemano qué ventas van a ganar y cuáles van a perder. Operar **todas** las señales apenas empata (+3.3%). Pero filtrar por la **alta convicción de EVA** sube el retorno a **+5.9%**; la **baja convicción PIERDE** (−1.5%). O sea: cuando EVA está segura, gana; cuando no, pierde. Su confianza de verdad predice el resultado — eso es lo que buscábamos probar."),
+ ("p", "**Primero, ¿qué es 'alta convicción'?** Cada día con señal, EVA le pone una nota de confianza. Ejemplo con números redondos: si en el año hubo **90 días** con señal, los ordenamos de menor a mayor confianza y los partimos en **3 grupos de 30**: el grupo BAJO (EVA menos segura), el MEDIO, y el grupo ALTO (EVA más segura). El grupo ALTO es la 'alta convicción'."),
+ ("p", "**El valor de EVA se ve al comparar el grupo ALTO contra el BAJO:**"),
+ ("p", "• Grupo ALTO (EVA más segura) → **ganó +5.9%**<br/>• Todas las señales juntas → apenas empató +3.3%<br/>• Grupo BAJO (EVA menos segura) → **perdió −1.5%**"),
+ ("p", "**Si la nota de EVA no sirviera, los dos grupos rendirían igual.** Pero el alto GANA y el bajo PIERDE → la confianza de EVA de verdad **predice** cuáles trades son buenos. Eso es exactamente lo que queríamos demostrar: EVA no solo lee el flujo, sabe **cuándo confiar en él**."),
  ("image", "informe_filtro.png", "Filtrar por convicción de EVA separa lo bueno de lo malo (credit spread 5 días, 1σ)."),
 
  ("h1", "6. ESTIMADO DE GANANCIAS: $10K, 2018 → JUL 2026"),
