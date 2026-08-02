@@ -10,7 +10,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 IMG = os.path.join(HERE, "img")
 os.makedirs(IMG, exist_ok=True)
 
-TEAL = "#0F9E75"; INK = "#101828"; MUTED = "#667085"
+TEAL = "#0F9E75"; TEALD = "#0B5D46"; INK = "#101828"; MUTED = "#667085"
 GREEN = "#12B76A"; RED = "#E24B4A"; AMBER = "#E8940A"; BLUE = "#2F6BFF"; BG = "#FFFFFF"
 plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 10, "figure.facecolor": BG,
                      "axes.facecolor": BG, "text.color": INK, "axes.edgecolor": "#D9E2DF",
@@ -95,6 +95,34 @@ def projection_chart():
     save(fig, "informe_proyeccion.png")
 
 
+# ---- 4. EL CONO DE σ (movimiento esperado) ----
+def sigma_cone():
+    fig, ax = plt.subplots(figsize=(6.6, 3.1))
+    t = np.linspace(0, 1, 120)
+    price = 100.0; vol = 16.0
+    up1 = price + vol*np.sqrt(t); dn1 = price - vol*np.sqrt(t)
+    up15 = price + 1.5*vol*np.sqrt(t); dn15 = price - 1.5*vol*np.sqrt(t)
+    ax.fill_between(t, dn15, up15, color=TEAL, alpha=0.10)
+    ax.fill_between(t, dn1, up1, color=TEAL, alpha=0.22)
+    ax.plot(t, [price]*len(t), color=INK, ls="--", lw=1.2)
+    ax.plot(t, up1, color=TEAL, lw=1.5); ax.plot(t, dn1, color=TEAL, lw=1.5)
+    ax.plot(t, up15, color=TEAL, lw=1, alpha=0.6); ax.plot(t, dn15, color=TEAL, lw=1, alpha=0.6)
+    ax.scatter([0], [price], color=INK, zorder=6, s=30)
+    ax.text(0, price+2.5, "HOY\n(precio actual)", fontsize=8.5, color=INK, fontweight="bold")
+    ax.scatter([1, 1], [dn1[-1], up1[-1]], color=RED, zorder=6, s=40)
+    ax.text(1.01, dn1[-1], "  vendes\n  el spread\n  aquí (1σ)", fontsize=8.5, color=RED, va="center", fontweight="bold")
+    ax.text(1.01, up1[-1], "  borde del\n  rango normal", fontsize=8, color=TEAL, va="center")
+    ax.text(1.01, dn15[-1]-1, "  1.5σ (más lejos,\n  más seguro)", fontsize=7.5, color=MUTED, va="center")
+    ax.text(0.5, price-vol*0.72-3, "1σ = ~68% del tiempo el precio se queda AQUÍ dentro", fontsize=8, color=TEALD, ha="center", fontweight="bold")
+    ax.set_xlim(-0.02, 1.28); ax.set_ylim(price-vol*1.7, price+vol*1.7)
+    ax.set_xlabel("Tiempo →  (de hoy al vencimiento)")
+    ax.set_yticks([]); ax.set_title("El cono de σ: el rango donde el precio 'normalmente' se queda",
+                                    fontsize=10.5, fontweight="bold", color="#0B5D46", loc="left", pad=8)
+    for sp in ["top", "right", "left"]:
+        ax.spines[sp].set_visible(False)
+    save(fig, "informe_cono.png")
+
+
 if __name__ == "__main__":
-    edge_chart(); filter_chart(); projection_chart()
-    print("OK -> informe_edge.png, informe_filtro.png, informe_proyeccion.png")
+    edge_chart(); filter_chart(); projection_chart(); sigma_cone()
+    print("OK -> edge, filtro, proyeccion, cono")

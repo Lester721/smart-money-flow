@@ -29,56 +29,66 @@ BGROW = colors.HexColor("#F1F5F4")
 
 C = [
  ("cover",),
- ("h1", "1. Victor vs EVA — quién es quién"),
+ ("h1", "1. VICTOR VS EVA — QUIÉN ES QUIÉN"),
  ("p", "**Victor** es el sistema original que bajamos de su GitHub. Lo dejamos **CONGELADO** como punto de comparación (nuestro 'pasado'). **EVA** es lo que estamos mejorando (el 'futuro'). Nunca tocamos el código de Victor."),
  ("table", ["", "Victor (referencia)", "EVA (lo mejorado)"], [
    ["Qué es", "El sistema original, congelado", "La versión mejorada + 5 mejoras nuevas"],
-   ["Pesos del scorecard", "Fijos (20/20/20/15/10/15)", "Recalibrados: Convicción ↑, Agresividad ↓"],
-   ["Rankea mejor (prueba OOS)", "separación +15", "separación +21 (gana)"],
-   ["Como FILTRO de trades", "sirve", "separa mejor bueno de malo (§5)"],
+   ["Distingue trades buenos de malos", "sirve", "distingue MEJOR (ver punto 5)"],
    ["Aprende con el tiempo", "No (estático)", "Sí (mejora #3)"],
  ]),
-
- ("h1", "2. Las 5 mejoras de EVA"),
- ("p", "Son las cinco cosas que separan a EVA de un simple lector de flujo. Se construyen y validan con datos."),
- ("table", ["Mejora", "Qué añade"], [
-   ["1. Conciencia de régimen", "Sabe en qué 'clima' está el mercado (tranquilo/volátil) y ajusta. Una señal-ruido en promedio puede ser fuerte en un régimen."],
-   ["2. Lado del dealer (GEX)", "Ve hacia dónde los market makers están forzados a comprar/vender. Anticipa squeezes ('Power Monday')."],
-   ["3. Bucle de aprendizaje", "Mide sus aciertos y se re-calibra sola. Victor es estático; EVA aprende."],
-   ["4. Resultados como distribución", "En vez de '80/100', dice '45% aciertos, 5% chance de +300%'. Honestidad para el riesgo."],
-   ["5. Señal → vehículo", "No solo 'alcista'; dice 'la mejor forma es este spread'. Del qué al cómo."],
+ ("p", "Los **PESOS del scorecard** = cuánto vale cada sub-agente en la nota final. Así estaba calibrado Victor, y así quedó EVA después de las pruebas:"),
+ ("table", ["Sub-agente", "Victor", "EVA", "Qué cambió"], [
+   ["Convicción (liquidez)", "20%", "30%", "SUBIÓ — es el que más gana dinero"],
+   ["Inusualidad", "20%", "20%", "igual"],
+   ["Estructura", "15%", "15%", "igual"],
+   ["Contexto IV", "10%", "15%", "subió un poco"],
+   ["Agresividad", "20%", "10%", "BAJÓ — no separaba ganadores"],
+   ["Confirmación de Precio", "15%", "10%", "bajó"],
  ]),
 
- ("h1", "3. Las pruebas que hicimos"),
- ("p", "Probamos la idea contra datos del pasado (un 'backtest'). Primero, los términos en simple:"),
+ ("h1", "2. LAS 5 MEJORAS DE EVA"),
+ ("p", "Son las cinco cosas que separan a EVA de un simple lector de flujo. Se construyen y validan con datos."),
+ ("table", ["Mejora", "Qué añade"], [
+   ["1. Conciencia de régimen", "Sabe en qué 'clima' está el mercado (tranquilo o volátil) y ajusta. Una señal que en promedio es ruido puede ser fuerte en un clima específico."],
+   ["2. Lado del dealer (GEX)", "Ve hacia dónde los market makers están forzados a comprar/vender. Anticipa squeezes ('Power Monday')."],
+   ["3. Bucle de aprendizaje", "Mide sus propios aciertos y se re-calibra sola. Victor es estático; EVA aprende de lo que funcionó."],
+   ["4. Resultados como distribución", "Victor te da una NOTA sola ('80/100'). Pero una nota no te dice qué puede pasar con tu DINERO. EVA te mostraría el abanico real: 'de trades como este, ganaron el 70%, lo normal fue +$50, y hay una chance chica de un golpe grande'. Así sabes en qué te metes, no solo una calificación."],
+   ["5. Señal → vehículo", "No solo dice 'alcista'; dice 'la mejor forma de jugarlo, con esta volatilidad, es ESTE spread'. Te lleva del QUÉ (dirección) al CÓMO (la jugada)."],
+ ]),
+
+ ("h1", "3. LAS PRUEBAS QUE HICIMOS"),
+ ("callout", "warn", "IMPORTANTE — CUÁNTO TIEMPO PROBAMOS: las pruebas cubren aproximadamente EL ÚLTIMO AÑO (más o menos de 2025 a mediados de 2026). NO probamos desde 2018 — no se puede: las señales vienen de contratos líquidos de HOY, que son recientes. El estimado 2018-2026 (punto 6) es una EXTRAPOLACIÓN, no una prueba real de esos años."),
+ ("p", "Probamos la idea contra datos del pasado — un 'backtest' (un simulador con datos reales de ~1 año). Primero, los términos en simple:"),
  ("table", ["Término", "Qué significa"], [
-   ["Backtest", "Probar la estrategia con datos del pasado, como un simulador."],
-   ["Credit spread", "Vendes una opción y compras otra más lejos: cobras prima y tu pérdida queda CAPADA."],
+   ["Backtest", "Probar la estrategia con datos del pasado (~1 año), como un simulador."],
+   ["Credit spread", "Vendes una opción y compras otra más lejos: cobras prima y tu pérdida queda CAPADA (no ilimitada)."],
    ["Vender prima", "Cobrar por dar una especie de 'seguro'; ganas si el precio NO llega a cierto nivel."],
-   ["σ (sigma) / mov. esperado", "El rango típico que se espera que se mueva el precio. '1σ' = un rango normal."],
+   ["σ (sigma)", "El rango 'normal' que se espera que se mueva el precio (ver el cono en el punto 4). '1σ' = un rango típico."],
    ["DTE", "Días al vencimiento de la opción (Days To Expiration)."],
-   ["Alta convicción (Top⅓)", "El tercio de señales donde EVA está MÁS segura."],
-   ["Out-of-sample (OOS)", "Probar en datos que NO usaste para afinar. Evita engañarte a ti mismo."],
-   ["Slippage", "Lo que pierdes por no llenar exacto al precio medio (cruzar el bid/ask)."],
+   ["Alta convicción (Top⅓)", "Cada día, EVA le pone una NOTA de fuerza a la señal (qué tan clara e institucional es). El 'tercio de alta convicción' = el 33% de los días con la nota MÁS alta, donde EVA está más segura de que el flujo es real."],
+   ["Out-of-sample (OOS)", "Un examen JUSTO: afinas la estrategia con una parte de los datos, y la PRUEBAS con OTRA parte que no viste. Si funciona en la parte nueva, no te engañaste ajustándola a la medida."],
    ["Retorno sobre riesgo", "La ganancia como % de lo máximo que podías perder en ese trade."],
  ]),
  ("callout", "info", "El hallazgo: vender credit spreads SOLO en los días de alta convicción de EVA. Le pusimos 3 pruebas duras y las pasó todas:"),
- ("table", ["Prueba (gate)", "Pregunta", "Resultado"], [
-   ["Out-of-sample", "¿Aguanta en el tiempo o fue un régimen de suerte?", "PASA — positivo en las 2 mitades"],
-   ["Amplitud", "¿Suerte de una celda o algo amplio?", "PASA — 13 de 14 combinaciones"],
-   ["Costos", "¿El slippage se lo come?", "PASA — sobrevive hasta 15% slippage"],
+ ("table", ["Prueba (gate)", "Qué revisa, en simple", "Resultado"], [
+   ["Out-of-sample", "¿Aguanta en el tiempo o fue suerte de un período? Partimos el ~1 año en 2 mitades (la vieja y la reciente).", "PASA — positivo en LAS DOS mitades (aguanta en el tiempo, no fue régimen de suerte)"],
+   ["Amplitud", "Una 'celda' = una combinación (ej. '90 días a 1σ'). ¿El edge es de UNA celda con suerte, o de casi todas?", "PASA — sale en 13 de 14 combinaciones (es amplio, no casualidad de una)"],
+   ["Costos", "¿El slippage (lo que pierdes al operar) se come el edge?", "PASA — sobrevive hasta 15% de slippage"],
  ]),
 
- ("h1", "4. Dónde está el edge"),
- ("p", "Cada barra es una combinación de plazo (DTE) y distancia (σ). Verde = el edge aguantó; rojo = falló. El edge es **amplio**: vive en casi todos los plazos, más fuerte a **1σ** (más cerca) y en plazos largos (90-180 días)."),
+ ("h1", "4. DÓNDE ESTÁ EL EDGE (sobre ~1 año de datos)"),
+ ("p", "Recordatorio: esto es sobre **~1 año** de datos, no varios años. Cada barra es una combinación de plazo (DTE) y distancia (σ). Verde = el edge aguantó; rojo = falló. El edge es **amplio**: vive en casi todos los plazos, más fuerte a **1σ** (más cerca) y en plazos largos (90-180 días)."),
  ("image", "informe_edge.png", "Retorno del Top-Convicción por plazo y distancia. 13 de 14 combinaciones positivas y robustas."),
+ ("p", "**¿Qué significa σ?** Es el rango 'normal' que se espera que se mueva el precio. Vendemos el spread en el **borde** de ese rango (a 1σ): ganamos si el precio se queda dentro de lo normal — que pasa **~68% de las veces**. Por eso el win rate es tan alto. Más cerca (1σ) cobras más prima; más lejos (1.5σ) es más seguro pero cobras menos."),
+ ("image", "informe_cono.png", "El cono de σ: vendemos en el borde del rango normal y cobramos por ello."),
 
- ("h1", "5. El valor de EVA: el filtro"),
- ("p", "Aquí se ve para qué sirve EVA. Operar **todas** las señales apenas empata (+3.3%). Pero filtrar por la **alta convicción de EVA** sube el retorno (+5.9%); la **baja convicción pierde** (−1.5%). EVA de verdad separa las buenas ventas de las malas."),
+ ("h1", "5. EL VALOR DE EVA: EL FILTRO"),
+ ("p", "**'Separar bueno de malo' significa:** EVA puede DISTINGUIR de antemano qué ventas van a ganar y cuáles van a perder. Operar **todas** las señales apenas empata (+3.3%). Pero filtrar por la **alta convicción de EVA** sube el retorno a **+5.9%**; la **baja convicción PIERDE** (−1.5%). O sea: cuando EVA está segura, gana; cuando no, pierde. Su confianza de verdad predice el resultado — eso es lo que buscábamos probar."),
  ("image", "informe_filtro.png", "Filtrar por convicción de EVA separa lo bueno de lo malo (credit spread 5 días, 1σ)."),
 
- ("h1", "6. Estimado de ganancias: $10k, 2018 → jul 2026"),
- ("p", "Cuánto habría hecho una cuenta de $10,000 usando esto. **IMPORTANTE: es una estimación ILUSTRATIVA, no una promesa.** Solo validamos ~1 año de datos reales; esto **supone** que el edge se mantuvo 8.5 años (un supuesto grande)."),
+ ("h1", "6. ESTIMADO DE GANANCIAS: $10K, 2018 → JUL 2026"),
+ ("callout", "danger", "RECORDATORIO CLAVE: solo probamos ~1 AÑO de datos. Este estimado 2018-2026 SUPONE que el edge se habría mantenido 8.5 años — algo que NO medimos y que es un supuesto GRANDE. Es una ilustración de 'orden de magnitud', NO una promesa ni un backtest real de esos años."),
+ ("p", "Bajo ese supuesto, cuánto habría hecho una cuenta de $10,000. Los supuestos que uso (todos discutibles):"),
  ("table", ["Supuesto", "Valor"], [
    ["Edge por trade (tras costos)", "~ +5% sobre riesgo"],
    ["Trades de alta convicción / año", "~ 60"],
@@ -87,11 +97,11 @@ C = [
    ["Período", "ene 2018 – jul 2026 (8.5 años)"],
  ]),
  ("image", "informe_proyeccion.png", "Estimado ilustrativo bajo 3 escenarios. El camino REAL tendría caídas grandes, no esta curva lisa."),
- ("callout", "danger", "Ojo con esto: la curva es LISA, pero la realidad NO. 2018, 2020 y 2022 tuvieron crashes donde vender prima puede perder 20-40% en semanas. El camino real tendría caídas fuertes. Y NADA de esto está probado en vivo todavía."),
- ("p", "**Rango:** pesimista ~$16k · **central ~$22k** · optimista ~$33k. La ganancia central sería **≈ +$12k** sobre los $10k. Léelo como 'orden de magnitud', no como número exacto."),
+ ("callout", "danger", "Ojo: la curva es LISA, pero la realidad NO. 2018, 2020 y 2022 tuvieron crashes donde vender prima puede perder 20-40% en semanas. El camino real tendría caídas fuertes que esta curva NO muestra. Y nada de esto está probado en vivo todavía."),
+ ("p", "**Rango:** pesimista ~$16k · **central ~$22k** · optimista ~$33k. La ganancia central sería **≈ +$12k** sobre los $10k. Léelo como 'orden de magnitud' bajo supuestos, no como número exacto ni prometido."),
 
- ("h1", "7. El próximo paso"),
- ("p", "Falta el **último gate: probarlo EN VIVO** (forward-test / paper trading). Usar el panel de 12 acciones para que EVA marque los días de alta convicción hacia adelante, registrar el credit spread que abriría, y medir el resultado con **datos reales**. Después de unas semanas que aguanten → recién ahí, plata real y **empezando chico**."),
+ ("h1", "7. EL PRÓXIMO PASO"),
+ ("p", "Falta el **último gate: probarlo EN VIVO** (forward-test / paper trading). Usar el panel de 12 acciones para que EVA marque los días de alta convicción hacia adelante, registrar el credit spread que abriría, y medir el resultado con **datos reales** — no simulados. Después de unas semanas que aguanten → recién ahí, plata real y **empezando chico**."),
  ("disclaimer", "EVA y yo no somos asesores financieros. Todo esto es análisis y simulación; las decisiones y el riesgo son tuyos. Ningún resultado pasado garantiza ganancias futuras."),
 ]
 
@@ -143,7 +153,10 @@ def build(path):
             for r in rows:
                 data.append([Paragraph(rl(c), cell) for c in r])
             ncol = len(headers); tot = 174*mm
-            widths = [tot*0.30, tot*0.70] if ncol == 2 else ([tot*0.22, tot*0.42, tot*0.36] if ncol == 3 else [tot/ncol]*ncol)
+            if ncol == 2: widths = [tot*0.30, tot*0.70]
+            elif ncol == 3: widths = [tot*0.22, tot*0.42, tot*0.36]
+            elif ncol == 4: widths = [tot*0.28, tot*0.13, tot*0.13, tot*0.46]
+            else: widths = [tot/ncol]*ncol
             t = Table(data, colWidths=widths, hAlign="LEFT")
             st = [("BACKGROUND", (0,0), (-1,0), TEAL), ("VALIGN", (0,0), (-1,-1), "MIDDLE"),
                   ("TOPPADDING", (0,0), (-1,-1), 5), ("BOTTOMPADDING", (0,0), (-1,-1), 5),
