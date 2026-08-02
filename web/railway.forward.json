@@ -6,7 +6,6 @@
   },
   "deploy": {
     "startCommand": "npm run forward-test",
-    "cronSchedule": "0 22 * * 1-5",
     "restartPolicyType": "NEVER"
   }
 }
