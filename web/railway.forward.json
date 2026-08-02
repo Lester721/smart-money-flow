@@ -1,0 +1,12 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "echo 'forward-test: sin build (tsx corre TypeScript directo)'"
+  },
+  "deploy": {
+    "startCommand": "npm run forward-test",
+    "cronSchedule": "0 22 * * 1-5",
+    "restartPolicyType": "NEVER"
+  }
+}

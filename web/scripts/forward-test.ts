@@ -17,6 +17,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname } from "node:path";
+import Redis from "ioredis";
 import { PANEL_TICKERS } from "../lib/panel";
 import { fetchFlow } from "../lib/massiveFlow";
 import {
@@ -31,6 +32,10 @@ const FWD_DAYS = Number(process.env.FWD_DAYS) || 10;        // ventana de flujo 
 const MIN_PREMIUM = Number(process.env.FWD_MIN_PREMIUM) || 1_000_000;
 const LEDGER = process.env.FWD_LEDGER || "data/forward/ledger.json";
 const REPORT = process.env.FWD_REPORT || "data/forward/forward-report.md";
+// Almacenamiento: "redis" en Railway (persistente, sin git), "file" en local. Autodetecta
+// redis si hay REDIS_URL. En Railway el ledger vive en la key FWD_REDIS_KEY.
+const STORE = (process.env.FWD_STORE || (process.env.REDIS_URL ? "redis" : "file")).toLowerCase();
+const REDIS_KEY = process.env.FWD_REDIS_KEY || "forward:ledger";
 const SLIP = Number(process.env.FWD_SLIP ?? 0.05);         // 5% de slippage al abrir (conservador, dentro de lo validado)
 const COMM = Number(process.env.FWD_COMM ?? 0.03);         // comisión Robinhood ~$0.03/contrato
 const WIDTH_EM = 0.5;                                       // ancho del spread = 0.5σ
@@ -50,12 +55,41 @@ interface Trade {
   status: "open" | "closed";
   exitDate?: string; exitSpot?: number; retOnRisk?: number; pnlPerSpread?: number;
 }
-function loadLedger(): Trade[] {
-  try { return JSON.parse(readFileSync(LEDGER, "utf8")) as Trade[]; } catch { return []; }
+let redis: Redis | null = null;
+function getRedis(): Redis {
+  if (!redis) {
+    if (!process.env.REDIS_URL) throw new Error("FWD_STORE=redis pero falta REDIS_URL en el entorno");
+    redis = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 3 });
+  }
+  return redis;
+}
+function readJsonFile(path: string): Trade[] {
+  try { return JSON.parse(readFileSync(path, "utf8")) as Trade[]; } catch { return []; }
 }
 function saveJson(path: string, data: unknown) {
   if (!existsSync(dirname(path))) mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify(data, null, 2), "utf8");
+}
+// Carga el ledger del backend activo. En redis: si la key está vacía (primera vez),
+// SIEMBRA desde el JSON committeado para no perder las 64 jugadas iniciales.
+async function loadLedger(): Promise<Trade[]> {
+  if (STORE === "redis") {
+    const raw = await getRedis().get(REDIS_KEY);
+    if (raw) { try { return JSON.parse(raw) as Trade[]; } catch { return []; } }
+    return readJsonFile(LEDGER); // semilla desde git la primera vez
+  }
+  return readJsonFile(LEDGER);
+}
+// Persiste ledger + reporte en el backend activo.
+async function persist(ledger: Trade[], report: string) {
+  if (STORE === "redis") {
+    const r = getRedis();
+    await r.set(REDIS_KEY, JSON.stringify(ledger));
+    await r.set(`${REDIS_KEY}:report`, report);
+    return;
+  }
+  saveJson(LEDGER, ledger);
+  saveJson(REPORT, report);
 }
 
 // ── Helpers de barras / señal (copiados del backtest para mantener el script aislado) ──
@@ -188,8 +222,8 @@ function pctile(vals: number[], p: number): number | null {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 (async () => {
-  console.log(`Forward-test credit spread · ${TICKERS.length} tickers · celdas ${CELLS.map((c) => `${c.dte}d@${c.sigma}σ`).join(", ")} · flujo ${FWD_DAYS}d`);
-  const ledger = loadLedger();
+  console.log(`Forward-test credit spread · ${TICKERS.length} tickers · celdas ${CELLS.map((c) => `${c.dte}d@${c.sigma}σ`).join(", ")} · flujo ${FWD_DAYS}d · store=${STORE}`);
+  const ledger = await loadLedger();
   const byId = new Map(ledger.map((t) => [t.id, t] as const));
   const barsByTicker = new Map<string, DBar[]>();
   const added: Trade[] = [];
@@ -228,7 +262,6 @@ function pctile(vals: number[], p: number): number | null {
     if (Date.now() < t.expiryMs) continue;
     if (settle(t, bars)) settled++;
   }
-  saveJson(LEDGER, ledger);
 
   // ── Reporte ──────────────────────────────────────────────────────────────
   const closed = ledger.filter((t) => t.status === "closed");
@@ -294,7 +327,10 @@ function pctile(vals: number[], p: number): number | null {
   }
 
   const report = L.join("\n") + "\n";
-  saveJson(REPORT, report);
+  await persist(ledger, report);
   console.log("\n" + report);
-  console.log(`=== ledger: ${LEDGER} · reporte: ${REPORT} ===`);
+  console.log(STORE === "redis"
+    ? `=== ledger en Redis key "${REDIS_KEY}" (reporte en "${REDIS_KEY}:report") ===`
+    : `=== ledger: ${LEDGER} · reporte: ${REPORT} ===`);
+  if (redis) await redis.quit(); // cierra la conexión para que el proceso (cron) termine
 })();
