@@ -94,7 +94,9 @@ function signals(rows: FlowRow[], bars: DBar[]): Signal[] {
 }
 
 // P&L de un credit spread a favor de la dirección, sostenido a vencimiento. Retorno sobre riesgo.
-function creditSpreadPnl(sig: Signal, bars: DBar[], dte: number, sigmaMult: number): number | null {
+// Costos: slip = fracción del crédito perdida al slippage (cruzar el bid/ask); commPerContract =
+// comisión por contrato (Robinhood ~0). El crédito real recibido baja por ambos.
+function creditSpreadPnl(sig: Signal, bars: DBar[], dte: number, sigmaMult: number, slip = 0, commPerContract = 0): number | null {
   const { spot, rv, entryIdx, dir } = sig;
   const T = dte / 365;
   const em = spot * rv * Math.sqrt(dte / 365);
@@ -108,6 +110,10 @@ function creditSpreadPnl(sig: Signal, bars: DBar[], dte: number, sigmaMult: numb
   const credit = bsPrice(spot, shortK, T, rv, type) - bsPrice(spot, longK, T, rv, type);
   const width = Math.abs(shortK - longK);
   if (!(credit > 0) || !(width > 0)) return null;
+  // COSTOS: crédito neto = crédito×(1−slip) − comisión por acción (2 patas al abrir / 100).
+  const commPerShare = (commPerContract * 2) / 100;
+  const netCredit = credit * (1 - slip) - commPerShare;
+  if (!(netCredit > 0)) return null; // no queda prima tras costos
   // vencimiento
   const expMs = Date.parse(`${bars[entryIdx].time}T20:00:00Z`) + dte * 86_400_000;
   const expIdx = barIdxOnOrAfter(bars, expMs);
@@ -115,8 +121,8 @@ function creditSpreadPnl(sig: Signal, bars: DBar[], dte: number, sigmaMult: numb
   const sExp = bars[expIdx].close;
   const shortIntr = bull ? Math.max(shortK - sExp, 0) : Math.max(sExp - shortK, 0);
   const longIntr = bull ? Math.max(longK - sExp, 0) : Math.max(sExp - longK, 0);
-  const pnl = credit - (shortIntr - longIntr); // $ por spread
-  const risk = width - credit;
+  const pnl = netCredit - (shortIntr - longIntr); // $ por spread
+  const risk = width - netCredit;
   return risk > 0 ? pnl / risk : pnl / width; // retorno sobre riesgo
 }
 
@@ -267,6 +273,29 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     lines.push(`| ${dte}d | ${cells[0]} | ${cells[1]} |`);
   }
   lines.push("", `**Celdas robustas (Top-EVA positivo en las DOS mitades OOS): ${robust}/${total}.** Muchas ✅ → el edge es AMPLIO (no fue suerte de una celda). Pocas → cherry-picking.`, "");
+
+  // ETAPA 6 — ¿el edge sobrevive los COSTOS? Comisión Robinhood (~$0.03/contrato) + slippage sensible.
+  const COMM = 0.03;
+  const SLIPS = [0, 0.05, 0.10, 0.15];
+  const keyCells: { name: string; dte: number; sm: number }[] = [
+    { name: "5d @1σ (mejor n)", dte: 5, sm: 1 },
+    { name: "90d @1σ", dte: 90, sm: 1 },
+    { name: "180d @1σ", dte: 180, sm: 1 },
+  ];
+  const topEvaMean = (dte: number, sm: number, slip: number): Stat | null => {
+    const rec = all.map(({ sig, bars }) => ({ pnl: creditSpreadPnl(sig, bars, dte, sm, slip, COMM), eva: sig.evaComp }))
+      .filter((x) => x.pnl != null) as { pnl: number; eva: number }[];
+    if (rec.length < 6) return null;
+    const k = Math.max(1, Math.floor(rec.length / 3));
+    const top = [...rec].sort((a, b) => a.eva - b.eva).slice(rec.length - k);
+    return stat(top.map((x) => x.pnl));
+  };
+  lines.push("## ETAPA 6 — ¿el edge sobrevive los COSTOS? (Top⅓ EVA · comisión Robinhood + slippage)", "", "| Celda | slip 0% | 5% | 10% | 15% |", "|---|---|---|---|---|");
+  for (const kc of keyCells) {
+    const cols = SLIPS.map((s) => { const st = topEvaMean(kc.dte, kc.sm, s); return st && st.mean != null ? `${st.mean}%` : "—"; });
+    lines.push(`| ${kc.name} | ${cols[0]} | ${cols[1]} | ${cols[2]} | ${cols[3]} |`);
+  }
+  lines.push("", "**Cómo leerlo:** media del Top⅓-Eva a cada nivel de slippage. Donde pasa a NEGATIVO, ahí el costo se comió el edge. Cuanto más slippage aguante positivo, más operable de verdad.", "");
 
   lines.push(
     "**Cómo leerlo:** credit/naked (vender prima) ganan seguido pero pierden grande → mira la MEDIA, no solo el win%. El debit spread pierde seguido pero gana grande. Candidata = media positiva con win razonable.",
