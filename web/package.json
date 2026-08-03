@@ -8,6 +8,7 @@
     "start": "next start",
     "worker": "tsx worker/ideasWorker.ts",
     "forward-test": "tsx scripts/forward-test.ts",
+    "forward-wheel": "tsx scripts/forward-wheel.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

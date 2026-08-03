@@ -14,14 +14,16 @@ Eva es un agente de análisis de **opciones**. Su trabajo es detectar **activida
 Eva **no predice el futuro** ni **ejecuta órdenes**, y **no es asesoría de inversión**. Te da inteligencia; las decisiones y el riesgo son tuyos.
 
 
-## 2. Las 4 secciones del navegador
+## 2. Las 6 secciones del navegador
 
 | Sección | Para qué sirve |
 |---|---|
 | Ticker | Análisis completo de una acción: sentiment, flujo, muros y sub-agentes. |
-| Ideas | Radar de TODO el mercado: dónde hay flujo institucional notable ahora mismo. |
+| Ideas | Radar de TODO el mercado: dónde hay flujo institucional notable ahora mismo (§8). |
 | Wheel | Screener de la estrategia Wheel (venta de puts cash-secured para ingreso). |
 | Time & Sales | El tape en crudo: cada operación notable con su agresor y griegas. |
+| 0DTE | Opciones que expiran el mismo día (sección en construcción). |
+| EVA Credit Spread | La estrategia validada: forward-test en vivo del credit spread filtrado por convicción de EVA. |
 
 
 ## 3. La vista Ticker: Estudiante vs Pro
@@ -34,6 +36,8 @@ Arriba de todo eliges el modo:
 | Pro | Todo el detalle: el resumen, el sentiment, los 6 sub-agentes, los muros y el feed de operaciones. |
 
 Recomendación: empieza en **Estudiante**; sube a **Pro** cuando quieras el detalle.
+
+> 🧭 **CÓMO USAR ESTA DIVISIÓN — Ticker**<br/>**Qué ves:** el análisis COMPLETO de UNA acción: dirección del flujo, fuerza, los 6 sub-agentes, muros y precio esperado.<br/>**Qué haces:** léela de arriba abajo — primero el resumen y el veredicto, luego el detalle. Es tu 'segunda opinión' antes de tocar un ticker (muchas veces llegas aquí desde una idea de la división Ideas).<br/>**NO es:** una orden de compra ni una predicción garantizada. Es contexto sobre hacia dónde apunta el dinero y qué tan fiable es.<br/>**Crúzala con:** **(1) el aviso de liquidez (§10)** — *por qué:* una señal sobre datos ilíquidos no vale nada; *cómo:* si ves «datos poco fiables», PARA ahí. **(2) los muros/GEX (§7)** — *por qué:* dicen dónde el precio suele frenar; *cómo:* si el flujo es alcista y hay un muro de calls justo arriba, ese muro es tu techo probable (buen sitio para tomar ganancia). **(3) el historial (§11)** — *por qué:* mide si el patrón funcionó antes; *cómo:* un hit-rate verde alto da confianza, uno rojo es bandera. *Ejemplo:* flujo bullish fuerte en AAPL + muro de calls en $240 + historial 80% → el escenario alcista hacia $240 tiene respaldo real, no es corazonada.
 
 
 ## 4. El resumen en lenguaje sencillo
@@ -65,18 +69,20 @@ _El medidor: la barra va de Bearish a Bullish y el marcador señala la DIRECCIÓ
 
 El sentiment sale del promedio de estos 6. Cada uno mira una cosa distinta:
 
-| Sub-agente | Qué mide / qué buscar | Peso |
+| Sub-agente | Qué mide / qué buscar | Peso · Victor → EVA |
 |---|---|---|
-| Agresividad | ¿Compran al ASK con fuerza? Mucho dinero al ask = urgencia direccional. | 20% |
-| Convicción | Calidad del flujo: spread apretado, un solo lado dominante, ejecución fuerte. | 20% |
-| Inusualidad | ¿Griegas de grado institucional? Tamaño, delta alta, vencimientos, gamma. | 20% |
-| Estructura | ¿Dónde se acumula el dinero? (muros GEX) y la liquidez de la cadena. | 15% |
-| Contexto IV | ¿La volatilidad implícita está limpia o inflada? Evita pagar prima cara. | 10% |
-| Confirmación de Precio | ¿El precio VALIDÓ flujos pasados o los absorbió? (el backtest, ver §9). | 15% |
+| Agresividad | ¿Compran al ASK con fuerza? Mucho dinero al ask = urgencia direccional. | 20% → **10%** ↓ |
+| Convicción | Calidad del flujo: spread apretado, un solo lado dominante, ejecución fuerte. | 20% → **30%** ↑ |
+| Inusualidad | ¿Griegas de grado institucional? Tamaño, delta alta, vencimientos, gamma. | 20% → 20% |
+| Estructura | ¿Dónde se acumula el dinero? (muros GEX) y la liquidez de la cadena. | 15% → 15% |
+| Contexto IV | ¿La volatilidad implícita está limpia o inflada? Evita pagar prima cara. | 10% → **15%** ↑ |
+| Confirmación de Precio | ¿El precio VALIDÓ flujos pasados o los absorbió? (el backtest, ver §11). | 15% → **10%** ↓ |
 
 ![Cada sub-agente puntúa 0-10; el AI Sentiment Score es su promedio ponderado por los pesos.](img/subagentes.png)
 
 _Cada sub-agente puntúa 0-10; el AI Sentiment Score es su promedio ponderado por los pesos._
+
+> 💡 **¿Por qué la columna muestra dos pesos (Victor → EVA)?** «Victor» es la calibración ORIGINAL, que dejamos **congelada** como referencia del pasado. «EVA» es la **recalibrada**. Lo que hicimos: backtesteamos cada sub-agente sobre ~1 año para ver cuál de verdad **separa** los trades ganadores de los perdedores. La **Convicción** (liquidez + calidad del flujo) fue la que mejor lo hizo → le **subimos** el peso (20→30%). La **Agresividad** casi no separaba → la **bajamos** (20→10%). Contexto IV subió y Confirmación bajó por lo mismo. Para elegir cuál ves: vista Ticker → **Pro** → «Detalle de sub-agentes» → toggle **Original | EVA**.
 
 
 ### El scorecard puesto a prueba (bitácora — se actualiza)
@@ -158,12 +164,153 @@ _Por qué: el cono crece con el tiempo, pero los muros no se mueven → mismos 3
 > ⚠️ PENDIENTE de mejora: que los plazos largos puedan alcanzar muros más lejanos, para que los 3 botones se sientan distintos. Hoy los precios son correctos como muros, pero se ven iguales.
 
 
-## 8. Reglas de liquidez (aviso clave)
+## 8. La vista Ideas: el radar del mercado
+
+Mientras la vista **Ticker** analiza UNA acción, **Ideas** es un **radar de TODO el mercado a la vez**: te muestra dónde está entrando el dinero grande AHORA. Un worker escucha el flujo de opciones en vivo (24/5) y guarda cada operación **notable** (prima ≥ **$500,000** = dinero institucional). Ideas lee eso y lo pasa por un **embudo de 2 filtros**:
+
+![De miles de operaciones del mercado a las pocas que TÚ puedes operar — y de paso, EVA aprende.](img/ideas_funnel.png)
+
+_De miles de operaciones del mercado a las pocas que TÚ puedes operar — y de paso, EVA aprende._
+
+> 🧭 **CÓMO USAR ESTA DIVISIÓN — Ideas**<br/>**Qué ves:** dónde entra el dinero institucional grande AHORA, en todo el mercado.<br/>**Qué haces:** úsala como RADAR / punto de partida — **NO como lista de compra**. Elige un ticker que te llame (prima grande + historial verde) y pásalo a la vista **Ticker** para el análisis completo antes de decidir.<br/>**NO es:** «compra exactamente estos contratos». Es flujo que hizo OTRO; tú validas si tiene sentido para TI y tu cuenta.<br/>**Crúzala con:** **(1) el HISTORIAL de la idea** — *por qué:* te dice si ese patrón ya funcionó en ese ticker; *cómo:* prioriza las verdes (hit-rate alto) y desconfía de las rojas. **(2) la vista Ticker del símbolo** — *por qué:* Ideas ve solo UN flujo, Ticker te da la foto completa; *cómo:* abre el ticker y revisa si el sentiment (§5) y los muros (§7) apoyan la misma dirección del flujo. **(3) tu perfil de riesgo** — *cómo:* confirma cuántos contratos caben. *Ejemplo:* Ideas marca flujo bajista grande en INTC con historial 19% (rojo) → ese patrón casi nunca funcionó antes; mejor pásalo aunque la prima sea jugosa.
+
+
+### El embudo: los 2 filtros
+
+**Filtro 1 — CALIDAD (en el servidor):** de las ~5,000 operaciones notables, quita lo que no sirve para operar (4 razones, abajo). **Filtro 2 — TU CUENTA (en tu navegador):** de las que quedan, deja solo las que caben en tu presupuesto de riesgo. Por eso el encabezado dice, por ejemplo, «9 ideas operables · 15 descartadas».
+
+![Ejemplo real: 5,000 escaneadas → el filtro de calidad tumbó 1,934 por no ser inusuales y 170 por vencer pronto → quedan ~24 de calidad → 9 caben en la cuenta.](img/ideas_cards.png)
+
+_Ejemplo real: 5,000 escaneadas → el filtro de calidad tumbó 1,934 por no ser inusuales y 170 por vencer pronto → quedan ~24 de calidad → 9 caben en la cuenta._
+
+| El Filtro 1 tumba por… | Qué significa |
+|---|---|
+| No inusual | Es grande pero NORMAL (no supera el umbral de rareza). La mayoría cae aquí. |
+| Vencido / vence hoy | No hay tiempo para que el movimiento se desarrolle. |
+| Lotería (theta alto) | Pierde >5% de su valor al día: se derrite, no es posición. |
+| Sin theta | El feed no trajo el dato para poder dimensionarlo. |
+
+
+### Tu perfil de riesgo (el 2º filtro)
+
+Arriba pones el **tamaño de tu cuenta** y el **riesgo por trade** (% máximo a arriesgar). EVA calcula cuántos contratos caben SIN pasarte de ese límite. Tu saldo **nunca sale de tu navegador** — el servidor no lo ve.
+
+![Cuenta $100,000 · riesgo 4% → máximo $4,000 por trade. Los números son un TECHO, no una sugerencia de compra.](img/ideas_perfil.png)
+
+_Cuenta $100,000 · riesgo 4% → máximo $4,000 por trade. Los números son un TECHO, no una sugerencia de compra._
+
+Por eso una idea puede quedar **descartada aunque sea buena**: es demasiado grande para tu cuenta. En la tabla lo ves en la columna **FRENO**: «prima» = te frenó el capital (cabe poco); «no alcanza» = ni un contrato entra (típico de SPX, que cuesta decenas de miles por contrato).
+
+
+### Cómo leer cada idea
+
+En **Estudiante** cada idea es una tarjeta; en **Pro** es una fila de tabla con todo el detalle. Lo que muestra:
+
+![Vista Pro: cada fila es una idea — contrato, prima del flujo, cuántos contratos caben, el freno, el % de tu cuenta y el HISTORIAL. Abajo, las SPX con FRENO «no alcanza» (no entra ni una).](img/ideas_tabla.png)
+
+_Vista Pro: cada fila es una idea — contrato, prima del flujo, cuántos contratos caben, el freno, el % de tu cuenta y el HISTORIAL. Abajo, las SPX con FRENO «no alcanza» (no entra ni una)._
+
+| Dato | Qué te dice |
+|---|---|
+| Contrato + vencimiento | El strike, si es call o put, y cuándo vence (ej. AMZN $335C, 165 días). |
+| Prima del flow | Cuánto dinero movió ese flujo institucional (ej. $7.1M). Más grande = más convicción del dinero. |
+| Máx. contratos / % cuenta | Cuántos caben en tu riesgo y qué % de tu cuenta arriesgas con ellos. |
+| Freno | Qué te limitó: «prima» (el capital) o «no alcanza» (no entra ni uno). |
+| Historial | Lo más importante (↓ siguiente sección): si ese patrón funcionó antes en ese ticker. |
+
+
+### Cómo EVA aprende de cada escaneo
+
+**Cada escaneo guarda el flujo que vio, por ticker.** Con el tiempo eso arma un **historial**, y EVA mide: cuando apareció flujo así antes en este ticker, ¿el precio lo confirmó? Ese es el **hit-rate** de la columna HISTORIAL:
+
+| Lo que ves | Qué significa |
+|---|---|
+| sin historial todavía | Aún no hay suficientes flujos guardados de ese ticker. Se llena con el uso. |
+| 100% · ~3 ses (verde) | Ese patrón acertó el 100% de las veces, y tardó ~3 sesiones en confirmarse. |
+| 19% · ~1 ses (rojo) | Ese patrón casi nunca funcionó antes. Bandera roja. |
+
+O sea: Ideas no solo dice «hay flujo aquí», sino «y este tipo de flujo en este ticker históricamente sí/no funcionó». Es el **bucle de aprendizaje** en acción (ver §11). Mientras más uses EVA, más historial acumula y más fiable se vuelve su lectura.
+
+
+### Cómo se conecta con el resto del agente
+
+Ideas no vive aislada — se apoya en el resto y lo alimenta:
+
+| Se conecta con… | Cómo |
+|---|---|
+| El sub-agente Inusualidad (§6) | El Filtro 1 de calidad ES la nota de Inusualidad: tamaño, delta, theta, gamma, vencimiento. Solo pasa lo genuinamente raro. |
+| Los muros / GEX (§7) | Cuando analizas un ticker que salió en Ideas, ves sus muros de gamma y el movimiento esperado: el contexto de dónde puede frenar el precio. |
+| La memoria / aprendizaje (§11) | Cada escaneo alimenta el historial por-ticker que usa el sub-agente 'Confirmación de Precio'. |
+| EVA Credit Spread | El flujo de alta convicción que detecta Ideas es la materia prima de la estrategia de credit spread validada. |
+
+![Al analizar un ticker que salió en Ideas, ves sus muros de gamma (Ticker/Pro): dónde el precio suele frenar o acelerar.](img/ideas_walls.png)
+
+_Al analizar un ticker que salió en Ideas, ves sus muros de gamma (Ticker/Pro): dónde el precio suele frenar o acelerar._
+
+
+## 9. Wheel, y las otras divisiones
+
+Wheel merece detalle (es una estrategia entera); las otras tres las repaso en breve. Todas comparten el mismo bloque **«cómo usar»** (el recuadro azul), y en «Crúzala con» te explico **por qué** y **cómo** cruzarlas, con ejemplos.
+
+
+### Wheel — la estrategia de ingreso vendiendo prima
+
+La **Wheel** («la rueda») es una estrategia de INGRESO con **dos patas**: **(A)** vendes un **put cash-secured** — cobras prima y dejas efectivo de colateral (strike × 100); si el precio baja y te **asignan**, te quedas la acción a descuento. **(B)** Con esas acciones, vendes **calls cubiertas** encima — cobras más prima; si te las **llaman**, las vendes con ganancia y vuelves a empezar. Cobras prima en todo el ciclo.
+
+> ⚠️ OJO — hoy la app solo hace la PATA A (vender puts). La PATA B (calls cubiertas sobre acciones que YA tienes) NO está construida todavía. Si tienes acciones (ej. 500 de HOOD = hasta 5 contratos de calls cubiertas), Wheel aún no te ayuda con eso — es una pieza pendiente de desarrollar.
+
+**Cómo elige qué put vender:** primero eliges un **preset de riesgo**, que fija el |delta| del put (≈ probabilidad de que te asignen) y los días al vencimiento (DTE):
+
+| Preset | |Delta| | DTE | Perfil |
+|---|---|---|---|
+| Conservador | 0.10–0.20 | 30–45 | ~10-20% chance de asignación, strike lejos del precio. |
+| Balanceado | 0.20–0.30 | 30–45 | Punto medio: más prima, más chance. |
+| Agresivo | 0.30–0.40 | 7–21 | Más prima y más chance de asignación, corto plazo. |
+
+De la cadena se queda con los puts en esa banda que pasan **liquidez** (hay bid, spread ≤25%, OI ≥100), y los **puntúa de 0 a 100** con 5 criterios. Qué es cada uno y **qué mira Wheel**:
+
+| Criterio (puntos máx.) | Qué es y qué mira Wheel |
+|---|---|
+| Rendimiento anualizado (30) | La prima que cobras frente al efectivo inmovilizado, llevada a un año. Premia el rango SANO (15-35% → 30 pts) y **castiga lo demasiado alto** (>60% → solo 10 pts): una prima altísima suele significar que el mercado espera un desplome. No busca la prima más grande, sino la **mejor pagada por el riesgo**. |
+| IV Rank (20) | Qué tan cara está la volatilidad frente a su propio año. Como Wheel VENDE prima, quiere IV CARA: >70 → 20 pts; <30 → 4 pts («te pagan poco por el riesgo»). Es la banda INVERTIDA del resto del agente (que compra opciones y quiere IV barata). |
+| Colchón / soporte (25) | Qué tan protegido queda el strike si el precio cae. Máximo (25) si el strike está **bajo un soporte fuerte** (donde el precio ya rebotó antes); 12 si solo hay >10% de colchón sin soporte; 5 si no hay colchón (te asignan fácil). |
+| Liquidez (15) | Qué tan fácil entras y sales sin regalar dinero: OI≥500 y spread≤10% → 15 (excelente); OI≥100 y spread≤25% → 5 (justa); menos → 0 (bloqueado). |
+| Earnings (10) | Si hay reporte de resultados DENTRO del trade (un reporte puede mover la acción de golpe): fuera del vencimiento → 10 pts; dentro (estimado) → 3; dentro confirmado por la volatilidad → 0. |
+
+> 💡 Dato clave: **Wheel NO usa el scorecard de flujo — ni Victor ni EVA.** Es un sistema APARTE, con su propio score (los 5 criterios de arriba) y su propio universo de acciones. No mira el dinero institucional ni el sentiment — solo «¿esta prima paga bien, con poco riesgo, en una acción sólida?». Conectarle el filtro de convicción de EVA sería algo NUEVO a probar.
+
+> ⚠️ PENDIENTE — Wheel NO está validado: es solo un screener hacia adelante, SIN backtest. No sabemos aún si de verdad da ventaja. Plan: backtestear la rueda (con los mismos gates que el credit spread: out-of-sample, amplitud, costos), y si aguanta → forward-test en vivo. Antes de arriesgar con esto, hay que probarlo.
+
+> 🧭 **CÓMO USAR ESTA DIVISIÓN — Wheel**<br/>**Qué ves:** candidatos para vender puts cash-secured (ingreso), con su score 0-100 y cuántos contratos costeas.<br/>**Qué haces:** eliges un candidato cuyo strike te gustaría poseer si te asignan, y usas los números como TECHO de sizing (no como sugerencia de compra).<br/>**NO es:** una recomendación validada (sin backtest aún), y no cubre las calls sobre acciones que ya tienes.<br/>**Crúzala con:** **(1) la vista Ticker del símbolo** — *por qué:* el score de Wheel NO mira el flujo institucional; *cómo:* revisa si el sentiment y los muros GEX apoyan el strike. *Ejemplo:* si vas a vender un put $80 en HOOD, mira si hay un muro de puts / soporte cerca de $80 — si lo hay, el precio tiende a frenarse ahí y baja tu riesgo de asignación. **(2) Tu perfil de riesgo** — *cómo:* confirma que el colateral (strike × 100 por contrato) cabe sin pasarte de tu % máximo por trade.
+
+
+### Time & Sales — el tape en crudo
+
+Cada operación notable según va pasando, con su agresor (¿compró al bid o al ask?) y sus griegas. Es la materia prima SIN filtrar de la que salen Ideas y el sentiment.
+
+> 🧭 **CÓMO USAR ESTA DIVISIÓN — Time & Sales**<br/>**Qué ves:** el flujo bruto en vivo, operación por operación, con agresor y griegas.<br/>**Qué haces:** confirmas con tus ojos lo que los scores resumen — ¿de verdad compran calls al ask con urgencia?<br/>**NO es:** una señal ya masticada; es data cruda para verificar.<br/>**Crúzala con:** **el AI Sentiment (§5) y los sub-agentes (§6)** del mismo ticker — *por qué:* los scores RESUMEN el tape; aquí verificas con tus ojos que el resumen es fiel y no ruido; *cómo:* si el sentiment dice «bajista fuerte», deberías VER en el tape puts comprándose al ask con tamaño. *Ejemplo:* el score marca Convicción 8/10 alcista — bajas al tape y ves 3 bloques de calls al ask de $2M cada uno → confirmado.
+
+
+### 0DTE — expiran hoy
+
+Opciones que vencen el MISMO día (0 días al vencimiento). Sección en construcción; el contenido lo definimos juntos.
+
+> 🧭 **CÓMO USAR ESTA DIVISIÓN — 0DTE**<br/>**Qué ves:** (próximamente) el flujo y los niveles de las opciones que expiran hoy.<br/>**Qué haces:** — en construcción.<br/>**NO es:** funcional todavía.<br/>**Crúzala con:** (cuando esté) **los muros/GEX intradía (§7)** — *por qué:* en 0DTE el gamma de los dealers domina el precio hora a hora, más que en cualquier otro plazo; *cómo:* el precio tiende a imantarse al muro más grande del día, así que ese muro es tu nivel clave para entrar/salir.
+
+
+### EVA Credit Spread — la estrategia validada
+
+El forward-test EN VIVO (paper) de la estrategia que probamos: vender credit spreads en los días de alta convicción de EVA. Muestra las pruebas, las 5 mejoras y cada jugada registrada.
+
+> 🧭 **CÓMO USAR ESTA DIVISIÓN — EVA Credit Spread**<br/>**Qué ves:** la estrategia validada en prueba en vivo: qué entró, su estatus y su resultado.<br/>**Qué haces:** la SIGUES para ver si el edge se sostiene hacia adelante — es observación, no operación (aún).<br/>**NO es:** una lista de trades para copiar hoy; está en fase de prueba.<br/>**Crúzala con:** nada por ahora — esta división ES la prueba, no una herramienta de operar. *Cómo seguirla:* mira si el «Top⅓ de convicción» rinde mejor que el «Bottom⅓» a medida que se acumulan cierres; ese es el edge que queremos confirmar hacia adelante antes de arriesgar dinero real.
+
+
+## 10. Reglas de liquidez (aviso clave)
 
 > ⚠️ Si la cadena de opciones es POCO LÍQUIDA (bajo volumen/OI, spreads anchos), Eva marca la señal como 'datos poco fiables' y recomienda NO operarla. SIEMPRE lee este aviso primero — una señal sobre datos malos no vale nada.
 
 
-## 9. Cómo Eva 'aprende' todos los días
+## 11. Cómo Eva 'aprende' todos los días
 
 Sí, Eva aprende — y aquí está exactamente cómo, dónde y en qué acciones:
 
@@ -179,7 +326,7 @@ Sí, Eva aprende — y aquí está exactamente cómo, dónde y en qué acciones:
 > 💡 Esto es la base de la CONFIANZA: no 'creemos' que la señal funciona — Eva lo mide contra lo que el precio realmente hizo. (Próximo paso pendiente: un 'chequeo de confianza' que mida el backtest de los 6 sub-agentes uno por uno.)
 
 
-## 10. Ejemplos de estrategia (educativo, NO consejo)
+## 12. Ejemplos de estrategia (educativo, NO consejo)
 
 Cómo la información de Eva **suele mapearse** a estrategias comunes de opciones. Son ejemplos educativos, no recomendaciones:
 
@@ -195,7 +342,7 @@ Cómo la información de Eva **suele mapearse** a estrategias comunes de opcione
 _Ninguna de estas es una recomendación. Cada estrategia tiene riesgo; el tamaño y la decisión son tuyos._
 
 
-## 11. Mis recomendaciones (de Claude)
+## 13. Mis recomendaciones (de Claude)
 
 | Recomendación | Por qué |
 |---|---|
@@ -208,7 +355,7 @@ _Ninguna de estas es una recomendación. Cada estrategia tiene riesgo; el tamañ
 _Eva y yo no somos asesores financieros. Damos contexto y análisis; las decisiones de inversión — y su riesgo — son enteramente tuyas._
 
 
-## 12. Hacia dónde va EVA — 5 mejoras en desarrollo
+## 14. Hacia dónde va EVA — 5 mejoras en desarrollo
 
 Estas cinco mejoras son las que separarían a EVA de un simple lector de flujo estático (como el sistema base). No son magia garantizada — son las apuestas donde hay MÁS chance de un salto real. Cada una se construye y se valida con backtest y forward-test antes de confiar en ella.
 
@@ -223,7 +370,7 @@ Estas cinco mejoras son las que separarían a EVA de un simple lector de flujo e
 _Mejoras en desarrollo, NO promesas. Cada una se valida con datos antes de confiar en ella. El objetivo es un salto real y medido, no una ilusión — y si los datos dicen que una no sirve, se descarta con honestidad._
 
 
-## 13. Glosario
+## 15. Glosario
 
 | Término | Qué es |
 |---|---|
