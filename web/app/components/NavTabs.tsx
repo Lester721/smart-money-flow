@@ -12,6 +12,7 @@ const TABS = [
   { href: "/wheel", label: "Wheel", icon: "🎡" },
   { href: "/flow", label: "Time & Sales", icon: "⚡" },
   { href: "/0dte", label: "0DTE", icon: "🎯" },
+  { href: "/credit-spread", label: "EVA Credit Spread", icon: "🛡️" },
 ];
 
 export default function NavTabs({ standalone = false }: { standalone?: boolean }) {

@@ -393,7 +393,7 @@ export default function Dashboard() {
 
             {view === "estudiante" && (
               <>
-                <VeredictoCard ticker={ticker} prediction={prediction} horizonDays={horizonDays} />
+                <VeredictoCard ticker={ticker} prediction={prediction} horizonDays={horizonDays} loading={busy} />
 
                 {/* El selector de horizonte va pegado a la gráfica que controla:
                     si flota a la misma distancia que una sección, deja de leerse
@@ -481,8 +481,8 @@ export default function Dashboard() {
                 {company && <CompanyHeader company={company} />}
                 <div>
                   <div className="view-toggle" style={{ marginBottom: 12 }}>
-                    <button className={scMode === "victor" ? "active" : ""} onClick={() => setScMode("victor")}>Victor</button>
-                    <button className={scMode === "eva" ? "active" : ""} onClick={() => setScMode("eva")}>EVA-tuned</button>
+                    <button className={scMode === "victor" ? "active" : ""} onClick={() => setScMode("victor")} title="El sistema base, congelado como referencia">Original</button>
+                    <button className={scMode === "eva" ? "active" : ""} onClick={() => setScMode("eva")} title="La versión mejorada de EVA (pesos recalibrados)">EVA</button>
                   </div>
                   {scMode === "victor" ? (
                     <ScorecardPanel aggression={aggScore} conviction={conviction} unusuality={unusuality} structure={structure} ivContext={ivContext} validation={validation} />

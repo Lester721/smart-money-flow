@@ -36,6 +36,24 @@ const HORIZON_LABELS: Record<number, string> = {
   30: "1 mes",
 };
 
+/** Estado del mercado de opciones US (hora del Este, maneja horario de verano vía Intl).
+ *  Abierto lun–vie 9:30 AM – 4:00 PM ET. (No contempla feriados — aproximación suficiente.) */
+function marketStatus(now: Date = new Date()): { open: boolean; reason: string } {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", weekday: "short", hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(now);
+  const wd = parts.find((p) => p.type === "weekday")?.value ?? "";
+  const hh = Number(parts.find((p) => p.type === "hour")?.value ?? "0") % 24;
+  const mm = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
+  const isWeekday = ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(wd);
+  const mins = hh * 60 + mm;
+  const open = isWeekday && mins >= 570 && mins < 960; // 9:30 (570) – 16:00 (960)
+  if (!isWeekday) return { open, reason: "Es fin de semana." };
+  if (mins < 570) return { open, reason: "El mercado abre a las 9:30 AM ET." };
+  if (mins >= 960) return { open, reason: "El mercado cerró a las 4:00 PM ET." };
+  return { open, reason: "Mercado abierto." };
+}
+
 export default function IdeasPage() {
   const [profile, setProfile] = useState<RiskProfile>(DEFAULT_PROFILE);
   const [view, setView] = useState<"estudiante" | "pro">("estudiante");
@@ -380,7 +398,34 @@ export default function IdeasPage() {
           </section>
         )}
 
-        {ideas && meta && !busy && (
+        {ideas && meta && !busy && meta.scanned === 0 && (() => {
+          const m = marketStatus();
+          return (
+            <section className="ideas-empty">
+              {m.open ? (
+                <>
+                  <h2>Sin flujo notable ahora mismo 🔍</h2>
+                  <p className="muted">
+                    El mercado está abierto, pero el escáner no ve trades grandes (≥$500K) en este instante.
+                    Suele llenarse en minutos — dale a “↻ Volver a escanear”. Si sigue vacío un buen rato en
+                    horario de mercado, puede haber un problema con el worker.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h2>Mercado cerrado 🕙</h2>
+                  <p className="muted">
+                    {m.reason} La página <strong>Ideas</strong> se llena con el <strong>flujo en vivo</strong> del
+                    mercado. Vuelve en horario de mercado — <strong>9:30 AM – 4:00 PM ET</strong>, lunes a
+                    viernes — y las ideas aparecen solas.
+                  </p>
+                </>
+              )}
+            </section>
+          );
+        })()}
+
+        {ideas && meta && !busy && meta.scanned > 0 && (
           <>
             <div className="ideas-summary">
               <h1>

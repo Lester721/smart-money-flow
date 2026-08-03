@@ -695,6 +695,29 @@ tfoot .totals td {
 .verdict-sub { margin-top: 10px; font-size: 13.5px; color: var(--text); line-height: 1.5; }
 .verdict-loading, .verdict-word + .verdict-sub { color: var(--muted); }
 .verdict-loading { color: var(--muted); font-size: 14px; }
+/* Estado en progreso: borde NEUTRO (no rojo) + spinner — no parece un error. */
+.verdict-loading-state { border-left-color: var(--border); }
+.verdict-spinner { flex: none; width: 22px; height: 22px; border-radius: 50%;
+  border: 2.5px solid var(--border); border-top-color: var(--accent);
+  animation: verdict-spin 0.8s linear infinite; }
+@keyframes verdict-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .verdict-spinner { animation: none; } }
+/* Nota de datos parciales: informativa, ámbar suave — NO parece un error. */
+.verdict-partial { margin-top: 8px; display: inline-block; font-size: 12px; font-weight: 600;
+  color: var(--amber-text); background: var(--amber-bg); border-radius: 8px; padding: 5px 10px; }
+
+/* Estado vacío de Ideas (mercado cerrado / sin flujo) */
+.ideas-empty { text-align: center; padding: 44px 24px; background: var(--panel);
+  border: 1px solid var(--border); border-radius: 16px; }
+.ideas-empty h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+.ideas-empty p { max-width: 560px; margin: 0 auto; font-size: 14px; line-height: 1.55; }
+
+/* Tabla de la vista EVA Credit Spread */
+.cs-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.cs-table th { text-align: left; padding: 7px 10px; background: var(--panel); color: var(--muted);
+  font-weight: 700; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.cs-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.cs-table tbody tr:last-child td { border-bottom: none; }
 
 /* Lista de niveles */
 .niveles { margin-top: 14px; }

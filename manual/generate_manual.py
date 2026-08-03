@@ -106,6 +106,25 @@ C = [
  ]),
  ("image", "walls.png", "Oro = muros de calls (resistencia) arriba del precio; morado = muros de puts (soporte) abajo; la franja es el cono ±1σ."),
 
+ ("h2", "De dónde salen los 3 precios (alcista, base, bajista)"),
+ ("p", "Esos mismos muros arman la tarjeta '¿Cómo se podría mover?', con 3 precios. No es un pronóstico mágico — es la mecánica de los muros de gamma. Desde cero:"),
+ ("image", "ref_precios_semana.png", "La tarjeta en EVA (HOOD): alcista $92, base $90, bajista $85. Esto es lo que vamos a explicar."),
+ ("p", "**Quién te vende la opción:** del otro lado hay un **dealer** (la casa). No apuesta dirección; para no arriesgarse, cada vez que el precio se mueve compra o vende la acción para equilibrarse. Ese movimiento **obligado** empuja el precio."),
+ ("image", "gamma_dealer.png", "El dealer está obligado a mover la acción — es mecánica, no opinión."),
+ ("p", "**El muro (imán):** en los strikes con MUCHAS opciones, el dealer se cubre fuerte: si el precio sube, vende (lo baja); si baja, compra (lo sube). Como las paredes de un valle, el precio rueda al fondo y se queda. Ese es el **muro** o **imán**."),
+ ("image", "gamma_muro.png", "El muro imanta el precio hacia su fondo."),
+ ("image", "gamma_signo.png", "Gamma + = el precio se frena (hay muro). Gamma − = se acelera (no hay muro — cuidado)."),
+ ("p", "**Los 3 precios salen de los muros:** **Base** = el imán dominante (el strike con más gamma). **Alcista** = el muro más fuerte por encima. **Bajista** = el muro más fuerte por debajo. Si no hay muro de un lado, cae al borde de **±1σ** del cono."),
+ ("image", "gamma_tres.png", "Los 3 precios = los muros; el más grueso (más gamma) es el imán."),
+ ("callout", "info", "Para ti: el muro es donde el precio suele FRENAR (buen lugar para tomar ganancia o vender prima por fuera); la zona γ− es donde ACELERA (ahí no vendas prima corta). Son niveles REALES (miles de contratos), no líneas a ojo — solo fiables con liquidez."),
+
+ ("h2", "¿Por qué los 3 plazos dan el MISMO precio?"),
+ ("p", "Porque los muros son precios **fijos** — no dependen del tiempo. Cambiar el plazo mueve el ancho del cono y las probabilidades, pero **no** los muros. Si están pegados al precio actual (como en HOOD), caben hasta en 'esta semana' → los 3 plazos dan lo mismo. Míralo: la misma tarjeta, 3 pestañas, los mismos precios."),
+ ("image", "ref_precios_2sem.png", "La MISMA tarjeta de HOOD en '2 semanas': los precios NO cambian ($92 / $90 / $85)."),
+ ("image", "ref_precios_1mes.png", "Y en '1 mes': otra vez idénticos. Los muros son fijos → no se mueven con el plazo."),
+ ("image", "gamma_plazos.png", "Por qué: el cono crece con el tiempo, pero los muros no se mueven → mismos 3 precios."),
+ ("callout", "warn", "PENDIENTE de mejora: que los plazos largos puedan alcanzar muros más lejanos, para que los 3 botones se sientan distintos. Hoy los precios son correctos como muros, pero se ven iguales."),
+
  ("h1", "8. Reglas de liquidez (aviso clave)"),
  ("callout", "warn", "Si la cadena de opciones es POCO LÍQUIDA (bajo volumen/OI, spreads anchos), Eva marca la señal como 'datos poco fiables' y recomienda NO operarla. SIEMPRE lee este aviso primero — una señal sobre datos malos no vale nada."),
 

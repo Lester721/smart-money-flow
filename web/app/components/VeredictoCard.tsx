@@ -25,21 +25,28 @@ export default function VeredictoCard({
   ticker,
   prediction,
   horizonDays,
+  loading = false,
 }: {
   ticker: string;
   prediction: ProPrediction | null;
   horizonDays: number;
+  loading?: boolean;
 }) {
-  if (!prediction) {
+  // Mientras los 6 sub-agentes van llegando, la predicción es PARCIAL y su caveat
+  // ("solo N de 6…") no es un veredicto real: es carga incompleta. No mostramos ni
+  // dirección ni avisos hasta terminar — solo un estado en progreso, profesional.
+  if (loading || !prediction) {
     return (
-      <section className="verdict">
-        <div className="verdict-loading">Armando la lectura de {ticker}…</div>
+      <section className="verdict verdict-loading-state">
+        <div className="verdict-spinner" aria-hidden />
+        <div className="verdict-loading">Analizando {ticker} — reuniendo los sub-agentes…</div>
       </section>
     );
   }
 
-  // Salvaguarda de liquidez — regla prioritaria: no dar dirección si no es fiable.
-  if (prediction.caveat) {
+  // Salvaguarda de liquidez REAL — regla prioritaria: cadena ilíquida = no operar.
+  // (Los datos PARCIALES, "solo N de 6", NO son esto: se muestran como nota suave abajo.)
+  if (prediction.caveatKind === "liquidity") {
     return (
       <section className="verdict verdict-warn">
         <div className="verdict-icon">⚠</div>
@@ -78,6 +85,9 @@ export default function VeredictoCard({
             </span>
           )}
         </div>
+        {prediction.caveatKind === "partial" && (
+          <div className="verdict-partial">Lectura parcial — faltan datos de algunos sub-agentes; tómala con cautela.</div>
+        )}
         <div className="verdict-sub">{prediction.summary}</div>
       </div>
     </section>

@@ -106,6 +106,58 @@ En la tarjeta PRO 'Strike Walls' ves:
 _Oro = muros de calls (resistencia) arriba del precio; morado = muros de puts (soporte) abajo; la franja es el cono ±1σ._
 
 
+### De dónde salen los 3 precios (alcista, base, bajista)
+
+Esos mismos muros arman la tarjeta '¿Cómo se podría mover?', con 3 precios. No es un pronóstico mágico — es la mecánica de los muros de gamma. Desde cero:
+
+![La tarjeta en EVA (HOOD): alcista $92, base $90, bajista $85. Esto es lo que vamos a explicar.](img/ref_precios_semana.png)
+
+_La tarjeta en EVA (HOOD): alcista $92, base $90, bajista $85. Esto es lo que vamos a explicar._
+
+**Quién te vende la opción:** del otro lado hay un **dealer** (la casa). No apuesta dirección; para no arriesgarse, cada vez que el precio se mueve compra o vende la acción para equilibrarse. Ese movimiento **obligado** empuja el precio.
+
+![El dealer está obligado a mover la acción — es mecánica, no opinión.](img/gamma_dealer.png)
+
+_El dealer está obligado a mover la acción — es mecánica, no opinión._
+
+**El muro (imán):** en los strikes con MUCHAS opciones, el dealer se cubre fuerte: si el precio sube, vende (lo baja); si baja, compra (lo sube). Como las paredes de un valle, el precio rueda al fondo y se queda. Ese es el **muro** o **imán**.
+
+![El muro imanta el precio hacia su fondo.](img/gamma_muro.png)
+
+_El muro imanta el precio hacia su fondo._
+
+![Gamma + = el precio se frena (hay muro). Gamma − = se acelera (no hay muro — cuidado).](img/gamma_signo.png)
+
+_Gamma + = el precio se frena (hay muro). Gamma − = se acelera (no hay muro — cuidado)._
+
+**Los 3 precios salen de los muros:** **Base** = el imán dominante (el strike con más gamma). **Alcista** = el muro más fuerte por encima. **Bajista** = el muro más fuerte por debajo. Si no hay muro de un lado, cae al borde de **±1σ** del cono.
+
+![Los 3 precios = los muros; el más grueso (más gamma) es el imán.](img/gamma_tres.png)
+
+_Los 3 precios = los muros; el más grueso (más gamma) es el imán._
+
+> 💡 Para ti: el muro es donde el precio suele FRENAR (buen lugar para tomar ganancia o vender prima por fuera); la zona γ− es donde ACELERA (ahí no vendas prima corta). Son niveles REALES (miles de contratos), no líneas a ojo — solo fiables con liquidez.
+
+
+### ¿Por qué los 3 plazos dan el MISMO precio?
+
+Porque los muros son precios **fijos** — no dependen del tiempo. Cambiar el plazo mueve el ancho del cono y las probabilidades, pero **no** los muros. Si están pegados al precio actual (como en HOOD), caben hasta en 'esta semana' → los 3 plazos dan lo mismo. Míralo: la misma tarjeta, 3 pestañas, los mismos precios.
+
+![La MISMA tarjeta de HOOD en '2 semanas': los precios NO cambian ($92 / $90 / $85).](img/ref_precios_2sem.png)
+
+_La MISMA tarjeta de HOOD en '2 semanas': los precios NO cambian ($92 / $90 / $85)._
+
+![Y en '1 mes': otra vez idénticos. Los muros son fijos → no se mueven con el plazo.](img/ref_precios_1mes.png)
+
+_Y en '1 mes': otra vez idénticos. Los muros son fijos → no se mueven con el plazo._
+
+![Por qué: el cono crece con el tiempo, pero los muros no se mueven → mismos 3 precios.](img/gamma_plazos.png)
+
+_Por qué: el cono crece con el tiempo, pero los muros no se mueven → mismos 3 precios._
+
+> ⚠️ PENDIENTE de mejora: que los plazos largos puedan alcanzar muros más lejanos, para que los 3 botones se sientan distintos. Hoy los precios son correctos como muros, pero se ven iguales.
+
+
 ## 8. Reglas de liquidez (aviso clave)
 
 > ⚠️ Si la cadena de opciones es POCO LÍQUIDA (bajo volumen/OI, spreads anchos), Eva marca la señal como 'datos poco fiables' y recomienda NO operarla. SIEMPRE lee este aviso primero — una señal sobre datos malos no vale nada.

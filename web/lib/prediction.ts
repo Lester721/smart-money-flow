@@ -97,6 +97,9 @@ export interface ProPrediction {
   direction: "up" | "down" | "flat";
   summary: string;
   caveat: string | null;
+  /** Tipo de aviso: "liquidity" = baja liquidez real (no operar); "partial" = faltan
+   *  datos de algunos sub-agentes (solo cautela); null = sin aviso. */
+  caveatKind: "liquidity" | "partial" | null;
   /** Auto-corrección aplicada al target base según la memoria del agente. */
   calibration: { applied: boolean; shiftPct: number; samples: number };
 }
@@ -253,9 +256,13 @@ export function predictPro(input: PredictionInput): ProPrediction {
     `A ${horizonDays} días el escenario base apunta ${dirText}, dentro de un rango esperado de ` +
     `±${em.sigmaPct.toFixed(1)}% (1σ). ${moneyText} ${scoreText}${trackText}${calText}`;
 
-  const caveat = lowLiquidity
+  // Dos tipos de aviso MUY distintos: liquidez real (no operar, regla prioritaria) vs
+  // simple cobertura parcial de sub-agentes (solo cautela). La UI los muestra distinto.
+  const caveatKind: "liquidity" | "partial" | null =
+    lowLiquidity ? "liquidity" : active < 6 ? "partial" : null;
+  const caveat = caveatKind === "liquidity"
     ? "Cadena de baja liquidez: la predicción se marca como NO FIABLE y no debe usarse para operar."
-    : active < 6
+    : caveatKind === "partial"
       ? `Solo ${active} de 6 sub-agentes tienen dato; la confianza está recortada.`
       : null;
 
@@ -263,7 +270,7 @@ export function predictPro(input: PredictionInput): ProPrediction {
     horizonDays, spot, iv,
     bear, base, bull,
     score, active, confidence, levels, direction,
-    summary, caveat,
+    summary, caveat, caveatKind,
     calibration: { applied: shiftPct !== 0, shiftPct, samples },
   };
 }

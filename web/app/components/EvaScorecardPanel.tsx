@@ -46,7 +46,7 @@ export default function EvaScorecardPanel({
   return (
     <section className="scpanel">
       <div className="scpanel-head">
-        <h2>Scorecard EVA-tuned <span className="chip chip-ask">recalibrado</span></h2>
+        <h2>Scorecard EVA <span className="chip chip-ask">recalibrado</span></h2>
         <div className="scpanel-total">
           {allActive ? (
             <>Total <b>{composite}</b> / 100</>
