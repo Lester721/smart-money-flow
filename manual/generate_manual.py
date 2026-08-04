@@ -62,6 +62,7 @@ C = [
  ("p", "Arriba de todo hay **dos toggles**, uno encima del otro. Primero eliges el **motor** (Original o EVA); debajo, la **vista** (Estudiante o Pro)."),
  ("h2", "El toggle Original | EVA — elige qué motor manda"),
  ("image", "toggle_modo.png", "Dos toggles apilados: arriba el MOTOR (Original o EVA), abajo la VISTA (Estudiante o Pro). El motor que elijas cambia el scorecard de TODA la página."),
+ ("image", "app_toggle.png", "Así se ve en la app: el toggle real (aquí en «Original»). Al pasarlo a EVA se recalculan a la vez la fuerza del AI Sentiment, el scorecard y el texto del veredicto — la dirección y los precios objetivo NO cambian."),
  ("p", "**Original** es el sistema base de Victor, congelado como referencia del pasado. **EVA** es la versión recalibrada (la Convicción pesa más — ver §6). Al cambiarlo, se actualizan a la vez la **fuerza del AI Sentiment**, el **scorecard** y el texto de señales del veredicto — tanto en Estudiante como en Pro."),
  ("callout", "info", "**Qué cambia y qué NO al mover Original ⇄ EVA.** CAMBIA todo lo que depende de los **pesos del scorecard**: la fuerza, el scorecard y el texto de «señales fuertes/débiles». NO cambia los **precios objetivo** (alcista/base/bajista, que salen de los muros de gamma / GEX) ni la **dirección** del triángulo (que sale del flujo). Es a propósito: a nivel de un ticker, EVA y Victor se diferencian solo en los **6 pesos**. Victor no se borra — EVA se pone al lado como respaldo."),
  ("p", "Y dentro de cualquiera de los dos motores, eliges la vista:"),
@@ -76,6 +77,9 @@ C = [
  ("p", "Al **tope del modo Pro** hay un párrafo que traduce todos los números a una frase que puedes leer en 5 segundos. Ejemplo real (AAPL):"),
  ("callout", "danger", "El flujo se inclina bajista — Flujo institucional pesado en AAPL ($24.1M notable), concentrado en calls y puts, ejecutado agresivo (comprando al ask) — 73% del dinero entró al ask, Convicción 8/10. El posicionamiento se inclina BAJISTA."),
  ("p", "Léelo primero; luego baja y ata cada dato con el detalle. **Este resumen se arma solo con los datos reales, no lo inventa ningún modelo.**"),
+ ("image", "app_resumen.png", "Así se ve en la app (HOOD): «El flujo se inclina bajista — flujo institucional moderado ($2.5M notable), concentrado en puts, agresivo (65% del dinero al ask), Convicción 0/10 → BAJISTA». Una frase que resume todo el detalle de abajo."),
+ ("p", "Y justo debajo, EVA pega las **noticias** del activo y las etiqueta (positiva / neutral / negativa), para contrastar lo que dice la prensa con lo que apuesta el dinero en opciones:"),
+ ("image", "app_noticias.png", "Así se ve en la app (HOOD): titulares con su fuente y antigüedad, cada uno etiquetado — «Introducing Robinhood Ventures Fund II» (positiva, hace 9h), el beat de Q2 (+32% ventas), y el price target de Bernstein a $160 (+23%). Cuando la prensa y el flujo apuntan igual, la señal pesa más."),
 
  ("h1", "5. AI Sentiment Score (direccional)"),
  ("p", "Este medidor te dice **dos cosas separadas** — y es normal confundirlas, porque las dos son 'intensidades'. La clave: son intensidades de **cosas distintas**."),
@@ -84,6 +88,7 @@ C = [
    ["La «fuerza» (el número 0-100)", "Cuánto respaldo real tiene esa lectura, sin importar el lado.", "Intensidad de la **convicción / calidad**"],
  ]),
  ("image", "sentiment.png", "Dos barras, dos preguntas: ① la barra de dirección (el triángulo se mueve por hacia dónde apunta el flujo) y ② el medidor de fuerza (cuánto respaldo hay detrás, un número aparte)."),
+ ("image", "app_sentiment.png", "Así se ve en la app (HOOD): etiqueta **Bearish**, fuerza baja **30/100**. El desglose explica por qué es baja: solo 3 de 6 sub-agentes puntuaron (Agresividad, Estructura y Confirmación en 60; Convicción, Inusualidad y Contexto IV en 0, que arrastran el promedio hacia abajo)."),
  ("p", "**La prueba de que son distintas:** el triángulo y la fuerza pueden ir por separado."),
  ("table", ["Escenario del flujo", "Triángulo", "Fuerza", "Cómo leerlo"], [
    ["90% alcista, pero son 3 contratos ilíquidos de un centavo", "bien a la derecha", "baja (20)", "Apunta alcista… pero no te fíes."],
@@ -104,6 +109,7 @@ C = [
    ["Confirmación de Precio", "¿El precio VALIDÓ flujos pasados o los absorbió? (el backtest, ver §11).", "15% → **10%** ↓"],
  ]),
  ("image", "subagentes.png", "Cada sub-agente puntúa 0-10; el AI Sentiment Score es su promedio ponderado por los pesos de EVA (la calibración recalibrada — la Convicción manda con 30%)."),
+ ("image", "app_scorecard.png", "Así se ve en la app: el scorecard **Original** (Victor) de HOOD, **Total 30/100**. Cada tarjeta trae la nota (0-10) y los puntos que aporta: Agresividad 6/10 → 12/20, Estructura 6/10 → 9/15, Confirmación 6/10 → 9/15; los otros tres en 0. Suma: 12 + 9 + 9 = 30. (Con el toggle en EVA los pesos cambian — §3.)"),
  ("callout", "info", "**¿Por qué la columna muestra dos pesos (Victor → EVA)?** «Victor» es la calibración ORIGINAL, que dejamos **congelada** como referencia del pasado. «EVA» es la **recalibrada**. Lo que hicimos: backtesteamos cada sub-agente sobre ~1 año para ver cuál de verdad **separa** los trades ganadores de los perdedores. La **Convicción** (liquidez + calidad del flujo) fue la que mejor lo hizo → le **subimos** el peso (20→30%). La **Agresividad** casi no separaba → la **bajamos** (20→10%). Contexto IV subió y Confirmación bajó por lo mismo. Para elegir cuál ves: vista Ticker → **Pro** → «Detalle de sub-agentes» → toggle **Original | EVA**."),
 
  ("h2", "El scorecard puesto a prueba (bitácora — se actualiza)"),
@@ -122,6 +128,8 @@ C = [
    ["Cono de movimiento esperado", "El rango estadístico (±1σ ≈ 68%, ±2σ ≈ 95%) según IV y tiempo."],
  ]),
  ("image", "walls.png", "Oro = muros de calls (resistencia) arriba del precio; morado = muros de puts (soporte) abajo; la franja es el cono ±1σ."),
+ ("image", "app_walls.png", "Así se ve en la app (HOOD, Pro): los muros reales — calls (dorado) en $93 / $92 / $90 / $89 / $85 y puts (morado) en $80 / $75, con su % de peso. Precio ahora $86.25, nivel imán $90 (25% del peso), movimiento esperado ±14.3% (1σ) e IV usada 61.2%."),
+ ("image", "app_heatmap.png", "Y el **GEX Heatmap**: el dinero de gamma por strike (filas) y por vencimiento (columnas). Verde = el dealer estabiliza (el precio revierte); morado = amplifica (acelera). En HOOD se concentra en $90-$93 ($4M+ por strike). GEX neto **$21.8M, régimen γ+** → conviene desvanecer los extremos, no perseguirlos."),
 
  ("h2", "De dónde salen los 3 precios (alcista, base, bajista)"),
  ("p", "Esos mismos muros arman la tarjeta '¿Cómo se podría mover?', con 3 precios. No es un pronóstico mágico — es la mecánica de los muros de gamma. Desde cero:"),
@@ -134,6 +142,7 @@ C = [
  ("p", "**Los 3 precios salen de los muros:** **Base** = el imán dominante (el strike con más gamma). **Alcista** = el muro más fuerte por encima. **Bajista** = el muro más fuerte por debajo. Si no hay muro de un lado, cae al borde de **±1σ** del cono."),
  ("image", "gamma_tres.png", "Los 3 precios = los muros; el más grueso (más gamma) es el imán."),
  ("callout", "info", "Para ti: el muro es donde el precio suele FRENAR (buen lugar para tomar ganancia o vender prima por fuera); la zona γ− es donde ACELERA (ahí no vendas prima corta). Son niveles REALES (miles de contratos), no líneas a ojo — solo fiables con liquidez."),
+ ("image", "app_prediction.png", "Así se ve en la app (HOOD, Pro): **Prediction Pro** junta los 3 escenarios — BEAR $89 (-2.2%, 93% de tocarlo), BASE $90 (el imán, 17% del peso del mapa) y BULL $92 (+1.1%, 88%). Confianza 55%, señales 30/100. Abajo lista los 3 flujos más grandes que sostienen la lectura."),
 
  ("h2", "¿Por qué los 3 plazos dan el MISMO precio?"),
  ("p", "Porque los muros son precios **fijos** — no dependen del tiempo. Cambiar el plazo mueve el ancho del cono y las probabilidades, pero **no** los muros. Si están pegados al precio actual (como en HOOD), caben hasta en 'esta semana' → los 3 plazos dan lo mismo. Míralo: la misma tarjeta, 3 pestañas, los mismos precios."),
@@ -230,6 +239,7 @@ C = [
 
  ("h1", "10. Reglas de liquidez (aviso clave)"),
  ("callout", "warn", "Si la cadena de opciones es POCO LÍQUIDA (bajo volumen/OI, spreads anchos), Eva marca la señal como 'datos poco fiables' y recomienda NO operarla. SIEMPRE lee este aviso primero — una señal sobre datos malos no vale nada."),
+ ("image", "app_chain.png", "Así se ve en la app (HOOD): el **Option Chain completo** — 1,954 contratos, 19 vencimientos, notional total $17.01B, ordenado por Open Interest. Nota clave abajo: «Precio = último trade (Massive no expone bid en este plan)» — por eso EVA estima el bid, y por eso el chequeo de liquidez importa antes de fiarte de una señal."),
 
  ("h1", "11. Cómo Eva 'aprende' todos los días"),
  ("p", "Sí, Eva aprende — y aquí está exactamente cómo, dónde y en qué acciones:"),
@@ -240,6 +250,7 @@ C = [
    ["4. Puntúa", "De ahí sale el sub-agente 'Confirmación de Precio' y la 'Memoria': el HIT RATE histórico de ese ticker."],
  ]),
  ("p", "**En cuáles acciones corre:** al cargar cualquier ticker (rutas de validación y predicción) y en el radar de Ideas. **Mientras más uses Eva en un ticker, más historial acumula y más confiable se vuelve su lectura de '¿este patrón ha funcionado antes?'.**"),
+ ("image", "app_validacion.png", "Así se ve en la app (HOOD): «Qué pasó después de cada flow» — cada flujo con su apuesta (alcista / bajista), su premium, y cuánto se movió el precio **a favor** y **en contra** después. Casi todos marcan «Muy reciente»: aún no pasó suficiente tiempo para juzgarlos. Con las sesiones, ese resultado alimenta el hit-rate del ticker."),
  ("callout", "info", "Esto es la base de la CONFIANZA: no 'creemos' que la señal funciona — Eva lo mide contra lo que el precio realmente hizo. (Próximo paso pendiente: un 'chequeo de confianza' que mida el backtest de los 6 sub-agentes uno por uno.)"),
 
  ("h1", "12. Ejemplos de estrategia (educativo, NO consejo)"),

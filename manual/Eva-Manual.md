@@ -37,6 +37,10 @@ Arriba de todo hay **dos toggles**, uno encima del otro. Primero eliges el **mot
 
 _Dos toggles apilados: arriba el MOTOR (Original o EVA), abajo la VISTA (Estudiante o Pro). El motor que elijas cambia el scorecard de TODA la página._
 
+![Así se ve en la app: el toggle real (aquí en «Original»). Al pasarlo a EVA se recalculan a la vez la fuerza del AI Sentiment, el scorecard y el texto del veredicto — la dirección y los precios objetivo NO cambian.](img/app_toggle.png)
+
+_Así se ve en la app: el toggle real (aquí en «Original»). Al pasarlo a EVA se recalculan a la vez la fuerza del AI Sentiment, el scorecard y el texto del veredicto — la dirección y los precios objetivo NO cambian._
+
 **Original** es el sistema base de Victor, congelado como referencia del pasado. **EVA** es la versión recalibrada (la Convicción pesa más — ver §6). Al cambiarlo, se actualizan a la vez la **fuerza del AI Sentiment**, el **scorecard** y el texto de señales del veredicto — tanto en Estudiante como en Pro.
 
 > 💡 **Qué cambia y qué NO al mover Original ⇄ EVA.** CAMBIA todo lo que depende de los **pesos del scorecard**: la fuerza, el scorecard y el texto de «señales fuertes/débiles». NO cambia los **precios objetivo** (alcista/base/bajista, que salen de los muros de gamma / GEX) ni la **dirección** del triángulo (que sale del flujo). Es a propósito: a nivel de un ticker, EVA y Victor se diferencian solo en los **6 pesos**. Victor no se borra — EVA se pone al lado como respaldo.
@@ -61,6 +65,16 @@ Al **tope del modo Pro** hay un párrafo que traduce todos los números a una fr
 
 Léelo primero; luego baja y ata cada dato con el detalle. **Este resumen se arma solo con los datos reales, no lo inventa ningún modelo.**
 
+![Así se ve en la app (HOOD): «El flujo se inclina bajista — flujo institucional moderado ($2.5M notable), concentrado en puts, agresivo (65% del dinero al ask), Convicción 0/10 → BAJISTA». Una frase que resume todo el detalle de abajo.](img/app_resumen.png)
+
+_Así se ve en la app (HOOD): «El flujo se inclina bajista — flujo institucional moderado ($2.5M notable), concentrado en puts, agresivo (65% del dinero al ask), Convicción 0/10 → BAJISTA». Una frase que resume todo el detalle de abajo._
+
+Y justo debajo, EVA pega las **noticias** del activo y las etiqueta (positiva / neutral / negativa), para contrastar lo que dice la prensa con lo que apuesta el dinero en opciones:
+
+![Así se ve en la app (HOOD): titulares con su fuente y antigüedad, cada uno etiquetado — «Introducing Robinhood Ventures Fund II» (positiva, hace 9h), el beat de Q2 (+32% ventas), y el price target de Bernstein a $160 (+23%). Cuando la prensa y el flujo apuntan igual, la señal pesa más.](img/app_noticias.png)
+
+_Así se ve en la app (HOOD): titulares con su fuente y antigüedad, cada uno etiquetado — «Introducing Robinhood Ventures Fund II» (positiva, hace 9h), el beat de Q2 (+32% ventas), y el price target de Bernstein a $160 (+23%). Cuando la prensa y el flujo apuntan igual, la señal pesa más._
+
 
 ## 5. AI Sentiment Score (direccional)
 
@@ -74,6 +88,10 @@ Este medidor te dice **dos cosas separadas** — y es normal confundirlas, porqu
 ![Dos barras, dos preguntas: ① la barra de dirección (el triángulo se mueve por hacia dónde apunta el flujo) y ② el medidor de fuerza (cuánto respaldo hay detrás, un número aparte).](img/sentiment.png)
 
 _Dos barras, dos preguntas: ① la barra de dirección (el triángulo se mueve por hacia dónde apunta el flujo) y ② el medidor de fuerza (cuánto respaldo hay detrás, un número aparte)._
+
+![Así se ve en la app (HOOD): etiqueta **Bearish**, fuerza baja **30/100**. El desglose explica por qué es baja: solo 3 de 6 sub-agentes puntuaron (Agresividad, Estructura y Confirmación en 60; Convicción, Inusualidad y Contexto IV en 0, que arrastran el promedio hacia abajo).](img/app_sentiment.png)
+
+_Así se ve en la app (HOOD): etiqueta **Bearish**, fuerza baja **30/100**. El desglose explica por qué es baja: solo 3 de 6 sub-agentes puntuaron (Agresividad, Estructura y Confirmación en 60; Convicción, Inusualidad y Contexto IV en 0, que arrastran el promedio hacia abajo)._
 
 **La prueba de que son distintas:** el triángulo y la fuerza pueden ir por separado.
 
@@ -105,6 +123,10 @@ El sentiment sale del promedio de estos 6. Cada uno mira una cosa distinta:
 
 _Cada sub-agente puntúa 0-10; el AI Sentiment Score es su promedio ponderado por los pesos de EVA (la calibración recalibrada — la Convicción manda con 30%)._
 
+![Así se ve en la app: el scorecard **Original** (Victor) de HOOD, **Total 30/100**. Cada tarjeta trae la nota (0-10) y los puntos que aporta: Agresividad 6/10 → 12/20, Estructura 6/10 → 9/15, Confirmación 6/10 → 9/15; los otros tres en 0. Suma: 12 + 9 + 9 = 30. (Con el toggle en EVA los pesos cambian — §3.)](img/app_scorecard.png)
+
+_Así se ve en la app: el scorecard **Original** (Victor) de HOOD, **Total 30/100**. Cada tarjeta trae la nota (0-10) y los puntos que aporta: Agresividad 6/10 → 12/20, Estructura 6/10 → 9/15, Confirmación 6/10 → 9/15; los otros tres en 0. Suma: 12 + 9 + 9 = 30. (Con el toggle en EVA los pesos cambian — §3.)_
+
 > 💡 **¿Por qué la columna muestra dos pesos (Victor → EVA)?** «Victor» es la calibración ORIGINAL, que dejamos **congelada** como referencia del pasado. «EVA» es la **recalibrada**. Lo que hicimos: backtesteamos cada sub-agente sobre ~1 año para ver cuál de verdad **separa** los trades ganadores de los perdedores. La **Convicción** (liquidez + calidad del flujo) fue la que mejor lo hizo → le **subimos** el peso (20→30%). La **Agresividad** casi no separaba → la **bajamos** (20→10%). Contexto IV subió y Confirmación bajó por lo mismo. Para elegir cuál ves: vista Ticker → **Pro** → «Detalle de sub-agentes» → toggle **Original | EVA**.
 
 
@@ -133,6 +155,14 @@ En la tarjeta PRO 'Strike Walls' ves:
 ![Oro = muros de calls (resistencia) arriba del precio; morado = muros de puts (soporte) abajo; la franja es el cono ±1σ.](img/walls.png)
 
 _Oro = muros de calls (resistencia) arriba del precio; morado = muros de puts (soporte) abajo; la franja es el cono ±1σ._
+
+![Así se ve en la app (HOOD, Pro): los muros reales — calls (dorado) en $93 / $92 / $90 / $89 / $85 y puts (morado) en $80 / $75, con su % de peso. Precio ahora $86.25, nivel imán $90 (25% del peso), movimiento esperado ±14.3% (1σ) e IV usada 61.2%.](img/app_walls.png)
+
+_Así se ve en la app (HOOD, Pro): los muros reales — calls (dorado) en $93 / $92 / $90 / $89 / $85 y puts (morado) en $80 / $75, con su % de peso. Precio ahora $86.25, nivel imán $90 (25% del peso), movimiento esperado ±14.3% (1σ) e IV usada 61.2%._
+
+![Y el **GEX Heatmap**: el dinero de gamma por strike (filas) y por vencimiento (columnas). Verde = el dealer estabiliza (el precio revierte); morado = amplifica (acelera). En HOOD se concentra en $90-$93 ($4M+ por strike). GEX neto **$21.8M, régimen γ+** → conviene desvanecer los extremos, no perseguirlos.](img/app_heatmap.png)
+
+_Y el **GEX Heatmap**: el dinero de gamma por strike (filas) y por vencimiento (columnas). Verde = el dealer estabiliza (el precio revierte); morado = amplifica (acelera). En HOOD se concentra en $90-$93 ($4M+ por strike). GEX neto **$21.8M, régimen γ+** → conviene desvanecer los extremos, no perseguirlos._
 
 
 ### De dónde salen los 3 precios (alcista, base, bajista)
@@ -166,6 +196,10 @@ _Gamma + = el precio se frena (hay muro). Gamma − = se acelera (no hay muro �
 _Los 3 precios = los muros; el más grueso (más gamma) es el imán._
 
 > 💡 Para ti: el muro es donde el precio suele FRENAR (buen lugar para tomar ganancia o vender prima por fuera); la zona γ− es donde ACELERA (ahí no vendas prima corta). Son niveles REALES (miles de contratos), no líneas a ojo — solo fiables con liquidez.
+
+![Así se ve en la app (HOOD, Pro): **Prediction Pro** junta los 3 escenarios — BEAR $89 (-2.2%, 93% de tocarlo), BASE $90 (el imán, 17% del peso del mapa) y BULL $92 (+1.1%, 88%). Confianza 55%, señales 30/100. Abajo lista los 3 flujos más grandes que sostienen la lectura.](img/app_prediction.png)
+
+_Así se ve en la app (HOOD, Pro): **Prediction Pro** junta los 3 escenarios — BEAR $89 (-2.2%, 93% de tocarlo), BASE $90 (el imán, 17% del peso del mapa) y BULL $92 (+1.1%, 88%). Confianza 55%, señales 30/100. Abajo lista los 3 flujos más grandes que sostienen la lectura._
 
 
 ### ¿Por qué los 3 plazos dan el MISMO precio?
@@ -332,6 +366,10 @@ El forward-test EN VIVO (paper) de la estrategia que probamos: vender credit spr
 
 > ⚠️ Si la cadena de opciones es POCO LÍQUIDA (bajo volumen/OI, spreads anchos), Eva marca la señal como 'datos poco fiables' y recomienda NO operarla. SIEMPRE lee este aviso primero — una señal sobre datos malos no vale nada.
 
+![Así se ve en la app (HOOD): el **Option Chain completo** — 1,954 contratos, 19 vencimientos, notional total $17.01B, ordenado por Open Interest. Nota clave abajo: «Precio = último trade (Massive no expone bid en este plan)» — por eso EVA estima el bid, y por eso el chequeo de liquidez importa antes de fiarte de una señal.](img/app_chain.png)
+
+_Así se ve en la app (HOOD): el **Option Chain completo** — 1,954 contratos, 19 vencimientos, notional total $17.01B, ordenado por Open Interest. Nota clave abajo: «Precio = último trade (Massive no expone bid en este plan)» — por eso EVA estima el bid, y por eso el chequeo de liquidez importa antes de fiarte de una señal._
+
 
 ## 11. Cómo Eva 'aprende' todos los días
 
@@ -345,6 +383,10 @@ Sí, Eva aprende — y aquí está exactamente cómo, dónde y en qué acciones:
 | 4. Puntúa | De ahí sale el sub-agente 'Confirmación de Precio' y la 'Memoria': el HIT RATE histórico de ese ticker. |
 
 **En cuáles acciones corre:** al cargar cualquier ticker (rutas de validación y predicción) y en el radar de Ideas. **Mientras más uses Eva en un ticker, más historial acumula y más confiable se vuelve su lectura de '¿este patrón ha funcionado antes?'.**
+
+![Así se ve en la app (HOOD): «Qué pasó después de cada flow» — cada flujo con su apuesta (alcista / bajista), su premium, y cuánto se movió el precio **a favor** y **en contra** después. Casi todos marcan «Muy reciente»: aún no pasó suficiente tiempo para juzgarlos. Con las sesiones, ese resultado alimenta el hit-rate del ticker.](img/app_validacion.png)
+
+_Así se ve en la app (HOOD): «Qué pasó después de cada flow» — cada flujo con su apuesta (alcista / bajista), su premium, y cuánto se movió el precio **a favor** y **en contra** después. Casi todos marcan «Muy reciente»: aún no pasó suficiente tiempo para juzgarlos. Con las sesiones, ese resultado alimenta el hit-rate del ticker._
 
 > 💡 Esto es la base de la CONFIANZA: no 'creemos' que la señal funciona — Eva lo mide contra lo que el precio realmente hizo. (Próximo paso pendiente: un 'chequeo de confianza' que mida el backtest de los 6 sub-agentes uno por uno.)
 
