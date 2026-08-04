@@ -364,7 +364,9 @@ def build_pdf(path):
         elif kind == "image":
             p = os.path.join(HERE, "img", blk[1])
             iw, ih = ImageReader(p).getSize()
-            W = 150 * mm
+            # Ancho útil máx = 150mm, PERO nunca agrandar más allá de la resolución
+            # nativa (a 150 dpi) — si no, las capturas chicas (p.ej. el toggle) se pixelan.
+            W = min(150 * mm, iw * 72.0 / 150.0)
             im = Image(p, width=W, height=W * ih / iw)
             im.hAlign = "CENTER"
             story.append(im)
