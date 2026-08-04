@@ -58,8 +58,13 @@ C = [
    ["EVA Credit Spread", "La estrategia validada: forward-test en vivo del credit spread filtrado por convicción de EVA."],
  ]),
 
- ("h1", "3. La vista Ticker: Estudiante vs Pro"),
- ("p", "Arriba de todo eliges el modo:"),
+ ("h1", "3. La vista Ticker: motor y vista"),
+ ("p", "Arriba de todo hay **dos toggles**, uno encima del otro. Primero eliges el **motor** (Original o EVA); debajo, la **vista** (Estudiante o Pro)."),
+ ("h2", "El toggle Original | EVA — elige qué motor manda"),
+ ("image", "toggle_modo.png", "Dos toggles apilados: arriba el MOTOR (Original o EVA), abajo la VISTA (Estudiante o Pro). El motor que elijas cambia el scorecard de TODA la página."),
+ ("p", "**Original** es el sistema base de Victor, congelado como referencia del pasado. **EVA** es la versión recalibrada (la Convicción pesa más — ver §6). Al cambiarlo, se actualizan a la vez la **fuerza del AI Sentiment**, el **scorecard** y el texto de señales del veredicto — tanto en Estudiante como en Pro."),
+ ("callout", "info", "**Qué cambia y qué NO al mover Original ⇄ EVA.** CAMBIA todo lo que depende de los **pesos del scorecard**: la fuerza, el scorecard y el texto de «señales fuertes/débiles». NO cambia los **precios objetivo** (alcista/base/bajista, que salen de los muros de gamma / GEX) ni la **dirección** del triángulo (que sale del flujo). Es a propósito: a nivel de un ticker, EVA y Victor se diferencian solo en los **6 pesos**. Victor no se borra — EVA se pone al lado como respaldo."),
+ ("p", "Y dentro de cualquiera de los dos motores, eliges la vista:"),
  ("table", ["Modo", "Qué ves"], [
    ["Estudiante", "Lo esencial y simple: un veredicto, 3 escenarios (alcista/base/bajista) y el precio esperado."],
    ["Pro", "Todo el detalle: el resumen, el sentiment, los 6 sub-agentes, los muros y el feed de operaciones."],
@@ -73,13 +78,20 @@ C = [
  ("p", "Léelo primero; luego baja y ata cada dato con el detalle. **Este resumen se arma solo con los datos reales, no lo inventa ningún modelo.**"),
 
  ("h1", "5. AI Sentiment Score (direccional)"),
- ("p", "Este medidor te dice **dos cosas separadas**:"),
- ("table", ["Qué es", "Qué mide"], [
-   ["DIRECCIÓN (etiqueta + marcador)", "Hacia dónde apuesta el flujo: Bearish (bajista) · Neutral · Bullish (alcista)."],
-   ["FUERZA (0-100)", "Qué tan fuerte es la señal (promedio de los 6 sub-agentes). Alta ≥60, media 45-59, baja <45."],
+ ("p", "Este medidor te dice **dos cosas separadas** — y es normal confundirlas, porque las dos son 'intensidades'. La clave: son intensidades de **cosas distintas**."),
+ ("table", ["Qué es", "Qué mide", "Qué intensidad es"], [
+   ["El triángulo (posición en la barra)", "Hacia qué lado se inclina el flujo, y cuánto: bien bajista → bajista → neutral → alcista → bien alcista.", "Intensidad de la **dirección**"],
+   ["La «fuerza» (el número 0-100)", "Cuánto respaldo real tiene esa lectura, sin importar el lado.", "Intensidad de la **convicción / calidad**"],
  ]),
- ("image", "sentiment.png", "El medidor: la barra va de Bearish a Bullish y el marcador señala la DIRECCIÓN del flujo; la fuerza (0-100) es un dato aparte."),
- ("p", "**Importante:** una señal puede ser **fuerte pero bajista** (mucho dinero comprando puts agresivo). Por eso Eva separa dirección de fuerza — no confundas 'fuerte' con 'alcista'."),
+ ("image", "sentiment.png", "Dos barras, dos preguntas: ① la barra de dirección (el triángulo se mueve por hacia dónde apunta el flujo) y ② el medidor de fuerza (cuánto respaldo hay detrás, un número aparte)."),
+ ("p", "**La prueba de que son distintas:** el triángulo y la fuerza pueden ir por separado."),
+ ("table", ["Escenario del flujo", "Triángulo", "Fuerza", "Cómo leerlo"], [
+   ["90% alcista, pero son 3 contratos ilíquidos de un centavo", "bien a la derecha", "baja (20)", "Apunta alcista… pero no te fíes."],
+   ["90% alcista con millones en primas, agresivo, inusual", "bien a la derecha", "alta (85)", "Apunta alcista **y con respaldo**."],
+   ["Muchísimo dinero real y agresivo, mitad a calls / mitad a puts", "al centro (neutral)", "alta (80)", "Batalla enorme, pero nadie gana todavía."],
+ ]),
+ ("p", "Fíjate: en los dos primeros el **triángulo está en el mismo sitio** pero la **fuerza cambia** — si el triángulo midiera la fuerza, no podría. Y en el tercero hay **mucha fuerza con el triángulo al centro**. Son ejes independientes."),
+ ("callout", "info", "**¿Te confunde la palabra «fuerza»? Se puede renombrar (opcional).** El triángulo y el número miden dos intensidades distintas, y «fuerza» se presta a confusión. Si prefieres, cambiamos solo las **etiquetas** en la app (no toca ningún cálculo): el **triángulo** → «**Inclinación del flujo**» (cuán alcista/bajista); el **número** → «**Respaldo**», «**Convicción**» o «**Calidad de la señal**» en vez de «fuerza». Dime si te gusta alguna o lo dejamos igual."),
 
  ("h1", "6. Los 6 sub-agentes (el corazón de Eva)"),
  ("p", "El sentiment sale del promedio de estos 6. Cada uno mira una cosa distinta:"),
@@ -91,7 +103,7 @@ C = [
    ["Contexto IV", "¿La volatilidad implícita está limpia o inflada? Evita pagar prima cara.", "10% → **15%** ↑"],
    ["Confirmación de Precio", "¿El precio VALIDÓ flujos pasados o los absorbió? (el backtest, ver §11).", "15% → **10%** ↓"],
  ]),
- ("image", "subagentes.png", "Cada sub-agente puntúa 0-10; el AI Sentiment Score es su promedio ponderado por los pesos."),
+ ("image", "subagentes.png", "Cada sub-agente puntúa 0-10; el AI Sentiment Score es su promedio ponderado por los pesos de EVA (la calibración recalibrada — la Convicción manda con 30%)."),
  ("callout", "info", "**¿Por qué la columna muestra dos pesos (Victor → EVA)?** «Victor» es la calibración ORIGINAL, que dejamos **congelada** como referencia del pasado. «EVA» es la **recalibrada**. Lo que hicimos: backtesteamos cada sub-agente sobre ~1 año para ver cuál de verdad **separa** los trades ganadores de los perdedores. La **Convicción** (liquidez + calidad del flujo) fue la que mejor lo hizo → le **subimos** el peso (20→30%). La **Agresividad** casi no separaba → la **bajamos** (20→10%). Contexto IV subió y Confirmación bajó por lo mismo. Para elegir cuál ves: vista Ticker → **Pro** → «Detalle de sub-agentes» → toggle **Original | EVA**."),
 
  ("h2", "El scorecard puesto a prueba (bitácora — se actualiza)"),
@@ -281,6 +293,22 @@ C = [
    ["Hit rate", "% de veces que el precio validó el flujo históricamente (el backtest de Eva)."],
    ["n (tamaño de muestra)", "Cuántos casos entraron en una prueba. Un % sobre n grande es más confiable que sobre n chico."],
  ]),
+
+ ("h1", "16. Herramientas y plataformas que usamos"),
+ ("p", "Todo lo que hace funcionar a EVA, y para qué sirve cada pieza. Con honestidad marcamos cuáles están **en vivo** en la app y cuáles usamos **alrededor** del proyecto o estamos **evaluando** — para no dar por conectado lo que aún no lo está."),
+ ("table", ["Plataforma", "Para qué la usamos", "Estado"], [
+   ["Claude / Claude Code (Anthropic)", "El agente que construye, analiza y explica: escribe el código, corre los backtests y arma este manual.", "En vivo (EVA)"],
+   ["Massive (ex-Polygon.io)", "Fuente PRIMARIA de datos de opciones: cadenas, Time & Sales (el firehose de operaciones), barras diarias, logos y fundamentales. De aquí sale casi todo el flujo.", "En vivo (EVA)"],
+   ["Redis", "Memoria rápida en la nube: el búfer de flujo notable de Ideas y los ledgers de los forward-tests (credit spread y wheel).", "En vivo (EVA)"],
+   ["Railway", "El hosting en la nube: sirve la app y corre los cron (los forward-tests que registran operaciones de papel cada día). También provee el Redis.", "En vivo (EVA)"],
+   ["RSS (feeds de noticias)", "Titulares y catalizadores del activo (la tarjeta de Noticias). Las fuentes están en docs/RSS-Feed.md.", "En vivo (EVA)"],
+   ["Databento", "Datos de mercado de grado institucional (Time & Sales). Es la fuente de datos del fork de Victor (smart-money-flow); en la web EVA hoy usamos Massive.", "Fork de Victor"],
+   ["FMP (Financial Modeling Prep)", "Fundamentales y estados financieros de empresas (earnings, ratios).", "Evaluada — no cableada aún"],
+   ["FRED (St. Louis Fed)", "Datos macro oficiales (tasas, inflación, empleo) para el contexto de mercado.", "Evaluada — no cableada aún"],
+   ["Finnhub", "Datos de mercado, noticias y fundamentales — alternativa/complemento para cubrir huecos de datos.", "Evaluada — no cableada aún"],
+   ["Dribbble", "Inspiración de diseño (UI/UX): de ahí salen ideas visuales como el rediseño 'Agente MK II'. No es fuente de datos.", "Diseño"],
+ ]),
+ ("disclaimer", "«Evaluada — no cableada aún» = la consideramos o probamos, pero HOY no alimenta la app en vivo. Lo aclaramos para no vender humo: si un dato no viene de una fuente conectada, todavía no está dentro de EVA."),
 ]
 
 

@@ -125,6 +125,17 @@ function sellPut(sig: Signal, bars: DBar[], target: number, dte: number, take: n
   return { retOnColl: ret, assigned, annualized: ret * (365 / dteEff) };
 }
 
+// Entradas MECÁNICAS cada `step` días sobre TODA la historia de barras (sin flujo) →
+// habilita la ventana larga (~3 años), a diferencia del flujo institucional (~1 año).
+function barSignals(bars: DBar[], step: number, maxDte: number): Signal[] {
+  const out: Signal[] = [];
+  for (let i = 20; i < bars.length - maxDte - 1; i += step) {
+    const rv = realizedVol(bars, i); if (rv == null || !(rv > 0)) continue;
+    out.push({ entryIdx: i, spot: bars[i].close, rv, dir: 1, evaComp: 0 });
+  }
+  return out;
+}
+
 interface Stat { n: number; win: number | null; mean: number | null; assign: number | null; ann: number | null }
 function stat(rows: PutResult[]): Stat {
   if (!rows.length) return { n: 0, win: null, mean: null, assign: null, ann: null };
@@ -143,12 +154,14 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
 (async () => {
   console.log(`Backtest WHEEL (vender puts) · ${TICKERS.length} tickers · ${DAYS}d`);
   const all: { sig: Signal; bars: DBar[] }[] = [];
+  const barsByTicker = new Map<string, DBar[]>();
   for (const t of TICKERS) {
     try {
       const { trades } = await fetchFlow(t, { targetDays: DAYS, minPremium: MIN_PREMIUM, contractCap: 25, maxPages: 6 });
       const { rows } = classifyFlow(trades, new Date());
       let bars: DBar[] = [];
       for (let i = 0; i < 4; i++) { bars = (await fetchDailyBars(t, 800).catch(() => [])) as DBar[]; if (bars.length > 0) break; await sleep(1000 * (i + 1)); }
+      if (bars.length) barsByTicker.set(t, bars);
       const sigs = bars.length ? signals(rows, bars) : [];
       for (const sig of sigs) all.push({ sig, bars });
       console.log(`[${t}] señales ${sigs.length}${bars.length ? "" : " (SIN BARRAS)"}`);
@@ -174,16 +187,17 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
   for (const dl of DELTAS) {
     L.push(`## Delta ${dl.label}`, "");
     for (const mg of MGMT) {
-      L.push(`### Gestión: ${mg.label}`, "", "| DTE | MECÁNICO (todos) | FILTRO EVA (alcista+conv) |", "|---|---|---|");
+      L.push(`### Gestión: ${mg.label}`, "", "| DTE | MECÁNICO (todos) | EVA como está (alcista+conv) | EVA con cambios (solo alcista) |", "|---|---|---|---|");
       for (const dte of DTES) {
-        const mech: PutResult[] = [], eva: PutResult[] = [];
+        const mech: PutResult[] = [], eva: PutResult[] = [], evaLite: PutResult[] = [];
         for (const { sig, bars } of all) {
           const r = sellPut(sig, bars, dl.target, dte, mg.take);
           if (!r) continue;
           mech.push(r);
-          if (isEva(sig)) eva.push(r);
+          if (sig.dir === 1) evaLite.push(r);   // EVA con cambios: filtro direccional ligero (solo alcista)
+          if (isEva(sig)) eva.push(r);           // EVA como está: alcista + Top⅓ convicción
         }
-        L.push(`| ${dte}d | ${fmt(stat(mech))} | ${fmt(stat(eva))} |`);
+        L.push(`| ${dte}d | ${fmt(stat(mech))} | ${fmt(stat(eva))} | ${fmt(stat(evaLite))} |`);
       }
       L.push("");
     }

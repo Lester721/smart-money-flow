@@ -64,6 +64,8 @@ export interface PredictionInput {
   lowLiquidity: boolean;
   /** Memoria del agente: sesgo histórico del target base para auto-corregir. */
   calibration?: { biasPct: number | null; samples: number };
+  /** Pesos del scorecard a usar. Default = WEIGHTS (Victor). EVA pasa EVA_WEIGHTS. */
+  weights?: Record<keyof SubScores, number>;
 }
 
 /**
@@ -105,14 +107,17 @@ export interface ProPrediction {
 }
 
 /** Sentiment 0-100: promedio ponderado de las categorías que ya tienen dato. */
-export function weightedScore(scores: SubScores): { score: number; active: number; weight: number } {
+export function weightedScore(
+  scores: SubScores,
+  weights: Record<keyof SubScores, number> = WEIGHTS,
+): { score: number; active: number; weight: number } {
   let pts = 0, weight = 0, active = 0;
-  for (const key of Object.keys(WEIGHTS) as (keyof SubScores)[]) {
+  for (const key of Object.keys(weights) as (keyof SubScores)[]) {
     const s = scores[key];
     if (s == null) continue;
     active += 1;
-    weight += WEIGHTS[key];
-    pts += (s / 10) * WEIGHTS[key];
+    weight += weights[key];
+    pts += (s / 10) * weights[key];
   }
   return { score: weight > 0 ? Math.round((pts / weight) * 100) : 0, active, weight };
 }
@@ -145,7 +150,7 @@ export function predictPro(input: PredictionInput): ProPrediction {
   const em = expectedMove(spot, iv, horizonDays);
   const levels = levelProbabilities(spot, iv, horizonDays, nodes).slice(0, 10);
 
-  const { score, active } = weightedScore(scores);
+  const { score, active } = weightedScore(scores, input.weights ?? WEIGHTS);
 
   // BASE = el nivel de mayor peso (probabilidad × dinero). Es el imán.
   const magnet = levels[0] ?? null;

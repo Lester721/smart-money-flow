@@ -11,6 +11,7 @@ import type { ChainSnapshot } from "@/lib/chainStore";
 import { gexAnalysis, type TradeLite } from "@/lib/gex";
 import { gexHeatmap, type HeatTrade } from "@/lib/gexHeatmap";
 import { predictPro } from "@/lib/prediction";
+import { EVA_WEIGHTS } from "@/lib/scorecardEva";
 import { findLevels, type ChainLevel, type FlowLevel } from "@/lib/levels";
 import { int } from "./format";
 import HeaderBar from "./components/HeaderBar";
@@ -180,8 +181,10 @@ export default function Dashboard() {
       hitRate: validation?.hitRate.value ?? null,
       lowLiquidity: gex.lowLiquidity,
       calibration: calib,
+      // El toggle global Original/EVA elige qué pesos del scorecard alimentan la lectura.
+      weights: scMode === "eva" ? EVA_WEIGHTS : undefined,
     });
-  }, [gex, horizonDays, aggScore, conviction, unusuality, structure, ivContext, validation, callPct, calib]);
+  }, [gex, horizonDays, aggScore, conviction, unusuality, structure, ivContext, validation, callPct, calib, scMode]);
 
   // Memoria del agente: guarda la predicción del día (una vez por ticker/sesión). El
   // dedupe por fecha ET vive en el servidor, así que reenviar el mismo día no duplica.
@@ -343,13 +346,17 @@ export default function Dashboard() {
   const started = steps.length > 0 || company != null || aggScore != null;
 
   // Los promedios de cada sub-agente = las señales del sentiment (y de Prediction Pro).
+  // Los pesos siguen el toggle global: EVA (recalibrado) u Original (Victor).
+  const w = scMode === "eva"
+    ? EVA_WEIGHTS
+    : { aggression: 20, conviction: 20, unusuality: 20, structure: 15, ivContext: 10, validation: 15 };
   const sentimentParts: SentimentPart[] = [
-    { name: "Agresividad", note: "¿Compran al ask con fuerza?", score: aggScore?.score ?? null, weight: 20 },
-    { name: "Convicción", note: "¿Cuánto dinero real entró?", score: conviction?.score ?? null, weight: 20 },
-    { name: "Inusualidad", note: "¿Es flujo anormal? (griegos)", score: unusuality?.score ?? null, weight: 20 },
-    { name: "Estructura", note: "¿Dónde se acumula el dinero?", score: structure?.score ?? null, weight: 15 },
-    { name: "Contexto IV", note: "¿IV limpia o inflada?", score: ivContext?.score ?? null, weight: 10 },
-    { name: "Confirmación de Precio", note: "¿El precio valida o absorbe?", score: validation?.score ?? null, weight: 15 },
+    { name: "Agresividad", note: "¿Compran al ask con fuerza?", score: aggScore?.score ?? null, weight: w.aggression },
+    { name: "Convicción", note: "¿Cuánto dinero real entró?", score: conviction?.score ?? null, weight: w.conviction },
+    { name: "Inusualidad", note: "¿Es flujo anormal? (griegos)", score: unusuality?.score ?? null, weight: w.unusuality },
+    { name: "Estructura", note: "¿Dónde se acumula el dinero?", score: structure?.score ?? null, weight: w.structure },
+    { name: "Contexto IV", note: "¿IV limpia o inflada?", score: ivContext?.score ?? null, weight: w.ivContext },
+    { name: "Confirmación de Precio", note: "¿El precio valida o absorbe?", score: validation?.score ?? null, weight: w.validation },
   ];
 
   // Resumen en lenguaje sencillo (determinístico) — va al tope del Pro.
@@ -380,6 +387,25 @@ export default function Dashboard() {
 
         {started && ticker && (
           <>
+            <div className="view-toggle-row">
+              <div className="view-toggle">
+                <button
+                  className={scMode === "victor" ? "active" : ""}
+                  onClick={() => setScMode("victor")}
+                  title="El sistema base, congelado como referencia del pasado"
+                >
+                  Original
+                </button>
+                <button
+                  className={scMode === "eva" ? "active" : ""}
+                  onClick={() => setScMode("eva")}
+                  title="La versión mejorada de EVA (pesos del scorecard recalibrados)"
+                >
+                  EVA
+                </button>
+              </div>
+            </div>
+
             <div className="view-toggle-row">
               <div className="view-toggle">
                 <button className={view === "estudiante" ? "active" : ""} onClick={() => setView("estudiante")}>
@@ -480,10 +506,6 @@ export default function Dashboard() {
               <div className="detalle-inner">
                 {company && <CompanyHeader company={company} />}
                 <div>
-                  <div className="view-toggle" style={{ marginBottom: 12 }}>
-                    <button className={scMode === "victor" ? "active" : ""} onClick={() => setScMode("victor")} title="El sistema base, congelado como referencia">Original</button>
-                    <button className={scMode === "eva" ? "active" : ""} onClick={() => setScMode("eva")} title="La versión mejorada de EVA (pesos recalibrados)">EVA</button>
-                  </div>
                   {scMode === "victor" ? (
                     <ScorecardPanel aggression={aggScore} conviction={conviction} unusuality={unusuality} structure={structure} ivContext={ivContext} validation={validation} />
                   ) : (
