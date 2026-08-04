@@ -714,7 +714,9 @@ tfoot .totals td {
 
 /* Tabla de la vista EVA Credit Spread */
 .cs-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-.cs-table th { text-align: left; padding: 7px 10px; background: var(--panel); color: var(--muted);
+/* Sin text-align propio: hereda la convención global (1ª columna izquierda, resto
+   derecha) para que cada título quede alineado con el contenido de su columna. */
+.cs-table th { padding: 7px 10px; background: var(--panel); color: var(--muted);
   font-weight: 700; border-bottom: 1px solid var(--border); white-space: nowrap; }
 .cs-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
 .cs-table tbody tr:last-child td { border-bottom: none; }
