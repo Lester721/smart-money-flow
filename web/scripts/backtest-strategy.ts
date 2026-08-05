@@ -24,6 +24,17 @@ const PROVIDER = (process.env.DATA_PROVIDER || "massive").toLowerCase();
 const BT_START = process.env.BT_START || "20250101";
 const BT_END = process.env.BT_END || "20250601";
 const shiftYmd = (y: string, d: number) => new Date(Date.parse(`${y.slice(0, 4)}-${y.slice(4, 6)}-${y.slice(6, 8)}T00:00:00Z`) + d * 86_400_000).toISOString().slice(0, 10).replace(/-/g, "");
+// Ventanas de 1 año calendario para selección de contratos POR PERÍODO (los líquidos cambian año a año).
+function yearWindows(startYmd: string, endYmd: string): [string, string][] {
+  const out: [string, string][] = [];
+  let s = startYmd;
+  while (Number(s) <= Number(endYmd)) {
+    const e = String(Math.min(Number(`${s.slice(0, 4)}1231`), Number(endYmd)));
+    out.push([s, e]);
+    s = `${Number(s.slice(0, 4)) + 1}0101`;
+  }
+  return out;
+}
 const OUT = process.env.BT_OUT || "scripts/backtest-strategy-reporte.md";
 const DTES = [3, 5, 7, 30, 60, 90, 180, 365];
 const SIGMAS = [1, 1.5];
@@ -208,13 +219,39 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     let rows: FlowRow[] | null = null;
     let bars: DBar[] = [];
     if (PROVIDER === "theta") {
-      // ThetaData: flujo por rango (selección de contratos) + subyacente diario de barras de acción.
-      const trades = await fetchFlowRange(t, BT_START, BT_END, { minPremium: MIN_PREMIUM, contractCap: 60 });
-      rows = classifyFlow(trades, new Date()).rows;
-      const dmap = await fetchDailyUnderlying(t, shiftYmd(BT_START, -40), shiftYmd(BT_END, 220));
-      bars = [...dmap.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1))
-        .map(([d, c]) => ({ time: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`, close: c }));
-      console.log(`[${t}] ThetaData: ${rows.length} flujos · ${bars.length} barras`);
+      // ThetaData por RANGO, año por año (selección de contratos por período) + barras de acción.
+      // Caché por (ticker, ventana) → resumible; retries por transitorios del terminal (io exception).
+      const tCacheDir = "scripts/cache-theta";
+      const tcp = `${tCacheDir}/${t}_${BT_START}_${BT_END}.json`;
+      let ct: { rows: FlowRow[]; bars: DBar[] } | null = null;
+      try { ct = JSON.parse(readFileSync(tcp, "utf8")); } catch { ct = null; }
+      if (ct && ct.rows.length > 0 && ct.bars.length > 0) {
+        rows = ct.rows; bars = ct.bars;
+        console.log(`[${t}] ThetaData caché: ${rows.length} flujos · ${bars.length} barras`);
+      } else {
+        for (let attempt = 0; attempt < 4 && (rows == null || !bars.length); attempt++) {
+          try {
+            const allTrades: Awaited<ReturnType<typeof fetchFlowRange>> = [];
+            for (const [ys, ye] of yearWindows(BT_START, BT_END)) {
+              allTrades.push(...await fetchFlowRange(t, ys, ye, { minPremium: MIN_PREMIUM, contractCap: 60 }));
+            }
+            const r = classifyFlow(allTrades, new Date()).rows;
+            const dmap = await fetchDailyUnderlying(t, shiftYmd(BT_START, -40), shiftYmd(BT_END, 220));
+            const b: DBar[] = [...dmap.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1))
+              .map(([d, c]) => ({ time: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`, close: c }));
+            if (r.length > 0 && b.length > 0) { rows = r; bars = b; }
+            else throw new Error(`vacío (flujos ${r.length}, barras ${b.length})`);
+          } catch (e) {
+            console.error(`[${t}] theta intento ${attempt + 1}/4 falló: ${(e as Error).message}`);
+            await sleep(3000 * (attempt + 1));
+          }
+        }
+        if (rows != null && bars.length) {
+          if (!existsSync(tCacheDir)) mkdirSync(tCacheDir, { recursive: true });
+          writeFileSync(tcp, JSON.stringify({ rows, bars }), "utf8");
+          console.log(`[${t}] ThetaData: ${rows.length} flujos · ${bars.length} barras (cacheado)`);
+        }
+      }
     } else {
     const cached = readCache(t);
     const cacheGood = !!cached && cached.rows.length >= MIN_CACHE && cached.bars.length > 40;
