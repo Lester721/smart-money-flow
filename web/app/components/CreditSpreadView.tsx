@@ -95,8 +95,16 @@ export default function CreditSpreadView() {
           Ese salto <strong>es</strong> el edge, y no fue suerte: aguantó en las <strong>2 mitades</strong> del año (5.7% / 5.4%),
           en <strong>14 de 14</strong> combinaciones, y sobrevivió costos hasta <strong>15% de slippage</strong>.
         </div>
-        <div style={{ fontSize: 11.5, color: "#667085", marginTop: 6 }}>
-          Simulación sobre datos reales (~1 año). Vencimiento por calendario, IV≈vol realizada, costos incluidos. Es backtest — la prueba en vivo (abajo) es la que manda.
+        <div style={{ fontSize: 13.5, color: "#101828", marginTop: 10, background: "#F1F5F4", borderRadius: 8, padding: "10px 12px" }}>
+          <strong>¿En una cuenta de $60,000?</strong> Con una regla conservadora — arriesgar <strong>2% ($1,200)</strong> por operación —
+          las <strong>~70 operaciones</strong> de alta convicción del año (celda de 5 días) a <strong>+5.6%</strong> de media dan:
+          <div style={{ fontVariantNumeric: "tabular-nums", margin: "4px 0", color: "#667085" }}>70 × $1,200 × 5.6% ≈ <strong style={{ color: "#027A48", fontSize: 15 }}>+$4,700 en el año (~+8%)</strong></div>
+          Escala con lo que arriesgues: al doble de riesgo por operación, el doble de ganancia.
+        </div>
+        <div style={{ fontSize: 11.5, color: "#667085", marginTop: 8 }}>
+          Simulación sobre datos reales (~1 año). Vencimiento por calendario, IV≈vol realizada, costos incluidos.
+          El monto en $ es <strong>ilustrativo</strong>: depende del tamaño de posición que elijas, no reinvierte ganancias, y cuenta solo la celda de 5 días.
+          Es backtest — la prueba en vivo (abajo) es la que manda.
         </div>
       </div>
 
