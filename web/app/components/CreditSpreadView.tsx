@@ -96,15 +96,17 @@ export default function CreditSpreadView() {
           en <strong>14 de 14</strong> combinaciones, y sobrevivió costos hasta <strong>15% de slippage</strong>.
         </div>
         <div style={{ fontSize: 13.5, color: "#101828", marginTop: 10, background: "#F1F5F4", borderRadius: 8, padding: "10px 12px" }}>
-          <strong>¿En una cuenta de $60,000?</strong> Con una regla conservadora — arriesgar <strong>2% ($1,200)</strong> por operación —
-          las <strong>~70 operaciones</strong> de alta convicción del año (celda de 5 días) a <strong>+5.6%</strong> de media dan:
-          <div style={{ fontVariantNumeric: "tabular-nums", margin: "4px 0", color: "#667085" }}>70 × $1,200 × 5.6% ≈ <strong style={{ color: "#027A48", fontSize: 15 }}>+$4,700 en el año (~+8%)</strong></div>
-          Escala con lo que arriesgues: al doble de riesgo por operación, el doble de ganancia.
+          <strong>¿En una cuenta de $60,000?</strong> Arriesgando <strong>2% ($1,200)</strong> por operación, con las <strong>~70 operaciones</strong> de alta convicción del año (celda de 5 días) a <strong>+5.6%</strong> de media:
+          <div style={{ margin: "8px 0", fontVariantNumeric: "tabular-nums", display: "flex", flexDirection: "column", gap: 5 }}>
+            <div>• <strong>Sin reinvertir</strong> (riesgo fijo $1,200): $60,000 → <strong style={{ color: "#027A48" }}>~$64,700</strong> &nbsp;(+$4,700 · ~+7.8%)</div>
+            <div>• <strong>Reinvirtiendo</strong> (riesgo = 2% del saldo): $60,000 → <strong style={{ color: "#027A48" }}>~$64,900</strong> &nbsp;(+$4,900 · ~+8.2%)</div>
+          </div>
+          En <strong>1 año</strong> la diferencia es chica (cada operación mueve la cuenta ~0.11%); el interés compuesto se nota de verdad <strong>año tras año</strong>.
         </div>
         <div style={{ fontSize: 11.5, color: "#667085", marginTop: 8 }}>
           Simulación sobre datos reales (~1 año). Vencimiento por calendario, IV≈vol realizada, costos incluidos.
-          El monto en $ es <strong>ilustrativo</strong>: depende del tamaño de posición que elijas, no reinvierte ganancias, y cuenta solo la celda de 5 días.
-          Es backtest — la prueba en vivo (abajo) es la que manda.
+          El monto en $ es <strong>ilustrativo</strong>: depende del tamaño de posición que elijas y cuenta solo la celda de 5 días.
+          El compuesto usa la media (la variación real lo baja un poco). Es backtest — la prueba en vivo (abajo) es la que manda.
         </div>
       </div>
 
