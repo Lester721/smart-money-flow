@@ -12,11 +12,18 @@ import {
 } from "../lib/flow";
 import { bsPrice, impliedVol } from "../lib/blackScholes";
 import { fetchDailyBars } from "../lib/massive";
+import { fetchFlowRange, fetchDailyUnderlying } from "../lib/thetadata";
 
 const TICKERS = (process.env.BT_TICKERS || "AAPL,MSFT,NVDA,AMZN,GOOGL,META,TSLA,AMD,NFLX,QQQ,SPY,HOOD").split(",").map((t) => t.trim()).filter(Boolean);
 const DAYS = Number(process.env.BT_DAYS) || 180;
 const MAXPAGES = Number(process.env.BT_MAXPAGES) || 6; // páginas de flujo por ticker (ensanchable)
 const MIN_PREMIUM = Number(process.env.BT_MIN_PREMIUM) || 1_000_000;
+// Proveedor: DATA_PROVIDER=theta usa ThetaData por RANGO de fechas (BT_START..BT_END, YYYYMMDD);
+// default Massive (ventana relativa a hoy). Barras: 40d antes / 220d después para rv + liquidación.
+const PROVIDER = (process.env.DATA_PROVIDER || "massive").toLowerCase();
+const BT_START = process.env.BT_START || "20250101";
+const BT_END = process.env.BT_END || "20250601";
+const shiftYmd = (y: string, d: number) => new Date(Date.parse(`${y.slice(0, 4)}-${y.slice(4, 6)}-${y.slice(6, 8)}T00:00:00Z`) + d * 86_400_000).toISOString().slice(0, 10).replace(/-/g, "");
 const OUT = process.env.BT_OUT || "scripts/backtest-strategy-reporte.md";
 const DTES = [3, 5, 7, 30, 60, 90, 180, 365];
 const SIGMAS = [1, 1.5];
@@ -200,6 +207,15 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
   for (const t of TICKERS) {
     let rows: FlowRow[] | null = null;
     let bars: DBar[] = [];
+    if (PROVIDER === "theta") {
+      // ThetaData: flujo por rango (selección de contratos) + subyacente diario de barras de acción.
+      const trades = await fetchFlowRange(t, BT_START, BT_END, { minPremium: MIN_PREMIUM, contractCap: 60 });
+      rows = classifyFlow(trades, new Date()).rows;
+      const dmap = await fetchDailyUnderlying(t, shiftYmd(BT_START, -40), shiftYmd(BT_END, 220));
+      bars = [...dmap.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1))
+        .map(([d, c]) => ({ time: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`, close: c }));
+      console.log(`[${t}] ThetaData: ${rows.length} flujos · ${bars.length} barras`);
+    } else {
     const cached = readCache(t);
     const cacheGood = !!cached && cached.rows.length >= MIN_CACHE && cached.bars.length > 40;
 
@@ -229,6 +245,7 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
       } else if (cached) {
         rows = cached.rows; bars = cached.bars; console.log(`[${t}] usando CACHÉ (vivo falló)`);
       }
+    }
     }
 
     if (rows == null || !bars.length) { console.log(`[${t}] sin datos ni caché — omitido`); await sleep(INTER); continue; }
