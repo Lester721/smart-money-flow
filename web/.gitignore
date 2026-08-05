@@ -12,3 +12,6 @@ next-env.d.ts
 
 # historial local de transacciones categorizadas
 /data
+
+# Caché de datos del backtest (grande, no versionar)
+scripts/cache/

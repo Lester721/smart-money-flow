@@ -5,7 +5,7 @@
 // Etapas 2-4 (naked, debit, 0DTE, filtro Eva/Victor) se añaden después.
 // Uso: node --env-file=.env.local --import tsx scripts/backtest-strategy.ts
 
-import { writeFileSync } from "node:fs";
+import { writeFileSync, readFileSync, existsSync, mkdirSync } from "node:fs";
 import { fetchFlow } from "../lib/massiveFlow";
 import {
   classifyFlow, executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow,
@@ -183,17 +183,59 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
 (async () => {
   console.log(`Estrategia ETAPA 1 (credit spread) · ${TICKERS.length} tickers · ${DAYS}d`);
   const all: { sig: Signal; bars: DBar[] }[] = [];
+  let spyBars: DBar[] = []; // para el diagnóstico de régimen (clima de mercado)
+  // Caché acumulativa por ticker: cada corrida guarda la versión con MÁS flujo vista hasta
+  // ahora y reusa el caché cuando la descarga en vivo falla o viene más pobre. Así, ante el
+  // throttling de Massive, corridas repetidas CONVERGEN al mejor dataset sin re-bajar lo bueno.
+  const CACHE_DIR = process.env.BT_CACHE_DIR || "scripts/cache";
+  if (!existsSync(CACHE_DIR)) mkdirSync(CACHE_DIR, { recursive: true });
+  const cachePath = (t: string) => `${CACHE_DIR}/${t}.json`;
+  const INTER = Number(process.env.BT_SLEEP) || 3500;
+  const RETRIES = Number(process.env.BT_RETRIES) || 3;
+  const MIN_CACHE = Number(process.env.BT_MIN_CACHE_ROWS) || 20; // caché "suficiente" → no re-bajar
+  type Cache = { rows: FlowRow[]; bars: DBar[] };
+  const readCache = (t: string): Cache | null => { try { return JSON.parse(readFileSync(cachePath(t), "utf8")); } catch { return null; } };
+
   for (const t of TICKERS) {
-    try {
-      const { trades } = await fetchFlow(t, { targetDays: DAYS, minPremium: MIN_PREMIUM, contractCap: 25, maxPages: 6 });
-      const { rows } = classifyFlow(trades, new Date());
-      let bars: DBar[] = [];
-      for (let i = 0; i < 4; i++) { bars = (await fetchDailyBars(t, 800).catch(() => [])) as DBar[]; if (bars.length > 0) break; await sleep(800 * (i + 1)); }
-      const sigs = bars.length ? signals(rows, bars) : [];
-      for (const sig of sigs) all.push({ sig, bars });
-      console.log(`[${t}] señales: ${sigs.length}`);
-    } catch (e) { console.error(`[${t}] ERROR:`, (e as Error).message); }
-    await sleep(2500);
+    let rows: FlowRow[] | null = null;
+    let bars: DBar[] = [];
+    const cached = readCache(t);
+    const cacheGood = !!cached && cached.rows.length >= MIN_CACHE && cached.bars.length > 40;
+
+    if (cacheGood && process.env.BT_PREFER_CACHE !== "0") {
+      // Ya tenemos datos ricos de este ticker → sáltate Massive (baja la carga → menos throttle).
+      rows = cached!.rows; bars = cached!.bars;
+      console.log(`[${t}] caché suficiente (${rows.length} flujos) — sin bajar`);
+    } else {
+      // Descarga en vivo con reintentos (maneja "terminated"/throttle transitorio).
+      for (let attempt = 0; attempt < RETRIES && rows == null; attempt++) {
+        try {
+          const { trades } = await fetchFlow(t, { targetDays: DAYS, minPremium: MIN_PREMIUM, contractCap: 25, maxPages: 6 });
+          const r = classifyFlow(trades, new Date()).rows;
+          let b: DBar[] = [];
+          for (let i = 0; i < 4; i++) { b = (await fetchDailyBars(t, 800).catch(() => [])) as DBar[]; if (b.length > 0) break; await sleep(800 * (i + 1)); }
+          if (b.length > 0) { rows = r; bars = b; }
+          else throw new Error("sin barras");
+        } catch (e) {
+          console.error(`[${t}] intento ${attempt + 1}/${RETRIES} falló: ${(e as Error).message}`);
+          await sleep(3000 * (attempt + 1));
+        }
+      }
+      // Quédate con la versión de MÁS flujo (live vs caché previo) → mejora monótona.
+      if (rows != null && bars.length) {
+        if (!cached || rows.length >= cached.rows.length) writeFileSync(cachePath(t), JSON.stringify({ rows, bars }), "utf8");
+        else { rows = cached.rows; bars = cached.bars; console.log(`[${t}] caché previo más rico (${cached.rows.length}) — reusando`); }
+      } else if (cached) {
+        rows = cached.rows; bars = cached.bars; console.log(`[${t}] usando CACHÉ (vivo falló)`);
+      }
+    }
+
+    if (rows == null || !bars.length) { console.log(`[${t}] sin datos ni caché — omitido`); await sleep(INTER); continue; }
+    const sigs = signals(rows, bars);
+    if (t === "SPY") spyBars = bars;
+    for (const sig of sigs) all.push({ sig, bars });
+    console.log(`[${t}] señales: ${sigs.length}`);
+    await sleep(INTER);
   }
 
   const VEHICLES: { name: string; note: string; fn: (s: Signal, b: DBar[], dte: number, sm: number) => number | null }[] = [
@@ -296,6 +338,58 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     lines.push(`| ${kc.name} | ${cols[0]} | ${cols[1]} | ${cols[2]} | ${cols[3]} |`);
   }
   lines.push("", "**Cómo leerlo:** media del Top⅓-Eva a cada nivel de slippage. Donde pasa a NEGATIVO, ahí el costo se comió el edge. Cuanto más slippage aguante positivo, más operable de verdad.", "");
+
+  // ETAPA 7 — DIAGNÓSTICO DE RÉGIMEN. ¿El edge del credit spread depende del CLIMA de
+  // volatilidad? Clima = vol realizada 20d de SPY (el mercado) el día de entrada, en terciles
+  // sobre los días realmente operados. Solo diagnóstico — nada cableado a la estrategia todavía.
+  lines.push("## ETAPA 7 — Diagnóstico de régimen (¿el edge depende del clima?)", "");
+  const spyRvAt = (ms: number): number | null => {
+    const i = barIdxOnOrBefore(spyBars, ms);
+    return i >= 20 ? realizedVol(spyBars, i) : null;
+  };
+  if (spyBars.length < 40) {
+    lines.push("_No hay barras de SPY suficientes para clasificar el régimen._", "");
+  } else {
+    const regimeCells: { name: string; dte: number; sm: number }[] = [
+      { name: "Credit spread 5d @ 1σ", dte: 5, sm: 1 },
+      { name: "Credit spread 90d @ 1σ", dte: 90, sm: 1 },
+    ];
+    for (const rc of regimeCells) {
+      const rec = all.map(({ sig, bars }) => ({
+        pnl: creditSpreadPnl(sig, bars, rc.dte, rc.sm),
+        eva: sig.evaComp,
+        spyRv: spyRvAt(sig.entryMs),
+      })).filter((x) => x.pnl != null && x.spyRv != null) as { pnl: number; eva: number; spyRv: number }[];
+      if (rec.length < 15) { lines.push(`### ${rc.name}`, "_Muestra insuficiente para partir por régimen._", ""); continue; }
+      // Terciles de la vol de SPY sobre los días operados → 3 climas.
+      const rvs = rec.map((x) => x.spyRv).sort((a, b) => a - b);
+      const q1 = rvs[Math.floor(rvs.length / 3)];
+      const q2 = rvs[Math.floor((2 * rvs.length) / 3)];
+      const regimeOf = (rv: number) => (rv <= q1 ? "Tranquilo" : rv <= q2 ? "Normal" : "Volátil");
+      // Umbral Top⅓ por convicción EVA (global, como opera la estrategia).
+      const k = Math.max(1, Math.floor(rec.length / 3));
+      const evaCut = [...rec].sort((a, b) => a.eva - b.eva)[rec.length - k].eva;
+      lines.push(
+        `### ${rc.name}`,
+        `Clima por vol realizada de SPY (anualizada): **Tranquilo** ≤ ${Math.round(q1 * 100)}% · **Normal** ${Math.round(q1 * 100)}–${Math.round(q2 * 100)}% · **Volátil** > ${Math.round(q2 * 100)}%.`,
+        "",
+        "| Clima (vol de SPY) | TODAS | Top⅓ EVA (alta convicción) |",
+        "|---|---|---|",
+      );
+      for (const reg of ["Tranquilo", "Normal", "Volátil"] as const) {
+        const inReg = rec.filter((x) => regimeOf(x.spyRv) === reg);
+        const top = inReg.filter((x) => x.eva >= evaCut);
+        lines.push(`| ${reg} | ${fmt(stat(inReg.map((x) => x.pnl)))} | ${fmt(stat(top.map((x) => x.pnl)))} |`);
+      }
+      lines.push("");
+    }
+    lines.push(
+      "**Cómo leerlo:** si el **Top⅓ EVA** se mantiene positivo en los 3 climas → el edge es robusto al régimen (un filtro de clima aporta poco). Si es fuerte en Tranquilo/Normal y **negativo en Volátil** → los credit spreads se rompen en clima volátil, y ahí SÍ vale un filtro de régimen (apagar/achicar en volátil). Si solo funciona en un clima → el edge de ~1 año puede ser dependiente del régimen (frágil).",
+      "",
+      "_Régimen = vol realizada 20d de SPY el día de entrada, en terciles sobre los días operados. Es DIAGNÓSTICO, no un filtro: no hay nada cableado a la estrategia todavía._",
+      "",
+    );
+  }
 
   lines.push(
     "**Cómo leerlo:** credit/naked (vender prima) ganan seguido pero pierden grande → mira la MEDIA, no solo el win%. El debit spread pierde seguido pero gana grande. Candidata = media positiva con win razonable.",
