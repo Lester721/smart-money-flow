@@ -5,7 +5,7 @@
     "buildCommand": "echo 'forward-wheel: sin build (tsx corre TypeScript directo)'"
   },
   "deploy": {
-    "startCommand": "npm run forward-wheel",
+    "startCommand": "node scripts/with-theta.mjs npm run forward-wheel",
     "restartPolicyType": "NEVER"
   }
 }

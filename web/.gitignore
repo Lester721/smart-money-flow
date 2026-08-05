@@ -15,3 +15,10 @@ next-env.d.ts
 
 # Caché de datos del backtest (grande, no versionar)
 scripts/cache*/
+
+# Key de ThetaData (la usa el Terminal, nunca versionar)
+.env.thetadata
+
+# Jar del Theta Terminal (se descarga solo, 40MB)
+ThetaTerminalv3.jar
+config.toml

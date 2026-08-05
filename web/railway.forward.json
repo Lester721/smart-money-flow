@@ -5,7 +5,7 @@
     "buildCommand": "echo 'forward-test: sin build (tsx corre TypeScript directo)'"
   },
   "deploy": {
-    "startCommand": "npm run forward-test",
+    "startCommand": "node scripts/with-theta.mjs npm run forward-test",
     "restartPolicyType": "NEVER"
   }
 }

@@ -9,6 +9,8 @@
     "worker": "tsx worker/ideasWorker.ts",
     "forward-test": "tsx scripts/forward-test.ts",
     "forward-wheel": "tsx scripts/forward-wheel.ts",
+    "forward-test:theta": "node scripts/with-theta.mjs npm run forward-test",
+    "forward-wheel:theta": "node scripts/with-theta.mjs npm run forward-wheel",
     "test": "vitest run",
     "test:watch": "vitest"
   },

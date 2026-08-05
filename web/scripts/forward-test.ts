@@ -19,12 +19,11 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname } from "node:path";
 import Redis from "ioredis";
 import { PANEL_TICKERS } from "../lib/panel";
-import { fetchFlow } from "../lib/massiveFlow";
+import { fetchFlow, fetchDailyBars } from "../lib/flowProvider";
 import {
   classifyFlow, executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow,
 } from "../lib/flow";
 import { bsPrice, impliedVol } from "../lib/blackScholes";
-import { fetchDailyBars } from "../lib/massive";
 
 // ── Parámetros ────────────────────────────────────────────────────────────────
 const TICKERS = (process.env.FWD_TICKERS || PANEL_TICKERS.join(",")).split(",").map((t) => t.trim()).filter(Boolean);

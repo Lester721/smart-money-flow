@@ -52,3 +52,40 @@ El ledger ya **no vive en git**; vive en **Redis** (el mismo servicio que usa el
   así que correr de más no duplica nada.
 - El `data/forward/ledger.json` en git queda como **semilla** (ya no se actualiza solo; la
   fuente viva es Redis).
+
+---
+
+# Migrar los cron a ThetaData (Terminal efímero)
+
+**Por qué así:** ThetaData sólo permite **una conexión por cuenta** — un segundo Terminal
+*expulsa* al primero. Por eso el cron **arranca el Terminal, corre el job y lo apaga**: la
+ventana de colisión con tu Terminal local es de ~5 min al día, no permanente.
+
+Ya está en el repo: `scripts/with-theta.mjs` (lanzador) y el `startCommand` de
+`railway.forward.json` / `railway.wheel.json` ya lo usan. **Si `DATA_PROVIDER` no es `theta`,
+el lanzador NO arranca nada y corre el job igual que antes (Massive)** — así que el cambio es
+seguro y reversible con una sola variable.
+
+## Pasos en Railway (en CADA servicio cron: forward-test y wheel)
+
+1. **Variables** → agregar:
+   - `DATA_PROVIDER` = `theta`
+   - `THETADATA_API_KEY` = tu key de ThetaData
+   - `NIXPACKS_PKGS` = `jdk21`  ← instala Java (el Terminal lo necesita)
+   - Deja `REDIS_URL` como está. Mantén `MASSIVE_API_KEY` hasta verificar (fallback).
+2. **ESCALONAR LOS HORARIOS** (crítico): si los dos cron corren a la vez, cada uno levanta su
+   propio Terminal y **se expulsan entre sí**. Deja al menos 30 min entre ellos, por ejemplo:
+   - forward-test → `0 22 * * 1-5`
+   - wheel        → `30 22 * * 1-5`
+3. **Deploy** y revisar logs: debe verse `[with-theta] arrancando el Theta Terminal…`,
+   luego `Terminal listo en Ns`, el job, y `apagando el Terminal…`.
+
+## Para volver atrás
+Borra (o pon en `massive`) la variable `DATA_PROVIDER`. El lanzador vuelve a modo passthrough
+y el cron corre con Massive, sin tocar código.
+
+## Ojo con tu Terminal local
+Durante esos ~5 minutos diarios el Terminal de Railway te puede expulsar el local (y viceversa,
+si tú estás corriendo un backtest pesado a esa hora). Por eso los cron van tras el cierre.
+El jar (40 MB) **no está en el repo**: `with-theta.mjs` lo descarga solo de
+`download-stable.thetadata.us` la primera vez.
