@@ -2,11 +2,11 @@
 // Lean: filtra duro a transacciones notables, tabla chica + score 0-10. No trae el tape completo.
 
 import { aggressionScore, classifyFlow, convictionScore, unusualityScore, type FlowRow } from "@/lib/flow";
-import { fetchFlow } from "@/lib/massiveFlow";
+import { fetchFlow, fetchDailyBars } from "@/lib/flowProvider";
 import { saveTrades } from "@/lib/store";
 import { ivContextScore, type IvContextScore } from "@/lib/ivcontext";
 import { loadIvHistory, saveIvSnapshot } from "@/lib/ivStore";
-import { fetchDailyBars, MassiveError } from "@/lib/massive";
+import { MassiveError } from "@/lib/massive";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
