@@ -36,6 +36,16 @@ async function getCsv(path: string): Promise<Csv | null> {
 }
 const idx = (h: string[], name: string) => h.indexOf(name);
 
+/** map con concurrencia limitada (el Theta Terminal permite ~4 requests a la vez). */
+async function pMapT<T, R>(items: T[], limit: number, fn: (x: T) => Promise<R>): Promise<R[]> {
+  const res: R[] = new Array(items.length);
+  let i = 0;
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (i < items.length) { const j = i++; res[j] = await fn(items[j]); }
+  }));
+  return res;
+}
+
 /** "2024-11-08" → "20241108" (formato de expiración/fecha que piden los endpoints). */
 const yyyymmdd = (d: string) => d.replace(/-/g, "");
 
@@ -186,63 +196,89 @@ export async function fetchDailyUnderlying(symbol: string, startYmd: string, end
   return out;
 }
 
-// ── Flujo por RANGO de fechas (para backtests) ───────────────────────────────────────────────
-// Por expiración, trade_quote troceado en ventanas de ≤1 mes. El spot para las griegas sale del
-// cierre diario del subyacente (el backtest recomputa sus scores igual).
-export async function fetchFlowRange(
-  symbol: string, startYmd: string, endYmd: string,
-  opts: { minPremium?: number; expCap?: number; expHorizonDays?: number } = {},
-): Promise<RawTrade[]> {
-  const minPremium = opts.minPremium ?? 0;
-  const expCap = opts.expCap ?? 60;
-  const horizonMs = (opts.expHorizonDays ?? 800) * dayMs;
-  const startMs = parseYmd(startYmd);
-  const chunks = monthChunks(startYmd, endYmd);
-
-  const allExps = await fetchExpirations(symbol);
-  const exps = allExps.filter((e) => {
-    const em = Date.parse(`${e}T20:00:00Z`);
-    return em >= startMs && em <= startMs + horizonMs;
-  }).slice(0, expCap);
-
-  const daily = await fetchDailyUnderlying(symbol, startYmd, endYmd);
-
-  const out: RawTrade[] = [];
-  for (const expDash of exps) {
-    const expYmd = yyyymmdd(expDash);
-    const expMs = Date.parse(`${expDash}T20:00:00Z`);
-    for (const [cs, ce] of chunks) {
-      if (parseYmd(cs) > expMs) break; // el contrato ya venció antes de este trozo
-      const csv = await getCsv(`/v3/option/history/trade_quote?symbol=${symbol}&expiration=${expYmd}&start_date=${cs}&end_date=${ce}`);
-      if (!csv) continue;
-      const h = csv.header;
-    const iStrike = idx(h, "strike"), iRight = idx(h, "right"), iTts = idx(h, "trade_timestamp"),
-      iCond = idx(h, "condition"), iSize = idx(h, "size"), iPx = idx(h, "price"), iBid = idx(h, "bid"), iAsk = idx(h, "ask");
-    const iExt = ["ext_condition1", "ext_condition2", "ext_condition3", "ext_condition4"].map((n) => idx(h, n));
+// ── Volumen por contrato (para seleccionar líquidos) — EOD bulk troceado ─────────────────────
+interface VolInfo { vol: number; close: number }
+async function fetchContractVolumes(symbol: string, startYmd: string, endYmd: string): Promise<Map<string, VolInfo>> {
+  const m = new Map<string, VolInfo>();
+  for (const [cs, ce] of monthChunks(startYmd, endYmd)) {
+    const csv = await getCsv(`/v3/option/history/eod?symbol=${symbol}&expiration=*&start_date=${cs}&end_date=${ce}`);
+    if (!csv) continue;
+    const iE = idx(csv.header, "expiration"), iK = idx(csv.header, "strike"), iR = idx(csv.header, "right"),
+      iV = idx(csv.header, "volume"), iC = idx(csv.header, "close");
     for (const r of csv.rows) {
-      const price = Number(r[iPx]), size = Number(r[iSize]);
-      if (!(price > 0) || !(size > 0) || price * size * 100 < minPremium) continue;
-      const strike = Number(r[iStrike]);
-      const isCall = r[iRight].toUpperCase() === "CALL";
-      const tMs = tsToMs(r[iTts]);
-      const dayYmd = (r[iTts] || "").slice(0, 10).replace(/-/g, "");
-      const bid = Number(r[iBid]), ask = Number(r[iAsk]);
-      const side = sideFor(price, Number.isFinite(bid) ? bid : null, Number.isFinite(ask) ? ask : null);
-      const sp = daily.get(dayYmd) ?? null;
-      const T = (Date.parse(`${expDash}T20:00:00Z`) - tMs) / YEAR_MS;
-      const g = sp != null && T > 0 ? tradeGreeks(price, sp, strike, T, isCall) : { iv: null, delta: null, gamma: 0, theta: 0, vega: 0 };
-      const conds = [Number(r[iCond]), ...iExt.map((i) => Number(r[i]))].filter(Number.isFinite);
-      out.push({
-        id: 0, symbol: occFor(symbol, expDash, strike, isCall), price, size, side,
-        bid_price: Number.isFinite(bid) ? bid : 0, ask_price: Number.isFinite(ask) ? ask : 0,
-        premium: price * size * 100, delta: g.delta ?? 0, gamma: g.gamma, theta: g.theta / 365, vega: g.vega,
-        implied_volatility: g.iv ?? 0, open_interest: 0, volume: 0, score: 0, sentiment: sentimentFor(side),
-        timestamp: new Date(tMs).toISOString(), asset_price: sp ?? undefined, trade_condition_id: primaryCondition(conds),
-      });
-      }
+      const key = `${r[iE]}|${Number(r[iK])}|${r[iR]}`;
+      const vol = Number(r[iV]) || 0, close = Number(r[iC]) || 0;
+      const prev = m.get(key);
+      if (prev) { prev.vol += vol; if (close > 0) prev.close = close; }
+      else m.set(key, { vol, close });
     }
   }
-  return out.map((t, i) => ({ ...t, id: i }));
+  return m;
+}
+
+// ── Flujo por RANGO de fechas (para backtests) — con SELECCIÓN de contratos ───────────────────
+// En vez de bajar todo el tape por expiración (lento), seleccionamos los contratos LÍQUIDOS por
+// dólar-volumen (EOD bulk, barato) y pedimos trade_quote SOLO de esos, con strike (respuesta
+// ~100x menor). Mismo criterio que selectContracts de Massive.
+export async function fetchFlowRange(
+  symbol: string, startYmd: string, endYmd: string,
+  opts: { minPremium?: number; contractCap?: number; onProgress?: (done: number, total: number) => void } = {},
+): Promise<RawTrade[]> {
+  const minPremium = opts.minPremium ?? 0;
+  const cap = opts.contractCap ?? 120;
+  const chunks = monthChunks(startYmd, endYmd);
+
+  // 1. Volumen por contrato → seleccionar por dólar-volumen (¿podría un trade llegar a minPremium?).
+  const volMap = await fetchContractVolumes(symbol, startYmd, endYmd);
+  const selected = [...volMap.entries()]
+    .map(([key, v]) => { const [exp, strike, right] = key.split("|"); return { exp, strike: Number(strike), right, dv: v.vol * v.close * 100 }; })
+    .filter((c) => c.dv >= minPremium)
+    .sort((a, b) => b.dv - a.dv)
+    .slice(0, cap);
+
+  // 2. Subyacente diario (spot/griegas).
+  const daily = await fetchDailyUnderlying(symbol, startYmd, endYmd);
+
+  // 3. trade_quote por contrato seleccionado (con strike+right → respuesta chica), EN PARALELO.
+  let done = 0;
+  const perContract = await pMapT(selected, 4, async (c) => {
+    const local: RawTrade[] = [];
+    const expYmd = yyyymmdd(c.exp);
+    const expMs = Date.parse(`${c.exp}T20:00:00Z`);
+    const rightWord = c.right.toUpperCase() === "CALL" ? "call" : "put";
+    const isCall = rightWord === "call";
+    for (const [cs, ce] of chunks) {
+      if (parseYmd(cs) > expMs) break;
+      const csv = await getCsv(`/v3/option/history/trade_quote?symbol=${symbol}&expiration=${expYmd}&strike=${c.strike.toFixed(3)}&right=${rightWord}&start_date=${cs}&end_date=${ce}`);
+      if (!csv) continue;
+      const h = csv.header;
+      const iTts = idx(h, "trade_timestamp"), iCond = idx(h, "condition"), iSize = idx(h, "size"),
+        iPx = idx(h, "price"), iBid = idx(h, "bid"), iAsk = idx(h, "ask");
+      const iExt = ["ext_condition1", "ext_condition2", "ext_condition3", "ext_condition4"].map((n) => idx(h, n));
+      for (const r of csv.rows) {
+        const price = Number(r[iPx]), size = Number(r[iSize]);
+        if (!(price > 0) || !(size > 0) || price * size * 100 < minPremium) continue;
+        const tMs = tsToMs(r[iTts]);
+        const dayYmd = (r[iTts] || "").slice(0, 10).replace(/-/g, "");
+        const bid = Number(r[iBid]), ask = Number(r[iAsk]);
+        const side = sideFor(price, Number.isFinite(bid) ? bid : null, Number.isFinite(ask) ? ask : null);
+        const sp = daily.get(dayYmd) ?? null;
+        const T = (expMs - tMs) / YEAR_MS;
+        const g = sp != null && T > 0 ? tradeGreeks(price, sp, c.strike, T, isCall) : { iv: null, delta: null, gamma: 0, theta: 0, vega: 0 };
+        const conds = [Number(r[iCond]), ...iExt.map((i) => Number(r[i]))].filter(Number.isFinite);
+        local.push({
+          id: 0, symbol: occFor(symbol, c.exp, c.strike, isCall), price, size, side,
+          bid_price: Number.isFinite(bid) ? bid : 0, ask_price: Number.isFinite(ask) ? ask : 0,
+          premium: price * size * 100, delta: g.delta ?? 0, gamma: g.gamma, theta: g.theta / 365, vega: g.vega,
+          implied_volatility: g.iv ?? 0, open_interest: 0, volume: 0, score: 0, sentiment: sentimentFor(side),
+          timestamp: new Date(tMs).toISOString(), asset_price: sp ?? undefined, trade_condition_id: primaryCondition(conds),
+        });
+      }
+    }
+    opts.onProgress?.(++done, selected.length);
+    return local;
+  });
+  return perContract.flat().map((t, i) => ({ ...t, id: i }));
 }
 
 // ── trade_quote de una expiración/fecha → RawTrade[] notables ────────────────────────────────
