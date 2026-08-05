@@ -1,0 +1,244 @@
+// Cliente ThetaData (API v3, Theta Terminal local en :25503). PARALELO a massive.ts — NO lo toca.
+// Massive queda como fallback hasta verificar paridad. Provee el FLUJO (fetchFlow) sobre ThetaData:
+//   · trade_quote  → cada trade YA emparejado con su NBBO (agresor exacto en 1 llamada)
+//   · implied_volatility → spot (underlying_price) + IV real por minuto
+//   · open_interest (bulk) → OI por contrato
+// Ventaja vs Massive: no hay que pedir el quote por-trade ni hacer el as-of join de quotes;
+// ThetaData lo entrega junto. El spot sale del endpoint de IV (incluido en Standard Options).
+//
+// Nota: los endpoints SNAPSHOT (vivo) hoy están bloqueados por Norton (feed en tiempo real);
+// los HISTÓRICOS funcionan. Este cliente usa históricos (que es lo que backtests + flujo reciente
+// necesitan). Para el vivo intradía haría falta la excepción de Norton al feed.
+
+import type { RawTrade } from "./flow";
+import { tradeGreeks } from "./greeks";
+import { isMultiLegCondition, isCanceledCondition } from "./conditions";
+import { sideFor } from "./massiveFlow";
+import type { FetchFlowOptions, FlowResult } from "./massiveFlow";
+
+const BASE = process.env.THETA_BASE || "http://127.0.0.1:25503";
+const YEAR_MS = 365 * 24 * 3600 * 1000;
+
+// ── CSV ────────────────────────────────────────────────────────────────────
+interface Csv { header: string[]; rows: string[][] }
+const unq = (s: string) => s.replace(/^"(.*)"$/, "$1");
+
+async function getCsv(path: string): Promise<Csv | null> {
+  const res = await fetch(`${BASE}${path}`);
+  if (!res.ok) return null; // 403/404/etc. → sin datos (mensaje de error, no CSV)
+  const text = await res.text();
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return null;
+  const header = lines[0].split(",").map(unq);
+  if (header[0] !== "symbol") return null; // respuesta de error en texto plano
+  const rows = lines.slice(1).map((l) => l.split(",").map(unq));
+  return { header, rows };
+}
+const idx = (h: string[], name: string) => h.indexOf(name);
+
+/** "2024-11-08" → "20241108" (formato de expiración/fecha que piden los endpoints). */
+const yyyymmdd = (d: string) => d.replace(/-/g, "");
+
+/** Timestamp ET-naïve de ThetaData ("2024-11-04T09:30:00.471") → ms. Se trata como UTC para
+ *  un reloj CONSISTENTE entre trades y spot (el as-of join y la prima no dependen del offset;
+ *  el epoch absoluto queda ~ offset ET corrido, refinable después). */
+const tsToMs = (iso: string): number => Date.parse(`${iso}Z`);
+
+// ── Condiciones OPRA (mismo catálogo de Victor; 255 = "sin condición" en ThetaData) ──────────
+function primaryCondition(ids: number[]): number | undefined {
+  const valid = ids.filter((n) => Number.isFinite(n) && n !== 255 && n !== 0);
+  for (const id of valid) if (isMultiLegCondition(id)) return id;
+  for (const id of valid) if (isCanceledCondition(id)) return id;
+  return valid[0];
+}
+function sentimentFor(side: string): string {
+  if (side === "ABOVE_ASK" || side === "AT_ASK") return "bullish";
+  if (side === "BELOW_BID" || side === "AT_BID") return "bearish";
+  return "neutral";
+}
+
+// ── Serie de spot (underlying) para una expiración/fecha, desde el endpoint de IV ────────────
+/** [tMs, underlying][] ascendente, deduplicado por timestamp (el subyacente repite entre strikes). */
+async function fetchSpotSeries(symbol: string, expYmd: string, dateYmd: string): Promise<[number, number][]> {
+  const csv = await getCsv(
+    `/v3/option/history/greeks/implied_volatility?symbol=${symbol}&expiration=${expYmd}&date=${dateYmd}&interval=1m`,
+  );
+  if (!csv) return [];
+  const iTs = idx(csv.header, "underlying_timestamp");
+  const iPx = idx(csv.header, "underlying_price");
+  if (iTs < 0 || iPx < 0) return [];
+  const seen = new Set<number>();
+  const out: [number, number][] = [];
+  for (const r of csv.rows) {
+    const t = tsToMs(r[iTs]);
+    const px = Number(r[iPx]);
+    if (!Number.isFinite(t) || !(px > 0) || seen.has(t)) continue;
+    seen.add(t);
+    out.push([t, px]);
+  }
+  out.sort((a, b) => a[0] - b[0]);
+  return out;
+}
+
+/** Spot en (o justo antes de) tMs. Búsqueda binaria. */
+function spotAt(series: [number, number][], tMs: number): number | null {
+  if (!series.length || tMs < series[0][0]) return series.length ? series[0][1] : null;
+  let lo = 0, hi = series.length - 1, best: number | null = null;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (series[mid][0] <= tMs) { best = series[mid][1]; lo = mid + 1; } else hi = mid - 1;
+  }
+  return best;
+}
+
+// ── OI por contrato (bulk, una llamada para todo el símbolo) ─────────────────────────────────
+/** Map "EXP|STRIKE|RIGHT" → open interest (EXP en YYYY-MM-DD, RIGHT CALL/PUT), as-of `dateYmd`. */
+async function fetchOpenInterestMap(symbol: string, dateYmd: string): Promise<Map<string, number>> {
+  const m = new Map<string, number>();
+  // Histórico bulk (el snapshot vivo está bloqueado por Norton). expiration=* = todos los contratos.
+  const csv = await getCsv(`/v3/option/history/open_interest?symbol=${symbol}&expiration=*&start_date=${dateYmd}&end_date=${dateYmd}`);
+  if (!csv) return m;
+  const iE = idx(csv.header, "expiration"), iK = idx(csv.header, "strike"), iR = idx(csv.header, "right"), iO = idx(csv.header, "open_interest");
+  for (const r of csv.rows) {
+    const oi = Number(r[iO]);
+    if (Number.isFinite(oi)) m.set(`${r[iE]}|${Number(r[iK])}|${r[iR]}`, oi);
+  }
+  return m;
+}
+
+// ── Fechas ───────────────────────────────────────────────────────────────────────────────────
+/** Últimos `days` días hábiles (aprox; ignora feriados) como YYYYMMDD, desc. */
+function tradingDates(days: number): string[] {
+  const out: string[] = [];
+  const d = new Date();
+  while (out.length < days) {
+    const dow = d.getUTCDay();
+    if (dow !== 0 && dow !== 6) out.push(d.toISOString().slice(0, 10).replace(/-/g, ""));
+    d.setUTCDate(d.getUTCDate() - 1);
+  }
+  return out;
+}
+
+async function fetchExpirations(symbol: string): Promise<string[]> {
+  const csv = await getCsv(`/v3/option/list/expirations?symbol=${symbol}`);
+  if (!csv) return [];
+  const iE = idx(csv.header, "expiration");
+  return csv.rows.map((r) => r[iE]).filter(Boolean);
+}
+
+// ── trade_quote de una expiración/fecha → RawTrade[] notables ────────────────────────────────
+async function tradesForExpDate(
+  symbol: string, expYmd: string, dateYmd: string, minPremium: number,
+  spot: [number, number][], oi: Map<string, number>,
+): Promise<RawTrade[]> {
+  const csv = await getCsv(`/v3/option/history/trade_quote?symbol=${symbol}&expiration=${expYmd}&date=${dateYmd}`);
+  if (!csv) return [];
+  const h = csv.header;
+  const iStrike = idx(h, "strike"), iRight = idx(h, "right"), iTts = idx(h, "trade_timestamp");
+  const iCond = idx(h, "condition"), iSize = idx(h, "size"), iPx = idx(h, "price"),
+    iBid = idx(h, "bid"), iAsk = idx(h, "ask"), iExp = idx(h, "expiration");
+  const iExt = ["ext_condition1", "ext_condition2", "ext_condition3", "ext_condition4"].map((n) => idx(h, n));
+
+  const out: RawTrade[] = [];
+  for (const r of csv.rows) {
+    const price = Number(r[iPx]);
+    const size = Number(r[iSize]);
+    if (!(price > 0) || !(size > 0)) continue;
+    if (price * size * 100 < minPremium) continue; // NOTABLE
+
+    const strike = Number(r[iStrike]);
+    const isCall = r[iRight].toUpperCase() === "CALL";
+    const expDash = r[iExp]; // "2024-11-08"
+    const tMs = tsToMs(r[iTts]);
+    const bid = Number(r[iBid]);
+    const ask = Number(r[iAsk]);
+    const side = sideFor(price, Number.isFinite(bid) ? bid : null, Number.isFinite(ask) ? ask : null);
+
+    const sp = spotAt(spot, tMs);
+    const expiryMs = Date.parse(`${expDash}T20:00:00Z`);
+    const T = (expiryMs - tMs) / YEAR_MS;
+    const g = sp != null && T > 0
+      ? tradeGreeks(price, sp, strike, T, isCall)
+      : { iv: null, delta: null, gamma: 0, theta: 0, vega: 0 };
+
+    const conds = [Number(r[iCond]), ...iExt.map((i) => Number(r[i]))].filter(Number.isFinite);
+    const occ = occFor(symbol, expDash, strike, isCall);
+
+    out.push({
+      id: 0,
+      symbol: occ,
+      price, size, side,
+      bid_price: Number.isFinite(bid) ? bid : 0,
+      ask_price: Number.isFinite(ask) ? ask : 0,
+      premium: price * size * 100,
+      delta: g.delta ?? 0,
+      gamma: g.gamma,
+      theta: g.theta / 365,
+      vega: g.vega,
+      implied_volatility: g.iv ?? 0,
+      open_interest: oi.get(`${expDash}|${strike}|${r[iRight].toUpperCase()}`) ?? 0,
+      volume: 0, // volumen por-contrato no se usa aguas abajo; el ranking de Massive no aplica aquí
+      score: 0,
+      sentiment: sentimentFor(side),
+      timestamp: new Date(tMs).toISOString(),
+      asset_price: sp ?? undefined,
+      trade_condition_id: primaryCondition(conds),
+    });
+  }
+  return out;
+}
+
+/** OCC estilo Victor: "AAPL241108C00220000" (sin prefijo O:). */
+function occFor(symbol: string, expDash: string, strike: number, isCall: boolean): string {
+  const yy = expDash.slice(2, 4), mm = expDash.slice(5, 7), dd = expDash.slice(8, 10);
+  const k = String(Math.round(strike * 1000)).padStart(8, "0");
+  return `${symbol}${yy}${mm}${dd}${isCall ? "C" : "P"}${k}`;
+}
+
+// ── fetchFlow — drop-in del de massiveFlow, sobre ThetaData ───────────────────────────────────
+export interface ThetaFlowOptions extends FetchFlowOptions {
+  /** Máx expiraciones a escanear (las más cercanas). Acota llamadas. Default 40. */
+  expCap?: number;
+  /** Solo expiraciones hasta N días hacia adelante desde hoy. Default 400. */
+  expHorizonDays?: number;
+  /** Fechas explícitas (YYYYMMDD) a escanear. Si se da, ignora targetDays. Para backtests/tests. */
+  dates?: string[];
+}
+
+export async function fetchFlow(ticker: string, opts: ThetaFlowOptions = {}): Promise<FlowResult> {
+  const days = opts.targetDays ?? 5;
+  const minPremium = opts.minPremium ?? 0;
+  const expCap = opts.expCap ?? 40;
+  const horizon = opts.expHorizonDays ?? 400;
+
+  const dates = opts.dates ?? tradingDates(days);   // YYYYMMDD, desc
+  const allExps = await fetchExpirations(ticker);   // YYYY-MM-DD, asc
+  const nowMs = Date.now();
+  // Expiraciones vigentes durante la ventana: no vencidas al inicio, y dentro del horizonte.
+  const winStartMs = tsToMs(`${dates[dates.length - 1]}`.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3T00:00:00"));
+  const exps = allExps
+    .filter((e) => {
+      const em = Date.parse(`${e}T20:00:00Z`);
+      return em >= winStartMs && em <= nowMs + horizon * 86_400_000;
+    })
+    .slice(0, expCap);
+
+  const oi = await fetchOpenInterestMap(ticker, dates[0]);
+
+  let scanned = 0;
+  const all: RawTrade[] = [];
+  for (const dateYmd of dates) {
+    for (const expDash of exps) {
+      const expYmd = yyyymmdd(expDash);
+      if (Number(expYmd) < Number(dateYmd)) continue; // ya venció para esa fecha
+      const spot = await fetchSpotSeries(ticker, expYmd, dateYmd);
+      const rows = await tradesForExpDate(ticker, expYmd, dateYmd, minPremium, spot, oi);
+      all.push(...rows);
+      scanned += 1;
+      await opts.onPage?.(scanned, rows.length);
+    }
+  }
+
+  const trades = all.map((t, i) => ({ ...t, id: i }));
+  return { trades, pages: scanned, truncated: false };
+}
