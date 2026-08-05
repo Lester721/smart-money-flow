@@ -104,11 +104,20 @@ function spotAt(series: [number, number][], tMs: number): number | null {
 }
 
 // ── OI por contrato (bulk, una llamada para todo el símbolo) ─────────────────────────────────
-/** Map "EXP|STRIKE|RIGHT" → open interest (EXP en YYYY-MM-DD, RIGHT CALL/PUT), as-of `dateYmd`. */
+/**
+ * Map "EXP|STRIKE|RIGHT" → open interest (EXP en YYYY-MM-DD, RIGHT CALL/PUT), as-of `dateYmd`.
+ *
+ * OJO con el día EN CURSO: el endpoint histórico lo rechaza ("Cannot fetch current-day data
+ * without specifying an expiration") → sin este caso especial, TODO el flujo en vivo saldría
+ * con open_interest = 0, degradando el scorecard en silencio. Para hoy usamos el SNAPSHOT.
+ */
 async function fetchOpenInterestMap(symbol: string, dateYmd: string): Promise<Map<string, number>> {
   const m = new Map<string, number>();
-  // Histórico bulk (el snapshot vivo está bloqueado por Norton). expiration=* = todos los contratos.
-  const csv = await getCsv(`/v3/option/history/open_interest?symbol=${symbol}&expiration=*&start_date=${dateYmd}&end_date=${dateYmd}`);
+  const hoy = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const path = dateYmd >= hoy
+    ? `/v3/option/snapshot/open_interest?symbol=${symbol}&expiration=*`
+    : `/v3/option/history/open_interest?symbol=${symbol}&expiration=*&start_date=${dateYmd}&end_date=${dateYmd}`;
+  const csv = await getCsv(path);
   if (!csv) return m;
   const iE = idx(csv.header, "expiration"), iK = idx(csv.header, "strike"), iR = idx(csv.header, "right"), iO = idx(csv.header, "open_interest");
   for (const r of csv.rows) {
