@@ -322,7 +322,7 @@ async function tradesForExpDate(
 }
 
 /** OCC estilo Victor: "AAPL241108C00220000" (sin prefijo O:). */
-function occFor(symbol: string, expDash: string, strike: number, isCall: boolean): string {
+export function occFor(symbol: string, expDash: string, strike: number, isCall: boolean): string {
   const yy = expDash.slice(2, 4), mm = expDash.slice(5, 7), dd = expDash.slice(8, 10);
   const k = String(Math.round(strike * 1000)).padStart(8, "0");
   return `${symbol}${yy}${mm}${dd}${isCall ? "C" : "P"}${k}`;

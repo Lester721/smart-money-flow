@@ -12,7 +12,8 @@
     "forward-test:theta": "node scripts/with-theta.mjs npm run forward-test",
     "forward-wheel:theta": "node scripts/with-theta.mjs npm run forward-wheel",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "worker:theta": "tsx worker/ideasWorkerTheta.ts"
   },
   "engines": {
     "node": ">=22"
