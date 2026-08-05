@@ -14,4 +14,4 @@ next-env.d.ts
 /data
 
 # Caché de datos del backtest (grande, no versionar)
-scripts/cache/
+scripts/cache*/
