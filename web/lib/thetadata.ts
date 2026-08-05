@@ -142,7 +142,7 @@ async function fetchExpirations(symbol: string): Promise<string[]> {
 const dayMs = 86_400_000;
 const parseYmd = (y: string) => Date.parse(`${y.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3")}T00:00:00Z`);
 const toYmd = (ms: number) => new Date(ms).toISOString().slice(0, 10).replace(/-/g, "");
-function monthChunks(startYmd: string, endYmd: string): [string, string][] {
+export function monthChunks(startYmd: string, endYmd: string): [string, string][] {
   const chunks: [string, string][] = [];
   let s = parseYmd(startYmd);
   const e = parseYmd(endYmd);
