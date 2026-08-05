@@ -69,9 +69,17 @@ function sentimentFor(side: string): string {
   return "neutral";
 }
 
-// ── Serie de spot (underlying) para una expiración/fecha, desde el endpoint de IV ────────────
+// ── Serie de spot (underlying) intradía, desde el endpoint de IV ─────────────────────────────
+// El `underlying_price` es el MISMO sin importar la expiración que consultes (solo hace falta
+// una con datos). Por eso cacheamos por (símbolo, fecha): sin esto se pedía una vez por cada
+// expiración escaneada — ~200 llamadas donde bastan 5.
+const spotSeriesCache = new Map<string, [number, number][]>();
+
 /** [tMs, underlying][] ascendente, deduplicado por timestamp (el subyacente repite entre strikes). */
 async function fetchSpotSeries(symbol: string, expYmd: string, dateYmd: string): Promise<[number, number][]> {
+  const ck = `${symbol}|${dateYmd}`;
+  const hit = spotSeriesCache.get(ck);
+  if (hit && hit.length) return hit;
   const csv = await getCsv(
     `/v3/option/history/greeks/implied_volatility?symbol=${symbol}&expiration=${expYmd}&date=${dateYmd}&interval=1m`,
   );
@@ -89,6 +97,7 @@ async function fetchSpotSeries(symbol: string, expYmd: string, dateYmd: string):
     out.push([t, px]);
   }
   out.sort((a, b) => a[0] - b[0]);
+  if (out.length) spotSeriesCache.set(ck, out);
   return out;
 }
 
@@ -123,6 +132,28 @@ async function fetchOpenInterestMap(symbol: string, dateYmd: string): Promise<Ma
   for (const r of csv.rows) {
     const oi = Number(r[iO]);
     if (Number.isFinite(oi)) m.set(`${r[iE]}|${Number(r[iK])}|${r[iR]}`, oi);
+  }
+  return m;
+}
+
+/**
+ * Map "EXP|STRIKE|RIGHT" → volumen del contrato en `dateYmd`. Mismo caso especial que el OI:
+ * el histórico rechaza el día en curso, así que para hoy usamos el snapshot.
+ */
+async function fetchVolumeMap(symbol: string, dateYmd: string): Promise<Map<string, number>> {
+  const m = new Map<string, number>();
+  const hoy = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const path = dateYmd >= hoy
+    ? `/v3/option/snapshot/ohlc?symbol=${symbol}&expiration=*`
+    : `/v3/option/history/eod?symbol=${symbol}&expiration=*&start_date=${dateYmd}&end_date=${dateYmd}`;
+  const csv = await getCsv(path);
+  if (!csv) return m;
+  const iE = idx(csv.header, "expiration"), iK = idx(csv.header, "strike"),
+    iR = idx(csv.header, "right"), iV = idx(csv.header, "volume");
+  if (iE < 0 || iK < 0 || iR < 0 || iV < 0) return m;
+  for (const r of csv.rows) {
+    const v = Number(r[iV]);
+    if (Number.isFinite(v)) m.set(`${r[iE]}|${Number(r[iK])}|${r[iR]}`, v);
   }
   return m;
 }
@@ -223,8 +254,11 @@ export async function fetchFlowRange(
     .sort((a, b) => b.dv - a.dv)
     .slice(0, cap);
 
-  // 2. Subyacente diario (spot/griegas).
+  // 2. Subyacente diario (spot/griegas) + OI por contrato.
+  // El OI importa: `exceededOI` (volumen > interés abierto = posicionamiento NUEVO) es una de
+  // las señales de flujo inusual. Sin volumen NI OI reales nunca se activaría.
   const daily = await fetchDailyUnderlying(symbol, startYmd, endYmd);
+  const oiMap = await fetchOpenInterestMap(symbol, endYmd);
 
   // 3. trade_quote por contrato seleccionado (con strike+right → respuesta chica), EN PARALELO.
   let done = 0;
@@ -253,11 +287,15 @@ export async function fetchFlowRange(
         const T = (expMs - tMs) / YEAR_MS;
         const g = sp != null && T > 0 ? tradeGreeks(price, sp, c.strike, T, isCall) : { iv: null, delta: null, gamma: 0, theta: 0, vega: 0 };
         const conds = [Number(r[iCond]), ...iExt.map((i) => Number(r[i]))].filter(Number.isFinite);
+        const ck = `${c.exp}|${c.strike}|${c.right}`;
         local.push({
           id: 0, symbol: occFor(symbol, c.exp, c.strike, isCall), price, size, side,
           bid_price: Number.isFinite(bid) ? bid : 0, ask_price: Number.isFinite(ask) ? ask : 0,
           premium: price * size * 100, delta: g.delta ?? 0, gamma: g.gamma, theta: g.theta / 365, vega: g.vega,
-          implied_volatility: g.iv ?? 0, open_interest: 0, volume: 0, score: 0, sentiment: sentimentFor(side),
+          implied_volatility: g.iv ?? 0,
+          open_interest: oiMap.get(ck) ?? 0,
+          volume: volMap.get(ck)?.vol ?? 0,
+          score: 0, sentiment: sentimentFor(side),
           timestamp: new Date(tMs).toISOString(), asset_price: sp ?? undefined, trade_condition_id: primaryCondition(conds),
         });
       }
@@ -271,7 +309,7 @@ export async function fetchFlowRange(
 // ── trade_quote de una expiración/fecha → RawTrade[] notables ────────────────────────────────
 async function tradesForExpDate(
   symbol: string, expYmd: string, dateYmd: string, minPremium: number,
-  spot: [number, number][], oi: Map<string, number>,
+  spot: [number, number][], oi: Map<string, number>, vol: Map<string, number>,
 ): Promise<RawTrade[]> {
   const csv = await getCsv(`/v3/option/history/trade_quote?symbol=${symbol}&expiration=${expYmd}&date=${dateYmd}`);
   if (!csv) return [];
@@ -319,7 +357,9 @@ async function tradesForExpDate(
       vega: g.vega,
       implied_volatility: g.iv ?? 0,
       open_interest: oi.get(`${expDash}|${strike}|${r[iRight].toUpperCase()}`) ?? 0,
-      volume: 0, // volumen por-contrato no se usa aguas abajo; el ranking de Massive no aplica aquí
+      // El volumen alimenta `exceededOI` (volumen > OI = posicionamiento nuevo). Sin él, esa
+      // señal de flujo inusual nunca se activaría.
+      volume: vol.get(`${expDash}|${strike}|${r[iRight].toUpperCase()}`) ?? 0,
       score: 0,
       sentiment: sentimentFor(side),
       timestamp: new Date(tMs).toISOString(),
@@ -365,20 +405,33 @@ export async function fetchFlow(ticker: string, opts: ThetaFlowOptions = {}): Pr
     })
     .slice(0, expCap);
 
-  const oi = await fetchOpenInterestMap(ticker, dates[0]);
+  const [oi, vol] = await Promise.all([
+    fetchOpenInterestMap(ticker, dates[0]),
+    fetchVolumeMap(ticker, dates[0]),
+  ]);
 
   let scanned = 0;
   const all: RawTrade[] = [];
   for (const dateYmd of dates) {
-    for (const expDash of exps) {
-      const expYmd = yyyymmdd(expDash);
-      if (Number(expYmd) < Number(dateYmd)) continue; // ya venció para esa fecha
-      const spot = await fetchSpotSeries(ticker, expYmd, dateYmd);
-      const rows = await tradesForExpDate(ticker, expYmd, dateYmd, minPremium, spot, oi);
-      all.push(...rows);
+    const vivas = exps.filter((e) => Number(yyyymmdd(e)) >= Number(dateYmd)); // no vencidas ese día
+    if (!vivas.length) continue;
+
+    // Spot: UNA vez por fecha (no por expiración). Probamos algunas expiraciones porque las
+    // muy lejanas pueden no tener datos ese día; la primera con serie sirve para todas.
+    let spot: [number, number][] = [];
+    for (const e of vivas.slice(0, 5)) {
+      spot = await fetchSpotSeries(ticker, yyyymmdd(e), dateYmd);
+      if (spot.length) break;
+    }
+
+    // Las expiraciones se bajan en paralelo (el Terminal admite ~4 peticiones a la vez).
+    const porExp = await pMapT(vivas, 4, async (expDash) => {
+      const rows = await tradesForExpDate(ticker, yyyymmdd(expDash), dateYmd, minPremium, spot, oi, vol);
       scanned += 1;
       await opts.onPage?.(scanned, rows.length);
-    }
+      return rows;
+    });
+    all.push(...porExp.flat());
   }
 
   const trades = all.map((t, i) => ({ ...t, id: i }));
