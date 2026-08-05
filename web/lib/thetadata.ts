@@ -126,6 +126,125 @@ async function fetchExpirations(symbol: string): Promise<string[]> {
   return csv.rows.map((r) => r[iE]).filter(Boolean);
 }
 
+async function fetchStrikes(symbol: string, expDash: string): Promise<number[]> {
+  const csv = await getCsv(`/v3/option/list/strikes?symbol=${symbol}&expiration=${expDash}`);
+  if (!csv) return [];
+  const iK = idx(csv.header, "strike");
+  return csv.rows.map((r) => Number(r[iK])).filter((n) => n > 0).sort((a, b) => a - b);
+}
+
+// ThetaData limita los rangos históricos a 1 MES por llamada → troceamos en ventanas de 28 días.
+const dayMs = 86_400_000;
+const parseYmd = (y: string) => Date.parse(`${y.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3")}T00:00:00Z`);
+const toYmd = (ms: number) => new Date(ms).toISOString().slice(0, 10).replace(/-/g, "");
+function monthChunks(startYmd: string, endYmd: string): [string, string][] {
+  const chunks: [string, string][] = [];
+  let s = parseYmd(startYmd);
+  const e = parseYmd(endYmd);
+  while (s <= e) {
+    const cEnd = Math.min(s + 27 * dayMs, e);
+    chunks.push([toYmd(s), toYmd(cEnd)]);
+    s = cEnd + dayMs;
+  }
+  return chunks;
+}
+
+// ── Subyacente DIARIO (para backtests) — sin suscripción de Stocks ────────────────────────────
+// Las barras de acción están gated; pero el endpoint de IV trae `underlying_price`. Usamos un
+// LEAP (expiración ~1.2 años tras el fin de la ventana → ya listado durante ella) a interval=1h.
+/** Map "YYYYMMDD" → cierre del subyacente, sobre [startYmd, endYmd]. */
+export async function fetchDailyUnderlying(symbol: string, startYmd: string, endYmd: string): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  const exps = await fetchExpirations(symbol); // asc
+  const endMs = parseYmd(endYmd);
+  const target = endMs + 400 * dayMs; // LEAP ~end+400d: existe durante la ventana y la cubre
+  let leap: string | null = null, bestD = Infinity;
+  for (const e of exps) {
+    const em = Date.parse(`${e}T20:00:00Z`);
+    if (em <= endMs) continue;
+    const d = Math.abs(em - target);
+    if (d < bestD) { bestD = d; leap = e; }
+  }
+  if (!leap) return out;
+  const strikes = await fetchStrikes(symbol, leap);
+  if (!strikes.length) return out;
+  const strike = strikes[Math.floor(strikes.length / 2)].toFixed(3); // mid ≈ ATM; el subyacente no depende del strike
+  const iTsName = "underlying_timestamp", iPxName = "underlying_price";
+  for (const [cs, ce] of monthChunks(startYmd, endYmd)) {
+    const csv = await getCsv(
+      `/v3/option/history/greeks/implied_volatility?symbol=${symbol}&expiration=${yyyymmdd(leap)}&strike=${strike}&right=call&start_date=${cs}&end_date=${ce}&interval=1h`,
+    );
+    if (!csv) continue;
+    const iTs = idx(csv.header, iTsName), iPx = idx(csv.header, iPxName);
+    if (iTs < 0 || iPx < 0) continue;
+    for (const r of csv.rows) {
+      const px = Number(r[iPx]);
+      const day = (r[iTs] || "").slice(0, 10).replace(/-/g, "");
+      if (day && px > 0) out.set(day, px); // el último por día gana (ascendente)
+    }
+  }
+  return out;
+}
+
+// ── Flujo por RANGO de fechas (para backtests) ───────────────────────────────────────────────
+// Por expiración, trade_quote troceado en ventanas de ≤1 mes. El spot para las griegas sale del
+// cierre diario del subyacente (el backtest recomputa sus scores igual).
+export async function fetchFlowRange(
+  symbol: string, startYmd: string, endYmd: string,
+  opts: { minPremium?: number; expCap?: number; expHorizonDays?: number } = {},
+): Promise<RawTrade[]> {
+  const minPremium = opts.minPremium ?? 0;
+  const expCap = opts.expCap ?? 60;
+  const horizonMs = (opts.expHorizonDays ?? 800) * dayMs;
+  const startMs = parseYmd(startYmd);
+  const chunks = monthChunks(startYmd, endYmd);
+
+  const allExps = await fetchExpirations(symbol);
+  const exps = allExps.filter((e) => {
+    const em = Date.parse(`${e}T20:00:00Z`);
+    return em >= startMs && em <= startMs + horizonMs;
+  }).slice(0, expCap);
+
+  const daily = await fetchDailyUnderlying(symbol, startYmd, endYmd);
+
+  const out: RawTrade[] = [];
+  for (const expDash of exps) {
+    const expYmd = yyyymmdd(expDash);
+    const expMs = Date.parse(`${expDash}T20:00:00Z`);
+    for (const [cs, ce] of chunks) {
+      if (parseYmd(cs) > expMs) break; // el contrato ya venció antes de este trozo
+      const csv = await getCsv(`/v3/option/history/trade_quote?symbol=${symbol}&expiration=${expYmd}&start_date=${cs}&end_date=${ce}`);
+      if (!csv) continue;
+      const h = csv.header;
+    const iStrike = idx(h, "strike"), iRight = idx(h, "right"), iTts = idx(h, "trade_timestamp"),
+      iCond = idx(h, "condition"), iSize = idx(h, "size"), iPx = idx(h, "price"), iBid = idx(h, "bid"), iAsk = idx(h, "ask");
+    const iExt = ["ext_condition1", "ext_condition2", "ext_condition3", "ext_condition4"].map((n) => idx(h, n));
+    for (const r of csv.rows) {
+      const price = Number(r[iPx]), size = Number(r[iSize]);
+      if (!(price > 0) || !(size > 0) || price * size * 100 < minPremium) continue;
+      const strike = Number(r[iStrike]);
+      const isCall = r[iRight].toUpperCase() === "CALL";
+      const tMs = tsToMs(r[iTts]);
+      const dayYmd = (r[iTts] || "").slice(0, 10).replace(/-/g, "");
+      const bid = Number(r[iBid]), ask = Number(r[iAsk]);
+      const side = sideFor(price, Number.isFinite(bid) ? bid : null, Number.isFinite(ask) ? ask : null);
+      const sp = daily.get(dayYmd) ?? null;
+      const T = (Date.parse(`${expDash}T20:00:00Z`) - tMs) / YEAR_MS;
+      const g = sp != null && T > 0 ? tradeGreeks(price, sp, strike, T, isCall) : { iv: null, delta: null, gamma: 0, theta: 0, vega: 0 };
+      const conds = [Number(r[iCond]), ...iExt.map((i) => Number(r[i]))].filter(Number.isFinite);
+      out.push({
+        id: 0, symbol: occFor(symbol, expDash, strike, isCall), price, size, side,
+        bid_price: Number.isFinite(bid) ? bid : 0, ask_price: Number.isFinite(ask) ? ask : 0,
+        premium: price * size * 100, delta: g.delta ?? 0, gamma: g.gamma, theta: g.theta / 365, vega: g.vega,
+        implied_volatility: g.iv ?? 0, open_interest: 0, volume: 0, score: 0, sentiment: sentimentFor(side),
+        timestamp: new Date(tMs).toISOString(), asset_price: sp ?? undefined, trade_condition_id: primaryCondition(conds),
+      });
+      }
+    }
+  }
+  return out.map((t, i) => ({ ...t, id: i }));
+}
+
 // ── trade_quote de una expiración/fecha → RawTrade[] notables ────────────────────────────────
 async function tradesForExpDate(
   symbol: string, expYmd: string, dateYmd: string, minPremium: number,
