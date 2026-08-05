@@ -14,6 +14,7 @@
 //
 // Requiere el Theta Terminal corriendo (WS en :25520) y REDIS_URL.
 
+import { fileURLToPath } from "node:url";
 import { pushNotableTrades } from "../lib/ideasStore";
 import { occFor } from "../lib/thetadata";
 import { sideFor } from "../lib/massiveFlow";
@@ -63,7 +64,7 @@ async function getCsv(path: string): Promise<{ header: string[]; rows: string[][
 }
 
 // ── 1. Elegir los contratos más líquidos del universo (por open interest) ────
-interface Pick { root: string; expYmd: number; strike: number; right: "C" | "P"; oi: number }
+export interface Pick { root: string; expYmd: number; strike: number; right: "C" | "P"; oi: number }
 
 async function selectContracts(): Promise<Pick[]> {
   const bySymbol = new Map<string, Pick[]>();
@@ -86,28 +87,40 @@ async function selectContracts(): Promise<Pick[]> {
     total += list.length;
   }
 
-  // CUOTA POR SÍMBOLO: sin ella, SPY/QQQ (con OI gigante) se llevarían casi todos los cupos y
-  // Ideas quedaría ciega en el resto del universo. Primero repartimos parejo, luego rellenamos
-  // los cupos sobrantes con los de mayor OI globalmente.
+  const final = pickByQuota(bySymbol, MAX_CONTRACTS);
+  log(`universo: ${bySymbol.size} subyacentes · ${total} contratos con OI → suscribiendo ${final.length} (cuota por símbolo + relleno por OI)`);
+  return final;
+}
+
+/**
+ * Reparte los cupos disponibles entre los símbolos. PURA (testeable).
+ *
+ * Por qué existe la cuota: SPY/QQQ tienen un open interest gigantesco; si ordenáramos todo
+ * globalmente por OI se llevarían casi los 10.000 cupos e Ideas quedaría ciega en el resto
+ * del universo. Damos primero una cuota pareja a cada símbolo y luego rellenamos lo que
+ * sobre con los de mayor OI global.
+ *
+ * `bySymbol` debe traer cada lista YA ordenada por OI descendente.
+ */
+export function pickByQuota(bySymbol: Map<string, Pick[]>, max: number): Pick[] {
   const symbols = [...bySymbol.keys()];
-  const quota = Math.max(10, Math.floor(MAX_CONTRACTS / Math.max(1, symbols.length)));
+  if (!symbols.length || max <= 0) return [];
+  const quota = Math.max(10, Math.floor(max / symbols.length));
   const picked: Pick[] = [];
   for (const s of symbols) picked.push(...(bySymbol.get(s) ?? []).slice(0, quota));
 
-  if (picked.length < MAX_CONTRACTS) {
+  if (picked.length < max) {
     const chosen = new Set(picked.map((p) => key(p.root, p.expYmd, p.strike, p.right)));
     const leftovers: Pick[] = [];
     for (const s of symbols) for (const p of (bySymbol.get(s) ?? []).slice(quota)) leftovers.push(p);
     leftovers.sort((a, b) => b.oi - a.oi);
     for (const p of leftovers) {
-      if (picked.length >= MAX_CONTRACTS) break;
+      if (picked.length >= max) break;
       const k = key(p.root, p.expYmd, p.strike, p.right);
       if (!chosen.has(k)) { picked.push(p); chosen.add(k); }
     }
   }
-  const final = picked.slice(0, MAX_CONTRACTS);
-  log(`universo: ${symbols.length} subyacentes · ${total} contratos con OI → suscribiendo ${final.length} (cuota ${quota}/símbolo + relleno por OI)`);
-  return final;
+  return picked.slice(0, max);
 }
 
 // ── 2. Spot del subyacente (para las griegas). Stocks Value = 15 min de retraso ──
@@ -128,15 +141,21 @@ const nbbo = new Map<string, { bid: number; ask: number }>();
 const oiByKey = new Map<string, number>();
 
 // ── 4. Búfer a Redis + métricas ─────────────────────────────────────────────
-let outBuffer: RawTrade[] = [];
-setInterval(() => {
-  if (!outBuffer.length) return;
-  const batch = outBuffer; outBuffer = [];
-  pushNotableTrades(batch).catch((e) => console.error("[redis] push falló:", e?.message ?? e));
-}, 2000);
+// Los efectos (timers, WS, Redis) solo arrancan si este módulo es el proceso principal;
+// así los tests pueden importar las funciones puras sin levantar el worker.
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 
+let outBuffer: RawTrade[] = [];
 let seen = 0, notable = 0, pushed = 0, quotes = 0;
-setInterval(() => log(`[salud] trades ${seen} · notables ${notable} · a Redis ${pushed} · quotes ${quotes} · buffer ${outBuffer.length}`), 30_000);
+
+if (isMain) {
+  setInterval(() => {
+    if (!outBuffer.length) return;
+    const batch = outBuffer; outBuffer = [];
+    pushNotableTrades(batch).catch((e) => console.error("[redis] push falló:", e?.message ?? e));
+  }, 2000);
+  setInterval(() => log(`[salud] trades ${seen} · notables ${notable} · a Redis ${pushed} · quotes ${quotes} · buffer ${outBuffer.length}`), 30_000);
+}
 
 // ── 5. Armar el RawTrade de un trade notable ────────────────────────────────
 const YEAR_MS = 365 * 24 * 3600 * 1000;
@@ -236,13 +255,15 @@ function connect(): void {
 }
 
 // ── 7. Arranque + refresco diario del universo ──────────────────────────────
-(async () => {
-  picks = await selectContracts();
-  if (!picks.length) { console.error("Sin contratos que suscribir — ¿Terminal corriendo?"); process.exit(1); }
-  connect();
-  // Refresco diario: el OI cambia y los líquidos de ayer no son los de hoy.
-  setInterval(async () => {
-    const fresh = await selectContracts();
-    if (fresh.length) { picks = fresh; nbbo.clear(); try { socket?.close(); } catch {} } // close → reconecta y resuscribe
-  }, 24 * 3600_000);
-})();
+if (isMain) {
+  void (async () => {
+    picks = await selectContracts();
+    if (!picks.length) { console.error("Sin contratos que suscribir — ¿Terminal corriendo?"); process.exit(1); }
+    connect();
+    // Refresco diario: el OI cambia y los líquidos de ayer no son los de hoy.
+    setInterval(async () => {
+      const fresh = await selectContracts();
+      if (fresh.length) { picks = fresh; nbbo.clear(); try { socket?.close(); } catch {} } // close → reconecta y resuscribe
+    }, 24 * 3600_000);
+  })();
+}
