@@ -15,6 +15,7 @@ import { fetchDailyBars } from "../lib/massive";
 
 const TICKERS = (process.env.BT_TICKERS || "AAPL,MSFT,NVDA,AMZN,GOOGL,META,TSLA,AMD,NFLX,QQQ,SPY,HOOD").split(",").map((t) => t.trim()).filter(Boolean);
 const DAYS = Number(process.env.BT_DAYS) || 180;
+const MAXPAGES = Number(process.env.BT_MAXPAGES) || 6; // páginas de flujo por ticker (ensanchable)
 const MIN_PREMIUM = Number(process.env.BT_MIN_PREMIUM) || 1_000_000;
 const OUT = process.env.BT_OUT || "scripts/backtest-strategy-reporte.md";
 const DTES = [3, 5, 7, 30, 60, 90, 180, 365];
@@ -210,7 +211,7 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
       // Descarga en vivo con reintentos (maneja "terminated"/throttle transitorio).
       for (let attempt = 0; attempt < RETRIES && rows == null; attempt++) {
         try {
-          const { trades } = await fetchFlow(t, { targetDays: DAYS, minPremium: MIN_PREMIUM, contractCap: 25, maxPages: 6 });
+          const { trades } = await fetchFlow(t, { targetDays: DAYS, minPremium: MIN_PREMIUM, contractCap: 25, maxPages: MAXPAGES });
           const r = classifyFlow(trades, new Date()).rows;
           let b: DBar[] = [];
           for (let i = 0; i < 4; i++) { b = (await fetchDailyBars(t, 800).catch(() => [])) as DBar[]; if (b.length > 0) break; await sleep(800 * (i + 1)); }
