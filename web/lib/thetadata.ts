@@ -29,8 +29,10 @@ async function getCsv(path: string): Promise<Csv | null> {
   const text = await res.text();
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) return null;
+  // Los mensajes de error de ThetaData son prosa (con espacios) o HTML; los headers CSV no tienen
+  // espacios ni "<". Así aceptamos tanto los de opción ("symbol,...") como los de acción ("created,...").
+  if (lines[0].includes(" ") || lines[0].includes("<")) return null;
   const header = lines[0].split(",").map(unq);
-  if (header[0] !== "symbol") return null; // respuesta de error en texto plano
   const rows = lines.slice(1).map((l) => l.split(",").map(unq));
   return { header, rows };
 }
@@ -136,13 +138,6 @@ async function fetchExpirations(symbol: string): Promise<string[]> {
   return csv.rows.map((r) => r[iE]).filter(Boolean);
 }
 
-async function fetchStrikes(symbol: string, expDash: string): Promise<number[]> {
-  const csv = await getCsv(`/v3/option/list/strikes?symbol=${symbol}&expiration=${expDash}`);
-  if (!csv) return [];
-  const iK = idx(csv.header, "strike");
-  return csv.rows.map((r) => Number(r[iK])).filter((n) => n > 0).sort((a, b) => a - b);
-}
-
 // ThetaData limita los rangos históricos a 1 MES por llamada → troceamos en ventanas de 28 días.
 const dayMs = 86_400_000;
 const parseYmd = (y: string) => Date.parse(`${y.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3")}T00:00:00Z`);
@@ -159,38 +154,21 @@ function monthChunks(startYmd: string, endYmd: string): [string, string][] {
   return chunks;
 }
 
-// ── Subyacente DIARIO (para backtests) — sin suscripción de Stocks ────────────────────────────
-// Las barras de acción están gated; pero el endpoint de IV trae `underlying_price`. Usamos un
-// LEAP (expiración ~1.2 años tras el fin de la ventana → ya listado durante ella) a interval=1h.
-/** Map "YYYYMMDD" → cierre del subyacente, sobre [startYmd, endYmd]. */
+// ── Subyacente DIARIO (para backtests) — barras de ACCIÓN limpias (suscripción Value Stocks) ──
+// El stock EOD da un cierre por día, confiable y denso (derivar de opciones salía frágil).
+/** Map "YYYYMMDD" → cierre diario del subyacente, sobre [startYmd, endYmd]. Troceado a ≤1 mes. */
 export async function fetchDailyUnderlying(symbol: string, startYmd: string, endYmd: string): Promise<Map<string, number>> {
   const out = new Map<string, number>();
-  const exps = await fetchExpirations(symbol); // asc
-  const endMs = parseYmd(endYmd);
-  const target = endMs + 400 * dayMs; // LEAP ~end+400d: existe durante la ventana y la cubre
-  let leap: string | null = null, bestD = Infinity;
-  for (const e of exps) {
-    const em = Date.parse(`${e}T20:00:00Z`);
-    if (em <= endMs) continue;
-    const d = Math.abs(em - target);
-    if (d < bestD) { bestD = d; leap = e; }
-  }
-  if (!leap) return out;
-  const strikes = await fetchStrikes(symbol, leap);
-  if (!strikes.length) return out;
-  const strike = strikes[Math.floor(strikes.length / 2)].toFixed(3); // mid ≈ ATM; el subyacente no depende del strike
-  const iTsName = "underlying_timestamp", iPxName = "underlying_price";
   for (const [cs, ce] of monthChunks(startYmd, endYmd)) {
-    const csv = await getCsv(
-      `/v3/option/history/greeks/implied_volatility?symbol=${symbol}&expiration=${yyyymmdd(leap)}&strike=${strike}&right=call&start_date=${cs}&end_date=${ce}&interval=1h`,
-    );
+    const csv = await getCsv(`/v3/stock/history/eod?symbol=${symbol}&start_date=${cs}&end_date=${ce}`);
     if (!csv) continue;
-    const iTs = idx(csv.header, iTsName), iPx = idx(csv.header, iPxName);
-    if (iTs < 0 || iPx < 0) continue;
+    const iC = idx(csv.header, "close");
+    const iT = idx(csv.header, "last_trade") >= 0 ? idx(csv.header, "last_trade") : idx(csv.header, "created");
+    if (iC < 0 || iT < 0) continue;
     for (const r of csv.rows) {
-      const px = Number(r[iPx]);
-      const day = (r[iTs] || "").slice(0, 10).replace(/-/g, "");
-      if (day && px > 0) out.set(day, px); // el último por día gana (ascendente)
+      const close = Number(r[iC]);
+      const day = (r[iT] || "").slice(0, 10).replace(/-/g, "");
+      if (day && close > 0) out.set(day, close);
     }
   }
   return out;
