@@ -81,7 +81,22 @@ export default function CreditSpreadView() {
         <div style={{ fontSize: 20, fontWeight: 800 }}>EVA Credit Spread 🛡️</div>
         <div className="card-sub">
           La estrategia que probamos y funcionó: <strong>vender credit spreads solo en los días de ALTA CONVICCIÓN de EVA</strong>.
-          Un credit spread cobra prima con la pérdida <strong>capada</strong> (con red). Aquí ves qué probamos, la prueba en vivo que corre ahora, y las 5 mejoras de EVA.
+          Un credit spread cobra prima con la pérdida <strong>capada</strong> (con red). Aquí ves qué probamos, la prueba en vivo que corre ahora, y las mejoras de EVA.
+        </div>
+      </div>
+
+      {/* El resultado del backtest, en una línea */}
+      <div className="card" style={{ borderLeft: "4px solid #12B76A" }}>
+        <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>El resultado del backtest, en corto 📈</div>
+        <div className="card-sub">
+          Fuimos <strong>~1 año atrás</strong> (229 señales de flujo real). El edge está en <strong>filtrar por convicción</strong>:
+          vendiendo el credit spread <strong>solo en el Top⅓ de convicción de EVA</strong>, el retorno medio sobre riesgo pasó de
+          <strong> +2.1%</strong> (operando todas) a <strong> +5.6%</strong> (win 93%) — y la baja convicción se quedó en +1.5%.
+          Ese salto <strong>es</strong> el edge, y no fue suerte: aguantó en las <strong>2 mitades</strong> del año (5.7% / 5.4%),
+          en <strong>14 de 14</strong> combinaciones, y sobrevivió costos hasta <strong>15% de slippage</strong>.
+        </div>
+        <div style={{ fontSize: 11.5, color: "#667085", marginTop: 6 }}>
+          Simulación sobre datos reales (~1 año). Vencimiento por calendario, IV≈vol realizada, costos incluidos. Es backtest — la prueba en vivo (abajo) es la que manda.
         </div>
       </div>
 
@@ -120,26 +135,25 @@ export default function CreditSpreadView() {
         </div>
       </div>
 
-      {/* 3. Las 5 mejoras */}
+      {/* 3. Las mejoras, agrupadas: las que produjeron el edge vs. las de futuro */}
       <div className="card">
-        <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>3 · Las 5 mejoras de EVA</div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {MEJORAS.map((m) => {
-            const b = STATUS_BADGE[m.status];
-            return (
-              <div key={m.n} style={{ border: "1px solid #E4E7EC", borderRadius: 10, padding: 12 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                  <span style={{ fontWeight: 700 }}>#{m.n} · {m.name}</span>
-                  <span style={{ fontSize: 11, fontWeight: 800, background: b.bg, color: b.fg, borderRadius: 999, padding: "2px 9px" }}>{b.label}</span>
-                </div>
-                <div style={{ fontSize: 13, color: "#101828", marginTop: 6 }}>{m.does}</div>
-                <div style={{ fontSize: 12.5, color: "#667085", marginTop: 5 }}><strong>Aquí:</strong> {m.here}</div>
-              </div>
-            );
-          })}
+        <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 4 }}>3 · Las mejoras de EVA</div>
+        <div className="card-sub" style={{ marginBottom: 12 }}>
+          El edge de abajo vino de <strong>2</strong> de ellas. Las otras <strong>3</strong> son apuestas a futuro — todavía <strong>NO</strong> aportan al edge.
         </div>
-        <div style={{ fontSize: 12, color: "#667085", marginTop: 8 }}>
-          Honestidad: 2 de las 5 están vivas con datos reales, 2 parciales y 1 en desarrollo. No inventamos lo que no está listo.
+
+        <div style={{ fontSize: 13, fontWeight: 800, color: "#027A48", margin: "0 0 8px" }}>✅ Lo que produce el edge hoy</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {[5, 4].map((n) => <MejoraCard key={n} m={MEJORAS.find((x) => x.n === n)!} />)}
+        </div>
+
+        <div style={{ fontSize: 13, fontWeight: 800, color: "#B54708", margin: "16px 0 8px" }}>🔜 A futuro — todavía NO aportan al edge</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {[2, 3, 1].map((n) => <MejoraCard key={n} m={MEJORAS.find((x) => x.n === n)!} />)}
+        </div>
+
+        <div style={{ fontSize: 12, color: "#667085", marginTop: 12 }}>
+          Honestidad: el edge de hoy = <strong>convicción → vehículo</strong> + <strong>resultado como distribución</strong>. Régimen, GEX y aprendizaje son a futuro. No inventamos lo que no está listo.
         </div>
       </div>
 
@@ -244,6 +258,20 @@ export default function CreditSpreadView() {
           </>
         )}
       </div>
+    </div>
+  );
+}
+
+function MejoraCard({ m }: { m: { n: number; name: string; does: string; status: string; here: string } }) {
+  const b = STATUS_BADGE[m.status];
+  return (
+    <div style={{ border: "1px solid #E4E7EC", borderRadius: 10, padding: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ fontWeight: 700 }}>#{m.n} · {m.name}</span>
+        <span style={{ fontSize: 11, fontWeight: 800, background: b.bg, color: b.fg, borderRadius: 999, padding: "2px 9px" }}>{b.label}</span>
+      </div>
+      <div style={{ fontSize: 13, color: "#101828", marginTop: 6 }}>{m.does}</div>
+      <div style={{ fontSize: 12.5, color: "#667085", marginTop: 5 }}><strong>Aquí:</strong> {m.here}</div>
     </div>
   );
 }
