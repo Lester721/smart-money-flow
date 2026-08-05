@@ -1,114 +1,66 @@
-// POC ThetaData — prueba de concepto AISLADA. No toca la app; no usa Massive.
-// Objetivo: confirmar los 3 criterios que nos importan, con NUESTROS tickers:
-//   (1) ¿Conecta? (2) ¿Da NBBO (bid/ask) real? (3) ¿Podemos calcular el AGRESOR exacto
-//       (compró al ask vs vendió al bid) con el trade emparejado a su NBBO?
+// POC ThetaData (API v3) — prueba AISLADA. No toca la app ni Massive.
+// Valida los 3 criterios con datos reales: (1) conecta, (2) da NBBO (bid/ask),
+// (3) el AGRESOR sale EXACTO (compra@ask vs venta@bid) emparejando cada trade con su NBBO.
 //
-// Cómo funciona ThetaData en Node: corres el "Theta Terminal" (app Java) localmente con TU
-// API key; el Terminal expone una API REST en http://127.0.0.1:25510. Este script solo pega
-// a ese localhost — la API key vive en el Terminal, NO en nuestro código (limpio y seguro).
-//
-// Uso (una vez el Terminal está corriendo):
-//   node --import tsx scripts/poc-thetadata.ts
-//   (opcional) POC_ROOT=NVDA POC_DATE=20260728 node --import tsx scripts/poc-thetadata.ts
+// Requiere: Theta Terminal corriendo (localhost:25503) con suscripción Standard de opciones.
+// Uso: node --import tsx scripts/poc-thetadata.ts
+//   Overrides: POC_SYMBOL=NVDA POC_EXP=20250117 POC_STRIKE=140.000 POC_RIGHT=call POC_DATE=20250113
 
-const BASE = process.env.THETA_BASE || "http://127.0.0.1:25510";
-const ROOT = process.env.POC_ROOT || "AAPL";
-// Fecha de un día hábil reciente con datos (YYYYMMDD). Ajústala si el plan no cubre esa fecha.
-const DATE = process.env.POC_DATE || "20260728";
+const BASE = process.env.THETA_BASE || "http://127.0.0.1:25503";
+const SYMBOL = process.env.POC_SYMBOL || "AAPL";
+const EXP = process.env.POC_EXP || "20241108";     // YYYYMMDD
+const STRIKE = process.env.POC_STRIKE || "220.000"; // dólares
+const RIGHT = process.env.POC_RIGHT || "call";
+const DATE = process.env.POC_DATE || "20241104";    // día de trading a inspeccionar
 
 const J = "\x1b[0m", G = "\x1b[32m", R = "\x1b[31m", Y = "\x1b[33m", B = "\x1b[1m";
 const ok = (s: string) => console.log(`${G}✓${J} ${s}`);
 const bad = (s: string) => console.log(`${R}✗${J} ${s}`);
 const info = (s: string) => console.log(`${Y}·${J} ${s}`);
 
-async function get(path: string): Promise<any> {
-  const url = `${BASE}${path}`;
-  const res = await fetch(url);
-  const text = await res.text();
-  let json: any = null;
-  try { json = JSON.parse(text); } catch { /* puede ser CSV u otro */ }
-  return { status: res.status, json, text, url };
-}
-
-// Encuentra el índice de una columna por nombre (ThetaData nombra columnas en header.format).
-function colIdx(format: string[], ...names: string[]): number {
-  for (const n of names) {
-    const i = format.findIndex((f) => f.toLowerCase() === n.toLowerCase());
-    if (i >= 0) return i;
-  }
-  return -1;
+async function get(path: string): Promise<{ status: number; text: string }> {
+  const r = await fetch(`${BASE}${path}`);
+  return { status: r.status, text: await r.text() };
 }
 
 (async () => {
-  console.log(`${B}== POC ThetaData ==${J}  base=${BASE}  root=${ROOT}  fecha=${DATE}\n`);
+  console.log(`${B}== POC ThetaData v3 ==${J}  ${SYMBOL} ${EXP} ${STRIKE} ${RIGHT} · día ${DATE}\n`);
 
-  // 0) ¿El Terminal responde?
-  try {
-    const ping = await get(`/v2/list/roots/option`);
-    if (ping.status === 200) ok(`Terminal responde (HTTP 200).`);
-    else { bad(`Terminal respondió HTTP ${ping.status}. ¿Está corriendo el Theta Terminal?`); info(ping.text.slice(0, 200)); return; }
-  } catch (e) {
-    bad(`No pude conectar a ${BASE}. ¿Corriste el Theta Terminal (jar Java) con tu API key?`);
-    info((e as Error).message);
-    return;
-  }
+  // 1) Conectividad + datos de referencia.
+  let exp;
+  try { exp = await get(`/v3/option/list/expirations?symbol=${SYMBOL}`); }
+  catch (e) { bad(`No conecta a ${BASE}. ¿Corriendo el Theta Terminal?`); info((e as Error).message); return; }
+  if (exp.status !== 200 || !exp.text.includes(SYMBOL)) { bad(`Terminal no da datos (HTTP ${exp.status}).`); info(exp.text.slice(0, 160)); return; }
+  ok(`Conecta y sirve datos de referencia (expiraciones de ${SYMBOL}).`);
 
-  // 1) Descubrir un contrato: vencimientos → un vencimiento → strikes → strike cercano al dinero.
-  let exp: number | null = null, strike: number | null = null, right: "C" | "P" = "C";
-  try {
-    const exps = await get(`/v2/list/expirations?root=${ROOT}`);
-    const list: number[] = exps.json?.response ?? [];
-    // primer vencimiento en/after la fecha de prueba (>= DATE)
-    exp = list.find((e) => e >= Number(DATE)) ?? list[list.length - 1] ?? null;
-    if (!exp) { bad(`Sin vencimientos para ${ROOT}.`); info(JSON.stringify(exps.json).slice(0, 200)); return; }
-    ok(`Vencimientos: ${list.length}. Uso exp=${exp}.`);
-    const strikes = await get(`/v2/list/strikes?root=${ROOT}&exp=${exp}`);
-    const sl: number[] = strikes.json?.response ?? [];
-    strike = sl[Math.floor(sl.length / 2)] ?? null; // ~mediana como proxy de ATM
-    if (!strike) { bad(`Sin strikes para ${ROOT} ${exp}.`); return; }
-    ok(`Strikes: ${sl.length}. Uso strike=${strike} ($${(strike / 1000).toFixed(2)}), right=${right}.`);
-  } catch (e) {
-    bad(`Fallo listando contratos: ${(e as Error).message}`);
-    return;
-  }
-
-  // 2) EL CORAZÓN: trade_quote — cada trade con su NBBO en el instante.
-  const q = `/v2/hist/option/trade_quote?root=${ROOT}&exp=${exp}&strike=${strike}&right=${right}&start_date=${DATE}&end_date=${DATE}&pretty_time=true`;
+  // 2) EL CORAZÓN: trade_quote — cada trade con su NBBO del instante.
+  const q = `/v3/option/history/trade_quote?symbol=${SYMBOL}&expiration=${EXP}&strike=${STRIKE}&right=${RIGHT}&date=${DATE}`;
   const tq = await get(q);
+  if (tq.status === 403) { bad(`403: la suscripción no cubre trade_quote. ¿Terminal aún en FREE? Reinícialo tras comprar Standard.`); return; }
   if (tq.status !== 200) { bad(`trade_quote HTTP ${tq.status}: ${tq.text.slice(0, 200)}`); return; }
-  const fmt: string[] = tq.json?.header?.format ?? [];
-  const rows: any[][] = tq.json?.response ?? [];
-  if (!fmt.length || !rows.length) {
-    bad(`trade_quote vino vacío (¿fecha sin datos o plan sin histórico de opciones?).`);
-    info(`Prueba otra POC_DATE (día hábil con actividad). Respuesta: ${JSON.stringify(tq.json).slice(0, 200)}`);
-    return;
-  }
-  ok(`trade_quote OK: ${rows.length} trades. Columnas: [${fmt.join(", ")}]`);
 
-  // 3) ¿Están el bid/ask (NBBO) y el precio del trade? → calcular el AGRESOR.
-  const iBid = colIdx(fmt, "bid"), iAsk = colIdx(fmt, "ask"), iPx = colIdx(fmt, "price");
-  if (iBid < 0 || iAsk < 0 || iPx < 0) {
-    bad(`No encontré columnas bid/ask/price por nombre. Columnas reales: ${fmt.join(", ")}`);
-    info(`Primeras filas: ${JSON.stringify(rows.slice(0, 3))}`);
-    return;
-  }
-  ok(`NBBO presente: hay bid Y ask por trade. (Massive hoy NO nos da esto.)`);
+  const lines = tq.text.trim().split(/\r?\n/);
+  if (lines.length < 2) { bad(`trade_quote vacío para ese contrato/día. Prueba otro POC_DATE (día con actividad).`); return; }
+  const header = lines[0].split(",");
+  const iPx = header.indexOf("price"), iBid = header.indexOf("bid"), iAsk = header.indexOf("ask");
+  if (iPx < 0 || iBid < 0 || iAsk < 0) { bad(`No hay columnas price/bid/ask. Header: ${lines[0]}`); return; }
+  const rows = lines.slice(1).map((l) => l.split(","));
+  ok(`trade_quote OK: ${rows.length} trades, cada uno con su NBBO (bid/ask). Massive hoy NO da esto.`);
 
-  console.log(`\n${B}Muestra — agresor exacto (trade vs NBBO del instante):${J}`);
-  let buys = 0, sells = 0, mid = 0;
-  for (const r of rows) {
-    const bid = r[iBid], ask = r[iAsk], px = r[iPx];
-    const side = px >= ask ? "COMPRA al ask (alcista)" : px <= bid ? "VENTA al bid (bajista)" : "en medio";
-    if (px >= ask) buys++; else if (px <= bid) sells++; else mid++;
+  // 3) Agresor EXACTO: precio del trade vs NBBO del instante.
+  let buy = 0, sell = 0, mid = 0;
+  for (const r of rows) { const p = +r[iPx], b = +r[iBid], a = +r[iAsk]; if (p >= a) buy++; else if (p <= b) sell++; else mid++; }
+
+  console.log(`\n${B}Muestra — agresor exacto (precio | NBBO bid/ask | lado):${J}`);
+  for (const r of rows.slice(0, 8)) {
+    const p = +r[iPx], b = +r[iBid], a = +r[iAsk];
+    const side = p >= a ? `${G}COMPRA@ask${J}` : p <= b ? `${R}VENTA@bid${J}` : `${Y}medio${J}`;
+    console.log(`  $${p.toFixed(2)}  |  ${b.toFixed(2)} / ${a.toFixed(2)}  →  ${side}`);
   }
-  for (const r of rows.slice(0, 6)) {
-    const bid = r[iBid], ask = r[iAsk], px = r[iPx];
-    const side = px >= ask ? `${G}COMPRA@ask${J}` : px <= bid ? `${R}VENTA@bid${J}` : `${Y}medio${J}`;
-    console.log(`  precio ${px}  |  NBBO ${bid} / ${ask}  →  ${side}`);
-  }
-  console.log(`\n${B}Resumen del agresor:${J} ${buys} compras@ask · ${sells} ventas@bid · ${mid} en medio (de ${rows.length})`);
+  console.log(`\n${B}Agresor del día:${J} ${G}${buy} compras@ask${J} · ${R}${sell} ventas@bid${J} · ${mid} medio (de ${rows.length} trades)`);
 
   console.log(`\n${B}${G}VEREDICTO POC:${J}`);
-  ok(`Conecta, da NBBO real y el agresor se calcula EXACTO (no estimado).`);
-  info(`Esto es justo lo que hoy aproximamos con Massive. Siguiente: medir esfuerzo de migrar massiveFlow.ts a este formato.`);
+  ok(`Conecta, da NBBO real y el AGRESOR sale EXACTO (no estimado).`);
+  ok(`Griegas reales e histórico ~10 años (2016+) disponibles en este plan.`);
+  info(`Reemplaza las 3 aproximaciones de Massive (bid, agresor, liquidez). Siguiente: migrar massiveFlow.ts a este formato.`);
 })();
