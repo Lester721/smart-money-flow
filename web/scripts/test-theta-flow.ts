@@ -4,7 +4,7 @@ import { fetchFlow } from "../lib/thetadata";
 
 (async () => {
   const t0 = Date.now();
-  const res = await fetchFlow("AAPL", { dates: ["20241104"], minPremium: 250_000, expCap: 3 });
+  const res = await fetchFlow("AAPL", { dates: ["20241104"], minPremium: 250_000, contractCap: 8 });
   console.log(`\ntrades notables: ${res.trades.length} · escaneos: ${res.pages} · ${Date.now() - t0}ms\n`);
   console.log("símbolo               | precio×tam  | premium | agresor    | sentiment | spot   | Δ     | IV    | OI");
   for (const t of res.trades.slice(0, 12)) {
