@@ -43,6 +43,13 @@ const WIDTH_EM = 0.5;                                       // ancho del spread 
 // 60d también pasó OOS (+2,5%) y cierra un mes ANTES → veredicto más rápido.
 // 5d se mantiene como CONTROL: el backtest dice que falla y en vivo va -14% — sirve para
 // confirmar que el sistema distingue lo bueno de lo malo, no solo para operarlo.
+// GESTIÓN: qué plazos se gestionan y con qué regla. El backtest (backtest-mgmt-spread.ts)
+// mostró que a 5 días cortar AYUDA (+0,9% → +2,2% con TG 25% + stop 1×), pero a 60/90 días
+// ESTORBA — por eso solo el 5d. Se asigna AL ABRIR: lo ya abierto queda como control.
+const MGMT_CELLS = new Set((process.env.FWD_MGMT_CELLS || "5").split(",").map(Number).filter(Boolean));
+const MGMT_TP = Number(process.env.FWD_MGMT_TP ?? 0.25); // cerrar al ganar 25% del crédito
+const MGMT_SL = Number(process.env.FWD_MGMT_SL ?? 1);    // cortar al perder 1× el crédito
+
 const CELLS: { dte: number; sigma: number }[] = (process.env.FWD_CELLS || "5@1,60@1,90@1")
   .split(",").map((s) => { const [d, g] = s.split("@"); return { dte: Number(d), sigma: Number(g) }; });
 const YR = 365 * 24 * 3600 * 1000;
@@ -57,6 +64,12 @@ interface Trade {
   evaComp: number; victorComp: number;
   status: "open" | "closed";
   exitDate?: string; exitSpot?: number; retOnRisk?: number; pnlPerSpread?: number;
+  /** Regla de salida asignada AL ABRIR. Ausente = sin gestión (sostener a vencimiento).
+   *  Se fija al abrir a propósito: cambiarle las reglas a una posición ya abierta arruinaría
+   *  la comparación. Las abiertas antes de esto siguen como GRUPO DE CONTROL. */
+  mgmt?: { tp: number; sl: number };
+  /** Por qué se cerró: vencimiento, toma de ganancia o stop. */
+  exitReason?: "vencimiento" | "ganancia" | "stop";
 }
 let redis: Redis | null = null;
 function getRedis(): Redis {
@@ -191,6 +204,42 @@ function openSpread(sig: Signal, dte: number, sigma: number): Trade | null {
     status: "open",
   };
 }
+/**
+ * GESTIÓN DIARIA (solo para las celdas que la tienen asignada). Camina la posición abierta y
+ * la cierra si tocó la toma de ganancia o el stop, valorando el spread con Black-Scholes
+ * (misma IV de entrada), igual que el backtest de gestión.
+ *
+ * Por qué solo en 5d: el backtest mostró que a 5 días cortar AYUDA (+0,9% → +2,2%), pero a
+ * 60/90 días ESTORBA (hay tiempo de recuperarse; cortar cristaliza pérdidas que se revierten).
+ */
+function manage(t: Trade, bars: DBar[]): boolean {
+  if (!t.mgmt || t.status !== "open") return false;
+  const risk = t.width - t.netCredit;
+  if (!(risk > 0)) return false;
+  // Recorre los días hábiles desde la entrada hasta hoy (o el vencimiento, lo que llegue antes).
+  const startIdx = barIdxOnOrAfter(bars, t.entryMs + 86_400_000);
+  if (startIdx < 0) return false;
+  for (let i = startIdx; i < bars.length; i++) {
+    const tMs = Date.parse(`${bars[i].time}T20:00:00Z`);
+    if (tMs > t.expiryMs) break;                 // a partir de aquí lo liquida settle()
+    const Trem = Math.max((t.expiryMs - tMs) / YR, 1 / 365 / 24);
+    const val = bsPrice(bars[i].close, t.shortK, Trem, t.rv, t.type)
+      - bsPrice(bars[i].close, t.longK, Trem, t.rv, t.type);
+    const pnlPerShare = t.netCredit - val;
+    const hitTp = pnlPerShare >= t.mgmt.tp * t.netCredit;
+    const hitSl = pnlPerShare <= -t.mgmt.sl * t.netCredit;
+    if (!hitTp && !hitSl) continue;
+    t.retOnRisk = round((pnlPerShare / risk) * 100, 1);
+    t.pnlPerSpread = round(pnlPerShare * 100, 2);
+    t.exitSpot = round(bars[i].close);
+    t.exitDate = bars[i].time;
+    t.exitReason = hitTp ? "ganancia" : "stop";
+    t.status = "closed";
+    return true;
+  }
+  return false;
+}
+
 function settle(t: Trade, bars: DBar[]): boolean {
   const expIdx = barIdxOnOrAfter(bars, t.expiryMs);
   if (expIdx < 0) return false; // aún no hay cierre tras el vencimiento en los datos
@@ -204,6 +253,7 @@ function settle(t: Trade, bars: DBar[]): boolean {
   t.pnlPerSpread = round(pnlPerShare * 100, 2);
   t.exitSpot = round(sExp);
   t.exitDate = bars[expIdx].time;
+  t.exitReason = "vencimiento";
   t.status = "closed";
   return true;
 }
@@ -246,6 +296,9 @@ function pctile(vals: number[], p: number): number | null {
           const rec = openSpread(sig, cell.dte, cell.sigma);
           if (!rec) continue;
           rec.ticker = t;
+          // Gestión SOLO al 5d (el backtest dice que a 60/90 días estorba). Se fija al abrir:
+          // las posiciones abiertas antes de esto quedan sin `mgmt` = grupo de CONTROL.
+          if (MGMT_CELLS.has(cell.dte)) rec.mgmt = { tp: MGMT_TP, sl: MGMT_SL };
           rec.id = `${t}|${sig.entryDate}|${cell.dte}|${cell.sigma}`;
           if (byId.has(rec.id)) continue; // dedupe: ya registrado
           byId.set(rec.id, rec); ledger.push(rec); added.push(rec); newN++;
@@ -257,11 +310,13 @@ function pctile(vals: number[], p: number): number | null {
   }
 
   // Liquidar las vencidas (usa las barras recién bajadas de cada ticker).
-  let settled = 0;
+  let settled = 0, managed = 0;
   for (const t of ledger) {
     if (t.status !== "open") continue;
     const bars = barsByTicker.get(t.ticker);
     if (!bars) continue;
+    // 1º la gestión (puede cerrar ANTES del vencimiento); 2º el vencimiento.
+    if (manage(t, bars)) { managed++; settled++; continue; }
     if (Date.now() < t.expiryMs) continue;
     if (settle(t, bars)) settled++;
   }
@@ -276,9 +331,9 @@ function pctile(vals: number[], p: number): number | null {
     "# Forward-test — credit spread filtrado por convicción de EVA",
     "",
     `Corrida: ${new Date().toISOString().slice(0, 16)}Z · panel ${TICKERS.length} · celdas ${CELLS.map((c) => `${c.dte}d@${c.sigma}σ`).join(", ")}`,
-    `Ledger: **${ledger.length}** de papel (**${open.length}** abiertas · **${closed.length}** cerradas). Nuevas esta corrida: **${added.length}** · liquidadas: **${settled}**.`,
+    `Ledger: **${ledger.length}** de papel (**${open.length}** abiertas · **${closed.length}** cerradas). Nuevas esta corrida: **${added.length}** · liquidadas: **${settled}** (${managed} por gestión).`,
     "",
-    "> PAPEL — nada de esto es una orden real. Entrada al cierre del día de la señal; IV≈vol realizada 20d; slippage 5% + comisión Robinhood; vencimiento por calendario, sin gestión intermedia.",
+    "> PAPEL — nada de esto es una orden real. Entrada al cierre del día de la señal; IV≈vol realizada 20d; slippage 5% + comisión Robinhood; vencimiento por calendario. El 5d se GESTIONA (toma de ganancia 25% / stop 1x, revisado a diario); 60d y 90d se sostienen a vencimiento.",
     "",
   ];
 
@@ -300,6 +355,26 @@ function pctile(vals: number[], p: number): number | null {
     for (const cell of CELLS) {
       const cc = closed.filter((t) => t.dte === cell.dte && t.sigma === cell.sigma);
       if (cc.length) L.push(`- ${cell.dte}d@${cell.sigma}σ: ${fmt(stat(cc.map((t) => t.retOnRisk!)))}`);
+    }
+
+    // A/B de la GESTIÓN: solo vale comparar dentro del mismo plazo (los gestionados nacieron
+    // con la regla; los de antes son el control). Sin este corte, se mezclarían peras y manzanas.
+    for (const dte of MGMT_CELLS) {
+      const conG = closed.filter((t) => t.dte === dte && t.mgmt);
+      const sinG = closed.filter((t) => t.dte === dte && !t.mgmt);
+      if (!conG.length && !sinG.length) continue;
+      L.push(
+        "",
+        `### ¿La gestión mejora el ${dte}d? (TG ${Math.round(MGMT_TP * 100)}% + stop ${MGMT_SL}×)`,
+        `- **Con gestión:** ${fmt(stat(conG.map((t) => t.retOnRisk!)))}`,
+        `- Sin gestión (control): ${fmt(stat(sinG.map((t) => t.retOnRisk!)))}`,
+      );
+      if (conG.length) {
+        const porRazón = ["ganancia", "stop", "vencimiento"]
+          .map((r) => `${r}: ${conG.filter((t) => t.exitReason === r).length}`).join(" · ");
+        L.push(`- Cómo salieron: ${porRazón}`);
+      }
+      L.push(`- El backtest esperaba **+0,9% → +2,2%**. Ojo: el control lleva ventaja de tiempo (empezó antes), así que compara cuando ambos tengan cierres suficientes.`);
     }
     // EL FILTRO: Top⅓ vs Bottom⅓ por convicción de EVA (misma metodología validada)
     const k = Math.max(1, Math.floor(closed.length / 3));
