@@ -219,38 +219,60 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     let rows: FlowRow[] | null = null;
     let bars: DBar[] = [];
     if (PROVIDER === "theta") {
-      // ThetaData por RANGO, año por año (selección de contratos por período) + barras de acción.
-      // Caché por (ticker, ventana) → resumible; retries por transitorios del terminal (io exception).
+      // ThetaData por RANGO, año por año + barras de acción.
+      // CACHÉ POR (ticker, AÑO) — no por ventana completa: así un run con otro rango REUSA los
+      // años ya bajados, y si se interrumpe solo se pierde el año en curso (~10 min), no el
+      // ticker entero. Retries por año para los transitorios del Terminal.
       const tCacheDir = "scripts/cache-theta";
-      const tcp = `${tCacheDir}/${t}_${BT_START}_${BT_END}.json`;
-      let ct: { rows: FlowRow[]; bars: DBar[] } | null = null;
-      try { ct = JSON.parse(readFileSync(tcp, "utf8")); } catch { ct = null; }
-      if (ct && ct.rows.length > 0 && ct.bars.length > 0) {
-        rows = ct.rows; bars = ct.bars;
-        console.log(`[${t}] ThetaData caché: ${rows.length} flujos · ${bars.length} barras`);
-      } else {
-        for (let attempt = 0; attempt < 4 && (rows == null || !bars.length); attempt++) {
-          try {
-            const allTrades: Awaited<ReturnType<typeof fetchFlowRange>> = [];
-            for (const [ys, ye] of yearWindows(BT_START, BT_END)) {
-              allTrades.push(...await fetchFlowRange(t, ys, ye, { minPremium: MIN_PREMIUM, contractCap: 60 }));
+      if (!existsSync(tCacheDir)) mkdirSync(tCacheDir, { recursive: true });
+      const yearPath = (ys: string, ye: string) => `${tCacheDir}/${t}_y_${ys}_${ye}.json`;
+      const barsPath = `${tCacheDir}/${t}_bars_${shiftYmd(BT_START, -40)}_${shiftYmd(BT_END, 220)}.json`;
+
+      type Raw = Awaited<ReturnType<typeof fetchFlowRange>>;
+      const allTrades: Raw = [];
+      let añosOk = 0, añosCache = 0;
+      for (const [ys, ye] of yearWindows(BT_START, BT_END)) {
+        let year: Raw | null = null;
+        try { year = JSON.parse(readFileSync(yearPath(ys, ye), "utf8")); } catch { year = null; }
+        if (year && year.length > 0) { añosCache++; }
+        else {
+          for (let attempt = 0; attempt < 4 && year == null; attempt++) {
+            try {
+              const got = await fetchFlowRange(t, ys, ye, { minPremium: MIN_PREMIUM, contractCap: 60 });
+              if (!got.length) throw new Error("año vacío");
+              year = got;
+              writeFileSync(yearPath(ys, ye), JSON.stringify(year), "utf8");
+            } catch (e) {
+              console.error(`[${t}] ${ys.slice(0, 4)} intento ${attempt + 1}/4 falló: ${(e as Error).message}`);
+              await sleep(3000 * (attempt + 1));
             }
-            const r = classifyFlow(allTrades, new Date()).rows;
+          }
+        }
+        if (year?.length) { allTrades.push(...year); añosOk++; }
+      }
+
+      // Barras del subyacente (cacheadas aparte: cubren toda la ventana de una vez).
+      let b: DBar[] = [];
+      try { b = JSON.parse(readFileSync(barsPath, "utf8")); } catch { b = []; }
+      if (!b.length) {
+        for (let attempt = 0; attempt < 4 && !b.length; attempt++) {
+          try {
             const dmap = await fetchDailyUnderlying(t, shiftYmd(BT_START, -40), shiftYmd(BT_END, 220));
-            const b: DBar[] = [...dmap.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1))
+            b = [...dmap.entries()].sort((x, y) => (x[0] < y[0] ? -1 : 1))
               .map(([d, c]) => ({ time: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`, close: c }));
-            if (r.length > 0 && b.length > 0) { rows = r; bars = b; }
-            else throw new Error(`vacío (flujos ${r.length}, barras ${b.length})`);
+            if (!b.length) throw new Error("sin barras");
+            writeFileSync(barsPath, JSON.stringify(b), "utf8");
           } catch (e) {
-            console.error(`[${t}] theta intento ${attempt + 1}/4 falló: ${(e as Error).message}`);
+            console.error(`[${t}] barras intento ${attempt + 1}/4 falló: ${(e as Error).message}`);
             await sleep(3000 * (attempt + 1));
           }
         }
-        if (rows != null && bars.length) {
-          if (!existsSync(tCacheDir)) mkdirSync(tCacheDir, { recursive: true });
-          writeFileSync(tcp, JSON.stringify({ rows, bars }), "utf8");
-          console.log(`[${t}] ThetaData: ${rows.length} flujos · ${bars.length} barras (cacheado)`);
-        }
+      }
+
+      if (allTrades.length && b.length) {
+        rows = classifyFlow(allTrades, new Date()).rows;
+        bars = b;
+        console.log(`[${t}] ThetaData: ${rows.length} flujos · ${bars.length} barras · ${añosOk} años (${añosCache} de caché)`);
       }
     } else {
     const cached = readCache(t);
