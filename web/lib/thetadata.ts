@@ -38,7 +38,14 @@ async function getCsv(path: string): Promise<Csv | null> {
 }
 const idx = (h: string[], name: string) => h.indexOf(name);
 
-/** map con concurrencia limitada (el Theta Terminal permite ~4 requests a la vez). */
+/**
+ * Concurrencia de peticiones al Terminal. Debe COINCIDIR con `http_concurrency` del config.toml:
+ * si pedimos más, las peticiones extra se encolan y pueden expirar; si pedimos menos,
+ * desperdiciamos capacidad. Default 4 (el default del Terminal).
+ */
+const CONC = Number(process.env.THETA_CONCURRENCY) || 4;
+
+/** map con concurrencia limitada. */
 async function pMapT<T, R>(items: T[], limit: number, fn: (x: T) => Promise<R>): Promise<R[]> {
   const res: R[] = new Array(items.length);
   let i = 0;
@@ -263,7 +270,7 @@ export async function fetchFlowRange(
 
   // 3. trade_quote por contrato seleccionado (con strike+right → respuesta chica), EN PARALELO.
   let done = 0;
-  const perContract = await pMapT(selected, 4, async (c) => {
+  const perContract = await pMapT(selected, CONC, async (c) => {
     const local: RawTrade[] = [];
     const expYmd = yyyymmdd(c.exp);
     const expMs = Date.parse(`${c.exp}T20:00:00Z`);
@@ -375,7 +382,7 @@ export async function fetchFlow(ticker: string, opts: ThetaFlowOptions = {}): Pr
 
   const desde = dates[dates.length - 1], hasta = dates[0];
   let scanned = 0;
-  const porContrato = await pMapT(seleccion, 4, async (c) => {
+  const porContrato = await pMapT(seleccion, CONC, async (c) => {
     const local: RawTrade[] = [];
     const expMs = Date.parse(`${c.exp}T20:00:00Z`);
     const isCall = c.right.toUpperCase().startsWith("C");
