@@ -39,7 +39,11 @@ const SLIP = Number(process.env.FWD_SLIP ?? 0.05);         // 5% de slippage al 
 const COMM = Number(process.env.FWD_COMM ?? 0.03);         // comisión Robinhood ~$0.03/contrato
 const WIDTH_EM = 0.5;                                       // ancho del spread = 0.5σ
 // Celdas validadas: 5d = feedback rápido (semanal), 90d = la más fuerte del backtest.
-const CELLS: { dte: number; sigma: number }[] = (process.env.FWD_CELLS || "5@1,90@1")
+// Celdas: 90d es la ROBUSTA del backtest de 4 años (OOS +3,1/+6,2, aguanta 15% de slippage).
+// 60d también pasó OOS (+2,5%) y cierra un mes ANTES → veredicto más rápido.
+// 5d se mantiene como CONTROL: el backtest dice que falla y en vivo va -14% — sirve para
+// confirmar que el sistema distingue lo bueno de lo malo, no solo para operarlo.
+const CELLS: { dte: number; sigma: number }[] = (process.env.FWD_CELLS || "5@1,60@1,90@1")
   .split(",").map((s) => { const [d, g] = s.split("@"); return { dte: Number(d), sigma: Number(g) }; });
 const YR = 365 * 24 * 3600 * 1000;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
