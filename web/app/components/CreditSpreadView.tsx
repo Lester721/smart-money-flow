@@ -29,7 +29,7 @@ const MEJORAS: { n: number; name: string; does: string; status: "viva" | "parcia
   {
     n: 1, name: "Conciencia de régimen", status: "dev",
     does: "Sabe en qué 'clima' está el mercado (tranquilo o volátil) y ajusta: una señal que en promedio es ruido puede ser fuerte en un clima específico.",
-    here: "En desarrollo — aún no hay módulo de régimen conectado. Así funcionará: etiquetar cada día por volatilidad y filtrar/ajustar la señal según el clima.",
+    here: "Ya tenemos el DIAGNÓSTICO (4 años), y salió al revés de lo que temíamos: vender prima rinde MEJOR en clima volátil (IV alta = prima gorda = más colchón). El 90d da +0.2% / +4.4% / +8.1% en clima tranquilo / normal / volátil. Un filtro de «apagar en volátil» habría destruido el edge. Todavía NO está cableado: primero hay que probar fuera de muestra que condicionar por clima aporta de verdad.",
   },
   {
     n: 2, name: "Lado del dealer (GEX)", status: "parcial",
@@ -85,28 +85,33 @@ export default function CreditSpreadView() {
         </div>
       </div>
 
-      {/* El resultado del backtest, en una línea */}
+      {/* El resultado del backtest, en corto */}
       <div className="card" style={{ borderLeft: "4px solid #12B76A" }}>
         <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>El resultado del backtest, en corto 📈</div>
         <div className="card-sub">
-          Fuimos <strong>~1 año atrás</strong> (229 señales de flujo real). El edge está en <strong>filtrar por convicción</strong>:
-          vendiendo el credit spread <strong>solo en el Top⅓ de convicción de EVA</strong>, el retorno medio sobre riesgo pasó de
-          <strong> +2.1%</strong> (operando todas) a <strong> +5.6%</strong> (win 93%) — y la baja convicción se quedó en +1.5%.
-          Ese salto <strong>es</strong> el edge, y no fue suerte: aguantó en las <strong>2 mitades</strong> del año (5.7% / 5.4%),
-          en <strong>14 de 14</strong> combinaciones, y sobrevivió costos hasta <strong>15% de slippage</strong>.
+          Fuimos <strong>4 años atrás</strong> (2019-2022, <strong>1,540 señales</strong>) — un período que incluye el
+          <strong> crash del COVID</strong> y el <strong>bear de 2022</strong>. El vehículo que aguanta es el
+          <strong> credit spread a 90 días</strong>, vendido <strong>solo en el Top⅓ de convicción de EVA</strong>:
+          <strong> +4.6%</strong> de retorno medio sobre riesgo. Y no fue suerte: positivo en las
+          <strong> 2 mitades</strong> del período (+3.1% / +6.2%), en los <strong>3 climas</strong> de mercado, y sobrevive
+          costos hasta <strong>15% de slippage</strong> (+2.9%).
         </div>
         <div style={{ fontSize: 13.5, color: "#101828", marginTop: 10, background: "#F1F5F4", borderRadius: 8, padding: "10px 12px" }}>
-          <strong>¿En una cuenta de $60,000?</strong> Arriesgando <strong>2% ($1,200)</strong> por operación, con las <strong>~70 operaciones</strong> de alta convicción del año (celda de 5 días) a <strong>+5.6%</strong> de media:
+          <strong>¿En una cuenta de $60,000?</strong> Arriesgando <strong>2% ($1,200)</strong> por operación, con las <strong>~128 operaciones</strong> de alta convicción al año (celda de 90 días) a <strong>+4.6%</strong> de media:
           <div style={{ margin: "8px 0", fontVariantNumeric: "tabular-nums", display: "flex", flexDirection: "column", gap: 5 }}>
-            <div>• <strong>Sin reinvertir</strong> (riesgo fijo $1,200): $60,000 → <strong style={{ color: "#027A48" }}>~$64,700</strong> &nbsp;(+$4,700 · ~+7.8%)</div>
-            <div>• <strong>Reinvirtiendo</strong> (riesgo = 2% del saldo): $60,000 → <strong style={{ color: "#027A48" }}>~$64,900</strong> &nbsp;(+$4,900 · ~+8.2%)</div>
+            <div>• <strong>Escenario base:</strong> $60,000 → <strong style={{ color: "#027A48" }}>~$67,100</strong> &nbsp;(+$7,100 · ~+11.8% al año)</div>
+            <div>• <strong>Con 15% de slippage</strong> (el caso duro): $60,000 → <strong style={{ color: "#027A48" }}>~$64,500</strong> &nbsp;(+$4,500 · ~+7.4%)</div>
           </div>
-          En <strong>1 año</strong> la diferencia es chica (cada operación mueve la cuenta ~0.11%); el interés compuesto se nota de verdad <strong>año tras año</strong>.
+          <div style={{ color: "#B54708" }}>
+            ⚠ <strong>Ojo con el capital:</strong> a 90 días las posiciones quedan abiertas 3 meses, así que tendrías
+            <strong> ~32 abiertas a la vez ≈ $38,400 comprometidos</strong> (64% de la cuenta). Rinde más que el plazo corto,
+            pero <strong>usa mucho más capital</strong>.
+          </div>
         </div>
         <div style={{ fontSize: 11.5, color: "#667085", marginTop: 8 }}>
-          Simulación sobre datos reales (~1 año). Vencimiento por calendario, IV≈vol realizada, costos incluidos.
-          El monto en $ es <strong>ilustrativo</strong>: depende del tamaño de posición que elijas y cuenta solo la celda de 5 días.
-          El compuesto usa la media (la variación real lo baja un poco). Es backtest — la prueba en vivo (abajo) es la que manda.
+          Simulación sobre 4 años de datos reales. Vencimiento por calendario, IV≈vol realizada, costos incluidos.
+          El monto en $ es <strong>ilustrativo</strong>: depende del tamaño de posición y cuenta solo la celda de 90 días.
+          Es backtest — la prueba en vivo (abajo) es la que manda.
         </div>
       </div>
 
@@ -114,24 +119,27 @@ export default function CreditSpreadView() {
       <div className="card">
         <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>1 · Las pruebas que hicimos (backtest)</div>
         <div className="card-sub" style={{ marginBottom: 10 }}>
-          Probamos la idea contra ~1 año de datos reales (un simulador). Le pusimos 3 exámenes duros y los pasó:
+          Probamos la idea contra <strong>4 años</strong> de datos reales (2019-2022, con crash incluido). Le pusimos 3 exámenes duros:
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
           {[
-            ["Out-of-sample", "¿Aguanta en el tiempo o fue suerte de un período? Partimos el año en 2 mitades.", "PASA — positivo en las 2 mitades"],
-            ["Amplitud", "¿El edge es de UNA combinación con suerte, o de muchas?", "PASA — sale en 13 de 14 combinaciones"],
-            ["Costos", "¿El slippage (lo que pierdes al operar) se come el edge?", "PASA — sobrevive hasta 15% de slippage"],
-          ].map(([t, q, r]) => (
-            <div key={t} style={{ background: "#F1F5F4", borderRadius: 10, padding: 12 }}>
+            ["Out-of-sample", "¿Aguanta en el tiempo o fue suerte de un período? Partimos los 4 años en 2 mitades.", "PASA (90d) — +3.1% y +6.2%", true],
+            ["Amplitud", "¿El edge es de UNA combinación con suerte, o de muchas?", "OJO — solo 6 de 16 combinaciones; se concentra en los plazos LARGOS", false],
+            ["Costos", "¿El slippage (lo que pierdes al operar) se come el edge?", "PASA (90d) — sobrevive hasta 15% de slippage", true],
+          ].map(([t, q, r, ok]) => (
+            <div key={t as string} style={{ background: "#F1F5F4", borderRadius: 10, padding: 12 }}>
               <div style={{ fontWeight: 700, fontSize: 13 }}>{t}</div>
               <div style={{ fontSize: 12, color: "#667085", margin: "4px 0 8px" }}>{q}</div>
-              <div style={{ fontSize: 12.5, fontWeight: 700, color: "#027A48" }}>✓ {r}</div>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: ok ? "#027A48" : "#B54708" }}>{ok ? "✓" : "⚠"} {r}</div>
             </div>
           ))}
         </div>
         <div style={{ fontSize: 12.5, color: "#667085", marginTop: 10 }}>
-          Clave: el edge <strong>solo aparece filtrando por la alta convicción de EVA</strong>. Operar todas las señales apenas empata;
-          la alta convicción gana y la baja pierde. Eso es lo que hace valioso a EVA.
+          <strong>Dos conclusiones, y una nos costó una creencia:</strong> (1) el <strong>filtro de EVA funciona</strong> — el Top⅓ de
+          convicción rinde <strong>+0.9%</strong> vs <strong>−2.0%</strong> del Bottom⅓, y le gana a los pesos de Victor (+0.1%).
+          (2) Pero <strong>el plazo importa más de lo que creíamos</strong>: con un solo año calmo, el spread de <strong>5 días</strong>
+          parecía dar +5.6%; con 4 años y un crash cae a +0.9% y <strong>falla el out-of-sample</strong>. Era un espejismo del
+          período tranquilo. El que aguanta de verdad es el de <strong>90 días</strong>.
         </div>
       </div>
 
