@@ -17,7 +17,7 @@ import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 
 const JAR = process.env.THETA_JAR || "ThetaTerminalv3.jar";
-const JAR_URL = process.env.THETA_JAR_URL || "https://download-stable.thetadata.us/ThetaTerminalv3.jar";
+const JAR_URL = process.env.THETA_JAR_URL || "https://downloads.thetadata.us/ThetaTerminalv3.jar";
 const BASE = process.env.THETA_BASE || "http://127.0.0.1:25503";
 const BOOT_TIMEOUT = Number(process.env.THETA_BOOT_TIMEOUT || 180);
 const KEY = process.env.THETADATA_API_KEY;
