@@ -183,8 +183,15 @@ function hitBucket(t: IdeaTrade): string {
   const barsBy = new Map<string, DBar[]>();
   const histBy = new Map<string, { hitRate: number | null; resolved: number }>();
   for (const tk of tickers) {
-    const bars = (await fetchDailyBars(tk, 300).catch(() => [])) as DBar[];
-    if (!bars.length) { console.log(`[${tk}] sin barras — omitido`); continue; }
+    // Reintentos: sin barras se PIERDE la idea, y el búfer es rodante (no vuelve mañana).
+    // Massive throttlea por minuto (429), así que espaciamos y reintentamos antes de rendirnos.
+    let bars: DBar[] = [];
+    for (let i = 0; i < 3 && !bars.length; i++) {
+      bars = (await fetchDailyBars(tk, 300).catch(() => [])) as DBar[];
+      if (!bars.length && i < 2) await new Promise((r) => setTimeout(r, 4000 * (i + 1)));
+    }
+    if (!bars.length) { console.log(`[${tk}] sin barras tras 3 intentos — omitido`); continue; }
+    await new Promise((r) => setTimeout(r, 1200)); // ritmo suave entre tickers
     barsBy.set(tk, bars);
     const propios = rows.filter((r) => r.underlying === tk);
     try {
