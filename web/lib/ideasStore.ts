@@ -36,6 +36,17 @@ function redis(): Redis {
   return client;
 }
 
+/**
+ * Cierra la conexión. IMPRESCINDIBLE en scripts de un solo uso (los cron): mientras el socket
+ * siga abierto, Node NO termina y el contenedor queda "Running" para siempre aunque el trabajo
+ * ya esté hecho. El worker (proceso permanente) no necesita llamarla.
+ */
+export async function closeIdeasStore(): Promise<void> {
+  if (!client) return;
+  try { await client.quit(); } catch { /* ya estaba cerrada */ }
+  client = null;
+}
+
 /** El worker empuja los trades notables recién armados (más nuevos primero). */
 export async function pushNotableTrades(trades: RawTrade[]): Promise<void> {
   if (trades.length === 0) return;

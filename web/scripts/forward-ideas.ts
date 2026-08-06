@@ -17,7 +17,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname } from "node:path";
 import Redis from "ioredis";
-import { loadMarketFlow } from "../lib/ideasStore";
+import { loadMarketFlow, closeIdeasStore } from "../lib/ideasStore";
 import { classifyFlow, type FlowRow } from "../lib/flow";
 import { validationScore } from "../lib/validation";
 import { fetchDailyBars } from "../lib/flowProvider";
@@ -351,5 +351,8 @@ function hitBucket(t: IdeaTrade): string {
   await persist(ledger, report);
   console.log("\n" + report);
   console.log(STORE === "redis" ? `=== ledger en Redis "${REDIS_KEY}" ===` : `=== ledger: ${LEDGER} ===`);
+  // Cerrar AMBAS conexiones: la nuestra y la de ideasStore. Si queda alguna abierta,
+  // el proceso no termina y el cron de Railway se queda "Running" para siempre.
   if (redis) await redis.quit();
+  await closeIdeasStore();
 })();
