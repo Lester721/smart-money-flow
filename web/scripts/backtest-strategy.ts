@@ -12,7 +12,7 @@ import {
 } from "../lib/flow";
 import { bsPrice, impliedVol } from "../lib/blackScholes";
 import { fetchDailyBars } from "../lib/massive";
-import { fetchFlowRange, fetchDailyUnderlying } from "../lib/thetadata";
+import { fetchFlowRange, fetchDailyUnderlying, fetchDailyUnderlyingParidad } from "../lib/thetadata";
 
 const TICKERS = (process.env.BT_TICKERS || "AAPL,MSFT,NVDA,AMZN,GOOGL,META,TSLA,AMD,NFLX,QQQ,SPY,HOOD").split(",").map((t) => t.trim()).filter(Boolean);
 const DAYS = Number(process.env.BT_DAYS) || 180;
@@ -35,6 +35,14 @@ function yearWindows(startYmd: string, endYmd: string): [string, string][] {
   }
   return out;
 }
+// Fuente del precio del subyacente: "stock" (suscripción de acciones, desde 2021) o
+// "parity" (derivado de opciones, llega a 2016). Ver fetchDailyUnderlyingParidad.
+const SPOT_SRC = (process.env.BT_SPOT || "stock").toLowerCase();
+// Piso de fecha para las SEÑALES (YYYY-MM-DD). Sirve para comparar dos corridas sobre la
+// MISMA muestra: los precios derivados de opciones no tienen el tope de suscripción, así que
+// arrancan antes y generan señales que la fuente real no puede — comparar así mide dos cosas
+// a la vez (fuente del precio Y período) y no se puede atribuir la diferencia a ninguna.
+const SIG_FROM = process.env.BT_SIG_FROM || "";
 const OUT = process.env.BT_OUT || "scripts/backtest-strategy-reporte.md";
 const DTES = [3, 5, 7, 30, 60, 90, 180, 365];
 const SIGMAS = [1, 1.5];
@@ -231,7 +239,7 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
       const tCacheDir = "scripts/cache-theta";
       if (!existsSync(tCacheDir)) mkdirSync(tCacheDir, { recursive: true });
       const yearPath = (ys: string, ye: string) => `${tCacheDir}/${t}_y_${ys}_${ye}.json`;
-      const barsPath = `${tCacheDir}/${t}_bars_${shiftYmd(BT_START, -40)}_${shiftYmd(BT_END, 220)}.json`;
+      const barsPath = `${tCacheDir}/${t}_bars${SPOT_SRC === "parity" ? "PAR" : ""}_${shiftYmd(BT_START, -40)}_${shiftYmd(BT_END, 220)}.json`;
 
       type Raw = Awaited<ReturnType<typeof fetchFlowRange>>;
       const allTrades: Raw = [];
@@ -262,7 +270,13 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
       if (!b.length) {
         for (let attempt = 0; attempt < 4 && !b.length; attempt++) {
           try {
-            const dmap = await fetchDailyUnderlying(t, shiftYmd(BT_START, -40), shiftYmd(BT_END, 220));
+            // BT_SPOT=parity deriva el precio de las OPCIONES en vez de bajarlo de acciones.
+            // No es un capricho: la suscripción de acciones solo llega a 2021 y las opciones a
+            // 2016, así que es el único camino al COVID sin pagar. Se usa para el A/B —
+            // mismo período, dos fuentes de precio— antes de fiarse de él en 2020.
+            const dmap = SPOT_SRC === "parity"
+              ? await fetchDailyUnderlyingParidad(t, shiftYmd(BT_START, -40), shiftYmd(BT_END, 220))
+              : await fetchDailyUnderlying(t, shiftYmd(BT_START, -40), shiftYmd(BT_END, 220));
             b = [...dmap.entries()].sort((x, y) => (x[0] < y[0] ? -1 : 1))
               .map(([d, c]) => ({ time: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`, close: c }));
             if (!b.length) throw new Error("sin barras");
@@ -313,7 +327,7 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     }
 
     if (rows == null || !bars.length) { console.log(`[${t}] sin datos ni caché — omitido`); omitidos.push(t); await sleep(INTER); continue; }
-    const sigs = signals(rows, bars);
+    const sigs = signals(rows, bars).filter((s) => !SIG_FROM || dateStr(s.entryMs) >= SIG_FROM);
     if (t === "SPY") spyBars = bars;
     for (const sig of sigs) all.push({ sig, bars });
 
@@ -361,6 +375,7 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     `| Período **real de las señales** | **${realIni} → ${realFin}** |`,
     `| Cobertura | **${pctCobertura}%** del rango pedido ${truncado ? "⚠️ **TRUNCADO**" : "✅"} |`,
     `| Proveedor | ${PROVIDER} |`,
+    `| Precio del subyacente | **${SPOT_SRC === "parity" ? "DERIVADO de opciones (paridad put-call)" : "real (suscripción de acciones)"}** |`,
     `| Tickers | ${cobertura.length} con datos${omitidos.length ? ` · **omitidos: ${omitidos.join(", ")}**` : ""} |`,
     `| Señales | ${all.length} |`,
     "",

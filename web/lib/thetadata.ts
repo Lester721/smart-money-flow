@@ -273,6 +273,80 @@ export async function fetchDailyUnderlying(symbolRaw: string, startYmd: string, 
   return out;
 }
 
+// ── Subyacente DIARIO derivado de OPCIONES (sin suscripción de acciones) ────────────────────
+// La suscripción Stocks VALUE solo sirve precios desde 2021-01, pero las OPCIONES llegan a
+// 2016. Como el precio del subyacente es lo único que falta para probar el crash del COVID,
+// se reconstruye por paridad put-call:
+//
+//     S = C − P + K        (exacto salvo tasas y dividendos, pequeños a pocas semanas)
+//
+// Validado contra el precio real donde SÍ lo tenemos (error mediano): SPY 2021 0,133% ·
+// SPY 2022 (bear) 0,140% · AMD 2022 0,168%. La cola es peor en tickers menos líquidos
+// (AMD llega a 2,46% en su peor día), así que sirve de sobra para calcular volatilidad pero
+// hay que medir su efecto antes de liquidar spreads con él — para eso está el A/B.
+export interface FilaEodOpcion { exp: string; strike: number; right: string; close: number; volume: number; day: string }
+
+/** Map "YYYYMMDD" → spot derivado. Puro: se testea sin red. */
+export function spotPorParidad(filas: FilaEodOpcion[]): Map<string, number> {
+  const porDia = new Map<string, FilaEodOpcion[]>();
+  for (const f of filas) { const a = porDia.get(f.day); if (a) a.push(f); else porDia.set(f.day, [f]); }
+
+  const out = new Map<string, number>();
+  for (const [day, delDia] of porDia) {
+    const pares = new Map<string, { c?: FilaEodOpcion; p?: FilaEodOpcion }>();
+    for (const f of delDia) {
+      // Exigir volumen en la pata: sin operaciones ese día el "close" es de días atrás y
+      // mete un precio rancio en la paridad.
+      if (!(f.close > 0) || !(f.volume > 0)) continue;
+      const k = `${f.exp}|${f.strike}`;
+      const e = pares.get(k) ?? {};
+      if (f.right === "CALL") e.c = f; else if (f.right === "PUT") e.p = f;
+      pares.set(k, e);
+    }
+    const cand: { s: number; dist: number }[] = [];
+    for (const [k, e] of pares) {
+      if (!e.c || !e.p) continue;
+      const K = Number(k.split("|")[1]);
+      // |C−P| mínimo ≈ strike más cercano al dinero, donde ambas patas cotizan apretadas.
+      cand.push({ s: e.c.close - e.p.close + K, dist: Math.abs(e.c.close - e.p.close) });
+    }
+    if (!cand.length) continue;
+    cand.sort((a, b) => a.dist - b.dist);
+    // MEDIANA de los 5 mejores: un solo par con un cierre raro no decide el precio del día.
+    const top = cand.slice(0, 5).map((c) => c.s).sort((a, b) => a - b);
+    out.set(day, top[Math.floor(top.length / 2)]);
+  }
+  return out;
+}
+
+/**
+ * Igual que fetchDailyUnderlying, pero SIN tocar la suscripción de acciones.
+ * Deriva TROZO A TROZO y solo guarda el resultado: un año de SPY son ~2,2 millones de filas
+ * útiles, así que acumular 5 años antes de calcular se queda sin memoria. Como la paridad se
+ * resuelve dentro de cada día, trocear no cambia el resultado.
+ */
+export async function fetchDailyUnderlyingParidad(symbol: string, startYmd: string, endYmd: string): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  for (const seg of segmentosPorSimbolo(symbol, startYmd, endYmd))
+  for (const [cs, ce] of monthChunks(seg.start, seg.end)) {
+    const filas: FilaEodOpcion[] = [];
+    const csv = await getCsv(`/v3/option/history/eod?symbol=${seg.symbol}&expiration=*&start_date=${cs}&end_date=${ce}`);
+    if (!csv) continue;
+    const iE = idx(csv.header, "expiration"), iK = idx(csv.header, "strike"), iR = idx(csv.header, "right"),
+      iC = idx(csv.header, "close"), iV = idx(csv.header, "volume");
+    const iT = idx(csv.header, "date") >= 0 ? idx(csv.header, "date") : idx(csv.header, "created");
+    if (iE < 0 || iK < 0 || iR < 0 || iC < 0 || iT < 0) continue;
+    for (const r of csv.rows) {
+      const day = (r[iT] || "").slice(0, 10).replace(/-/g, "");
+      const close = Number(r[iC]) || 0, volume = Number(r[iV]) || 0;
+      if (!day || !(close > 0) || !(volume > 0)) continue; // filtrar YA: un año de SPY son ~5M de filas
+      filas.push({ exp: r[iE], strike: Number(r[iK]), right: r[iR], close, volume, day });
+    }
+    for (const [d, s] of spotPorParidad(filas)) out.set(d, s);
+  }
+  return out;
+}
+
 // ── Volumen por contrato (para seleccionar líquidos) — EOD bulk troceado ─────────────────────
 interface VolInfo { vol: number; close: number }
 async function fetchContractVolumes(symbol: string, startYmd: string, endYmd: string): Promise<Map<string, VolInfo>> {

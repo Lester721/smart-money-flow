@@ -30,7 +30,11 @@ async function getCsv(path: string): Promise<Csv | null> {
   }
   const lines = txt.trim().split("\n");
   if (lines.length < 2) return null;
-  return { header: lines[0].split(","), rows: lines.slice(1).map((l) => l.split(",")) };
+  // El CSV entrecomilla los campos de texto: la fila trae `"CALL"`, no `CALL`. Comparar sin
+  // quitar las comillas hace que NADA case y el resultado sale vacío sin un solo error —
+  // exactamente lo que pasó en el primer intento (5 millones de filas → 0 días derivados).
+  const limpia = (s: string) => s.replace(/^"|"$/g, "");
+  return { header: lines[0].split(",").map(limpia), rows: lines.slice(1).map((l) => l.split(",").map(limpia)) };
 }
 const idx = (h: string[], name: string) => h.indexOf(name);
 
@@ -53,7 +57,7 @@ function spotPorParidad(filas: Fila[]): Map<string, number> {
       if (!(f.close > 0)) continue;
       const k = `${f.exp}|${f.strike}`;
       const e = pares.get(k) ?? {};
-      if (f.right === "C") e.c = f; else if (f.right === "P") e.p = f;
+      if (f.right === "CALL") e.c = f; else if (f.right === "PUT") e.p = f;
       pares.set(k, e);
     }
     // Candidatos: pares completos y con volumen en AMBAS patas (si no, el "close" está rancio).
@@ -87,8 +91,11 @@ async function bajarEodOpciones(symbol: string, ini: string, fin: string): Promi
     if (iE < 0 || iK < 0 || iR < 0 || iC < 0 || iT < 0) { console.error("  ⚠ faltan columnas esperadas"); continue; }
     for (const r of csv.rows) {
       const day = (r[iT] || "").slice(0, 10).replace(/-/g, "");
-      if (!day) continue;
-      filas.push({ exp: r[iE], strike: Number(r[iK]), right: r[iR], close: Number(r[iC]) || 0, volume: Number(r[iV]) || 0, day });
+      // Filtrar YA: sin volumen o sin cierre la fila no sirve para la paridad, y un año de SPY
+      // son ~5 millones de filas. Guardarlas todas es tirar memoria por gusto.
+      const close = Number(r[iC]) || 0, volume = Number(r[iV]) || 0;
+      if (!day || !(close > 0) || !(volume > 0)) continue;
+      filas.push({ exp: r[iE], strike: Number(r[iK]), right: r[iR], close, volume, day });
     }
   }
   return filas;
