@@ -24,6 +24,7 @@ import {
   classifyFlow, executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow,
 } from "../lib/flow";
 import { bsPrice, impliedVol } from "../lib/blackScholes";
+import { asegurarBarrasDeLiquidacion, vencidasSinLiquidar } from "../lib/forwardBars";
 
 // ── Parámetros ────────────────────────────────────────────────────────────────
 const TICKERS = (process.env.FWD_TICKERS || PANEL_TICKERS.join(",")).split(",").map((t) => t.trim()).filter(Boolean);
@@ -309,7 +310,14 @@ function pctile(vals: number[], p: number): number | null {
     await sleep(2500);
   }
 
-  // Liquidar las vencidas (usa las barras recién bajadas de cada ticker).
+  // Antes de liquidar: rescatar barras de los tickers que HOY fallaron pero tienen posiciones
+  // abiertas. Sin esto, un ticker con problemas de datos deja sus vencidas abiertas para
+  // siempre y quedan FUERA de las estadísticas — sesgando el win-rate hacia arriba.
+  const rescate = await asegurarBarrasDeLiquidacion(ledger, barsByTicker, (tk) => fetchDailyBars(tk, 800) as Promise<DBar[]>);
+  if (rescate.rescatados.length) console.log(`Barras rescatadas para liquidar: ${rescate.rescatados.join(", ")}`);
+  for (const s of rescate.sinResolver) console.warn(`[${s.ticker}] ⚠ NO se pudieron bajar barras — sus posiciones vencidas NO liquidan: ${s.motivo}`);
+
+  // Liquidar las vencidas.
   let settled = 0, managed = 0;
   for (const t of ledger) {
     if (t.status !== "open") continue;
@@ -320,6 +328,11 @@ function pctile(vals: number[], p: number): number | null {
     if (Date.now() < t.expiryMs) continue;
     if (settle(t, bars)) settled++;
   }
+
+  // Red de seguridad: si tras liquidar queda alguna vencida abierta, se dice. Es la señal de
+  // que el forward-test está midiendo menos de lo que cree.
+  const zombis = vencidasSinLiquidar(ledger, Date.now());
+  if (zombis.length) console.warn(`⚠ ${zombis.length} posiciones VENCIDAS siguen abiertas: ${zombis.map((z) => `${z.ticker}/${z.expiryDate}`).join(", ")}`);
 
   // ── Reporte ──────────────────────────────────────────────────────────────
   const closed = ledger.filter((t) => t.status === "closed");

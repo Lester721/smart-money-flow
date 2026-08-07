@@ -17,6 +17,7 @@ import {
   classifyFlow, executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow,
 } from "../lib/flow";
 import { bsPrice, bsDelta, impliedVol } from "../lib/blackScholes";
+import { asegurarBarrasDeLiquidacion, vencidasSinLiquidar } from "../lib/forwardBars";
 
 const TICKERS = (process.env.FWD_TICKERS || PANEL_TICKERS.join(",")).split(",").map((t) => t.trim()).filter(Boolean);
 const FWD_DAYS = Number(process.env.FWD_DAYS) || 10;
@@ -177,8 +178,17 @@ function pctile(v: number[], p: number): number | null { if (!v.length) return n
     await sleep(2500);
   }
 
+  // Mismo rescate que en forward-test.ts: un ticker que hoy falló al bajar datos dejaría sus
+  // puts vencidos abiertos para siempre, fuera de las estadísticas. Ver lib/forwardBars.ts.
+  const rescate = await asegurarBarrasDeLiquidacion(ledger, barsByTicker, (tk) => fetchDailyBars(tk, 800) as Promise<DBar[]>);
+  if (rescate.rescatados.length) console.log(`Barras rescatadas para liquidar: ${rescate.rescatados.join(", ")}`);
+  for (const s of rescate.sinResolver) console.warn(`[${s.ticker}] ⚠ NO se pudieron bajar barras — sus puts vencidos NO liquidan: ${s.motivo}`);
+
   let settled = 0;
   for (const p of ledger) { if (p.status !== "open") continue; const bars = barsByTicker.get(p.ticker); if (!bars) continue; if (Date.now() < p.expiryMs) continue; if (settle(p, bars)) settled++; }
+
+  const zombis = vencidasSinLiquidar(ledger, Date.now());
+  if (zombis.length) console.warn(`⚠ ${zombis.length} puts VENCIDOS siguen abiertos: ${zombis.map((z) => `${z.ticker}/${z.expiryDate}`).join(", ")}`);
 
   const closed = ledger.filter((p) => p.status === "closed");
   const open = ledger.filter((p) => p.status === "open");
