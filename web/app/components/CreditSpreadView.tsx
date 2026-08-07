@@ -145,8 +145,7 @@ export default function CreditSpreadView() {
           convicción rinde <strong>+0.9%</strong> vs <strong>−2.0%</strong> del Bottom⅓, y le gana a los pesos de Victor (+0.1%).
           (2) Pero <strong>el plazo importa más de lo que creíamos</strong>: con un solo año calmo, el spread de <strong>5 días</strong>
           parecía dar +5.6%; con 2 años y un bear market cae a +0.9% y <strong>falla el out-of-sample</strong>. Era un espejismo del
-          período tranquilo. El que aguanta mejor es el de <strong>90 días</strong> — y el forward-test en vivo confirma la caída del
-          5d (win 74%, media <strong>−8.5%</strong> con 35 cierres).
+          período tranquilo. El que aguanta mejor es el de <strong>90 días</strong>.
         </div>
       </div>
 
