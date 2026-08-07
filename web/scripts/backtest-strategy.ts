@@ -264,28 +264,52 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
         if (year?.length) { allTrades.push(...year); añosOk++; }
       }
 
-      // Barras del subyacente (cacheadas aparte: cubren toda la ventana de una vez).
+      // Barras del subyacente, CACHEADAS POR AÑO — igual que el flujo, y por la misma razón.
+      // Con BT_SPOT=parity el precio se deriva del EOD de opciones, que es MUCHO más pesado que
+      // bajar el flujo: ~7 min por año en SPY. Guardarlo en un solo archivo al final significaba
+      // que interrumpir a las 9 horas perdía el ticker entero. Por año, se pierde el año en curso.
+      // Además hace la corrida REANUDABLE: se puede parar para dejar libre el Terminal a los cron
+      // de Railway (18:00-19:00) y seguir después sin re-bajar nada.
+      const barsYearPath = (ys: string, ye: string) => `${tCacheDir}/${t}_bars${SPOT_SRC === "parity" ? "PAR" : ""}_y_${ys}_${ye}.json`;
+      const ventanaIni = shiftYmd(BT_START, -40), ventanaFin = shiftYmd(BT_END, 220);
       let b: DBar[] = [];
+      // Compatibilidad: si ya existe el archivo de ventana completa de una corrida vieja, se usa.
       try { b = JSON.parse(readFileSync(barsPath, "utf8")); } catch { b = []; }
       if (!b.length) {
-        for (let attempt = 0; attempt < 4 && !b.length; attempt++) {
-          try {
-            // BT_SPOT=parity deriva el precio de las OPCIONES en vez de bajarlo de acciones.
-            // No es un capricho: la suscripción de acciones solo llega a 2021 y las opciones a
-            // 2016, así que es el único camino al COVID sin pagar. Se usa para el A/B —
-            // mismo período, dos fuentes de precio— antes de fiarse de él en 2020.
-            const dmap = SPOT_SRC === "parity"
-              ? await fetchDailyUnderlyingParidad(t, shiftYmd(BT_START, -40), shiftYmd(BT_END, 220))
-              : await fetchDailyUnderlying(t, shiftYmd(BT_START, -40), shiftYmd(BT_END, 220));
-            b = [...dmap.entries()].sort((x, y) => (x[0] < y[0] ? -1 : 1))
-              .map(([d, c]) => ({ time: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`, close: c }));
-            if (!b.length) throw new Error("sin barras");
-            writeFileSync(barsPath, JSON.stringify(b), "utf8");
-          } catch (e) {
-            console.error(`[${t}] barras intento ${attempt + 1}/4 falló: ${(e as Error).message}`);
-            await sleep(3000 * (attempt + 1));
+        const trozos: DBar[] = [];
+        let añosBarras = 0, añosBarrasCache = 0, añosBarrasVacios = 0;
+        for (const [ys, ye] of yearWindows(ventanaIni, ventanaFin)) {
+          let año: DBar[] | null = null;
+          try { año = JSON.parse(readFileSync(barsYearPath(ys, ye), "utf8")); } catch { año = null; }
+          if (año && año.length) { añosBarrasCache++; }
+          else {
+            // OJO con la condición de salida: un año vacío es un RESULTADO válido (antes de 2016
+            // la suscripción de opciones no llega), no un fallo. Cortar por `!año.length` haría
+            // que esos años se reintentaran 3 veces en cada corrida — minutos tirados por ticker.
+            // Se sale cuando la descarga NO LANZÓ, tenga filas o no.
+            let bajado = false;
+            for (let attempt = 0; attempt < 3 && !bajado; attempt++) {
+              try {
+                const dmap = SPOT_SRC === "parity"
+                  ? await fetchDailyUnderlyingParidad(t, ys, ye)
+                  : await fetchDailyUnderlying(t, ys, ye);
+                año = [...dmap.entries()].sort((x, y) => (x[0] < y[0] ? -1 : 1))
+                  .map(([d, c]) => ({ time: `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`, close: c }));
+                writeFileSync(barsYearPath(ys, ye), JSON.stringify(año), "utf8");
+                bajado = true;
+              } catch (e) {
+                console.error(`[${t}] barras ${ys.slice(0, 4)} intento ${attempt + 1}/3 falló: ${(e as Error).message}`);
+                await sleep(3000 * (attempt + 1));
+              }
+            }
           }
+          if (año?.length) { trozos.push(...año); añosBarras++; } else añosBarrasVacios++;
         }
+        // Deduplicar por fecha: los tramos de años consecutivos no se solapan, pero si alguna vez
+        // lo hicieran, una fecha repetida rompería el cálculo de volatilidad sin avisar.
+        const porFecha = new Map(trozos.map((x) => [x.time, x] as const));
+        b = [...porFecha.values()].sort((x, y) => (x.time < y.time ? -1 : 1));
+        if (b.length) console.log(`[${t}] barras: ${b.length} · ${añosBarras} años (${añosBarrasCache} de caché${añosBarrasVacios ? `, ${añosBarrasVacios} vacíos` : ""})`);
       }
 
       if (allTrades.length && b.length) {
