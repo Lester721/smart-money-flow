@@ -29,7 +29,7 @@ const MEJORAS: { n: number; name: string; does: string; status: "viva" | "parcia
   {
     n: 1, name: "Conciencia de régimen", status: "dev",
     does: "Sabe en qué 'clima' está el mercado (tranquilo o volátil) y ajusta: una señal que en promedio es ruido puede ser fuerte en un clima específico.",
-    here: "Ya tenemos el DIAGNÓSTICO (4 años), y salió al revés de lo que temíamos: vender prima rinde MEJOR en clima volátil (IV alta = prima gorda = más colchón). El 90d da +0.2% / +4.4% / +8.1% en clima tranquilo / normal / volátil. Un filtro de «apagar en volátil» habría destruido el edge. Todavía NO está cableado: primero hay que probar fuera de muestra que condicionar por clima aporta de verdad.",
+    here: "Ya tenemos el DIAGNÓSTICO (2 años: 2021-2022), y salió al revés de lo que temíamos: vender prima rinde MEJOR en clima volátil (IV alta = prima gorda = más colchón). El 90d da +0.2% / +4.4% / +8.1% en clima tranquilo / normal / volátil. Un filtro de «apagar en volátil» habría destruido el edge. Todavía NO está cableado: primero hay que probar fuera de muestra que condicionar por clima aporta de verdad.",
   },
   {
     n: 2, name: "Lado del dealer (GEX)", status: "parcial",
@@ -89,8 +89,8 @@ export default function CreditSpreadView() {
       <div className="card" style={{ borderLeft: "4px solid #12B76A" }}>
         <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>El resultado del backtest, en corto 📈</div>
         <div className="card-sub">
-          Fuimos <strong>4 años atrás</strong> (2019-2022, <strong>1,540 señales</strong>) — un período que incluye el
-          <strong> crash del COVID</strong> y el <strong>bear de 2022</strong>. El vehículo que aguanta es el
+          Fuimos <strong>2 años atrás</strong> (2021-2022, <strong>1,540 señales</strong>) — un período que incluye el
+          <strong> bear de 2022</strong>, pero <strong>NO el crash del COVID</strong>. El vehículo que aguanta es el
           <strong> credit spread a 90 días</strong>, vendido <strong>solo en el Top⅓ de convicción de EVA</strong>:
           <strong> +4.6%</strong> de retorno medio sobre riesgo. Y no fue suerte: positivo en las
           <strong> 2 mitades</strong> del período (+3.1% / +6.2%), en los <strong>3 climas</strong> de mercado, y sobrevive
@@ -109,7 +109,7 @@ export default function CreditSpreadView() {
           </div>
         </div>
         <div style={{ fontSize: 11.5, color: "#667085", marginTop: 8 }}>
-          Simulación sobre 4 años de datos reales. Vencimiento por calendario, IV≈vol realizada, costos incluidos.
+          Simulación sobre 2 años de datos reales (2021-2022). Vencimiento por calendario, IV≈vol realizada, costos incluidos.
           El monto en $ es <strong>ilustrativo</strong>: depende del tamaño de posición y cuenta solo la celda de 90 días.
           Es backtest — la prueba en vivo (abajo) es la que manda.
         </div>
@@ -119,11 +119,17 @@ export default function CreditSpreadView() {
       <div className="card">
         <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>1 · Las pruebas que hicimos (backtest)</div>
         <div className="card-sub" style={{ marginBottom: 10 }}>
-          Probamos la idea contra <strong>4 años</strong> de datos reales (2019-2022, con crash incluido). Le pusimos 3 exámenes duros:
+          Probamos la idea contra <strong>2 años</strong> de datos reales (2021-2022, con el bear de 2022 dentro). Le pusimos 3 exámenes duros:
+        </div>
+        <div style={{ fontSize: 12, color: "#B54708", background: "#FFFAEB", border: "1px solid #FEDF89", borderRadius: 8, padding: "8px 10px", marginBottom: 10 }}>
+          <strong>⚠️ Corrección (7 ago 2026):</strong> este backtest se describió como &ldquo;4 años, 2019-2022, con el crash del COVID
+          incluido&rdquo;. Era falso: las barras de precio del proveedor empiezan en <strong>2021-01</strong>, y las señales sin precio
+          se descartaban en silencio. El período real fueron <strong>~2 años sin COVID</strong>. Los números de abajo son válidos
+          para 2021-2022; lo que <strong>nunca se probó</strong> es que aguante un crash.
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
           {[
-            ["Out-of-sample", "¿Aguanta en el tiempo o fue suerte de un período? Partimos los 4 años en 2 mitades.", "PASA (90d) — +3.1% y +6.2%", true],
+            ["Out-of-sample", "¿Aguanta en el tiempo o fue suerte de un período? Partimos los 2 años en 2 mitades.", "PASA (90d) — +3.1% y +6.2%", true],
             ["Amplitud", "¿El edge es de UNA combinación con suerte, o de muchas?", "OJO — solo 6 de 16 combinaciones; se concentra en los plazos LARGOS", false],
             ["Costos", "¿El slippage (lo que pierdes al operar) se come el edge?", "PASA (90d) — sobrevive hasta 15% de slippage", true],
           ].map(([t, q, r, ok]) => (
@@ -138,8 +144,9 @@ export default function CreditSpreadView() {
           <strong>Dos conclusiones, y una nos costó una creencia:</strong> (1) el <strong>filtro de EVA funciona</strong> — el Top⅓ de
           convicción rinde <strong>+0.9%</strong> vs <strong>−2.0%</strong> del Bottom⅓, y le gana a los pesos de Victor (+0.1%).
           (2) Pero <strong>el plazo importa más de lo que creíamos</strong>: con un solo año calmo, el spread de <strong>5 días</strong>
-          parecía dar +5.6%; con 4 años y un crash cae a +0.9% y <strong>falla el out-of-sample</strong>. Era un espejismo del
-          período tranquilo. El que aguanta de verdad es el de <strong>90 días</strong>.
+          parecía dar +5.6%; con 2 años y un bear market cae a +0.9% y <strong>falla el out-of-sample</strong>. Era un espejismo del
+          período tranquilo. El que aguanta mejor es el de <strong>90 días</strong> — y el forward-test en vivo confirma la caída del
+          5d (win 74%, media <strong>−8.5%</strong> con 35 cierres).
         </div>
       </div>
 
