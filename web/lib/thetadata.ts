@@ -204,11 +204,26 @@ export function monthChunks(startYmd: string, endYmd: string): [string, string][
 
 // ── Subyacente DIARIO (para backtests) — barras de ACCIÓN limpias (suscripción Value Stocks) ──
 // El stock EOD da un cierre por día, confiable y denso (derivar de opciones salía frágil).
+
+// Los ÍNDICES no son acciones: `/v3/stock/history/eod?symbol=SPX` no devuelve nada, y como el
+// error se tragaba silenciosamente, SPX y SPXW se caían de TODAS las corridas del forward-test
+// de Ideas sin que nadie lo notara. Van por `/v3/index/...`, que la suscripción Index FREE sí
+// sirve. SPXW/NDXP son raíces SEMANALES: su subyacente es el índice base.
+const RAIZ_INDICE: Record<string, string> = { SPXW: "SPX", NDXP: "NDX", RUTW: "RUT" };
+const INDICES = new Set(["SPX", "NDX", "RUT", "VIX", "XSP", "DJX", "OEX", "MXEA", "MXEF"]);
+/** Símbolo del subyacente real y si es índice (SPXW → SPX, índice). */
+export function resolverSubyacente(symbol: string): { symbol: string; esIndice: boolean } {
+  const base = RAIZ_INDICE[symbol] ?? symbol;
+  return { symbol: base, esIndice: INDICES.has(base) };
+}
+
 /** Map "YYYYMMDD" → cierre diario del subyacente, sobre [startYmd, endYmd]. Troceado a ≤1 mes. */
-export async function fetchDailyUnderlying(symbol: string, startYmd: string, endYmd: string): Promise<Map<string, number>> {
+export async function fetchDailyUnderlying(symbolRaw: string, startYmd: string, endYmd: string): Promise<Map<string, number>> {
   const out = new Map<string, number>();
+  const { symbol, esIndice } = resolverSubyacente(symbolRaw);
+  const ruta = esIndice ? "index" : "stock";
   for (const [cs, ce] of monthChunks(startYmd, endYmd)) {
-    const csv = await getCsv(`/v3/stock/history/eod?symbol=${symbol}&start_date=${cs}&end_date=${ce}`);
+    const csv = await getCsv(`/v3/${ruta}/history/eod?symbol=${symbol}&start_date=${cs}&end_date=${ce}`);
     if (!csv) continue;
     const iC = idx(csv.header, "close");
     const iT = idx(csv.header, "last_trade") >= 0 ? idx(csv.header, "last_trade") : idx(csv.header, "created");

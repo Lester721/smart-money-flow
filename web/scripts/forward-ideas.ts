@@ -182,15 +182,23 @@ function hitBucket(t: IdeaTrade): string {
   const tickers = [...new Set(candidatas.map((r) => r.underlying))];
   const barsBy = new Map<string, DBar[]>();
   const histBy = new Map<string, { hitRate: number | null; resolved: number }>();
+  // Cada omitido es una idea que NUNCA entra al ledger. Se cuenta y se estampa en el reporte:
+  // un forward-test que descarta en silencio mide un universo distinto del que uno cree.
+  const omitidos: { tk: string; motivo: string }[] = [];
   for (const tk of tickers) {
     // Reintentos: sin barras se PIERDE la idea, y el búfer es rodante (no vuelve mañana).
-    // Massive throttlea por minuto (429), así que espaciamos y reintentamos antes de rendirnos.
+    // El proveedor throttlea, así que espaciamos y reintentamos antes de rendirnos.
     let bars: DBar[] = [];
+    let motivo = "sin motivo (devolvió vacío)";
     for (let i = 0; i < 3 && !bars.length; i++) {
-      bars = (await fetchDailyBars(tk, 300).catch(() => [])) as DBar[];
+      // El `.catch(() => [])` de antes se tragaba el error y todas las omisiones salían iguales:
+      // no había forma de distinguir "índice que no existe como acción" (permanente) de
+      // "el Terminal estaba ocupado" (transitorio). Sin eso, SPX y SPXW se cayeron de TODAS
+      // las corridas durante días y parecían el mismo hipo pasajero que los demás.
+      bars = (await fetchDailyBars(tk, 300).catch((e: Error) => { motivo = e.message; return []; })) as DBar[];
       if (!bars.length && i < 2) await new Promise((r) => setTimeout(r, 4000 * (i + 1)));
     }
-    if (!bars.length) { console.log(`[${tk}] sin barras tras 3 intentos — omitido`); continue; }
+    if (!bars.length) { console.warn(`[${tk}] ⚠ OMITIDO — sin barras tras 3 intentos: ${motivo}`); omitidos.push({ tk, motivo }); continue; }
     await new Promise((r) => setTimeout(r, 1200)); // ritmo suave entre tickers
     barsBy.set(tk, bars);
     const propios = rows.filter((r) => r.underlying === tk);
@@ -284,6 +292,22 @@ function hitBucket(t: IdeaTrade): string {
     `> **copiar** = comprar el mismo contrato (salida a ${COPY_SESSIONS} sesiones o al vencer) ·`,
     `> **spreadNd** = vender un credit spread a ${SIGMA}σ en la dirección de la idea, a N días.`,
     "",
+    // PROCEDENCIA: qué se midió DE VERDAD. Sin esto, "72 posiciones" suena a éxito aunque se
+    // hayan caído 7 candidatas por el camino.
+    `**Cobertura de la corrida:** ${tickers.length - omitidos.length}/${tickers.length} tickers con datos${omitidos.length ? ` · **${omitidos.length} OMITIDOS**` : " ✅"}`,
+    "",
+    ...(omitidos.length
+      ? [
+          "> ⚠️ **Ideas que NUNCA entraron al ledger** (sin barras de precio). El búfer es rodante:",
+          "> lo omitido hoy no vuelve mañana. Si un ticker se repite corrida tras corrida, es un fallo",
+          "> permanente (símbolo mal enrutado), no un hipo del proveedor.",
+          "",
+          "| Ticker | Motivo |",
+          "|---|---|",
+          ...omitidos.map((o) => `| ${o.tk} | ${o.motivo} |`),
+          "",
+        ]
+      : []),
   ];
 
   if (!cerr.length) {

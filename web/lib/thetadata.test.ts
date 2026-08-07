@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { occFor, monthChunks } from "./thetadata";
+import { occFor, monthChunks, resolverSubyacente } from "./thetadata";
 import { parseOcc } from "./occ";
 
 // El cliente de ThetaData construye los símbolos OCC a mano. Si el formato se desvía
@@ -80,5 +80,29 @@ describe("monthChunks (troceo de rangos)", () => {
     expect(c[0][0]).toBe("20241220");
     expect(c[c.length - 1][1]).toBe("20250120");
     expect(c.length).toBeGreaterThan(1);
+  });
+});
+
+// SPX y SPXW se cayeron de TODAS las corridas del forward-test de Ideas durante días: se
+// pedían a `/v3/stock/...` y un índice no es una acción. El error se tragaba en silencio, así
+// que parecían el mismo hipo pasajero que un ticker throttleado. De ahí estos tests.
+describe("resolverSubyacente (índices vs acciones)", () => {
+  it("las raíces semanales apuntan a su índice base", () => {
+    expect(resolverSubyacente("SPXW")).toEqual({ symbol: "SPX", esIndice: true });
+    expect(resolverSubyacente("NDXP")).toEqual({ symbol: "NDX", esIndice: true });
+  });
+
+  it("los índices se marcan como índice", () => {
+    for (const s of ["SPX", "NDX", "RUT", "VIX", "XSP"]) {
+      expect(resolverSubyacente(s).esIndice).toBe(true);
+    }
+  });
+
+  it("las acciones pasan intactas y NO se marcan como índice", () => {
+    // Ojo con SPY: es un ETF que sigue al SPX, pero cotiza como acción. Marcarlo como índice
+    // lo mandaría a la ruta equivocada y lo volvería a tirar del ledger.
+    for (const s of ["SPY", "QQQ", "AAPL", "NVDA", "GLD", "MU", "HOOD"]) {
+      expect(resolverSubyacente(s)).toEqual({ symbol: s, esIndice: false });
+    }
   });
 });
