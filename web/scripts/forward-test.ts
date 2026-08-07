@@ -39,19 +39,29 @@ const REDIS_KEY = process.env.FWD_REDIS_KEY || "forward:ledger";
 const SLIP = Number(process.env.FWD_SLIP ?? 0.05);         // 5% de slippage al abrir (conservador, dentro de lo validado)
 const COMM = Number(process.env.FWD_COMM ?? 0.03);         // comisión Robinhood ~$0.03/contrato
 const WIDTH_EM = 0.5;                                       // ancho del spread = 0.5σ
-// Celdas validadas: 5d = feedback rápido (semanal), 90d = la más fuerte del backtest.
-// Celdas: 90d es la ROBUSTA del backtest de 4 años (OOS +3,1/+6,2, aguanta 15% de slippage).
-// 60d también pasó OOS (+2,5%) y cierra un mes ANTES → veredicto más rápido.
-// 5d se mantiene como CONTROL: el backtest dice que falla y en vivo va -14% — sirve para
-// confirmar que el sistema distingue lo bueno de lo malo, no solo para operarlo.
-// GESTIÓN: qué plazos se gestionan y con qué regla. El backtest (backtest-mgmt-spread.ts)
-// mostró que a 5 días cortar AYUDA (+0,9% → +2,2% con TG 25% + stop 1×), pero a 60/90 días
-// ESTORBA — por eso solo el 5d. Se asigna AL ABRIR: lo ya abierto queda como control.
-const MGMT_CELLS = new Set((process.env.FWD_MGMT_CELLS || "5").split(",").map(Number).filter(Boolean));
+// CELDAS — reponderadas el 2026-08-07 tras el backtest 2021-2026 (n=5.094, 3,3× la muestra
+// anterior). La conclusión se INVIRTIÓ respecto a la corrida de 2 años:
+//
+//   5d @1σ   +1,9%  OOS +1,4 / +2,4  ✅        90d @1σ   -3,8%  OOS -0,9 / -6,7  ✗
+//   7d @1σ   +1,3%  OOS +0,7 / +2,0  ✅        60d @1σ   -1,8%  OOS +1,0 / -4,5  ✗
+//   5d @1.5σ +0,4%  ✅ · 7d @1.5σ +0,8% ✅     180d/365d ✗
+//
+// Las 4 celdas robustas de 16 están TODAS en plazo corto — antes concluí lo contrario porque
+// la muestra de 2 años no daba para distinguirlo. El vivo coincide: 5d Top⅓ EVA va +7,3%
+// (n=11) mientras el Bottom⅓ va -16,4%.
+//
+// 90d se MANTIENE como control, no por fe: tiene 67 posiciones abiertas que ya están pagadas
+// en tiempo, y sin un plazo largo corriendo no hay con qué contrastar si el hallazgo vuelve a
+// darse vuelta. Lo que se quita es 60d, que no aporta nada que no diga el 90d.
+//
+// GESTIÓN: el backtest (backtest-mgmt-spread.ts) mostró que a 5 días cortar AYUDA (TG 25% +
+// stop 1×) y a 60/90 ESTORBA. Se asigna AL ABRIR: lo ya abierto queda como control.
+// PENDIENTE: rehacer ese backtest de gestión con la muestra nueva — se corrió con los 2 años.
+const MGMT_CELLS = new Set((process.env.FWD_MGMT_CELLS || "5,7").split(",").map(Number).filter(Boolean));
 const MGMT_TP = Number(process.env.FWD_MGMT_TP ?? 0.25); // cerrar al ganar 25% del crédito
 const MGMT_SL = Number(process.env.FWD_MGMT_SL ?? 1);    // cortar al perder 1× el crédito
 
-const CELLS: { dte: number; sigma: number }[] = (process.env.FWD_CELLS || "5@1,60@1,90@1")
+const CELLS: { dte: number; sigma: number }[] = (process.env.FWD_CELLS || "5@1,7@1,5@1.5,7@1.5,90@1")
   .split(",").map((s) => { const [d, g] = s.split("@"); return { dte: Number(d), sigma: Number(g) }; });
 const YR = 365 * 24 * 3600 * 1000;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
