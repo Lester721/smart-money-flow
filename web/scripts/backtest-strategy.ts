@@ -280,8 +280,13 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
         let añosBarras = 0, añosBarrasCache = 0, añosBarrasVacios = 0;
         for (const [ys, ye] of yearWindows(ventanaIni, ventanaFin)) {
           let año: DBar[] | null = null;
+          // ACIERTO DE CACHÉ = "el archivo existe", NO "el archivo trae filas". Un año vacío es
+          // una respuesta guardada (antes de 2016 la suscripción de opciones no llega), así que
+          // `año.length` como condición lo vuelve a bajar en CADA reanudación — justo lo que
+          // rompe el propósito de la caché. Es el mismo error que ya estaba en el retry de
+          // abajo: confundir "vacío" con "no lo tengo".
           try { año = JSON.parse(readFileSync(barsYearPath(ys, ye), "utf8")); } catch { año = null; }
-          if (año && año.length) { añosBarrasCache++; }
+          if (año) { añosBarrasCache++; }
           else {
             // OJO con la condición de salida: un año vacío es un RESULTADO válido (antes de 2016
             // la suscripción de opciones no llega), no un fallo. Cortar por `!año.length` haría
