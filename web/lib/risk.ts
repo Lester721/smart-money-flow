@@ -41,6 +41,22 @@ export const THETA_BUDGET_PCT = 5;
 /** Días mínimos al vencimiento para que valga la pena mirarlo. */
 export const MIN_DTE = 7;
 
+/**
+ * Cercanía máxima del strike al precio del subyacente, |strike − spot| / spot.
+ * 0,25 = dentro del ±25% del precio actual. Recorta las dos puntas: lo muy FUERA
+ * del dinero (billete de lotería: barato y casi siempre vence sin valer nada) y lo
+ * muy DENTRO (cuesta casi como la acción, así que pierdes el apalancamiento que es
+ * la razón de usar opciones).
+ *
+ * Tomado del commit 53d5a20 de Victor. De ese commit adoptamos SOLO esto y el tope
+ * del slider: los demás cambios (piso de premium $500k→$100k, umbral de inusualidad
+ * 7→5, MIN_DTE 7→2) aflojan la detección hacia flujo más pequeño, y el búfer de
+ * ideas es RODANTE de 5000 — el flujo pequeño no diluye al institucional, lo
+ * EXPULSA. Este filtro es el único de los seis que mejora la señal en vez de
+ * ensancharla.
+ */
+export const MONEYNESS_CAP = 0.25;
+
 /** Un contrato son 100 acciones. */
 const MULTIPLIER = 100;
 
@@ -126,6 +142,18 @@ export function isTradeableIdea(row: FlowRow): boolean {
     passesQualityFilter(row).ok &&
     unusualTradeScore(row).total >= UNUSUAL_TRADE_THRESHOLD
   );
+}
+
+/**
+ * ¿El strike está cerca del precio actual? Filtro de "contratos más cercanos".
+ * Ante datos faltantes (sin strike o sin precio del subyacente) NO filtra: la
+ * cercanía es una preferencia, no una salvaguarda, así que no tira filas por
+ * falta de datos.
+ */
+export function withinMoneyness(row: FlowRow, cap = MONEYNESS_CAP): boolean {
+  const spot = safe(row.assetPrice);
+  if (spot === 0 || row.strike == null) return true;
+  return Math.abs(row.strike - spot) / spot <= cap;
 }
 
 function blockedSizing(reason: BlockReason, detail: string): Sizing {

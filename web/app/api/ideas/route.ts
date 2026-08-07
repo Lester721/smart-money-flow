@@ -9,7 +9,7 @@
 
 import { classifyFlow, type FlowRow } from "@/lib/flow";
 import { loadMarketFlow, IdeasStoreError } from "@/lib/ideasStore";
-import { isTradeableIdea, passesQualityFilter } from "@/lib/risk";
+import { isTradeableIdea, passesQualityFilter, withinMoneyness, MONEYNESS_CAP } from "@/lib/risk";
 import { loadTrades, saveTrades } from "@/lib/store";
 import { fetchDailyBars } from "@/lib/massive";
 import { validationScore, type FlowLite } from "@/lib/validation";
@@ -70,15 +70,18 @@ export async function GET() {
         const { rows } = classifyFlow(trades, now);
 
         // Por qué se cae cada contrato — hace visible el trabajo de la capa 1.
-        const rejected = { theta_alto: 0, vencido: 0, sin_theta: 0, no_inusual: 0 };
+        const rejected = { theta_alto: 0, vencido: 0, sin_theta: 0, no_inusual: 0, lejano: 0 };
         for (const r of dedupeByContract(rows)) {
           const q = passesQualityFilter(r);
           if (!q.ok) rejected[q.reason as keyof typeof rejected]++;
           else if (!isTradeableIdea(r)) rejected.no_inusual++;
+          else if (!withinMoneyness(r)) rejected.lejano++;
         }
 
         // Capa 1: solo lo que se puede operar de verdad (theta sano, no vencido, inusual).
-        const tradeable = dedupeByContract(rows.filter(isTradeableIdea))
+        const tradeable = dedupeByContract(
+          rows.filter((r) => isTradeableIdea(r) && withinMoneyness(r)),
+        )
           .sort((a, b) => b.premium - a.premium)
           .slice(0, MAX_IDEAS);
 
@@ -164,6 +167,7 @@ export async function GET() {
             savedTickers,
             rejected,
             minPremium: MIN_PREMIUM,
+            moneynessCap: MONEYNESS_CAP,
             period: PERIOD,
             generatedAt: now.toISOString(),
           },
