@@ -8,7 +8,11 @@
 //
 // Env:  THETADATA_API_KEY   (obligatorio)
 //       THETA_JAR           ruta al jar (default ./ThetaTerminalv3.jar; se descarga si falta)
-//       THETA_TRUSTSTORE    (opcional, solo Windows/Norton) keystore con el cert de la MITM
+//       THETA_TRUSTSTORE    (opcional, solo Windows/Norton) keystore con el cert de la MITM.
+//                           Se arma copiando el cacerts del JDK e importándole el root del
+//                           antivirus (ver docs/Theta-Terminal-Windows.md). Sin él, en Windows
+//                           se cae de vuelta al almacén de Windows, que arranca pero deja el
+//                           refresco de sesión fallando cada segundo.
 //       THETA_BOOT_TIMEOUT  segundos de espera a que arranque (default 180)
 
 import { spawn } from "node:child_process";
@@ -69,15 +73,29 @@ process.on("SIGTERM", () => { shutdown(); process.exit(143); });
 (async () => {
   await ensureJar();
 
-  // Java: el truststore solo hace falta donde un antivirus inspecciona TLS (Windows/Norton).
-  // preferIPv4Stack evita el cuelgue por IPv6 al contactar el servidor de auth.
+  // Java: preferIPv4Stack evita el cuelgue por IPv6 al contactar el servidor de auth.
   const opts = ["-Djava.net.preferIPv4Stack=true"];
   if (process.env.THETA_TRUSTSTORE) {
+    // Truststore explícito (si alguien arma uno a mano).
     opts.push(`-Djavax.net.ssl.trustStore=${process.env.THETA_TRUSTSTORE}`, "-Djavax.net.ssl.trustStorePassword=changeit");
+  } else if (process.platform === "win32") {
+    // Windows: un antivirus que inspecciona TLS (Norton) mete su propio certificado, que Windows
+    // SÍ confía pero el cacerts de Java NO → el bootstrap del Terminal muere con "certificate_unknown"
+    // y no llega a bajar el jar real. Apuntando Java al almacén de certificados de Windows queda
+    // resuelto sin tener que extraer e importar el cert a mano. En Linux/Railway no aplica.
+    opts.push("-Djavax.net.ssl.trustStoreType=Windows-ROOT");
   }
 
+  // Van por JAVA_TOOL_OPTIONS y NO como argumentos: el jar que lanzamos es solo un *bootstrap*
+  // que descarga el Terminal real y lo arranca en OTRO JVM. Ese hijo no hereda los -D de la línea
+  // de comandos, pero sí las variables de entorno — que es donde el problema de TLS se manifiesta.
+  const jto = [process.env.JAVA_TOOL_OPTIONS, ...opts].filter(Boolean).join(" ");
+
   log("arrancando el Theta Terminal…");
-  term = spawn("java", [...opts, "-jar", JAR, "--api-key", KEY], { stdio: ["ignore", "pipe", "pipe"] });
+  term = spawn("java", ["-jar", JAR, "--api-key", KEY], {
+    stdio: ["ignore", "pipe", "pipe"],
+    env: { ...process.env, JAVA_TOOL_OPTIONS: jto },
+  });
   term.stdout.on("data", (d) => process.stdout.write(`[theta] ${d}`));
   term.stderr.on("data", (d) => process.stderr.write(`[theta] ${d}`));
   term.on("exit", (c) => log(`Terminal terminó (código ${c})`));

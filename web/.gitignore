@@ -19,6 +19,15 @@ scripts/cache*/
 # Key de ThetaData (la usa el Terminal, nunca versionar)
 .env.thetadata
 
-# Jar del Theta Terminal (se descarga solo, 40MB)
+# Jar del Theta Terminal (se descarga solo, 40MB). El de arriba es solo un *bootstrap*:
+# al arrancar baja el Terminal real y lo deja en lib/ — ese tampoco se versiona.
 ThetaTerminalv3.jar
+lib/*.jar
 config.toml
+
+# Truststore local con el certificado del antivirus (solo sirve en ESTA máquina)
+theta-truststore.jks
+norton-root.crt
+
+# Bitácoras de corridas largas
+scripts/*.log
