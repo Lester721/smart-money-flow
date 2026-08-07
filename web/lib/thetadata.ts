@@ -217,13 +217,49 @@ export function resolverSubyacente(symbol: string): { symbol: string; esIndice: 
   return { symbol: base, esIndice: INDICES.has(base) };
 }
 
+// ── Símbolos que CAMBIARON de nombre ────────────────────────────────────────────────────────
+// Una empresa que se renombra no arrastra su historia al símbolo nuevo: pedir META en 2021
+// devuelve "No data found", porque entonces se llamaba FB. Y el fallo es silencioso — el año
+// sale vacío y el backtest sigue como si nada, con seis años menos de muestra.
+// Detectado el 2026-08-07: META perdió su 2021 entero en una corrida y solo se vio porque el
+// log decía "5 años" donde debía decir 6.
+// `desde` = primer día que el símbolo NUEVO tiene datos.
+const RENOMBRADOS: Record<string, { antes: string; desde: string }> = {
+  META: { antes: "FB", desde: "20220609" }, // Facebook → Meta Platforms
+};
+
+/**
+ * Parte [start, end] en tramos con el símbolo que REALMENTE se usaba en cada uno.
+ * Puro: sin esto no hay forma de testear el corte sin llamar a la red.
+ */
+export function segmentosPorSimbolo(symbol: string, startYmd: string, endYmd: string): { symbol: string; start: string; end: string }[] {
+  const r = RENOMBRADOS[symbol];
+  if (!r || endYmd < r.desde) {
+    // Todo el rango es anterior al cambio → todo con el nombre viejo.
+    if (r && endYmd < r.desde) return [{ symbol: r.antes, start: startYmd, end: endYmd }];
+    return [{ symbol, start: startYmd, end: endYmd }];
+  }
+  if (startYmd >= r.desde) return [{ symbol, start: startYmd, end: endYmd }];
+  // El rango cruza el cambio de nombre → dos tramos.
+  // Ojo: la víspera se calcula con fechas de verdad, NO restando 1 al número. `20220101 - 1`
+  // da `20220100`, que no es un día y rompe el troceado mensual aguas abajo.
+  const d = new Date(Date.parse(`${r.desde.slice(0, 4)}-${r.desde.slice(4, 6)}-${r.desde.slice(6, 8)}T00:00:00Z`) - 86_400_000);
+  const víspera = d.toISOString().slice(0, 10).replace(/-/g, "");
+  return [
+    { symbol: r.antes, start: startYmd, end: víspera },
+    { symbol, start: r.desde, end: endYmd },
+  ];
+}
+
 /** Map "YYYYMMDD" → cierre diario del subyacente, sobre [startYmd, endYmd]. Troceado a ≤1 mes. */
 export async function fetchDailyUnderlying(symbolRaw: string, startYmd: string, endYmd: string): Promise<Map<string, number>> {
   const out = new Map<string, number>();
   const { symbol, esIndice } = resolverSubyacente(symbolRaw);
   const ruta = esIndice ? "index" : "stock";
-  for (const [cs, ce] of monthChunks(startYmd, endYmd)) {
-    const csv = await getCsv(`/v3/${ruta}/history/eod?symbol=${symbol}&start_date=${cs}&end_date=${ce}`);
+  // Un tramo por cada nombre que tuvo el símbolo en el rango (META era FB antes de 2022-06-09).
+  for (const seg of segmentosPorSimbolo(symbol, startYmd, endYmd))
+  for (const [cs, ce] of monthChunks(seg.start, seg.end)) {
+    const csv = await getCsv(`/v3/${ruta}/history/eod?symbol=${seg.symbol}&start_date=${cs}&end_date=${ce}`);
     if (!csv) continue;
     const iC = idx(csv.header, "close");
     const iT = idx(csv.header, "last_trade") >= 0 ? idx(csv.header, "last_trade") : idx(csv.header, "created");
@@ -241,8 +277,9 @@ export async function fetchDailyUnderlying(symbolRaw: string, startYmd: string, 
 interface VolInfo { vol: number; close: number }
 async function fetchContractVolumes(symbol: string, startYmd: string, endYmd: string): Promise<Map<string, VolInfo>> {
   const m = new Map<string, VolInfo>();
-  for (const [cs, ce] of monthChunks(startYmd, endYmd)) {
-    const csv = await getCsv(`/v3/option/history/eod?symbol=${symbol}&expiration=*&start_date=${cs}&end_date=${ce}`);
+  for (const seg of segmentosPorSimbolo(symbol, startYmd, endYmd))
+  for (const [cs, ce] of monthChunks(seg.start, seg.end)) {
+    const csv = await getCsv(`/v3/option/history/eod?symbol=${seg.symbol}&expiration=*&start_date=${cs}&end_date=${ce}`);
     if (!csv) continue;
     const iE = idx(csv.header, "expiration"), iK = idx(csv.header, "strike"), iR = idx(csv.header, "right"),
       iV = idx(csv.header, "volume"), iC = idx(csv.header, "close");
@@ -293,7 +330,10 @@ export async function fetchFlowRange(
     const isCall = rightWord === "call";
     for (const [cs, ce] of chunks) {
       if (parseYmd(cs) > expMs) break;
-      const csv = await getCsv(`/v3/option/history/trade_quote?symbol=${symbol}&expiration=${expYmd}&strike=${c.strike.toFixed(3)}&right=${rightWord}&start_date=${cs}&end_date=${ce}`);
+      // El símbolo que se pide depende del TROZO, no del ticker de hoy: un trozo de 2021 de
+      // META hay que pedirlo como FB. Ver segmentosPorSimbolo.
+      const sym = segmentosPorSimbolo(symbol, cs, ce)[0].symbol;
+      const csv = await getCsv(`/v3/option/history/trade_quote?symbol=${sym}&expiration=${expYmd}&strike=${c.strike.toFixed(3)}&right=${rightWord}&start_date=${cs}&end_date=${ce}`);
       if (!csv) continue;
       const h = csv.header;
       const iTts = idx(h, "trade_timestamp"), iCond = idx(h, "condition"), iSize = idx(h, "size"),

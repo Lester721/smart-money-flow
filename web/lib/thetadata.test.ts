@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { occFor, monthChunks, resolverSubyacente } from "./thetadata";
+import { occFor, monthChunks, resolverSubyacente, segmentosPorSimbolo } from "./thetadata";
 import { parseOcc } from "./occ";
 
 // El cliente de ThetaData construye los símbolos OCC a mano. Si el formato se desvía
@@ -104,5 +104,40 @@ describe("resolverSubyacente (índices vs acciones)", () => {
     for (const s of ["SPY", "QQQ", "AAPL", "NVDA", "GLD", "MU", "HOOD"]) {
       expect(resolverSubyacente(s)).toEqual({ symbol: s, esIndice: false });
     }
+  });
+});
+
+// META perdió su 2021 ENTERO en una corrida (2026-08-07) y solo se notó porque el log decía
+// "5 años" donde debía decir 6: Facebook se renombró a Meta el 2022-06-09, y pedir META en
+// 2021 devuelve "No data found". Para un backtest de 10 años serían SEIS años perdidos.
+describe("segmentosPorSimbolo (empresas que cambiaron de nombre)", () => {
+  it("un rango entero antes del cambio va con el nombre viejo", () => {
+    expect(segmentosPorSimbolo("META", "20210101", "20211231"))
+      .toEqual([{ symbol: "FB", start: "20210101", end: "20211231" }]);
+  });
+
+  it("un rango entero después del cambio va con el nombre nuevo", () => {
+    expect(segmentosPorSimbolo("META", "20230101", "20231231"))
+      .toEqual([{ symbol: "META", start: "20230101", end: "20231231" }]);
+  });
+
+  it("un rango que CRUZA el cambio se parte en dos, sin huecos ni solapes", () => {
+    const s = segmentosPorSimbolo("META", "20220101", "20221231");
+    expect(s).toEqual([
+      { symbol: "FB", start: "20220101", end: "20220608" },
+      { symbol: "META", start: "20220609", end: "20221231" },
+    ]);
+  });
+
+  it("la víspera se calcula con fechas reales, no restando 1 al número", () => {
+    // Restar 1 a 20220609 da 20220608 y parece correcto, pero con un cambio a día 1 daría
+    // 20220100 — que no es un día y rompe el troceado mensual aguas abajo.
+    const [viejo] = segmentosPorSimbolo("META", "20220101", "20221231");
+    expect(viejo.end).toMatch(/^\d{4}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/);
+  });
+
+  it("un ticker que nunca cambió de nombre sale de una pieza", () => {
+    expect(segmentosPorSimbolo("AAPL", "20160101", "20261231"))
+      .toEqual([{ symbol: "AAPL", start: "20160101", end: "20261231" }]);
   });
 });
