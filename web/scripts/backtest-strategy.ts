@@ -203,6 +203,11 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
   console.log(`Estrategia ETAPA 1 (credit spread) · ${TICKERS.length} tickers · ${DAYS}d`);
   const all: { sig: Signal; bars: DBar[] }[] = [];
   let spyBars: DBar[] = []; // para el diagnóstico de régimen (clima de mercado)
+  // PROCEDENCIA de los datos — se estampa en el reporte. Un día de flujo sin barra de precio
+  // se descarta EN SILENCIO, así que un run "de 10 años" puede salir con la mitad de la muestra
+  // y un n grande que parece sano. Sin esto, el período REAL del backtest no existe en ningún lado.
+  const cobertura: { t: string; barras: number; ini: string; fin: string; diasFlujo: number; señales: number }[] = [];
+  const omitidos: string[] = [];
   // Caché acumulativa por ticker: cada corrida guarda la versión con MÁS flujo vista hasta
   // ahora y reusa el caché cuando la descarga en vivo falla o viene más pobre. Así, ante el
   // throttling de Massive, corridas repetidas CONVERGEN al mejor dataset sin re-bajar lo bueno.
@@ -307,11 +312,18 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     }
     }
 
-    if (rows == null || !bars.length) { console.log(`[${t}] sin datos ni caché — omitido`); await sleep(INTER); continue; }
+    if (rows == null || !bars.length) { console.log(`[${t}] sin datos ni caché — omitido`); omitidos.push(t); await sleep(INTER); continue; }
     const sigs = signals(rows, bars);
     if (t === "SPY") spyBars = bars;
     for (const sig of sigs) all.push({ sig, bars });
-    console.log(`[${t}] señales: ${sigs.length}`);
+
+    const diasFlujo = new Set(rows.map((r) => r.timestamp.slice(0, 10))).size;
+    cobertura.push({ t, barras: bars.length, ini: bars[0].time, fin: bars[bars.length - 1].time, diasFlujo, señales: sigs.length });
+    const pedidoIni = `${BT_START.slice(0, 4)}-${BT_START.slice(4, 6)}-${BT_START.slice(6, 8)}`;
+    if (bars[0].time > pedidoIni) {
+      console.warn(`[${t}] ⚠ BARRAS INCOMPLETAS: pediste desde ${pedidoIni}, empiezan el ${bars[0].time} — las señales anteriores se DESCARTAN en silencio.`);
+    }
+    console.log(`[${t}] señales: ${sigs.length} (de ${diasFlujo} días con flujo)`);
     await sleep(INTER);
   }
 
@@ -320,8 +332,44 @@ const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% 
     { name: "Debit spread direccional (a favor)", note: "retorno sobre riesgo = débito pagado", fn: debitSpreadPnl },
     { name: "Naked / venta SIN red", note: "retorno sobre margen Reg-T aprox — OJO: cola catastrófica no capada", fn: nakedPnl },
   ];
+  // ── PROCEDENCIA ────────────────────────────────────────────────────────────────────────
+  // Va PRIMERO y sin adornos: el período REAL de un backtest es el de sus señales, no el que
+  // se pidió por variable de entorno. Sin este bloque hay que ir a hurgar en la caché para
+  // saber qué se probó de verdad — y nadie lo hace.
+  const ymd = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+  const pedido = (y: string) => `${y.slice(0, 4)}-${y.slice(4, 6)}-${y.slice(6, 8)}`;
+  const sigDates = all.map(({ sig }) => sig.entryMs).sort((a, b) => a - b);
+  const realIni = sigDates.length ? ymd(sigDates[0]) : "—";
+  const realFin = sigDates.length ? ymd(sigDates[sigDates.length - 1]) : "—";
+  const spanPedido = Date.parse(pedido(BT_END)) - Date.parse(pedido(BT_START));
+  const spanReal = sigDates.length ? sigDates[sigDates.length - 1] - sigDates[0] : 0;
+  const pctCobertura = spanPedido > 0 ? Math.round((spanReal / spanPedido) * 100) : 0;
+  const truncado = pctCobertura < 90;
+  if (truncado) {
+    console.warn(`\n⚠⚠ PERÍODO TRUNCADO: pediste ${pedido(BT_START)}..${pedido(BT_END)} pero las señales van de ${realIni} a ${realFin} (${pctCobertura}% del rango).`);
+    console.warn("   Causa típica: la suscripción de acciones no cubre tan atrás y las señales sin barra se descartan.\n");
+  }
+
   const lines = [
     "# Backtest de estrategia (ETAPAS 1+2) — 3 vehículos",
+    "",
+    "## Procedencia — QUÉ SE PROBÓ DE VERDAD",
+    "",
+    `| | |`,
+    `|---|---|`,
+    `| Período **pedido** | ${pedido(BT_START)} → ${pedido(BT_END)} |`,
+    `| Período **real de las señales** | **${realIni} → ${realFin}** |`,
+    `| Cobertura | **${pctCobertura}%** del rango pedido ${truncado ? "⚠️ **TRUNCADO**" : "✅"} |`,
+    `| Proveedor | ${PROVIDER} |`,
+    `| Tickers | ${cobertura.length} con datos${omitidos.length ? ` · **omitidos: ${omitidos.join(", ")}**` : ""} |`,
+    `| Señales | ${all.length} |`,
+    "",
+    ...(truncado
+      ? [`> ⚠️ **El período real es más corto que el pedido.** Los días de flujo sin barra de precio se descartan en silencio, así que el \`n\` de abajo es grande pero NO cubre el rango que se pidió. **No describas este run por su período pedido.** Causa habitual: la suscripción de acciones de ThetaData (VALUE ≈ 5,5 años) no llega más atrás — ver \`docs/Theta-Terminal-Windows.md\`.`, ""]
+      : []),
+    "| Ticker | Barras | Desde | Hasta | Días c/ flujo | Señales |",
+    "|---|---|---|---|---|---|",
+    ...cobertura.map((c) => `| ${c.t} | ${c.barras} | ${c.ini}${c.ini > pedido(BT_START) ? " ⚠️" : ""} | ${c.fin} | ${c.diasFlujo} | ${c.señales} |`),
     "",
     `**Señales:** ${all.length} (dirección neta del flujo por día, a favor). Fuera del movimiento esperado (short a 1σ/1.5σ), 3/5/7/30/60/90d, hold a vencimiento. BS con IV≈vol realizada 20d.`,
     "",
