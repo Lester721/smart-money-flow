@@ -120,6 +120,61 @@ Notional Value = Open Interest × 100 × Strike        # zonas de relevancia si 
 ### Noticias
 Monitorear los feeds definidos en [RSS Feed](RSS%20Feed.md) (CNBC + Investing.com) y adjuntar noticias relevantes al panel de resultados.
 
+## Protocolo de backtesting — OBLIGATORIO
+
+**Origen (2026-08-06):** se reportó un backtest como "4 años, 2019-2022, incluye el crash del
+COVID". Las barras de precio empezaban el **2021-01-14**: la suscripción *Stocks VALUE* de
+ThetaData no llega más atrás, y el script **descarta en silencio** las señales sin barra. El run
+real fue ~2 años sin COVID. El error sobrevivió una semana porque **ningún reporte decía su
+período**. Lester invierte tiempo y dinero que no le sobra: un resultado sin auditar no se
+reporta.
+
+### Regla madre
+**El período de un backtest es el de sus señales, NUNCA el que se pidió por variable de
+entorno.** Está prohibido describir una corrida por su `BT_START`/`BT_END`.
+
+### Auditoría después de CADA backtest — antes de decirle nada a Lester
+1. **Procedencia.** Leer el bloque que `backtest-strategy.ts` estampa al inicio del reporte.
+   Si dice **TRUNCADO**, el período pedido no se probó: decirlo primero, antes de cualquier
+   número. Revisar la tabla por ticker — un solo ticker que arranque tarde (le pasó a META,
+   2021-06-30) sesga su aporte.
+2. **Muestra por celda.** Una celda con `n < 30` no es evidencia, es anécdota. Marcarla.
+3. **Datos descartados.** Contrastar "días con flujo" contra "señales" en la tabla de
+   procedencia. Una brecha grande = se está tirando muestra en silencio; averiguar por qué.
+4. **Out-of-sample.** Ninguna conclusión sin las dos mitades. Si se voltea entre mitades, es
+   régimen o cherry-picking, no edge.
+5. **Costos.** Reportar a qué nivel de slippage muere la celda. Un edge que no aguanta el 10%
+   no es operable.
+6. **Confrontar con el forward-test.** Si el backtest y el papel en vivo se contradicen, gana
+   el vivo y se dice.
+
+### Al reportar
+- Incluir **siempre** el período real y el `n`. Sin excepción, aunque el mensaje sea corto.
+- Nada de "aguanta un crash" si el período no contiene un crash. Nada de "N años" sin haberlo
+  verificado en la tabla de procedencia.
+- Al **commitear** un resultado de backtest, el mensaje lleva el período real y el `n`, y deja
+  constancia de que se auditó.
+
+### Auditoría después de CADA corrida de forward-test
+El forward-test es MÁS delicado que el backtest: corre solo en Railway, nadie lo mira, y falla
+en silencio igual de bien.
+1. **¿Corrió y terminó?** Estado terminal en Railway, no "Running". Un cron colgado no registra
+   la corrida siguiente — Railway se la salta.
+2. **Posiciones omitidas.** Los scripts imprimen `sin barras tras N intentos — omitido`. Cada
+   línea es una posición que **nunca entró al ledger**. Contarlas y decirlas: si se omiten
+   siempre los mismos tickers, el forward-test está midiendo un universo distinto del que crees.
+3. **Altas vs. esperadas.** Contrastar `nuevas:` del reporte contra las candidatas del día.
+   `nuevas: 0` puede ser deduplicación sana o el script muriendo antes de registrar.
+4. **Cierres, no posiciones.** El win-rate se reporta **siempre** con el número de CIERRES, no
+   con el tamaño del ledger. 70 posiciones abiertas y 2 cerradas es `n=2`.
+5. **Cuándo hay veredicto.** Decir la fecha del primer vencimiento relevante. Sin cierres
+   suficientes no hay conclusión, solo ruido — el 5d ya enseñó eso (win 86% con 7 cierres →
+   65% con 23).
+6. **Contra el backtest.** Si divergen, mandar el vivo.
+
+### Al añadir un backtest o forward-test nuevo
+Estampa el mismo bloque de procedencia. Un reporte sin él no se usa para decidir nada.
+
 ## Convenciones para trabajar aquí
 
 - **Idioma:** la documentación y los prompts del agente están en **español**. Mantener ese idioma salvo indicación contraria.
