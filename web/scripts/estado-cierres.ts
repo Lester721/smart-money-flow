@@ -14,6 +14,7 @@
 
 import { readFileSync } from "node:fs";
 import Redis from "ioredis";
+import { avisar } from "../lib/telegram";
 
 const REDIS_KEY = process.env.FWD_REDIS_KEY || "forward:ledger";
 const META = 100;   // cierres de ALTA CONVICCIÓN que pedimos para juzgar
@@ -79,6 +80,17 @@ async function cargar(): Promise<{ ledger: Trade[]; fuente: string }> {
   if (faltan <= 0) {
     console.log(`\n   ✅ META ALCANZADA: ${alta.length} cierres de alta convicción (pedíamos ${META}).`);
     console.log(`      Toca volver a mirar la tabla por celda y decidir con esta muestra.`);
+    // Este es EL aviso que Lester pidió. Solo se manda al cruzar la meta, nunca antes: un aviso
+    // semanal de "aún no" acaba silenciado, y entonces el que importa tampoco se lee.
+    const mA = media(ret(alta)), mT = media(ret(cerradas));
+    const r = await avisar(
+      `<b>Forward-test: ya hay muestra</b> 🛡️\n\n` +
+        `<b>${alta.length}</b> cierres de alta convicción (de ${cerradas.length} totales).\n\n` +
+        `alta convicción: <b>${mA >= 0 ? "+" : ""}${mA.toFixed(2)}%</b>\n` +
+        `sin filtrar: ${mT >= 0 ? "+" : ""}${mT.toFixed(2)}%\n\n` +
+        `<i>Toca revisarlo en la computadora — con auditoría antes de concluir.</i>`,
+    );
+    console.log(`      aviso a Telegram: ${r.enviado ? "enviado" : "NO enviado — " + r.motivo}`);
   } else {
     const diasHabiles = ritmo > 0 ? Math.ceil(faltan / (ritmo / 3)) : NaN;
     console.log(`\n   ⏳ Faltan ${faltan} cierres de alta convicción (≈ ${faltan * 3} cierres totales).`);
