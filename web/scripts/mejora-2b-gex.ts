@@ -26,6 +26,7 @@ import { bsPrice, bsGamma } from "../lib/blackScholes";
 const TICKERS = (process.env.BT_TICKERS || "SPY,AAPL,MSFT,NVDA,META,TSLA,AMD,QQQ,HOOD").split(",");
 const DTE = 5, SIGMA = 1;
 const RIESGO = Number(process.env.G_RIESGO) || 1200;
+const REJILLA_FIJA = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
 const AÑOS = 10.5;
 const DIR = "scripts/cache-theta";
 const BT_START = "20160101", BT_END = "20260731";
@@ -104,7 +105,7 @@ function pnlConStrike(sig: Signal, bars: DBar[], dte: number, shortK: number, em
   return risk > 0 ? pnl / risk : pnl / width;
 }
 
-interface Fila { ms: number; base: number; muro: number | null; muroCons: number | null; distMuro: number | null; fija08: number | null }
+interface Fila { ms: number; base: number; muro: number | null; muroCons: number | null; distMuro: number | null; fija08: number | null; ivOk: boolean; fijas: Map<number, number> }
 
 (async () => {
   const filas: Fila[] = [];
@@ -136,7 +137,7 @@ interface Fila { ms: number; base: number; muro: number | null; muroCons: number
 
       const dia = ymd(sig.entryMs).replace(/-/g, "");
       const porStrike = oi.get(dia);
-      if (!porStrike) { sinOi++; filas.push({ ms: sig.entryMs, base, muro: null, muroCons: null, distMuro: null, fija08: null }); continue; }
+      if (!porStrike) { sinOi++; filas.push({ ms: sig.entryMs, base, muro: null, muroCons: null, distMuro: null, fija08: null, ivOk: sig.ivRatio < 1.1, fijas: new Map() }); continue; }
       conOi++;
 
       const T = DTE / 365;
@@ -154,6 +155,12 @@ interface Fila { ms: number; base: number; muro: number | null; muroCons: number
         muroCons: kCons == null ? null : pnlConStrike(sig, bars, DTE, kCons, em),
         distMuro: kMuro == null ? null : Math.abs(spot - kMuro) / em,
         fija08: pnlConStrike(sig, bars, DTE, kFija, em),
+        ivOk: sig.ivRatio < 1.1,   // el filtro de la mejora anterior
+        // El muro compite contra TODA la rejilla de distancias fijas, no contra una elegida a
+        // conveniencia. Si alguna fija le gana, el GEX no aporta: su único mérito sería estar
+        // eligiendo una distancia media más corta, y eso lo consigue cualquiera fijándola.
+        fijas: new Map(REJILLA_FIJA.map((d) => [d, pnlConStrike(sig, bars, DTE, bull ? spot - d * em : spot + d * em, em)])
+          .filter((e): e is [number, number] => e[1] != null)),
       });
     }
   }
@@ -183,6 +190,54 @@ interface Fila { ms: number; base: number; muro: number | null; muroCons: number
   comparar("Muro de gamma (0.5σ–2σ)", (f) => f.muro);
   comparar("Muro conservador (1σ–2σ)", (f) => f.muroCons);
   comparar("**CONTROL: 0.80σ fijo, sin mirar el OI**", (f) => f.fija08);
+
+  // ── LA COMBINACIÓN — medida, no sumada ──────────────────────────────────────────────────
+  // Sumar los efectos medidos por separado (+0,9 pp del filtro de IV, +1,35 pp del muro) daría
+  // un número inventado: los filtros actúan sobre las MISMAS operaciones y pueden solaparse.
+  // La única cifra defendible es correr la configuración completa y medirla.
+  console.log(`
+### La combinación completa (Top⅓ EVA + IV/rv<1,1 + muro de gamma)
+`);
+  console.log("| Configuración | Ops/año | Media | $/AÑO | OOS vieja/nueva |");
+  console.log("|---|---|---|---|---|");
+  const conf = (nombre: string, sel: (f: Fila) => number | null) => {
+    const v = filas.map((f) => ({ ms: f.ms, p: sel(f) })).filter((x): x is { ms: number; p: number } => x.p != null);
+    if (v.length < 100) return;
+    const o = [...v].sort((a, b) => a.ms - b.ms);
+    const mid = Math.floor(o.length / 2);
+    const vieja = media(o.slice(0, mid).map((x) => x.p)) * 100;
+    const nueva = media(o.slice(mid).map((x) => x.p)) * 100;
+    const m = media(v.map((x) => x.p));
+    const opsAño = v.length / AÑOS;
+    console.log(`| ${nombre} | ${Math.round(opsAño)} | ${(m * 100 >= 0 ? "+" : "")}${(m * 100).toFixed(2)}% | **$${Math.round(opsAño * m * RIESGO).toLocaleString("en-US")}** | ${vieja.toFixed(2)} / ${nueva.toFixed(2)} ${vieja > 0 && nueva > 0 ? "✅" : "✗"} |`);
+  };
+  conf("1. Base: Top⅓ a 1σ", (f) => f.base);
+  conf("2. + filtro IV/rv<1,1", (f) => (f.ivOk ? f.base : null));
+  conf("3. + muro de gamma (sin filtro IV)", (f) => f.muro);
+  conf("**4. TODO: Top⅓ + IV + muro**", (f) => (f.ivOk ? f.muro : null));
+
+  // ── ¿El muro le gana a TODAS las distancias fijas? ──────────────────────────────────────
+  const conMuro = filas.filter((f) => f.muro != null && f.fijas.size);
+  const mediaMuro = media(conMuro.map((f) => f.muro!)) * 100;
+  const distMedia = media(conMuro.map((f) => f.distMuro!));
+  console.log(`
+### El muro contra TODAS las distancias fijas (mismas ${conMuro.length} señales)
+`);
+  console.log(`Distancia MEDIA del muro: ${distMedia.toFixed(2)}σ · su rendimiento: **${mediaMuro.toFixed(2)}%**
+`);
+  console.log("| Distancia fija | Media | ¿Le gana al muro? |");
+  console.log("|---|---|---|");
+  let algunaGana = false;
+  for (const d of REJILLA_FIJA) {
+    const v = media(conMuro.map((f) => f.fijas.get(d)!).filter((x) => x != null)) * 100;
+    const gana = v > mediaMuro;
+    if (gana) algunaGana = true;
+    console.log(`| ${d.toFixed(1)}σ | ${v >= 0 ? "+" : ""}${v.toFixed(2)}% | ${gana ? "**SÍ**" : "no"} |`);
+  }
+  console.log(`
+   → ${algunaGana
+    ? "El GEX NO aporta: hay distancias fijas que le ganan. Su mérito era elegir una distancia media más corta, y eso se consigue fijándola."
+    : "El GEX SÍ aporta: le gana a todas las distancias fijas, así que la elección caso por caso lleva información que una constante no tiene."}`);
 
   const dists = filas.map((f) => f.distMuro).filter((x): x is number => x != null).sort((a, b) => a - b);
   if (dists.length) {
