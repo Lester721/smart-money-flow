@@ -71,12 +71,23 @@ export async function GET() {
   const topEva = byEva.slice(closed.length - k).map((t) => t.retOnRisk).filter((x): x is number => x != null);
   const botEva = byEva.slice(0, k).map((t) => t.retOnRisk).filter((x): x is number => x != null);
 
-  // Por celda (plazo @ distancia).
+  // Por celda (plazo @ distancia) — con Y sin el filtro de convicción.
+  //
+  // El corte del Top⅓ se calcula UNA VEZ sobre todas las cerradas y se aplica igual a cada
+  // celda; NO se recalcula dentro de cada una. Es como se operaría de verdad: un solo umbral de
+  // convicción para todo. Calcularlo por celda daría siempre un "mejor tercio" aunque la celda
+  // entera fuera mala, que es justo el autoengaño que queremos evitar.
+  const corte = closed.length >= 3 ? byEva[closed.length - k].evaComp : null;
   const cellKeys = Array.from(new Set(ledger.map((t) => `${t.dte}@${t.sigma}`)));
   const cells = cellKeys.map((key) => {
     const [dte, sigma] = key.split("@").map(Number);
     const cc = closed.filter((t) => t.dte === dte && t.sigma === sigma);
-    return { key, dte, sigma, stat: stat(cc.map((t) => t.retOnRisk).filter((x): x is number => x != null)) };
+    const alta = corte == null ? [] : cc.filter((t) => t.evaComp >= corte);
+    return {
+      key, dte, sigma,
+      stat: stat(cc.map((t) => t.retOnRisk).filter((x): x is number => x != null)),
+      statTop: stat(alta.map((t) => t.retOnRisk).filter((x): x is number => x != null)),
+    };
   }).sort((a, b) => a.dte - b.dte || a.sigma - b.sigma);
 
   const trades = [...ledger]
@@ -94,6 +105,7 @@ export async function GET() {
     overall: stat(closedRet),
     filter: { top: stat(topEva), bottom: stat(botEva) },
     cells,
+    cutEva: corte,
     trades,
   });
 }

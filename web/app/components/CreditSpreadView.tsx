@@ -17,7 +17,8 @@ interface Data {
   counts: { total: number; open: number; closed: number };
   overall: Stat;
   filter: { top: Stat; bottom: Stat };
-  cells: { key: string; dte: number; sigma: number; stat: Stat }[];
+  cells: { key: string; dte: number; sigma: number; stat: Stat; statTop: Stat }[];
+  cutEva: number | null;
   trades: Trade[];
 }
 
@@ -242,15 +243,28 @@ export default function CreditSpreadView() {
             {/* Por celda */}
             {data.cells.some((c) => c.stat.n > 0) && (
               <div style={{ overflowX: "auto", marginBottom: 10 }}>
+                <div style={{ fontSize: 12.5, color: "#98A2B3", marginBottom: 6 }}>
+                  La columna que cuenta es la de <strong>ALTA CONVICCIÓN</strong>: es lo que se operaría de verdad.
+                  &laquo;Todas&raquo; incluye el tercio de baja convicción que el filtro descarta — está de referencia,
+                  para ver cuánto aporta filtrar{data.cutEva != null && <> (umbral actual: <strong>{Math.round(data.cutEva * 10) / 10}</strong>)</>}.
+                </div>
                 <table className="cs-table">
-                  <thead><tr><th>Celda (plazo @ distancia)</th><th>Cerradas</th><th>Win</th><th>Media</th></tr></thead>
+                  <thead>
+                    <tr>
+                      <th>Celda (plazo @ distancia)</th>
+                      <th>Cerradas</th><th>Win</th><th>Media</th>
+                      <th>Todas (n)</th><th>Todas (media)</th>
+                    </tr>
+                  </thead>
                   <tbody>
                     {data.cells.map((c) => (
                       <tr key={c.key}>
                         <td>{cellLabel(c.dte, c.sigma)}</td>
-                        <td>{c.stat.n || "—"}</td>
-                        <td>{c.stat.win == null ? "—" : `${c.stat.win}%`}</td>
-                        <td style={{ color: (c.stat.mean ?? 0) > 0 ? "#027A48" : (c.stat.mean ?? 0) < 0 ? "#B42318" : "#667085", fontWeight: 700 }}>{pct(c.stat.mean)}</td>
+                        <td>{c.statTop.n || "—"}</td>
+                        <td>{c.statTop.win == null ? "—" : `${c.statTop.win}%`}</td>
+                        <td style={{ color: (c.statTop.mean ?? 0) > 0 ? "#027A48" : (c.statTop.mean ?? 0) < 0 ? "#B42318" : "#667085", fontWeight: 700 }}>{pct(c.statTop.mean)}</td>
+                        <td style={{ color: "#98A2B3" }}>{c.stat.n || "—"}</td>
+                        <td style={{ color: "#98A2B3" }}>{pct(c.stat.mean)}</td>
                       </tr>
                     ))}
                   </tbody>
