@@ -120,6 +120,72 @@ Notional Value = Open Interest × 100 × Strike        # zonas de relevancia si 
 ### Noticias
 Monitorear los feeds definidos en [RSS Feed](RSS%20Feed.md) (CNBC + Investing.com) y adjuntar noticias relevantes al panel de resultados.
 
+## Cómo pedir datos a ThetaData — LEER ANTES DE ESCRIBIR UN DESCARGADOR
+
+Todo lo de aquí está **medido**, no supuesto. Es para no volver a descubrirlo cada vez.
+
+### 1. PARALELIZAR. Es lo que más cambia.
+El plan Standard permite **4 peticiones simultáneas** (el Terminal lo imprime al arrancar:
+`Max concurrent requests: 4`). Un bucle secuencial usa **una** y desperdicia tres.
+
+| | |
+|---|---|
+| 1 petición sola | 28,4 s · 8,7 MB · **308 KB/s** |
+| 3 en paralelo | ~37 s · 30,5 MB · **824 KB/s** |
+
+Medido sobre el mismo año: SPY 2016 pasó de **2,4 min a 0,6 min**. El cuello NO es el ancho de
+banda: es la latencia por petición. Usar el `pMap` de `scripts/bajar-oi-por-expiracion.ts`.
+
+**Cada tarea acumula en su PROPIO objeto y se funden al final.** Escribir todas sobre el mismo
+desde tareas concurrentes es una carrera silenciosa: el resultado sale plausible pero
+incompleto, que es justo lo que no se detecta mirando el reporte.
+
+### 2. Endpoints masivos, no por contrato
+`expiration=*` con rango de fechas trae toda la cadena de una vez. Iterar contrato por contrato
+multiplica las peticiones por cien. Los rangos van **troceados a ≤28 días** (ThetaData corta a
+un mes).
+
+### 3. Caché por (ticker, AÑO), y leerla del DIRECTORIO
+- Interrumpir cuesta el año en curso, no el ticker.
+- **Nunca reconstruir el nombre del archivo a partir del rango pedido**: si el rango no coincide
+  con el que generó la caché, el nombre cambia y la caché "desaparece" aunque esté entera. Se
+  lista el directorio y se filtra por prefijo.
+- Un año vacío **no se cachea** (salvo los que están fuera del alcance de la suscripción, que
+  siempre vendrán vacíos). Cachear el vacío congela el fallo.
+
+### 4. Las columnas CAMBIAN entre endpoints. Nunca adivinarlas.
+| Endpoint | Columna de fecha |
+|---|---|
+| `option/history/open_interest` | **`timestamp`** |
+| `option/history/eod`, `stock/history/eod` | `date` / `created` |
+
+Imprimir la cabecera real la primera vez. Si faltan columnas: **`throw`, no `continue`** — un
+`continue` convierte un error de parseo en horas de archivos vacíos sin un solo error.
+El CSV viene **entrecomillado**: `"CALL"`, no `CALL`. Hay que quitar las comillas al parsear.
+
+### 5. Símbolos renombrados: usar `segmentosPorSimbolo` de `lib/thetadata.ts`
+META era **FB** antes del 2022-06-09. Pedirla por su nombre de hoy devuelve VACÍO para los años
+anteriores. Ya pasó **dos veces** (el backtest y la descarga de OI) — **importar el helper, no
+reimplementarlo**, que es la única forma de que el arreglo valga en todo el proyecto.
+
+### 6. Límites de la suscripción (a 2026-08)
+| Dato | Desde |
+|---|---|
+| Opciones (Standard) | 2016-01-01 |
+| Acciones (Value) | 2021-01-01 |
+| Acciones, símbolos solo-CTA (SPY, GLD) | 2020-01-01 — **no lo arregla ningún plan** |
+| Índices (Free) | funciona para rangos recientes |
+
+Los **índices no son acciones**: SPX/NDX/RUT van por `/v3/index/...`, no por `/v3/stock/...`.
+SPY y QQQ **sí** son acciones (son ETF). Ver `resolverSubyacente`.
+
+### 7. Si falta el precio del subyacente
+Se puede derivar de las opciones por **paridad put-call** (`fetchDailyUnderlyingParidad`), sin
+suscripción de acciones. Error mediano medido: 0,13%–0,17%. **Pero es OPTIMISTA para backtests**
+(amortigua el extremo: el mayor movimiento diario de SPY pasa de 9,99% a 8,63%), así que
+**nunca mezclar fuentes de precio dentro de un mismo backtest** — fabricaría una tendencia
+temporal falsa.
+
 ## Prueba de humo antes de todo trabajo largo — OBLIGATORIO
 
 **Origen (2026-08-07/08):** tres veces en dos días se lanzó un proceso largo que no producía
