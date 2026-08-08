@@ -35,7 +35,7 @@ const MEJORAS: { n: number; name: string; does: string; status: "viva" | "parcia
   {
     n: 2, name: "Lado del dealer (GEX)", status: "parcial",
     does: "Ve hacia dónde los market makers están forzados a comprar/vender — los muros de gamma que frenan o aceleran el precio.",
-    here: "Viva en la vista Ticker (los muros se calculan y se ven). El forward-test elige strikes por σ, todavía NO por los muros. Lo que lo frena NO es el código —la prueba son 30 minutos— sino los DATOS: haría falta el open interest por strike y por fecha de los 10 años, y en caché solo hay una foto del OI al final de cada rango. Bajarlo son horas, como pasó con las barras de precio. Es el siguiente paso de verdad, pero no es gratis.",
+    here: "PROBADA A FONDO el 8 ago 2026: se bajó el open interest por strike Y por expiración de los 10 años (22,465 días, 192 MB) y se probó de cuatro formas. Resultado honesto: el MECANISMO existe y está confirmado —en SPY el precio se mueve 1.22 veces lo esperado con gamma negativa contra 0.92 con positiva, y aguanta los 4 sub-períodos— pero COBRARLO es otra cosa. Elegir el strike por el muro pierde contra distancias fijas. Filtrar por régimen aporta +$857/año en índices y −$694/año en acciones: neto, ruido. Vive en la vista Ticker, y en el forward-test se GRABA en cada operación sin decidir nada, para que en unos meses la juzguen los datos en vivo y no mi backtest.",
   },
   {
     n: 3, name: "Bucle de aprendizaje", status: "parcial",
@@ -110,7 +110,11 @@ export default function CreditSpreadView() {
             frecuencia a rendimiento por operación.
           </div>
         </div>
-        <div style={{ fontSize: 11.5, color: "#667085", marginTop: 8 }}>
+        {/* var(--muted), no #667085: sobre el fondo oscuro del tema ese gris da contraste 3,5 —
+            por debajo del mínimo legible. Y esto son las ADVERTENCIAS, lo que más hay que leer.
+            Ojo: dentro de las cajas de fondo claro (#F1F5F4, #FFF) el #667085 sí es correcto;
+            en este archivo conviven los dos casos. */}
+        <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 8 }}>
           Simulación sobre <strong>10 años</strong> de datos reales (2016-2026). Vencimiento por calendario, IV≈vol realizada, costos incluidos.
           El monto en $ es <strong>ilustrativo</strong> y depende del tamaño de posición. Es el <strong>promedio esperado</strong> de
           una distribución con cola gorda —ganas 11.5% muchas veces y pierdes ~65% pocas veces—, <strong>no una renta mensual</strong>:
@@ -122,7 +126,7 @@ export default function CreditSpreadView() {
       <div className="card">
         <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>1 · Las pruebas que hicimos (backtest)</div>
         <div className="card-sub" style={{ marginBottom: 10 }}>
-          Probamos la idea contra <strong>10 años</strong> de datos reales (2016-2026, con el COVID y el bear de 2022 dentro). Le pusimos 3 exámenes duros:
+          Probamos la idea contra <strong>10 años</strong> de datos reales (2016-2026, con el COVID y el bear de 2022 dentro). Le pusimos 4 exámenes duros:
         </div>
         <div style={{ fontSize: 12, color: "#B54708", background: "#FFFAEB", border: "1px solid #FEDF89", borderRadius: 8, padding: "8px 10px", marginBottom: 10 }}>
           <strong>⚠️ Historial de correcciones (7 ago 2026).</strong> Esta vista dijo dos cosas que resultaron falsas, y conviene
@@ -138,6 +142,7 @@ export default function CreditSpreadView() {
             ["Out-of-sample", "¿Aguanta en el tiempo o fue suerte de un período? Partimos los 10 años en 2 mitades (la vieja incluye el COVID).", "PASA (5d) — +3.4% y +3.0%", true],
             ["Amplitud", "¿El edge es de UNA combinación con suerte, o de muchas?", "OJO — 6 de 16 combinaciones; todas en plazo CORTO (3d a 30d)", false],
             ["El crash", "¿Qué hizo durante el desplome del COVID (feb-abr 2020)?", "SOBREVIVE, no gana — media −1.6% en esos 3 meses (n=34)", false],
+            ["El GEX", "¿El lado del dealer aporta dinero, no solo teoría?", "MECANISMO SÍ (4/4 sub-períodos) — dinero casi no: +$163/año neto", false],
           ].map(([t, q, r, ok]) => (
             <div key={t as string} style={{ background: "#F1F5F4", borderRadius: 10, padding: 12 }}>
               {/* El color va explícito: la tarjeta tiene fondo claro fijo (#F1F5F4) pero el tema
@@ -150,13 +155,35 @@ export default function CreditSpreadView() {
             </div>
           ))}
         </div>
-        <div style={{ fontSize: 12.5, color: "#667085", marginTop: 10 }}>
+        <div style={{ fontSize: 12.5, color: "var(--muted)", marginTop: 10 }}>
           <strong>Tres conclusiones:</strong> (1) el <strong>filtro de EVA funciona</strong> — el Top⅓ de convicción rinde
           <strong> +2.3%</strong> vs <strong>−3.7%</strong> del Bottom⅓, y le gana a los pesos de Victor (+1.5%). Es lo único que ha
           sobrevivido a las cuatro versiones de esta prueba. (2) <strong>El edge está en el plazo corto</strong>: 5d da +2.3% y 90d
           da <strong>−2.5%</strong> fallando out-of-sample. (3) <strong>El win rate casi no cambia nunca</strong> —entre 85% y 94%
           todos los años—, así que lo que decide el año no es cuántas ganas sino <strong>cuánto pesan las pocas que pierdes</strong>.
           Por eso la mejora que sirvió fue un filtro de cola, no uno de dirección.
+        </div>
+
+        {/* El GEX en detalle. Va aquí y no en "mejoras" porque es el ejemplo más claro de la
+            distancia entre "el efecto existe" y "el efecto se cobra" — que es la lección que
+            más veces hemos tenido que reaprender en este proyecto. */}
+        <div style={{ fontSize: 13, color: "#101828", background: "#F1F5F4", borderRadius: 8, padding: "10px 12px", marginTop: 12 }}>
+          <strong>El GEX, en detalle (8 ago 2026).</strong> Se bajó el open interest por strike y por
+          expiración de los 10 años y se probó de cuatro formas. El <strong>mecanismo existe</strong>:
+          en SPY el precio se mueve <strong>1.22</strong> veces lo esperado cuando la gamma es negativa
+          contra <strong>0.92</strong> cuando es positiva, sobre 2,608 días y aguantando los
+          <strong> 4 sub-períodos</strong>. Pero cobrarlo es otra cosa:
+          <div style={{ margin: "8px 0", display: "flex", flexDirection: "column", gap: 5 }}>
+            <div>• <strong>Índices (SPY+QQQ):</strong> sin filtro +0.22% × 67 ops = $174/año · con filtro +3.50% × 25 ops = <strong style={{ color: "#027A48" }}>$1,031/año</strong> &nbsp;(+$857)</div>
+            <div>• <strong>Acciones:</strong> sin filtro +4.00% × 132 ops = $6,331/año · con filtro +4.64% × 101 ops = <strong style={{ color: "#B42318" }}>$5,637/año</strong> &nbsp;(−$694)</div>
+            <div>• <strong>Neto: +$163/año.</strong> El filtro sube el rendimiento por operación pero <strong>quita operaciones</strong>, y en acciones lo segundo pesa más.</div>
+          </div>
+          <div>
+            <strong>Y la cola no se distingue del azar:</strong> las catástrofes bajan de 10.3% a 7.8% en
+            índices, pero eso son <strong>10 casos de 129</strong> — el margen de error (±2.4 puntos) es
+            mayor que la diferencia. No la contamos como real. Por eso en el forward-test el GEX
+            <strong> se graba pero no decide</strong>.
+          </div>
         </div>
       </div>
 
@@ -175,6 +202,13 @@ export default function CreditSpreadView() {
             <div>• <strong>Gestión APAGADA.</strong> La regla que corría (cerrar al ganar 25% / cortar al perder 1× la prima) salió de la muestra vieja de 2 años. Con 10 años resultó ser <strong>la peor de 9 reglas</strong>: bajaba de ~$8,053 a ~$4,973 al año. Las posiciones ya abiertas con ella siguen como grupo de control.</div>
             <div>• <strong>Scorer nuevo &laquo;EVA-IV&raquo;</strong> corriendo en paralelo, sin cambiar qué se abre: mide si saltarse los días de IV desproporcionada funciona también en vivo.</div>
           </div>
+          <div style={{ marginTop: 8 }}>
+            <strong>Cambio del 8 ago 2026:</strong> cada operación que se abre queda anotada con el
+            <strong> GEX del día</strong> y con el tamaño del mercado de opciones del ticker. <strong>No
+            filtra nada</strong> —se abren exactamente las mismas operaciones— pero dentro de unos meses
+            se podrá partir el histórico EN VIVO por régimen de gamma y decidir con datos propios en vez
+            de con el backtest. Empieza a grabar hoy: las posiciones abiertas antes no lo llevan.
+          </div>
         </div>
       </div>
 
@@ -187,12 +221,12 @@ export default function CreditSpreadView() {
           NO funcionó, alguien lo vuelve a proponer dentro de tres meses.
         </div>
 
-        <div style={{ fontSize: 13, fontWeight: 800, color: "#027A48", margin: "0 0 8px" }}>✅ Lo que produce el edge hoy</div>
+        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--green)", margin: "0 0 8px" }}>✅ Lo que produce el edge hoy</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {[5, 4].map((n) => <MejoraCard key={n} m={MEJORAS.find((x) => x.n === n)!} />)}
         </div>
 
-        <div style={{ fontSize: 13, fontWeight: 800, color: "#B54708", margin: "16px 0 8px" }}>🔜 A futuro — todavía NO aportan al edge</div>
+        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--amber)", margin: "16px 0 8px" }}>🔜 A futuro — todavía NO aportan al edge</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {[2, 3].map((n) => <MejoraCard key={n} m={MEJORAS.find((x) => x.n === n)!} />)}
         </div>
@@ -206,8 +240,10 @@ export default function CreditSpreadView() {
           {[1].map((n) => <MejoraCard key={n} m={MEJORAS.find((x) => x.n === n)!} />)}
         </div>
 
-        <div style={{ fontSize: 12, color: "#667085", marginTop: 12 }}>
-          Honestidad: el edge de hoy = <strong>convicción → vehículo</strong> + <strong>resultado como distribución</strong>. Régimen, GEX y aprendizaje son a futuro. No inventamos lo que no está listo.
+        <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 12 }}>
+          Honestidad: el edge de hoy = <strong>convicción → vehículo</strong> + <strong>resultado como distribución</strong>.
+          El régimen se probó y falló. El GEX se probó a fondo: el mecanismo es real pero el dinero es ruido, así que
+          se graba sin decidir. El aprendizaje automático sigue pendiente. No inventamos lo que no está listo.
         </div>
       </div>
 
@@ -216,13 +252,13 @@ export default function CreditSpreadView() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
           <div style={{ fontSize: 17, fontWeight: 700 }}>4 · El forward-test EN VIVO</div>
           {data && (
-            <span style={{ fontSize: 11, color: "#667085" }}>
+            <span style={{ fontSize: 11, color: "var(--muted)" }}>
               fuente: {data.source === "redis" ? "Redis (vivo)" : "semilla"} · {data.counts.total} jugadas
             </span>
           )}
         </div>
 
-        {err && <div style={{ color: "#B42318", marginTop: 8 }}>No pude cargar el ledger: {err}</div>}
+        {err && <div style={{ color: "var(--red)", marginTop: 8 }}>No pude cargar el ledger: {err}</div>}
         {!data && !err && <div className="card-sub" style={{ marginTop: 8 }}>Cargando el ledger…</div>}
 
         {data && (
@@ -274,9 +310,12 @@ export default function CreditSpreadView() {
                         <td>{cellLabel(c.dte, c.sigma)}</td>
                         <td>{c.statTop.n || "—"}</td>
                         <td>{c.statTop.win == null ? "—" : `${c.statTop.win}%`}</td>
-                        <td style={{ color: (c.statTop.mean ?? 0) > 0 ? "#027A48" : (c.statTop.mean ?? 0) < 0 ? "#B42318" : "#667085", fontWeight: 700 }}>{pct(c.statTop.mean)}</td>
-                        <td style={{ color: "#98A2B3" }}>{c.stat.n || "—"}</td>
-                        <td style={{ color: "#98A2B3" }}>{pct(c.stat.mean)}</td>
+                        {/* Las tablas van sobre el fondo OSCURO del tema, así que usan
+                            var(--green)/var(--red) — los #027A48/#B42318 de las cajas claras dan
+                            contraste 2,9 aquí, y estos son los números que se vienen a leer. */}
+                        <td style={{ color: (c.statTop.mean ?? 0) > 0 ? "var(--green)" : (c.statTop.mean ?? 0) < 0 ? "var(--red)" : "var(--muted)", fontWeight: 700 }}>{pct(c.statTop.mean)}</td>
+                        <td style={{ color: "var(--muted)" }}>{c.stat.n || "—"}</td>
+                        <td style={{ color: "var(--muted)" }}>{pct(c.stat.mean)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -299,7 +338,7 @@ export default function CreditSpreadView() {
                       <td style={{ fontWeight: 700 }}>{t.ticker}</td>
                       <td>
                         {cellLabel(t.dte, t.sigma)} · {t.dir === 1 ? "alcista (put spread)" : "bajista (call spread)"}
-                        <div style={{ fontSize: 11, color: "#667085" }}>vende ${t.shortK} / compra ${t.longK}</div>
+                        <div style={{ fontSize: 11, color: "var(--muted)" }}>vende ${t.shortK} / compra ${t.longK}</div>
                       </td>
                       <td>{t.evaComp}</td>
                       <td>{t.entryDate}</td>
@@ -311,7 +350,7 @@ export default function CreditSpreadView() {
                           {t.status === "closed" ? "cerrada" : "abierta"}
                         </span>
                       </td>
-                      <td style={{ fontWeight: 700, color: t.retOnRisk == null ? "#667085" : t.retOnRisk > 0 ? "#027A48" : t.retOnRisk < 0 ? "#B42318" : "#667085" }}>
+                      <td style={{ fontWeight: 700, color: t.retOnRisk == null ? "var(--muted)" : t.retOnRisk > 0 ? "var(--green)" : t.retOnRisk < 0 ? "var(--red)" : "var(--muted)" }}>
                         {t.status === "closed" ? pct(t.retOnRisk) : "en curso"}
                       </td>
                     </tr>
@@ -319,8 +358,8 @@ export default function CreditSpreadView() {
                 </tbody>
               </table>
             </div>
-            {data.trades.length > 80 && <div style={{ fontSize: 12, color: "#667085", marginTop: 6 }}>Mostrando 80 de {data.trades.length}.</div>}
-            <div style={{ fontSize: 11.5, color: "#667085", marginTop: 10 }}>
+            {data.trades.length > 80 && <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 6 }}>Mostrando 80 de {data.trades.length}.</div>}
+            <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 10 }}>
               Resultado = retorno sobre el riesgo máximo del spread. "En curso" = la jugada sigue abierta hasta su vencimiento.
               Entrada al cierre del día de la señal; IV≈volatilidad realizada; slippage y comisión incluidos. Es una simulación en vivo, todavía en prueba.
             </div>
