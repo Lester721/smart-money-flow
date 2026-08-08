@@ -138,7 +138,11 @@ export default function CreditSpreadView() {
             ["El crash", "¿Qué hizo durante el desplome del COVID (feb-abr 2020)?", "SOBREVIVE, no gana — media −1.6% en esos 3 meses (n=34)", false],
           ].map(([t, q, r, ok]) => (
             <div key={t as string} style={{ background: "#F1F5F4", borderRadius: 10, padding: 12 }}>
-              <div style={{ fontWeight: 700, fontSize: 13 }}>{t}</div>
+              {/* El color va explícito: la tarjeta tiene fondo claro fijo (#F1F5F4) pero el tema
+                  de la app es oscuro y pinta el texto heredado en casi-blanco — el título salía
+                  blanco sobre blanco, invisible. La pregunta y el veredicto de abajo ya tenían
+                  color propio, por eso se leían y este no. */}
+              <div style={{ fontWeight: 700, fontSize: 13, color: "#101828" }}>{t}</div>
               <div style={{ fontSize: 12, color: "#667085", margin: "4px 0 8px" }}>{q}</div>
               <div style={{ fontSize: 12.5, fontWeight: 700, color: ok ? "#027A48" : "#B54708" }}>{ok ? "✓" : "⚠"} {r}</div>
             </div>
@@ -219,7 +223,9 @@ export default function CreditSpreadView() {
 
             {/* El filtro de EVA */}
             <div style={{ background: "#F1F5F4", borderRadius: 10, padding: 12, marginBottom: 10 }}>
-              <div style={{ fontWeight: 700, fontSize: 14 }}>El valor de EVA: el filtro (Top⅓ vs Bottom⅓ por convicción)</div>
+              {/* Color explícito: la tarjeta tiene fondo claro y el tema pinta el texto heredado
+                  en casi-blanco → sería invisible. Ver el comentario de MejoraCard. */}
+              <div style={{ fontWeight: 700, fontSize: 14, color: "#101828" }}>El valor de EVA: el filtro (Top⅓ vs Bottom⅓ por convicción)</div>
               <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginTop: 8 }}>
                 <Mini label="Alta convicción (Top⅓)" stat={data.filter.top} good />
                 <Mini label="Baja convicción (Bottom⅓)" stat={data.filter.bottom} />
@@ -307,8 +313,12 @@ function MejoraCard({ m }: { m: { n: number; name: string; does: string; status:
         <span style={{ fontWeight: 700 }}>#{m.n} · {m.name}</span>
         <span style={{ fontSize: 11, fontWeight: 800, background: b.bg, color: b.fg, borderRadius: 999, padding: "2px 9px" }}>{b.label}</span>
       </div>
-      <div style={{ fontSize: 13, color: "#101828", marginTop: 6 }}>{m.does}</div>
-      <div style={{ fontSize: 12.5, color: "#667085", marginTop: 5 }}><strong>Aquí:</strong> {m.here}</div>
+      {/* Esta tarjeta NO tiene fondo propio: hereda el oscuro del tema. Tenía color #101828
+          (casi negro) sobre ese fondo → texto invisible. Se deja que herede el color del tema,
+          que ya es claro. Ojo con copiar colores de las tarjetas de fondo claro: en este
+          archivo conviven los dos casos y se confunden con facilidad. */}
+      <div style={{ fontSize: 13, marginTop: 6 }}>{m.does}</div>
+      <div style={{ fontSize: 12.5, color: "#98A2B3", marginTop: 5 }}><strong>Aquí:</strong> {m.here}</div>
     </div>
   );
 }
