@@ -54,10 +54,27 @@ const WIDTH_EM = 0.5;                                       // ancho del spread 
 // en tiempo, y sin un plazo largo corriendo no hay con qué contrastar si el hallazgo vuelve a
 // darse vuelta. Lo que se quita es 60d, que no aporta nada que no diga el 90d.
 //
-// GESTIÓN: el backtest (backtest-mgmt-spread.ts) mostró que a 5 días cortar AYUDA (TG 25% +
-// stop 1×) y a 60/90 ESTORBA. Se asigna AL ABRIR: lo ya abierto queda como control.
-// PENDIENTE: rehacer ese backtest de gestión con la muestra nueva — se corrió con los 2 años.
-const MGMT_CELLS = new Set((process.env.FWD_MGMT_CELLS || "5,7").split(",").map(Number).filter(Boolean));
+// GESTIÓN: APAGADA desde el 2026-08-07. Se sostiene a vencimiento.
+//
+// La regla anterior (TG 25% + stop 1x) salió del backtest de 2 AÑOS, que decía que gestionar el
+// 5d ayudaba: +0,9% → +2,2%. Rehecho con 10 años (scripts/mejora-6-gestion.ts, n=7.595 con
+// COVID), dice lo contrario — y es la PEOR de las nueve reglas probadas:
+//
+//   sostener a vencimiento  +3,22%  →  $8.053/año     TG 75%          +3,48%  →  $8.678
+//   TG 25% + stop 1x        +1,99%  →  $4.973/año     stop 1x crédito +2,85%  →  $7.121
+//
+// Destruía el 38% del retorno. MECANISMO: la toma de ganancia al 25% recorta las ganadoras
+// (cobras un cuarto de la prima y renuncias al resto del desgaste temporal) mientras la cola de
+// pérdidas sigue igual; y el stop a 1x corta demasiado pronto — a 5 días hay tiempo de que el
+// precio vuelva, y el win rate se cae de 89% a 78%.
+//
+// TG 75% daba $625 más al año, pero es un 8% que cae dentro del margen de un modelo que valora
+// con volatilidad constante. No se construye sobre eso.
+//
+// Las posiciones ya abiertas CON gestión se quedan como grupo de control: en unas semanas
+// dirán en vivo, con precios reales, si el backtest tiene razón. Por eso la regla se asigna al
+// abrir y nunca se le cambia a una posición existente.
+const MGMT_CELLS = new Set((process.env.FWD_MGMT_CELLS || "").split(",").map(Number).filter(Boolean));
 const MGMT_TP = Number(process.env.FWD_MGMT_TP ?? 0.25); // cerrar al ganar 25% del crédito
 const MGMT_SL = Number(process.env.FWD_MGMT_SL ?? 1);    // cortar al perder 1× el crédito
 
@@ -401,13 +418,18 @@ function pctile(vals: number[], p: number): number | null {
 
     // A/B de la GESTIÓN: solo vale comparar dentro del mismo plazo (los gestionados nacieron
     // con la regla; los de antes son el control). Sin este corte, se mezclarían peras y manzanas.
-    for (const dte of MGMT_CELLS) {
+    // Los plazos a comparar salen del LEDGER, no de MGMT_CELLS: la gestión está apagada para las
+    // posiciones nuevas, pero las que se abrieron con ella siguen vivas y son el grupo de
+    // control. Si esto mirara MGMT_CELLS (ahora vacío), esas posiciones desaparecerían del
+    // reporte justo cuando empiecen a cerrar y a decir algo.
+    const dtesConGestion = [...new Set(closed.filter((t) => t.mgmt).map((t) => t.dte))].sort((a, b) => a - b);
+    for (const dte of dtesConGestion) {
       const conG = closed.filter((t) => t.dte === dte && t.mgmt);
       const sinG = closed.filter((t) => t.dte === dte && !t.mgmt);
       if (!conG.length && !sinG.length) continue;
       L.push(
         "",
-        `### ¿La gestión mejora el ${dte}d? (TG ${Math.round(MGMT_TP * 100)}% + stop ${MGMT_SL}×)`,
+        `### ¿La gestión mejora el ${dte}d? (TG ${Math.round(MGMT_TP * 100)}% + stop ${MGMT_SL}× — APAGADA para las nuevas)`,
         `- **Con gestión:** ${fmt(stat(conG.map((t) => t.retOnRisk!)))}`,
         `- Sin gestión (control): ${fmt(stat(sinG.map((t) => t.retOnRisk!)))}`,
       );
@@ -416,7 +438,7 @@ function pctile(vals: number[], p: number): number | null {
           .map((r) => `${r}: ${conG.filter((t) => t.exitReason === r).length}`).join(" · ");
         L.push(`- Cómo salieron: ${porRazón}`);
       }
-      L.push(`- El backtest esperaba **+0,9% → +2,2%**. Ojo: el control lleva ventaja de tiempo (empezó antes), así que compara cuando ambos tengan cierres suficientes.`);
+      L.push(`- El backtest de 2 años esperaba +0,9% → +2,2%; el de **10 años dice lo contrario**: +3,22% → +1,99% (la peor de 9 reglas). Por eso se apagó. Estas posiciones son el grupo de control que lo confirma o lo desmiente EN VIVO.`);
     }
     // ── SCORER NUEVO "EVA-IV" — el mismo Top⅓ pero SIN los días en que el flujo paga una IV
     // desproporcionada frente a la volatilidad realizada (ivRatio >= 1.1). Sale del backtest de

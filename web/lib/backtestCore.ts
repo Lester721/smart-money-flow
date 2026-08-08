@@ -149,6 +149,14 @@ export function creditSpreadPnl(
    * son la versión OPTIMISTA del stop.
    */
   stopOnRisk?: number,
+  /**
+   * Gestión al estilo del forward-test en vivo, expresada sobre el CRÉDITO (no sobre el riesgo):
+   *   tp = 0.25 → cerrar al capturar el 25% de la prima cobrada
+   *   sl = 1    → cerrar al perder 1x la prima cobrada
+   * Es la convención que usa la regla que ya corre en vivo, para poder comparar manzanas con
+   * manzanas. Sin este objeto, se sostiene a vencimiento igual que siempre.
+   */
+  gestion?: { tp?: number; sl?: number },
 ): number | null {
   const { spot, entryIdx, dir } = sig;
   // `volOverride` sustituye la volatilidad usada para DOS cosas a la vez: colocar los strikes
@@ -179,16 +187,22 @@ export function creditSpreadPnl(
   const risk = width - netCredit;
   const sobreRiesgo = (p: number) => (risk > 0 ? p / risk : p / width);
 
-  // Con STOP: recorrer día a día y cerrar si la pérdida llega al umbral.
-  if (stopOnRisk != null && stopOnRisk > 0) {
+  // Con GESTIÓN o STOP: recorrer día a día y cerrar si se cumple alguna regla.
+  if ((stopOnRisk != null && stopOnRisk > 0) || gestion?.tp != null || gestion?.sl != null) {
     for (let i = entryIdx + 1; i < expIdx; i++) {
       const S = bars[i].close;
       const restante = (expMs - Date.parse(`${bars[i].time}T20:00:00Z`)) / (365 * 86_400_000);
       if (!(restante > 0)) break;
       // Coste de cerrar el spread hoy = recomprar la corta, vender la larga.
       const valor = bsPrice(S, shortK, restante, rv, type) - bsPrice(S, longK, restante, rv, type);
-      const r = sobreRiesgo(netCredit - valor);
-      if (r <= -stopOnRisk) return r; // se cierra AQUÍ, no se llega al vencimiento
+      const ganancia = netCredit - valor;      // $ por acción a favor
+      const r = sobreRiesgo(ganancia);
+      // Orden de comprobación: primero la toma de ganancia. Si en el mismo día se tocaran las
+      // dos, con datos diarios no se sabe cuál llegó antes — asumirlo a favor es lo optimista,
+      // y hay que decirlo. Con cierres diarios el caso es raro pero existe.
+      if (gestion?.tp != null && ganancia >= gestion.tp * netCredit) return r;
+      if (gestion?.sl != null && ganancia <= -gestion.sl * netCredit) return r;
+      if (stopOnRisk != null && stopOnRisk > 0 && r <= -stopOnRisk) return r;
     }
   }
 
