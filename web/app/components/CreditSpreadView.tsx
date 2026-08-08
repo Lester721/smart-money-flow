@@ -26,21 +26,21 @@ const pct = (x: number | null) => (x == null ? "—" : `${x > 0 ? "+" : ""}${x}%
 const cellLabel = (dte: number, sigma: number) => `${dte}d @ ${sigma}σ`;
 
 // ── Las 5 mejoras: qué hacen (del Informe) + estado real ──────────────────────
-const MEJORAS: { n: number; name: string; does: string; status: "viva" | "parcial" | "dev"; here: string }[] = [
+const MEJORAS: { n: number; name: string; does: string; status: "viva" | "parcial" | "dev" | "descartada"; here: string }[] = [
   {
-    n: 1, name: "Conciencia de régimen", status: "dev",
+    n: 1, name: "Conciencia de régimen", status: "descartada",
     does: "Sabe en qué 'clima' está el mercado (tranquilo o volátil) y ajusta: una señal que en promedio es ruido puede ser fuerte en un clima específico.",
-    here: "Con 10 años (2016-2026) el clima dejó de importar: el 5d de alta convicción da +1.0% / +2.5% / +2.9% en tranquilo / normal / volátil — positivo en los tres. Probamos filtros de régimen (apagar cuando la volatilidad supera cierto nivel) y FALLAN fuera de muestra: «rv<30%» daba +3.35% en la mitad vieja y −0.92% en la nueva. Se descartó. Lo que SÍ funcionó no fue el clima del mercado sino el precio de la prima: no vender cuando el flujo paga una IV desproporcionada.",
+    here: "DESCARTADA el 7 ago 2026, no pendiente. Con 10 años el clima dejó de importar: el 5d de alta convicción da +1.0% / +2.5% / +2.9% en tranquilo / normal / volátil — positivo en los tres, así que no hay nada que condicionar. Y los filtros de régimen FALLAN fuera de muestra: «rv<30%» daba +3.35% en la mitad vieja y −0.92% en la nueva — se veía bien con poca muestra y se caía con mucha. Lo que sí funcionó no fue el clima del mercado sino el precio de la prima: no vender cuando el flujo paga una IV desproporcionada. Esa idea vive ahora en el scorer EVA-IV.",
   },
   {
     n: 2, name: "Lado del dealer (GEX)", status: "parcial",
     does: "Ve hacia dónde los market makers están forzados a comprar/vender — los muros de gamma que frenan o aceleran el precio.",
-    here: "Viva en la vista Ticker (los muros se calculan y se ven). El forward-test actual elige strikes por σ (movimiento esperado), todavía NO por los muros GEX — combinarlos es el siguiente paso.",
+    here: "Viva en la vista Ticker (los muros se calculan y se ven). El forward-test elige strikes por σ, todavía NO por los muros. Lo que lo frena NO es el código —la prueba son 30 minutos— sino los DATOS: haría falta el open interest por strike y por fecha de los 10 años, y en caché solo hay una foto del OI al final de cada rango. Bajarlo son horas, como pasó con las barras de precio. Es el siguiente paso de verdad, pero no es gratis.",
   },
   {
     n: 3, name: "Bucle de aprendizaje", status: "parcial",
     does: "Mide sus propios aciertos y se re-calibra sola. Victor es estático; EVA aprende de lo que funcionó.",
-    here: "El ledger de abajo ES la memoria: cada jugada cerrada mide el acierto real. El re-calibrado automático a partir de esto todavía está en desarrollo.",
+    here: "La mitad que MIDE ya funciona: el ledger de abajo lleva 71 cierres y de ahí salió todo lo del 7 ago 2026 — se vio que la gestión restaba, que el plazo largo no servía y que filtrar por IV sumaba. Lo que falta es el AUTOMATISMO: ese bucle lo cerró una persona a mano (mirar resultados → probar una idea → aplicarla). EVA todavía no se re-calibra sola.",
   },
   {
     n: 4, name: "Resultado como distribución", status: "viva",
@@ -58,6 +58,7 @@ const STATUS_BADGE: Record<string, { label: string; bg: string; fg: string }> = 
   viva: { label: "VIVA", bg: "#D1FADF", fg: "#027A48" },
   parcial: { label: "PARCIAL", bg: "#FEF0C7", fg: "#B54708" },
   dev: { label: "EN DESARROLLO", bg: "#EAECF0", fg: "#475467" },
+  descartada: { label: "DESCARTADA", bg: "#FEE4E2", fg: "#B42318" },
 };
 
 export default function CreditSpreadView() {
@@ -181,7 +182,9 @@ export default function CreditSpreadView() {
       <div className="card">
         <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 4 }}>3 · Las mejoras de EVA</div>
         <div className="card-sub" style={{ marginBottom: 12 }}>
-          El edge de abajo vino de <strong>2</strong> de ellas. Las otras <strong>3</strong> son apuestas a futuro — todavía <strong>NO</strong> aportan al edge.
+          El edge de abajo vino de <strong>2</strong> de ellas. Otras <strong>2</strong> siguen pendientes y <strong>1 se probó y falló</strong>.
+          Las pendientes se quedan escritas con lo que les falta de verdad, y la descartada no se borra: si no queda constancia de lo que
+          NO funcionó, alguien lo vuelve a proponer dentro de tres meses.
         </div>
 
         <div style={{ fontSize: 13, fontWeight: 800, color: "#027A48", margin: "0 0 8px" }}>✅ Lo que produce el edge hoy</div>
@@ -191,7 +194,16 @@ export default function CreditSpreadView() {
 
         <div style={{ fontSize: 13, fontWeight: 800, color: "#B54708", margin: "16px 0 8px" }}>🔜 A futuro — todavía NO aportan al edge</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {[2, 3, 1].map((n) => <MejoraCard key={n} m={MEJORAS.find((x) => x.n === n)!} />)}
+          {[2, 3].map((n) => <MejoraCard key={n} m={MEJORAS.find((x) => x.n === n)!} />)}
+        </div>
+
+        {/* La descartada va en su propio grupo. Mezclarla con "a futuro" la hacía parecer
+            pendiente cuando ya se probó y falló — y borrarla escondería que se intentó. */}
+        {/* Rojo CLARO: este encabezado va sobre el fondo oscuro del tema. El #B42318 de las
+            tarjetas claras daba contraste 2,65 — por debajo del mínimo legible. */}
+        <div style={{ fontSize: 13, fontWeight: 800, color: "#F97066", margin: "16px 0 8px" }}>❌ Probada y descartada</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {[1].map((n) => <MejoraCard key={n} m={MEJORAS.find((x) => x.n === n)!} />)}
         </div>
 
         <div style={{ fontSize: 12, color: "#667085", marginTop: 12 }}>
