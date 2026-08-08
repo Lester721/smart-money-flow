@@ -29,6 +29,12 @@ const END = process.env.OI_END || "20260731";
 const MAX_DTE = Number(process.env.OI_MAX_DTE) || 21;
 const BANDA = Number(process.env.OI_BANDA) || 0.15;
 const BASE = process.env.THETA_BASE || "http://127.0.0.1:25503";
+// Peticiones EN PARALELO. Medido: una sola tarda 28 s y trae 8,7 MB (308 KB/s); tres a la vez
+// tardan ~37 s y traen 30,5 MB (824 KB/s). O sea el cuello NO es el ancho de banda sino la
+// latencia por petición — la primera versión pedía un mes, esperaba, y pedía el siguiente,
+// usando 1 de las 4 conexiones que permite la suscripción. Se deja en 4, que es el tope del
+// plan Standard (lo imprime el Terminal al arrancar: "Max concurrent requests: 4").
+const CONC = Number(process.env.OI_CONC) || 4;
 const DIR = "scripts/cache-theta";
 
 const ymdToMs = (y: string) => Date.parse(`${y.slice(0, 4)}-${y.slice(4, 6)}-${y.slice(6, 8)}T00:00:00Z`);
@@ -46,6 +52,15 @@ function monthChunks(s0: string, e0: string): [string, string][] {
   let s = ymdToMs(s0); const e = ymdToMs(e0);
   const toY = (ms: number) => new Date(ms).toISOString().slice(0, 10).replace(/-/g, "");
   while (s <= e) { const c = Math.min(s + 27 * 86_400_000, e); out.push([toY(s), toY(c)]); s = c + 86_400_000; }
+  return out;
+}
+/** map con límite de concurrencia — sin dependencias, respeta el orden de entrada. */
+async function pMap<T, R>(items: T[], limit: number, fn: (x: T) => Promise<R>): Promise<R[]> {
+  const out = new Array<R>(items.length);
+  let i = 0;
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (i < items.length) { const k = i++; out[k] = await fn(items[k]); }
+  }));
   return out;
 }
 const leer = <T,>(p: string): T | null => { try { return JSON.parse(readFileSync(p, "utf8")); } catch { return null; } };
@@ -83,9 +98,12 @@ type OiExp = Record<string, Record<string, Record<string, [number, number]>>>;
       const dest = `${DIR}/${t}_oiexp_y_${ys}_${ye}.json`;
       if (existsSync(dest)) { console.log(`[${t}] ${ys.slice(0, 4)} ya estaba`); continue; }
 
-      const acc: OiExp = {};
       const t0 = Date.now();
-      for (const [cs, ce] of monthChunks(ys, ye)) {
+      // Cada trozo acumula en su PROPIO objeto y se funden al final: escribir todos sobre el
+      // mismo desde tareas concurrentes sería una carrera silenciosa — el peor tipo de bug para
+      // este proyecto, porque el resultado saldría plausible pero incompleto.
+      const parciales = await pMap(monthChunks(ys, ye), CONC, async ([cs, ce]) => {
+        const acc: OiExp = {};
         for (const seg of segmentosPorSimbolo(t, cs, ce)) {
           const csv = await getCsv(`/v3/option/history/open_interest?symbol=${seg.symbol}&expiration=*&start_date=${seg.start}&end_date=${seg.end}`);
           if (!csv) continue;
@@ -110,6 +128,21 @@ type OiExp = Record<string, Record<string, Record<string, [number, number]>>>;
             const porStrike = (porExp[exp] ??= {});
             const par = (porStrike[String(k)] ??= [0, 0]);
             par[(r[iR] || "").toUpperCase().startsWith("C") ? 0 : 1] += oi;
+          }
+        }
+        return acc;
+      });
+
+      const acc: OiExp = {};
+      for (const parcial of parciales) {
+        for (const [dia, porExp] of Object.entries(parcial)) {
+          const destDia = (acc[dia] ??= {});
+          for (const [exp, porStrike] of Object.entries(porExp)) {
+            const destExp = (destDia[exp] ??= {});
+            for (const [k, [c, p2]] of Object.entries(porStrike)) {
+              const par = (destExp[k] ??= [0, 0]);
+              par[0] += c; par[1] += p2;
+            }
           }
         }
       }
