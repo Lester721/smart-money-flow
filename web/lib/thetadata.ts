@@ -581,3 +581,52 @@ export async function fetchFlow(ticker: string, opts: ThetaFlowOptions = {}): Pr
   const trades = porContrato.flat().map((t, i) => ({ ...t, id: i }));
   return { trades, pages: scanned, truncated: false };
 }
+
+// ── GEX neto normalizado (para el filtro de índices) ────────────────────────────────────────
+/**
+ * GEX neto del día dividido por spot², para que sea comparable entre subyacentes de precios
+ * distintos. Solo cuenta expiraciones a ≤`maxDte` días: el régimen que importa lo fija el
+ * vencimiento cercano, no el open interest a seis meses.
+ *
+ * PARA QUÉ: en los ETF de índice (SPY, QQQ) el hedging de los dealers mueve el subyacente y se
+ * mide — con gamma negativa el precio se movió 1,217 veces lo esperado contra 0,919 con gamma
+ * positiva (SPY, 2.608 días, 4 de 4 sub-períodos). En acciones sueltas el efecto no aparece,
+ * así que este número NO debe usarse para filtrarlas.
+ *
+ * Devuelve null si no hay datos — el llamador debe decidir, nunca asumir "gamma positiva".
+ */
+export async function fetchGexNormalizado(
+  symbol: string, spot: number, rv: number, maxDte = 21,
+): Promise<number | null> {
+  const hoy = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const csv = await getCsv(`/v3/option/snapshot/open_interest?symbol=${symbol}&expiration=*`);
+  if (!csv || !(spot > 0) || !(rv > 0)) return null;
+  const iE = idx(csv.header, "expiration"), iK = idx(csv.header, "strike"),
+    iR = idx(csv.header, "right"), iO = idx(csv.header, "open_interest");
+  if (iE < 0 || iK < 0 || iR < 0 || iO < 0) return null;
+
+  const hoyMs = Date.parse(`${hoy.slice(0, 4)}-${hoy.slice(4, 6)}-${hoy.slice(6, 8)}T00:00:00Z`);
+  let gex = 0, filas = 0;
+  for (const r of csv.rows) {
+    const oi = Number(r[iO]);
+    const k = Number(r[iK]);
+    if (!Number.isFinite(oi) || oi <= 0 || !(k > 0)) continue;
+    if (Math.abs(k - spot) / spot > 0.15) continue;           // misma banda que la caché histórica
+    const expYmd = (r[iE] || "").replace(/-/g, "");
+    const dte = (Date.parse(`${expYmd.slice(0, 4)}-${expYmd.slice(4, 6)}-${expYmd.slice(6, 8)}T00:00:00Z`) - hoyMs) / 86_400_000;
+    if (!(dte >= 0 && dte <= maxDte)) continue;
+    const g = bsGammaLocal(spot, k, Math.max(dte, 1) / 365, rv);
+    if (!(g > 0)) continue;
+    gex += g * ((r[iR] || "").toUpperCase().startsWith("C") ? oi : -oi) * 100 * spot * spot * 0.01;
+    filas++;
+  }
+  return filas > 0 ? gex / (spot * spot) : null;
+}
+
+/** Gamma de Black-Scholes. Local para no crear una dependencia circular con blackScholes.ts. */
+function bsGammaLocal(S: number, K: number, T: number, iv: number): number {
+  if (!(S > 0) || !(K > 0) || !(T > 0) || !(iv > 0)) return 0;
+  const d1 = (Math.log(S / K) + (0.04 + (iv * iv) / 2) * T) / (iv * Math.sqrt(T));
+  const pdf = Math.exp(-(d1 * d1) / 2) / Math.sqrt(2 * Math.PI);
+  return pdf / (S * iv * Math.sqrt(T));
+}

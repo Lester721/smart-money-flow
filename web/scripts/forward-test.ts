@@ -25,6 +25,20 @@ import {
 } from "../lib/flow";
 import { bsPrice, impliedVol } from "../lib/blackScholes";
 import { asegurarBarrasDeLiquidacion, vencidasSinLiquidar } from "../lib/forwardBars";
+import { fetchGexNormalizado } from "../lib/thetadata";
+
+// GEX: se REGISTRA en todos los tickers y no filtra en ninguno.
+//
+// El mecanismo solo se midió en los ETF de índice: en SPY el precio se movió 1,217 veces lo
+// esperado con gamma negativa contra 0,919 con positiva (2.608 días, 4/4 sub-períodos), y en
+// QQQ igual; en acciones sueltas no aparece (MSFT 2/4, AMD 1/4). Y en el backtest, filtrar
+// acciones GANABA por operación (+4,64% vs +4,00%) pero PERDÍA dinero al año ($5.637 vs
+// $6.331), porque recorta 31 operaciones.
+//
+// Aun así se registra en todas: medir no cuesta nada —una llamada por ticker y corrida— y así
+// el vivo decide si el efecto de las acciones existe, en vez de darlo por muerto con un
+// backtest. Los índices se marcan porque son donde la regla tiene respaldo teórico.
+const INDICES_GEX = new Set(["SPY", "QQQ"]);
 
 // ── Parámetros ────────────────────────────────────────────────────────────────
 const TICKERS = (process.env.FWD_TICKERS || PANEL_TICKERS.join(",")).split(",").map((t) => t.trim()).filter(Boolean);
@@ -93,6 +107,9 @@ interface Trade {
   /** IV pagada por el flujo / vol realizada. <1.1 es el filtro del scorer EVA-IV. */
   ivRatio?: number;
   netRatio?: number;
+  /** GEX neto / spot², solo en ETF de índice. Se REGISTRA, no filtra: como con EVA-IV, el vivo
+   *  mide si la regla funciona antes de dejarla decidir nada. */
+  gexNorm?: number;
   status: "open" | "closed";
   exitDate?: string; exitSpot?: number; retOnRisk?: number; pnlPerSpread?: number;
   /** Regla de salida asignada AL ABRIR. Ausente = sin gestión (sostener a vencimiento).
@@ -224,7 +241,7 @@ function signals(rows: FlowRow[], bars: DBar[]): Signal[] {
 }
 
 // ── Abrir / liquidar un credit spread de papel ────────────────────────────────
-function openSpread(sig: Signal, dte: number, sigma: number): Trade | null {
+function openSpread(sig: Signal, dte: number, sigma: number, gexHoy: number | null): Trade | null {
   const { spot, rv, entryMs, dir } = sig;
   const T = dte / 365;
   const em = spot * rv * Math.sqrt(dte / 365);
@@ -248,6 +265,7 @@ function openSpread(sig: Signal, dte: number, sigma: number): Trade | null {
     credit: round(credit, 4), netCredit: round(netCredit, 4), expiryMs, expiryDate: new Date(expiryMs).toISOString().slice(0, 10),
     evaComp: round(sig.evaComp, 1), victorComp: round(sig.victorComp, 1),
     ivRatio: round(sig.ivRatio, 3), netRatio: round(sig.netRatio, 3),
+    ...(gexHoy != null ? { gexNorm: Math.round(gexHoy) } : {}),
     status: "open",
   };
 }
@@ -337,10 +355,23 @@ function pctile(vals: number[], p: number): number | null {
       if (!bars.length) { console.log(`[${t}] sin barras — omitido`); continue; }
       barsByTicker.set(t, bars);
       const sigs = signals(rows, bars);
+
+      // GEX del día, una sola vez por ticker. Si falla se registra null y no pasa nada: es una
+      // medición paralela, no una condición para operar. Nunca asumir "gamma positiva" ante un
+      // fallo — eso convertiría un error de red en una decisión.
+      let gexHoy: number | null = null;
+      const ultima = sigs[sigs.length - 1];
+      if (ultima) {
+        gexHoy = await fetchGexNormalizado(t, ultima.spot, ultima.rv).catch(() => null);
+        if (gexHoy != null) {
+          console.log(`[${t}] GEX ${gexHoy > 0 ? "+" : ""}${Math.round(gexHoy).toLocaleString("en-US")}${INDICES_GEX.has(t) ? " (índice — con respaldo teórico)" : ""}`);
+        }
+      }
+
       let newN = 0;
       for (const sig of sigs) {
         for (const cell of CELLS) {
-          const rec = openSpread(sig, cell.dte, cell.sigma);
+          const rec = openSpread(sig, cell.dte, cell.sigma, gexHoy);
           if (!rec) continue;
           rec.ticker = t;
           // Gestión SOLO al 5d (el backtest dice que a 60/90 días estorba). Se fija al abrir:
@@ -467,6 +498,31 @@ function pctile(vals: number[], p: number): number | null {
         `- Lo que el filtro DESCARTA: ${fmt(stat(excluido.map((t) => t.retOnRisk!)))}`,
         `- El backtest de 10 años esperaba **+2,3% → +3,2%**. Sirve solo si lo descartado rinde PEOR que lo filtrado; si rinde igual o mejor, el filtro es ruido.`,
       );
+    }
+
+    // ── FILTRO DE GAMMA — se mide en índices Y en acciones, y filtra en ninguno ───────────
+    // El mecanismo solo aparece en los ETF de índice, pero medirlo en todos no cuesta nada y
+    // deja que el VIVO decida si el efecto de las acciones existe. Si al cabo de unos meses
+    // los índices con gamma negativa rinden claramente peor y las acciones no, la regla se
+    // gana el derecho a filtrar. Hasta entonces, solo mira.
+    const conGex = closed.filter((t) => t.gexNorm != null);
+    if (conGex.length >= 10) {
+      for (const [etiqueta, sel] of [
+        ["ÍNDICES (SPY/QQQ) — con respaldo teórico", (t: Trade) => t.ticker === "SPY" || t.ticker === "QQQ"],
+        ["ACCIONES — sin mecanismo medido", (t: Trade) => t.ticker !== "SPY" && t.ticker !== "QQQ"],
+      ] as [string, (t: Trade) => boolean][]) {
+        const g = conGex.filter(sel);
+        if (g.length < 6) continue;
+        const orden = [...g].sort((a, b) => (a.gexNorm ?? 0) - (b.gexNorm ?? 0));
+        const mitad = Math.floor(orden.length / 2);
+        L.push(
+          "",
+          `### Filtro de gamma · ${etiqueta}`,
+          `- Gamma más NEGATIVA (mitad inferior): ${fmt(stat(orden.slice(0, mitad).map((t) => t.retOnRisk!)))}`,
+          `- Gamma más POSITIVA (mitad superior): ${fmt(stat(orden.slice(mitad).map((t) => t.retOnRisk!)))}`,
+        );
+      }
+      L.push(`- El backtest esperaba que la mitad negativa rindiera PEOR, y solo en índices: ahí evitar el 50% más negativo llevó de +0,22% a +3,50% fuera de muestra. En acciones mejoraba por operación pero perdía dinero al año. Se REGISTRA en ambos; no filtra en ninguno.`, "");
     }
 
     // EL FILTRO: Top⅓ vs Bottom⅓ por convicción de EVA (misma metodología validada)
