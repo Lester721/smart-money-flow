@@ -120,6 +120,41 @@ Notional Value = Open Interest × 100 × Strike        # zonas de relevancia si 
 ### Noticias
 Monitorear los feeds definidos en [RSS Feed](RSS%20Feed.md) (CNBC + Investing.com) y adjuntar noticias relevantes al panel de resultados.
 
+## Prueba de humo antes de todo trabajo largo — OBLIGATORIO
+
+**Origen (2026-08-07/08):** tres veces en dos días se lanzó un proceso largo que no producía
+nada, y las tres se detectaron tarde o por casualidad:
+
+| Qué se lanzó | Qué se verificó | Qué había que verificar |
+|---|---|---|
+| El jar del Theta Terminal | que la URL respondía (206) | **qué contenía** — era la v2, no la v3 |
+| El probador de paridad | que corría | que devolvía algo — 5M filas → **0 resultados** |
+| La descarga de OI | que arrancaba | que el primer año no venía vacío — **75 min de archivos vacíos** |
+
+El patrón es siempre el mismo: **se comprueba que algo se EJECUTA, no que produce lo
+CORRECTO.** Un proceso que falla al arrancar se ve enseguida; uno que escribe basura en
+silencio se descubre horas después, o nunca.
+
+### La regla
+Antes de lanzar cualquier proceso de más de ~10 minutos:
+1. **Correr la rebanada más pequeña posible** — un ticker, un mes. Dos minutos.
+2. **Abrir la salida y mirarla.** No que el archivo exista: que tenga filas, y que los números
+   sean plausibles (un orden de magnitud razonable, fechas dentro del rango pedido, alguna
+   relación que se pueda contrastar con la realidad — p. ej. en el trimestre del crash de 2020
+   el OI de puts debe superar de largo al de calls).
+3. **Solo entonces** lanzar la corrida completa.
+
+### En el código
+- **Nunca adivinar nombres de columnas.** Imprimir la cabecera real o pedir una muestra. La de
+  `open_interest` es `timestamp`; las de EOD son `date`/`created`. Adivinar costó una noche.
+- **Fallar RUIDOSO ante lo inesperado.** Si faltan columnas, `throw` — no `continue`. Un
+  `continue` convierte un fallo de parseo en horas de datos vacíos sin un solo error.
+- **Un resultado vacío NO se cachea.** Cachear el vacío congela el fallo y lo hace permanente.
+  (Excepción consciente: los años fuera del alcance de la suscripción, que siempre vendrán
+  vacíos — ahí el vacío sí es la respuesta.)
+- **Leer el directorio, no reconstruir nombres de archivo.** Los nombres de caché llevan el
+  rango dentro; pedir otro rango genera otro nombre y la caché "desaparece" aunque esté entera.
+
 ## Protocolo de backtesting — OBLIGATORIO
 
 **Origen (2026-08-06):** se reportó un backtest como "4 años, 2019-2022, incluye el crash del

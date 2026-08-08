@@ -15,7 +15,7 @@
 // Uso: DATA_PROVIDER=theta node --env-file=.env.thetadata scripts/with-theta.mjs \
 //        npx tsx scripts/bajar-oi-historico.ts
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";
 
 const TICKERS = (process.env.OI_TICKERS || "SPY,AAPL,MSFT,NVDA,META,TSLA,AMD,QQQ,HOOD").split(",");
 const START = process.env.OI_START || "20160101";
@@ -69,10 +69,17 @@ type OiDia = Record<string, Record<string, [number, number]>>;
 
   for (const t of TICKERS) {
     // Spot por fecha, de las barras ya cacheadas: sirve para recortar la banda de strikes.
+    //
+    // Se LEE EL DIRECTORIO en vez de reconstruir los nombres. Reconstruirlos falla en cuanto el
+    // rango pedido no coincide con el que generó la caché: pidiendo un trimestre, la última
+    // ventana se recorta y el nombre pasa a ser `..._20200101_20201107` cuando en disco está
+    // `..._20200101_20201231`. La caché estaba entera y el script decía "sin barras".
     const spot = new Map<string, number>();
-    for (const [ys, ye] of yearWindows(shiftYmd(START, -40), shiftYmd(END, 220))) {
-      const b = leer<{ time: string; close: number }[]>(`${DIR}/${t}_barsPAR_y_${ys}_${ye}.json`);
-      for (const x of b ?? []) spot.set(x.time.replace(/-/g, ""), x.close);
+    for (const f of readdirSync(DIR)) {
+      if (!f.startsWith(`${t}_barsPAR_y_`) || !f.endsWith(".json")) continue;
+      for (const x of leer<{ time: string; close: number }[]>(`${DIR}/${f}`) ?? []) {
+        spot.set(x.time.replace(/-/g, ""), x.close);
+      }
     }
     if (!spot.size) { console.log(`[${t}] sin barras en caché — omitido (hace falta el backtest antes)`); continue; }
 
@@ -88,8 +95,19 @@ type OiDia = Record<string, Record<string, [number, number]>>;
         if (!cabecera) { console.log(`   columnas: ${csv.header.join(", ")}\n`); cabecera = true; }
         const iE = idx(csv.header, "expiration"), iK = idx(csv.header, "strike"), iR = idx(csv.header, "right"),
           iO = idx(csv.header, "open_interest") >= 0 ? idx(csv.header, "open_interest") : idx(csv.header, "oi");
-        const iT = idx(csv.header, "date") >= 0 ? idx(csv.header, "date") : idx(csv.header, "created");
-        if (iE < 0 || iK < 0 || iR < 0 || iO < 0 || iT < 0) continue;
+        // La columna de fecha de ESTE endpoint es `timestamp` (no `date` ni `created`, que es lo
+        // que usan los de EOD). Lo aprendimos por las malas: la primera versión buscaba los
+        // nombres equivocados y, al no encontrarlos, hacía `continue` — 75 minutos escribiendo
+        // archivos vacíos sin un solo error.
+        const iT = ["timestamp", "date", "created", "ms_of_day"].map((n) => idx(csv.header, n)).find((i) => i >= 0) ?? -1;
+        if (iE < 0 || iK < 0 || iR < 0 || iO < 0 || iT < 0) {
+          // FALLAR RUIDOSO, no seguir: si las columnas no son las esperadas, todo lo que venga
+          // detrás es basura silenciosa. Mejor parar y que alguien mire.
+          throw new Error(
+            `[${t}] columnas inesperadas en open_interest: ${csv.header.join(", ")} — ` +
+            `faltan ${[["expiration", iE], ["strike", iK], ["right", iR], ["open_interest", iO], ["fecha", iT]].filter(([, i]) => (i as number) < 0).map(([n]) => n).join(", ")}`,
+          );
+        }
 
         for (const r of csv.rows) {
           const dia = (r[iT] || "").slice(0, 10).replace(/-/g, "");
@@ -107,8 +125,14 @@ type OiDia = Record<string, Record<string, [number, number]>>;
           par[esCall ? 0 : 1] += oi;
         }
       }
-      writeFileSync(dest, JSON.stringify(acc), "utf8");
       const dias = Object.keys(acc).length;
+      if (dias === 0) {
+        // Un año con CERO días es sospechoso, no normal: significa que el filtro o el parseo
+        // están mal. No se cachea —cachearlo congelaría el fallo— y se avisa a gritos.
+        console.error(`[${t}] ⚠⚠ ${ys.slice(0, 4)} salió VACÍO — no se guarda. Revisa el parseo antes de seguir.`);
+        continue;
+      }
+      writeFileSync(dest, JSON.stringify(acc), "utf8");
       console.log(`[${t}] ${ys.slice(0, 4)} → ${dias} días con OI · ${((Date.now() - t0) / 60000).toFixed(1)} min`);
     }
   }
