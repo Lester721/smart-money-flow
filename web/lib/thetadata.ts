@@ -327,34 +327,50 @@ export function spotPorParidad(filas: FilaEodOpcion[]): Map<string, number> {
  */
 export async function fetchDailyUnderlyingParidad(symbol: string, startYmd: string, endYmd: string): Promise<Map<string, number>> {
   const out = new Map<string, number>();
-  for (const seg of segmentosPorSimbolo(symbol, startYmd, endYmd))
-  for (const [cs, ce] of monthChunks(seg.start, seg.end)) {
+  // Trozos EN PARALELO (ver la receta de CLAUDE.md): el volcado EOD de opciones es la petición
+  // más pesada del proyecto —~28 s y ~9 MB por mes— y en secuencial usaba 1 de las 4 conexiones
+  // del plan. Cada trozo devuelve su propio Map y se funden después; el spot de un día no
+  // depende de otros días, así que trocear y paralelizar no cambia el resultado.
+  const tareas: { seg: { symbol: string }; cs: string; ce: string }[] = [];
+  for (const seg of segmentosPorSimbolo(symbol, startYmd, endYmd)) {
+    for (const [cs, ce] of monthChunks(seg.start, seg.end)) tareas.push({ seg, cs, ce });
+  }
+  const trozos = await pMapT(tareas, CONC, async ({ seg, cs, ce }) => {
+    const parcial = new Map<string, number>();
     const filas: FilaEodOpcion[] = [];
     const csv = await getCsv(`/v3/option/history/eod?symbol=${seg.symbol}&expiration=*&start_date=${cs}&end_date=${ce}`);
-    if (!csv) continue;
+    if (!csv) return parcial;
     const iE = idx(csv.header, "expiration"), iK = idx(csv.header, "strike"), iR = idx(csv.header, "right"),
       iC = idx(csv.header, "close"), iV = idx(csv.header, "volume");
     const iT = idx(csv.header, "date") >= 0 ? idx(csv.header, "date") : idx(csv.header, "created");
-    if (iE < 0 || iK < 0 || iR < 0 || iC < 0 || iT < 0) continue;
+    if (iE < 0 || iK < 0 || iR < 0 || iC < 0 || iT < 0) return parcial;
     for (const r of csv.rows) {
       const day = (r[iT] || "").slice(0, 10).replace(/-/g, "");
       const close = Number(r[iC]) || 0, volume = Number(r[iV]) || 0;
       if (!day || !(close > 0) || !(volume > 0)) continue; // filtrar YA: un año de SPY son ~5M de filas
       filas.push({ exp: r[iE], strike: Number(r[iK]), right: r[iR], close, volume, day });
     }
-    for (const [d, s] of spotPorParidad(filas)) out.set(d, s);
-  }
+    for (const [d, s] of spotPorParidad(filas)) parcial.set(d, s);
+    return parcial;
+  });
+  for (const parcial of trozos) for (const [d, s] of parcial) out.set(d, s);
   return out;
 }
 
 // ── Volumen por contrato (para seleccionar líquidos) — EOD bulk troceado ─────────────────────
 interface VolInfo { vol: number; close: number }
 async function fetchContractVolumes(symbol: string, startYmd: string, endYmd: string): Promise<Map<string, VolInfo>> {
-  const m = new Map<string, VolInfo>();
-  for (const seg of segmentosPorSimbolo(symbol, startYmd, endYmd))
-  for (const [cs, ce] of monthChunks(seg.start, seg.end)) {
+  // Trozos EN PARALELO (receta de CLAUDE.md). Esta función corre en CADA ticker-año dentro de
+  // fetchFlowRange y baja el mismo volcado pesado que la paridad, así que era uno de los dos
+  // cuellos reales de las descargas largas.
+  const tareas: { seg: { symbol: string }; cs: string; ce: string }[] = [];
+  for (const seg of segmentosPorSimbolo(symbol, startYmd, endYmd)) {
+    for (const [cs, ce] of monthChunks(seg.start, seg.end)) tareas.push({ seg, cs, ce });
+  }
+  const parciales = await pMapT(tareas, CONC, async ({ seg, cs, ce }) => {
+    const m = new Map<string, VolInfo>();
     const csv = await getCsv(`/v3/option/history/eod?symbol=${seg.symbol}&expiration=*&start_date=${cs}&end_date=${ce}`);
-    if (!csv) continue;
+    if (!csv) return m;
     const iE = idx(csv.header, "expiration"), iK = idx(csv.header, "strike"), iR = idx(csv.header, "right"),
       iV = idx(csv.header, "volume"), iC = idx(csv.header, "close");
     for (const r of csv.rows) {
@@ -363,6 +379,17 @@ async function fetchContractVolumes(symbol: string, startYmd: string, endYmd: st
       const prev = m.get(key);
       if (prev) { prev.vol += vol; if (close > 0) prev.close = close; }
       else m.set(key, { vol, close });
+    }
+    return m;
+  });
+  // Se funden en ORDEN: el `close` que gana es el del trozo más reciente, igual que en la
+  // versión secuencial. pMapT preserva el orden de entrada, así que el resultado es idéntico.
+  const m = new Map<string, VolInfo>();
+  for (const parcial of parciales) {
+    for (const [key, v] of parcial) {
+      const prev = m.get(key);
+      if (prev) { prev.vol += v.vol; if (v.close > 0) prev.close = v.close; }
+      else m.set(key, { vol: v.vol, close: v.close });
     }
   }
   return m;
