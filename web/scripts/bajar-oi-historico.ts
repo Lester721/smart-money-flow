@@ -16,6 +16,10 @@
 //        npx tsx scripts/bajar-oi-historico.ts
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";
+// El mismo mapeo de nombres del cliente: META era FB antes del 2022-06-09 y pedirla por su
+// nombre de hoy devuelve VACÍO para los años anteriores. Se importa en vez de reimplementarse
+// — la primera versión de este script no lo usó y META perdió 6 de sus 11 años en silencio.
+import { segmentosPorSimbolo } from "../lib/thetadata";
 
 const TICKERS = (process.env.OI_TICKERS || "SPY,AAPL,MSFT,NVDA,META,TSLA,AMD,QQQ,HOOD").split(",");
 const START = process.env.OI_START || "20160101";
@@ -90,7 +94,9 @@ type OiDia = Record<string, Record<string, [number, number]>>;
       const acc: OiDia = {};
       const t0 = Date.now();
       for (const [cs, ce] of monthChunks(ys, ye)) {
-        const csv = await getCsv(`/v3/option/history/open_interest?symbol=${t}&expiration=*&start_date=${cs}&end_date=${ce}`);
+        // Un trozo puede cruzar un cambio de nombre, así que se piden todos sus tramos.
+        for (const seg of segmentosPorSimbolo(t, cs, ce)) {
+        const csv = await getCsv(`/v3/option/history/open_interest?symbol=${seg.symbol}&expiration=*&start_date=${seg.start}&end_date=${seg.end}`);
         if (!csv) continue;
         if (!cabecera) { console.log(`   columnas: ${csv.header.join(", ")}\n`); cabecera = true; }
         const iE = idx(csv.header, "expiration"), iK = idx(csv.header, "strike"), iR = idx(csv.header, "right"),
@@ -123,6 +129,7 @@ type OiDia = Record<string, Record<string, [number, number]>>;
           const porStrike = (acc[dia] ??= {});
           const par = (porStrike[String(k)] ??= [0, 0]);
           par[esCall ? 0 : 1] += oi;
+        }
         }
       }
       const dias = Object.keys(acc).length;
