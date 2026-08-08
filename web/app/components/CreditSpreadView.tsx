@@ -29,7 +29,7 @@ const MEJORAS: { n: number; name: string; does: string; status: "viva" | "parcia
   {
     n: 1, name: "Conciencia de régimen", status: "dev",
     does: "Sabe en qué 'clima' está el mercado (tranquilo o volátil) y ajusta: una señal que en promedio es ruido puede ser fuerte en un clima específico.",
-    here: "Ya tenemos el DIAGNÓSTICO (2 años: 2021-2022), y salió al revés de lo que temíamos: vender prima rinde MEJOR en clima volátil (IV alta = prima gorda = más colchón). El 90d da +0.2% / +4.4% / +8.1% en clima tranquilo / normal / volátil. Un filtro de «apagar en volátil» habría destruido el edge. Todavía NO está cableado: primero hay que probar fuera de muestra que condicionar por clima aporta de verdad.",
+    here: "Con 10 años (2016-2026) el clima dejó de importar: el 5d de alta convicción da +1.0% / +2.5% / +2.9% en tranquilo / normal / volátil — positivo en los tres. Probamos filtros de régimen (apagar cuando la volatilidad supera cierto nivel) y FALLAN fuera de muestra: «rv<30%» daba +3.35% en la mitad vieja y −0.92% en la nueva. Se descartó. Lo que SÍ funcionó no fue el clima del mercado sino el precio de la prima: no vender cuando el flujo paga una IV desproporcionada.",
   },
   {
     n: 2, name: "Lado del dealer (GEX)", status: "parcial",
@@ -89,29 +89,30 @@ export default function CreditSpreadView() {
       <div className="card" style={{ borderLeft: "4px solid #12B76A" }}>
         <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>El resultado del backtest, en corto 📈</div>
         <div className="card-sub">
-          Fuimos <strong>2 años atrás</strong> (2021-2022, <strong>1,540 señales</strong>) — un período que incluye el
-          <strong> bear de 2022</strong>, pero <strong>NO el crash del COVID</strong>. El vehículo que aguanta es el
-          <strong> credit spread a 90 días</strong>, vendido <strong>solo en el Top⅓ de convicción de EVA</strong>:
-          <strong> +4.6%</strong> de retorno medio sobre riesgo. Y no fue suerte: positivo en las
-          <strong> 2 mitades</strong> del período (+3.1% / +6.2%), en los <strong>3 climas</strong> de mercado, y sobrevive
-          costos hasta <strong>15% de slippage</strong> (+2.9%).
+          Fuimos <strong>10 años atrás</strong> (2016-2026, <strong>7,595 señales</strong>) — incluido el
+          <strong> crash del COVID</strong> y el bear de 2022. El vehículo que aguanta es el
+          <strong> credit spread a 5 y 7 días</strong>, vendido <strong>solo en el Top⅓ de convicción de EVA</strong> y
+          <strong> saltándose los días en que el flujo paga una IV desproporcionada</strong>:
+          <strong> +3.2%</strong> de retorno medio sobre riesgo. Y no fue suerte: positivo en las
+          <strong> 2 mitades</strong> del período (+3.4% / +3.0%) y en los <strong>3 climas</strong> de mercado.
         </div>
         <div style={{ fontSize: 13.5, color: "#101828", marginTop: 10, background: "#F1F5F4", borderRadius: 8, padding: "10px 12px" }}>
-          <strong>¿En una cuenta de $60,000?</strong> Arriesgando <strong>2% ($1,200)</strong> por operación, con las <strong>~128 operaciones</strong> de alta convicción al año (celda de 90 días) a <strong>+4.6%</strong> de media:
+          <strong>¿En una cuenta de $60,000?</strong> Arriesgando <strong>2% ($1,200)</strong> por operación, con las <strong>~208 operaciones</strong> al año que pasan el filtro, a <strong>+3.2%</strong> de media:
           <div style={{ margin: "8px 0", fontVariantNumeric: "tabular-nums", display: "flex", flexDirection: "column", gap: 5 }}>
-            <div>• <strong>Escenario base:</strong> $60,000 → <strong style={{ color: "#027A48" }}>~$67,100</strong> &nbsp;(+$7,100 · ~+11.8% al año)</div>
-            <div>• <strong>Con 15% de slippage</strong> (el caso duro): $60,000 → <strong style={{ color: "#027A48" }}>~$64,500</strong> &nbsp;(+$4,500 · ~+7.4%)</div>
+            <div>• <strong>208 operaciones × $39 = </strong><strong style={{ color: "#027A48" }}>~$8,053 al año</strong> &nbsp;(~+13% sobre la cuenta)</div>
+            <div>• <strong>Sin el filtro de IV</strong> (solo Top⅓): 241 × $28 = <strong>~$6,660</strong> &nbsp;— el filtro vale <strong>+$1,393</strong></div>
           </div>
-          <div style={{ color: "#B54708" }}>
-            ⚠ <strong>Ojo con el capital:</strong> a 90 días las posiciones quedan abiertas 3 meses, así que tendrías
-            <strong> ~32 abiertas a la vez ≈ $38,400 comprometidos</strong> (64% de la cuenta). Rinde más que el plazo corto,
-            pero <strong>usa mucho más capital</strong>.
+          <div style={{ color: "#101828" }}>
+            <strong>El capital no es la limitación:</strong> a 5 días tendrías <strong>~4-5 posiciones abiertas a la vez
+            ≈ $5,400</strong> (9% de la cuenta). Lo que escasea son las señales, no el dinero — por eso preferimos
+            frecuencia a rendimiento por operación.
           </div>
         </div>
         <div style={{ fontSize: 11.5, color: "#667085", marginTop: 8 }}>
-          Simulación sobre 2 años de datos reales (2021-2022). Vencimiento por calendario, IV≈vol realizada, costos incluidos.
-          El monto en $ es <strong>ilustrativo</strong>: depende del tamaño de posición y cuenta solo la celda de 90 días.
-          Es backtest — la prueba en vivo (abajo) es la que manda.
+          Simulación sobre <strong>10 años</strong> de datos reales (2016-2026). Vencimiento por calendario, IV≈vol realizada, costos incluidos.
+          El monto en $ es <strong>ilustrativo</strong> y depende del tamaño de posición. Es el <strong>promedio esperado</strong> de
+          una distribución con cola gorda —ganas 11.5% muchas veces y pierdes ~65% pocas veces—, <strong>no una renta mensual</strong>:
+          hubo <strong>2 años perdedores de 11</strong>. Es backtest — la prueba en vivo (abajo) es la que manda.
         </div>
       </div>
 
@@ -119,19 +120,22 @@ export default function CreditSpreadView() {
       <div className="card">
         <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 6 }}>1 · Las pruebas que hicimos (backtest)</div>
         <div className="card-sub" style={{ marginBottom: 10 }}>
-          Probamos la idea contra <strong>2 años</strong> de datos reales (2021-2022, con el bear de 2022 dentro). Le pusimos 3 exámenes duros:
+          Probamos la idea contra <strong>10 años</strong> de datos reales (2016-2026, con el COVID y el bear de 2022 dentro). Le pusimos 3 exámenes duros:
         </div>
         <div style={{ fontSize: 12, color: "#B54708", background: "#FFFAEB", border: "1px solid #FEDF89", borderRadius: 8, padding: "8px 10px", marginBottom: 10 }}>
-          <strong>⚠️ Corrección (7 ago 2026):</strong> este backtest se describió como &ldquo;4 años, 2019-2022, con el crash del COVID
-          incluido&rdquo;. Era falso: las barras de precio del proveedor empiezan en <strong>2021-01</strong>, y las señales sin precio
-          se descartaban en silencio. El período real fueron <strong>~2 años sin COVID</strong>. Los números de abajo son válidos
-          para 2021-2022; lo que <strong>nunca se probó</strong> es que aguante un crash.
+          <strong>⚠️ Historial de correcciones (7 ago 2026).</strong> Esta vista dijo dos cosas que resultaron falsas, y conviene
+          que queden escritas: <strong>(1)</strong> se describió un backtest como &ldquo;4 años con el crash del COVID&rdquo; cuando el
+          proveedor solo daba precios desde 2021 y las señales sin precio se descartaban en silencio — fueron <strong>2 años sin
+          COVID</strong>. <strong>(2)</strong> Con esos 2 años se concluyó que el plazo bueno era el de <strong>90 días</strong>. Con
+          10 años reales, el 90d da <strong>−2.5%</strong> y falla out-of-sample: el edge está en el <strong>plazo corto</strong>.
+          Cuatro conclusiones se dieron vuelta al ampliar la muestra — ninguna era un error de cálculo, era <strong>ruido con
+          aspecto de señal</strong>.
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 10 }}>
           {[
-            ["Out-of-sample", "¿Aguanta en el tiempo o fue suerte de un período? Partimos los 2 años en 2 mitades.", "PASA (90d) — +3.1% y +6.2%", true],
-            ["Amplitud", "¿El edge es de UNA combinación con suerte, o de muchas?", "OJO — solo 6 de 16 combinaciones; se concentra en los plazos LARGOS", false],
-            ["Costos", "¿El slippage (lo que pierdes al operar) se come el edge?", "PASA (90d) — sobrevive hasta 15% de slippage", true],
+            ["Out-of-sample", "¿Aguanta en el tiempo o fue suerte de un período? Partimos los 10 años en 2 mitades (la vieja incluye el COVID).", "PASA (5d) — +3.4% y +3.0%", true],
+            ["Amplitud", "¿El edge es de UNA combinación con suerte, o de muchas?", "OJO — 6 de 16 combinaciones; todas en plazo CORTO (3d a 30d)", false],
+            ["El crash", "¿Qué hizo durante el desplome del COVID (feb-abr 2020)?", "SOBREVIVE, no gana — media −1.6% en esos 3 meses (n=34)", false],
           ].map(([t, q, r, ok]) => (
             <div key={t as string} style={{ background: "#F1F5F4", borderRadius: 10, padding: 12 }}>
               <div style={{ fontWeight: 700, fontSize: 13 }}>{t}</div>
@@ -141,11 +145,12 @@ export default function CreditSpreadView() {
           ))}
         </div>
         <div style={{ fontSize: 12.5, color: "#667085", marginTop: 10 }}>
-          <strong>Dos conclusiones, y una nos costó una creencia:</strong> (1) el <strong>filtro de EVA funciona</strong> — el Top⅓ de
-          convicción rinde <strong>+0.9%</strong> vs <strong>−2.0%</strong> del Bottom⅓, y le gana a los pesos de Victor (+0.1%).
-          (2) Pero <strong>el plazo importa más de lo que creíamos</strong>: con un solo año calmo, el spread de <strong>5 días</strong>
-          parecía dar +5.6%; con 2 años y un bear market cae a +0.9% y <strong>falla el out-of-sample</strong>. Era un espejismo del
-          período tranquilo. El que aguanta mejor es el de <strong>90 días</strong>.
+          <strong>Tres conclusiones:</strong> (1) el <strong>filtro de EVA funciona</strong> — el Top⅓ de convicción rinde
+          <strong> +2.3%</strong> vs <strong>−3.7%</strong> del Bottom⅓, y le gana a los pesos de Victor (+1.5%). Es lo único que ha
+          sobrevivido a las cuatro versiones de esta prueba. (2) <strong>El edge está en el plazo corto</strong>: 5d da +2.3% y 90d
+          da <strong>−2.5%</strong> fallando out-of-sample. (3) <strong>El win rate casi no cambia nunca</strong> —entre 85% y 94%
+          todos los años—, así que lo que decide el año no es cuántas ganas sino <strong>cuánto pesan las pocas que pierdes</strong>.
+          Por eso la mejora que sirvió fue un filtro de cola, no uno de dirección.
         </div>
       </div>
 
@@ -156,6 +161,14 @@ export default function CreditSpreadView() {
           El backtest mira al pasado (se puede engañar). El <strong>forward-test</strong> es la prueba de verdad: hacia adelante,
           con datos que EVA no vio nunca. Cada día hábil, EVA registra (en simulación) el credit spread que abriría en los tickers de alta
           convicción, y lo liquida a vencimiento contra el precio real. Corre solo en la nube (Railway) y va acumulando resultados con el tiempo.
+        </div>
+        <div style={{ fontSize: 12.5, color: "#101828", background: "#F1F5F4", borderRadius: 8, padding: "10px 12px", marginTop: 10 }}>
+          <strong>Cambios del 7 ago 2026, tras el backtest de 10 años:</strong>
+          <div style={{ margin: "6px 0 0", display: "flex", flexDirection: "column", gap: 4 }}>
+            <div>• <strong>Celdas:</strong> se pasó de 5d/60d/90d a <strong>5d y 7d (a 1σ y 1.5σ)</strong> — las 4 que aguantan out-of-sample. El 90d se queda solo como <strong>control</strong>.</div>
+            <div>• <strong>Gestión APAGADA.</strong> La regla que corría (cerrar al ganar 25% / cortar al perder 1× la prima) salió de la muestra vieja de 2 años. Con 10 años resultó ser <strong>la peor de 9 reglas</strong>: bajaba de ~$8,053 a ~$4,973 al año. Las posiciones ya abiertas con ella siguen como grupo de control.</div>
+            <div>• <strong>Scorer nuevo &laquo;EVA-IV&raquo;</strong> corriendo en paralelo, sin cambiar qué se abre: mide si saltarse los días de IV desproporcionada funciona también en vivo.</div>
+          </div>
         </div>
       </div>
 
