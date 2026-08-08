@@ -11,6 +11,12 @@ import {
   classifyFlow, executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow,
 } from "../lib/flow";
 import { bsPrice, impliedVol } from "../lib/blackScholes";
+// El núcleo (señales + P&L del credit spread) vive en lib/ para que los diagnósticos usen
+// el MISMO código, no una copia. Ver lib/backtestCore.ts.
+import {
+  WIDTH_EM, type DBar, type Signal, signals, creditSpreadPnl,
+  dateStr, barIdxOnOrAfter, barIdxOnOrBefore, realizedVol, ivProxyScore,
+} from "../lib/backtestCore";
 import { fetchDailyBars } from "../lib/massive";
 import { fetchFlowRange, fetchDailyUnderlying, fetchDailyUnderlyingParidad } from "../lib/thetadata";
 
@@ -46,112 +52,9 @@ const SIG_FROM = process.env.BT_SIG_FROM || "";
 const OUT = process.env.BT_OUT || "scripts/backtest-strategy-reporte.md";
 const DTES = [3, 5, 7, 30, 60, 90, 180, 365];
 const SIGMAS = [1, 1.5];
-const WIDTH_EM = 0.5; // ancho del spread = 0.5σ (pata protectora más OTM)
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-interface DBar { time: string; close: number }
-function dateStr(ms: number): string { return new Date(ms).toISOString().slice(0, 10); }
-function barIdxOnOrAfter(bars: DBar[], ms: number): number {
-  for (let i = 0; i < bars.length; i++) if (Date.parse(`${bars[i].time}T20:00:00Z`) >= ms) return i;
-  return -1;
-}
-function barIdxOnOrBefore(bars: DBar[], ms: number): number {
-  let idx = -1;
-  for (let i = 0; i < bars.length; i++) { if (Date.parse(`${bars[i].time}T00:00:00Z`) <= ms) idx = i; else break; }
-  return idx;
-}
-function realizedVol(bars: DBar[], endIdx: number, lookback = 20): number | null {
-  const start = Math.max(1, endIdx - lookback);
-  const rets: number[] = [];
-  for (let i = start; i <= endIdx; i++) if (bars[i - 1].close > 0 && bars[i].close > 0) rets.push(Math.log(bars[i].close / bars[i - 1].close));
-  if (rets.length < 5) return null;
-  const m = rets.reduce((s, x) => s + x, 0) / rets.length;
-  const v = rets.reduce((s, x) => s + (x - m) ** 2, 0) / (rets.length - 1);
-  return Math.sqrt(v) * Math.sqrt(252);
-}
-function ivProxyScore(iv: number, rv: number | null): number {
-  if (rv == null || !(rv > 0)) return 5;
-  const ratio = iv / rv;
-  if (ratio < 0.9) return 10;
-  if (ratio <= 1.2) return 7;
-  if (ratio <= 1.6) return 4;
-  return 0;
-}
-
-interface Signal { entryIdx: number; spot: number; rv: number; dir: 1 | -1; evaComp: number; victorComp: number; entryMs: number }
 const YR = 365 * 24 * 3600 * 1000;
-
-// Agrupa el flujo por DÍA: dirección neta (a favor del dinero) + composite de fuerza Eva/Victor
-// (promedio ponderado por premium de los 4 sub-scores por-flujo, con los pesos de cada uno).
-function signals(rows: FlowRow[], bars: DBar[]): Signal[] {
-  const byDay = new Map<string, FlowRow[]>();
-  for (const r of rows) {
-    const d = r.timestamp.slice(0, 10);
-    const arr = byDay.get(d); if (arr) arr.push(r); else byDay.set(d, [r]);
-  }
-  const out: Signal[] = [];
-  for (const [d, dayRows] of byDay) {
-    const entryIdx = barIdxOnOrBefore(bars, Date.parse(`${d}T20:00:00Z`));
-    if (entryIdx < 20 || entryIdx >= bars.length - 1) continue;
-    const rv = realizedVol(bars, entryIdx);
-    if (rv == null || !(rv > 0)) continue;
-    const spot = bars[entryIdx].close;
-    let net = 0, totP = 0, aA = 0, aC = 0, aU = 0, aI = 0;
-    for (const r of dayRows) {
-      const s = r.sentiment === "bullish" ? 1 : r.sentiment === "bearish" ? -1 : 0;
-      if (s !== 0) net += s * r.premium;
-      if (r.strike == null || !r.expiration || !(r.price > 0)) continue;
-      const T = (Date.parse(`${r.expiration}T20:00:00Z`) - Date.parse(`${d}T20:00:00Z`)) / YR;
-      if (T <= 0) continue;
-      const iv = impliedVol(r.price, spot, r.strike, T, r.type === "call" ? "call" : "put");
-      if (iv == null || !(iv > 0)) continue;
-      aA += executionScore(executionLevel(r.price, r.bid, r.ask, r.side)) * r.premium;
-      aC += spreadScore(spreadPct(r.bid, r.ask)) * r.premium;
-      aU += unusualTradeScore(r).total * r.premium;
-      aI += ivProxyScore(iv, rv) * r.premium;
-      totP += r.premium;
-    }
-    if (net === 0 || totP <= 0) continue;
-    const wa = aA / totP, wc = aC / totP, wu = aU / totP, wi = aI / totP;
-    const victorComp = ((wa / 10) * 20 + (wc / 10) * 20 + (wu / 10) * 20 + (wi / 10) * 10) / 70 * 100;
-    const evaComp = ((wc / 10) * 30 + (wu / 10) * 20 + (wi / 10) * 15 + (wa / 10) * 10) / 75 * 100;
-    out.push({ entryIdx, spot, rv, dir: net > 0 ? 1 : -1, evaComp, victorComp, entryMs: Date.parse(`${d}T20:00:00Z`) });
-  }
-  return out;
-}
-
-// P&L de un credit spread a favor de la dirección, sostenido a vencimiento. Retorno sobre riesgo.
-// Costos: slip = fracción del crédito perdida al slippage (cruzar el bid/ask); commPerContract =
-// comisión por contrato (Robinhood ~0). El crédito real recibido baja por ambos.
-function creditSpreadPnl(sig: Signal, bars: DBar[], dte: number, sigmaMult: number, slip = 0, commPerContract = 0): number | null {
-  const { spot, rv, entryIdx, dir } = sig;
-  const T = dte / 365;
-  const em = spot * rv * Math.sqrt(dte / 365);
-  if (!(em > 0)) return null;
-  const bull = dir === 1;
-  // bull → vende put spread abajo; bear → vende call spread arriba (a favor).
-  const shortK = bull ? spot - sigmaMult * em : spot + sigmaMult * em;
-  const longK = bull ? shortK - WIDTH_EM * em : shortK + WIDTH_EM * em;
-  if (shortK <= 0 || longK <= 0) return null;
-  const type = bull ? "put" : "call";
-  const credit = bsPrice(spot, shortK, T, rv, type) - bsPrice(spot, longK, T, rv, type);
-  const width = Math.abs(shortK - longK);
-  if (!(credit > 0) || !(width > 0)) return null;
-  // COSTOS: crédito neto = crédito×(1−slip) − comisión por acción (2 patas al abrir / 100).
-  const commPerShare = (commPerContract * 2) / 100;
-  const netCredit = credit * (1 - slip) - commPerShare;
-  if (!(netCredit > 0)) return null; // no queda prima tras costos
-  // vencimiento
-  const expMs = Date.parse(`${bars[entryIdx].time}T20:00:00Z`) + dte * 86_400_000;
-  const expIdx = barIdxOnOrAfter(bars, expMs);
-  if (expIdx < 0) return null; // aún no vence en los datos
-  const sExp = bars[expIdx].close;
-  const shortIntr = bull ? Math.max(shortK - sExp, 0) : Math.max(sExp - shortK, 0);
-  const longIntr = bull ? Math.max(longK - sExp, 0) : Math.max(sExp - longK, 0);
-  const pnl = netCredit - (shortIntr - longIntr); // $ por spread
-  const risk = width - netCredit;
-  return risk > 0 ? pnl / risk : pnl / width; // retorno sobre riesgo
-}
 
 // ETAPA 2a — Debit spread DIRECCIONAL a favor (riesgo = débito pagado). Long ATM, short en el strike σ.
 function debitSpreadPnl(sig: Signal, bars: DBar[], dte: number, sigmaMult: number): number | null {

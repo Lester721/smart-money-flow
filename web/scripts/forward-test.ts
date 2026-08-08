@@ -73,6 +73,9 @@ interface Trade {
   spot: number; rv: number; shortK: number; longK: number; width: number;
   credit: number; netCredit: number; expiryMs: number; expiryDate: string;
   evaComp: number; victorComp: number;
+  /** IV pagada por el flujo / vol realizada. <1.1 es el filtro del scorer EVA-IV. */
+  ivRatio?: number;
+  netRatio?: number;
   status: "open" | "closed";
   exitDate?: string; exitSpot?: number; retOnRisk?: number; pnlPerSpread?: number;
   /** Regla de salida asignada AL ABRIR. Ausente = sin gestión (sostener a vencimiento).
@@ -148,7 +151,15 @@ function ivProxyScore(iv: number, rv: number | null): number {
   return 0;
 }
 
-interface Signal { entryDate: string; entryIdx: number; spot: number; rv: number; dir: 1 | -1; evaComp: number; victorComp: number; entryMs: number }
+// DEUDA CONOCIDA: esta `signals()` es gemela de la de lib/backtestCore.ts. Difieren en UNA
+// línea a propósito — el backtest descarta la última barra (no puede liquidar) y aquí sí se
+// abre con la del día. Unificarlas con un parámetro está pendiente; no se hizo el mismo día en
+// que la corrida en vivo depende de este script. Si tocas una, TOCA LA OTRA.
+interface Signal {
+  entryDate: string; entryIdx: number; spot: number; rv: number; dir: 1 | -1;
+  evaComp: number; victorComp: number; entryMs: number;
+  netRatio: number; ivRatio: number;
+}
 // Igual que el backtest: agrupa el flujo por DÍA → dirección neta + composite de convicción.
 // Diferencia: NO exige una barra "siguiente" (en vivo entramos al cierre del último día).
 function signals(rows: FlowRow[], bars: DBar[]): Signal[] {
@@ -165,9 +176,10 @@ function signals(rows: FlowRow[], bars: DBar[]): Signal[] {
     if (rv == null || !(rv > 0)) continue;
     const spot = bars[entryIdx].close;
     let net = 0, totP = 0, aA = 0, aC = 0, aU = 0, aI = 0;
+    let dirP = 0, aIV = 0;
     for (const r of dayRows) {
       const s = r.sentiment === "bullish" ? 1 : r.sentiment === "bearish" ? -1 : 0;
-      if (s !== 0) net += s * r.premium;
+      if (s !== 0) { net += s * r.premium; dirP += r.premium; }
       if (r.strike == null || !r.expiration || !(r.price > 0)) continue;
       const T = (Date.parse(`${r.expiration}T20:00:00Z`) - Date.parse(`${d}T20:00:00Z`)) / YR;
       if (T <= 0) continue;
@@ -177,13 +189,19 @@ function signals(rows: FlowRow[], bars: DBar[]): Signal[] {
       aC += spreadScore(spreadPct(r.bid, r.ask)) * r.premium;
       aU += unusualTradeScore(r).total * r.premium;
       aI += ivProxyScore(iv, rv) * r.premium;
+      aIV += iv * r.premium;
       totP += r.premium;
     }
     if (net === 0 || totP <= 0) continue;
     const wa = aA / totP, wc = aC / totP, wu = aU / totP, wi = aI / totP;
     const victorComp = ((wa / 10) * 20 + (wc / 10) * 20 + (wu / 10) * 20 + (wi / 10) * 10) / 70 * 100;
     const evaComp = ((wc / 10) * 30 + (wu / 10) * 20 + (wi / 10) * 15 + (wa / 10) * 10) / 75 * 100;
-    out.push({ entryDate: d, entryIdx, spot, rv, dir: net > 0 ? 1 : -1, evaComp, victorComp, entryMs: Date.parse(`${d}T20:00:00Z`) });
+    out.push({
+      entryDate: d, entryIdx, spot, rv, dir: net > 0 ? 1 : -1, evaComp, victorComp,
+      entryMs: Date.parse(`${d}T20:00:00Z`),
+      netRatio: dirP > 0 ? Math.abs(net) / dirP : 0,
+      ivRatio: rv > 0 ? (aIV / totP) / rv : 0,
+    });
   }
   return out;
 }
@@ -212,6 +230,7 @@ function openSpread(sig: Signal, dte: number, sigma: number): Trade | null {
     spot: round(spot), rv: round(rv, 4), shortK: round(shortK), longK: round(longK), width: round(width),
     credit: round(credit, 4), netCredit: round(netCredit, 4), expiryMs, expiryDate: new Date(expiryMs).toISOString().slice(0, 10),
     evaComp: round(sig.evaComp, 1), victorComp: round(sig.victorComp, 1),
+    ivRatio: round(sig.ivRatio, 3), netRatio: round(sig.netRatio, 3),
     status: "open",
   };
 }
@@ -399,6 +418,35 @@ function pctile(vals: number[], p: number): number | null {
       }
       L.push(`- El backtest esperaba **+0,9% → +2,2%**. Ojo: el control lleva ventaja de tiempo (empezó antes), así que compara cuando ambos tengan cierres suficientes.`);
     }
+    // ── SCORER NUEVO "EVA-IV" — el mismo Top⅓ pero SIN los días en que el flujo paga una IV
+    // desproporcionada frente a la volatilidad realizada (ivRatio >= 1.1). Sale del backtest de
+    // 10 años (2016-2026, n=7.595): sobre el Top⅓, filtrar por IV/rv<1.1 subió la media de
+    // +2,27% a +3,19% conservando el 86% de las operaciones, y aguantó las DOS mitades OOS
+    // (+3,41 / +2,97). En dólares, con $1.200 de riesgo por operación: de ~$6.660 a ~$8.053 al año.
+    //
+    // MECANISMO (no es minería de datos): cuando el flujo paga mucha IV, el mercado está
+    // descontando un movimiento que la volatilidad pasada no ve — vender prima contra eso es
+    // ponerse delante del camión.
+    //
+    // EVA SIGUE INTACTA como referencia: esto NO cambia qué posiciones se abren, solo añade una
+    // lectura paralela sobre las mismas jugadas. Si el filtro resulta ser humo, se borra esta
+    // sección y no hay nada que deshacer.
+    const conIv = closed.filter((t) => t.ivRatio != null);
+    if (conIv.length >= 10) {
+      const kk = Math.max(1, Math.floor(conIv.length / 3));
+      const topIv = [...conIv].sort((a, b) => a.evaComp - b.evaComp).slice(conIv.length - kk);
+      const filtrado = topIv.filter((t) => (t.ivRatio ?? 9) < 1.1);
+      const excluido = topIv.filter((t) => (t.ivRatio ?? 9) >= 1.1);
+      L.push(
+        "",
+        "### Scorer EVA-IV — Top⅓ sin los días de IV desproporcionada",
+        `- **EVA-IV (Top⅓ + IV/rv<1,1):** ${fmt(stat(filtrado.map((t) => t.retOnRisk!)))}`,
+        `- Top⅓ sin filtrar (control): ${fmt(stat(topIv.map((t) => t.retOnRisk!)))}`,
+        `- Lo que el filtro DESCARTA: ${fmt(stat(excluido.map((t) => t.retOnRisk!)))}`,
+        `- El backtest de 10 años esperaba **+2,3% → +3,2%**. Sirve solo si lo descartado rinde PEOR que lo filtrado; si rinde igual o mejor, el filtro es ruido.`,
+      );
+    }
+
     // EL FILTRO: Top⅓ vs Bottom⅓ por convicción de EVA (misma metodología validada)
     const k = Math.max(1, Math.floor(closed.length / 3));
     const byEva = [...closed].sort((a, b) => a.evaComp - b.evaComp);
