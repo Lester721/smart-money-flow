@@ -20,8 +20,8 @@
 
 import { readFileSync, readdirSync } from "node:fs";
 import { classifyFlow } from "../lib/flow";
-import { signals, creditSpreadPnl, WIDTH_EM, barIdxOnOrAfter, type DBar, type Signal } from "../lib/backtestCore";
-import { bsPrice } from "../lib/blackScholes";
+import { signals, creditSpreadPnl, type DBar } from "../lib/backtestCore";
+import { ironCondorPnl } from "../lib/ironCondor";
 
 const DIR = "scripts/cache-theta";
 const TICKERS = (process.env.BT_TICKERS || "SPY,QQQ,AAPL,MSFT,NVDA,META,TSLA,AMD,HOOD").split(",");
@@ -40,48 +40,6 @@ const media = (a: number[]) => a.reduce((s, x) => s + x, 0) / Math.max(1, a.leng
 
 let semilla = 4242;
 const rnd = () => { semilla = (semilla * 1103515245 + 12345) & 0x7fffffff; return semilla / 0x7fffffff; };
-
-/**
- * Iron condor: vende put spread abajo Y call spread arriba, mismo vencimiento.
- * Cobra las dos primas; a vencimiento solo UNA pata puede estar dentro del dinero.
- * COSTES: 4 patas al abrir, así que el slippage y la comisión van al doble que en el vertical.
- */
-function ironCondorPnl(sig: Signal, bars: DBar[], dte: number, sigmaMult: number): number | null {
-  const { spot, rv, entryIdx } = sig;
-  const T = dte / 365;
-  const em = spot * rv * Math.sqrt(dte / 365);
-  if (!(em > 0)) return null;
-
-  const shortPut = spot - sigmaMult * em, longPut = shortPut - WIDTH_EM * em;
-  const shortCall = spot + sigmaMult * em, longCall = shortCall + WIDTH_EM * em;
-  if (longPut <= 0) return null;
-
-  const creditPut = bsPrice(spot, shortPut, T, rv, "put") - bsPrice(spot, longPut, T, rv, "put");
-  const creditCall = bsPrice(spot, shortCall, T, rv, "call") - bsPrice(spot, longCall, T, rv, "call");
-  const credit = creditPut + creditCall;
-  const width = WIDTH_EM * em;              // igual en los dos lados
-  if (!(credit > 0) || !(width > 0)) return null;
-
-  // 4 patas: el doble de comisión y de slippage que el vertical de 2 patas.
-  const commPerShare = (COMM * 4) / 100;
-  const netCredit = credit * (1 - SLIP) - commPerShare;
-  if (!(netCredit > 0)) return null;
-
-  const expMs = Date.parse(`${bars[entryIdx].time}T20:00:00Z`) + dte * 86_400_000;
-  const expIdx = barIdxOnOrAfter(bars, expMs);
-  if (expIdx < 0) return null;
-  const sExp = bars[expIdx].close;
-
-  // Solo un lado puede acabar dentro del dinero.
-  const perdidaPut = Math.max(shortPut - sExp, 0) - Math.max(longPut - sExp, 0);
-  const perdidaCall = Math.max(sExp - shortCall, 0) - Math.max(sExp - longCall, 0);
-  const perdida = perdidaPut + perdidaCall;
-
-  // El riesgo del cóndor es menor que el del vertical: se cobran DOS primas contra el MISMO ancho.
-  const risk = width - netCredit;
-  if (!(risk > 0)) return null;   // crédito ≥ ancho: imposible en la práctica, señal de mal precio
-  return (netCredit - perdida) / risk;
-}
 
 interface Fila { ms: number; condor: number; vertical: number; azar: number }
 
@@ -108,7 +66,7 @@ interface Fila { ms: number; condor: number; vertical: number; azar: number }
     for (const sig of top) {
       // El vertical se valora con los MISMOS costes, o la comparación estaría amañada.
       const v = creditSpreadPnl(sig, bars, DTE, SIGMA, SLIP, COMM);
-      const c = ironCondorPnl(sig, bars, DTE, SIGMA);
+      const c = ironCondorPnl(sig, bars, DTE, SIGMA, { slip: SLIP, commPerContract: COMM });
       const a = creditSpreadPnl({ ...sig, dir: rnd() < 0.5 ? 1 : -1 }, bars, DTE, SIGMA, SLIP, COMM);
       if (v == null || c == null || a == null) continue;
       filas.push({ ms: sig.entryMs, condor: c, vertical: v, azar: a });
