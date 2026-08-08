@@ -597,7 +597,7 @@ export async function fetchFlow(ticker: string, opts: ThetaFlowOptions = {}): Pr
  */
 export async function fetchGexNormalizado(
   symbol: string, spot: number, rv: number, maxDte = 21,
-): Promise<number | null> {
+): Promise<{ gex: number; nocional: number } | null> {
   const hoy = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const csv = await getCsv(`/v3/option/snapshot/open_interest?symbol=${symbol}&expiration=*`);
   if (!csv || !(spot > 0) || !(rv > 0)) return null;
@@ -606,7 +606,7 @@ export async function fetchGexNormalizado(
   if (iE < 0 || iK < 0 || iR < 0 || iO < 0) return null;
 
   const hoyMs = Date.parse(`${hoy.slice(0, 4)}-${hoy.slice(4, 6)}-${hoy.slice(6, 8)}T00:00:00Z`);
-  let gex = 0, filas = 0;
+  let gex = 0, filas = 0, oiTotal = 0;
   for (const r of csv.rows) {
     const oi = Number(r[iO]);
     const k = Number(r[iK]);
@@ -618,9 +618,14 @@ export async function fetchGexNormalizado(
     const g = bsGammaLocal(spot, k, Math.max(dte, 1) / 365, rv);
     if (!(g > 0)) continue;
     gex += g * ((r[iR] || "").toUpperCase().startsWith("C") ? oi : -oi) * 100 * spot * spot * 0.01;
+    oiTotal += oi;
     filas++;
   }
-  return filas > 0 ? gex / (spot * spot) : null;
+  // El NOCIONAL va junto al GEX porque es el criterio EX-ANTE que decide dónde el mecanismo
+  // existe: la fuerza del efecto sigue al tamaño del mercado de opciones con correlación de
+  // rangos 0,83 (SPY $207B → +0,297 · AMD $3,6B → −0,145). Sin este número habría que elegir
+  // tickers por su nombre, que es como se fabrican los hallazgos falsos.
+  return filas > 0 ? { gex: gex / (spot * spot), nocional: oiTotal * 100 * spot } : null;
 }
 
 /** Gamma de Black-Scholes. Local para no crear una dependencia circular con blackScholes.ts. */

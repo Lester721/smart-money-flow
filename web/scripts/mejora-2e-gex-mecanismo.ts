@@ -50,8 +50,9 @@ function rvHasta(cierres: number[], i: number): number | null {
 
 (async () => {
   console.log(`\n## ¿EXISTE el mecanismo del GEX? — movimiento realizado a ${HORIZONTE} días\n`);
-  console.log("| Ticker | n días | ⅓ gamma POS | ⅓ MEDIO | ⅓ gamma NEG | ¿crece? | sub-períodos OK |");
-  console.log("|---|---|---|---|---|---|---|");
+  const fuerzas: { t: string; fuerza: number; noc: number; ok: number }[] = [];
+  console.log("| Ticker | n días | ⅓ gamma POS | ⅓ MEDIO | ⅓ gamma NEG | ¿crece? | sub-per. | OI nocional |");
+  console.log("|---|---|---|---|---|---|---|---|");
 
   for (const t of TICKERS) {
     const trozos: { time: string; close: number }[] = [];
@@ -110,8 +111,47 @@ function rvHasta(cierres: number[], i: number): number | null {
       const ms = evalua(sub);
       if (ms[0] < ms[2]) ok++;   // basta con que el extremo negativo se mueva más que el positivo
     }
-    console.log(`| ${t} | ${dias.length} | ${m[0].toFixed(3)} | ${m[1].toFixed(3)} | ${m[2].toFixed(3)} | ${crece ? "**SÍ**" : "no"} | ${ok}/${SUBPERIODOS} |`);
+    // TAMAÑO DEL MERCADO DE OPCIONES — el criterio EX-ANTE que la teoría propone.
+    // El hedging de los dealers mueve el subyacente cuando el open interest es grande frente a
+    // él. Eso se MIDE (nocional de OI en la banda), no se elige por nombre. Si la fuerza del
+    // mecanismo sigue a este número, tenemos una regla que generaliza; si no, "NVDA sí, AMD no"
+    // sería elegir ganadores a posteriori — que es como se fabrican los cuatro hallazgos que ya
+    // se nos han caído.
+    let nocional = 0, nDias = 0;
+    for (const [ymd2, porExp] of Object.entries(oi)) {
+      const i = idxDe.get(ymd2); if (i == null) continue;
+      let oiTot = 0;
+      for (const porStrike of Object.values(porExp)) for (const par of Object.values(porStrike)) oiTot += par[0] + par[1];
+      nocional += oiTot * 100 * cierres[i]; nDias++;
+    }
+    const nocMedio = nDias ? nocional / nDias / 1e9 : 0;   // miles de millones de $
+    fuerzas.push({ t, fuerza: m[2] - m[0], noc: nocMedio, ok });
+    console.log(`| ${t} | ${dias.length} | ${m[0].toFixed(3)} | ${m[1].toFixed(3)} | ${m[2].toFixed(3)} | ${crece ? "**SÍ**" : "no"} | ${ok}/${SUBPERIODOS} | $${nocMedio.toFixed(1)}B |`);
   }
+
+  // ── ¿La fuerza del mecanismo SIGUE al tamaño del mercado de opciones? ────────────────────
+  // Si sí, hay un criterio EX-ANTE ("aplicar donde el nocional supere X") y no hace falta
+  // elegir nombres a posteriori — que es como se fabricaron los cuatro hallazgos que ya se nos
+  // cayeron. Si no, decir "NVDA sí, AMD no" sería exactamente eso: elegir ganadores mirando el
+  // resultado.
+  fuerzas.sort((a, b) => b.noc - a.noc);
+  console.log(`\n### ¿El mecanismo sigue al TAMAÑO del mercado de opciones?\n`);
+  console.log("| Ticker | OI nocional medio | Fuerza (NEG − POS) | sub-períodos |");
+  console.log("|---|---|---|---|");
+  for (const f of fuerzas) console.log(`| ${f.t} | $${f.noc.toFixed(1)}B | ${f.fuerza >= 0 ? "+" : ""}${f.fuerza.toFixed(3)} | ${f.ok}/4 |`);
+
+  // Spearman: con 8 tickers no prueba nada por sí solo, pero si sale alto la relación existe
+  // y da un criterio medible; si sale bajo, no hay regla que generalizar.
+  const rank = (arr: number[]) => arr.map((x) => arr.filter((y) => y > x).length + 1);
+  const rn = rank(fuerzas.map((f) => f.noc)), rf = rank(fuerzas.map((f) => f.fuerza));
+  const nT = rn.length;
+  const d2 = rn.reduce((s, x, i) => s + (x - rf[i]) ** 2, 0);
+  const rho = 1 - (6 * d2) / (nT * (nT * nT - 1));
+  console.log(`\n   Correlación de rangos tamaño ↔ fuerza: ${rho.toFixed(2)}  (n=${nT} tickers)`);
+  console.log(`   ${rho > 0.6
+    ? "El TAMAÑO predice el mecanismo → hay criterio ex-ante, no hace falta elegir nombres."
+    : rho > 0.3 ? "Relación débil: sugiere pero no basta para fijar un umbral."
+    : "El tamaño NO predice el mecanismo → elegir tickers sería a posteriori."}`);
 
   console.log(`\nEl movimiento va en unidades de σ esperada (1.00 = se movió exactamente lo previsto).`);
   console.log(`La teoría predice que la columna crezca de izquierda a derecha: gamma negativa`);

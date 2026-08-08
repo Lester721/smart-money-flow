@@ -110,6 +110,8 @@ interface Trade {
   /** GEX neto / spot², solo en ETF de índice. Se REGISTRA, no filtra: como con EVA-IV, el vivo
    *  mide si la regla funciona antes de dejarla decidir nada. */
   gexNorm?: number;
+  /** Nocional del OI cercano ($). El criterio ex-ante de dónde el mecanismo de gamma existe. */
+  oiNocional?: number;
   status: "open" | "closed";
   exitDate?: string; exitSpot?: number; retOnRisk?: number; pnlPerSpread?: number;
   /** Regla de salida asignada AL ABRIR. Ausente = sin gestión (sostener a vencimiento).
@@ -241,7 +243,7 @@ function signals(rows: FlowRow[], bars: DBar[]): Signal[] {
 }
 
 // ── Abrir / liquidar un credit spread de papel ────────────────────────────────
-function openSpread(sig: Signal, dte: number, sigma: number, gexHoy: number | null): Trade | null {
+function openSpread(sig: Signal, dte: number, sigma: number, gexHoy: number | null, nocionalHoy: number | null): Trade | null {
   const { spot, rv, entryMs, dir } = sig;
   const T = dte / 365;
   const em = spot * rv * Math.sqrt(dte / 365);
@@ -266,6 +268,7 @@ function openSpread(sig: Signal, dte: number, sigma: number, gexHoy: number | nu
     evaComp: round(sig.evaComp, 1), victorComp: round(sig.victorComp, 1),
     ivRatio: round(sig.ivRatio, 3), netRatio: round(sig.netRatio, 3),
     ...(gexHoy != null ? { gexNorm: Math.round(gexHoy) } : {}),
+    ...(nocionalHoy != null ? { oiNocional: Math.round(nocionalHoy / 1e6) } : {}),   // en millones
     status: "open",
   };
 }
@@ -360,18 +363,20 @@ function pctile(vals: number[], p: number): number | null {
       // medición paralela, no una condición para operar. Nunca asumir "gamma positiva" ante un
       // fallo — eso convertiría un error de red en una decisión.
       let gexHoy: number | null = null;
+      let nocionalHoy: number | null = null;
       const ultima = sigs[sigs.length - 1];
       if (ultima) {
-        gexHoy = await fetchGexNormalizado(t, ultima.spot, ultima.rv).catch(() => null);
-        if (gexHoy != null) {
-          console.log(`[${t}] GEX ${gexHoy > 0 ? "+" : ""}${Math.round(gexHoy).toLocaleString("en-US")}${INDICES_GEX.has(t) ? " (índice — con respaldo teórico)" : ""}`);
+        const r = await fetchGexNormalizado(t, ultima.spot, ultima.rv).catch(() => null);
+        if (r) {
+          gexHoy = r.gex; nocionalHoy = r.nocional;
+          console.log(`[${t}] GEX ${gexHoy > 0 ? "+" : ""}${Math.round(gexHoy).toLocaleString("en-US")} · OI nocional $${(r.nocional / 1e9).toFixed(1)}B${INDICES_GEX.has(t) ? " (índice)" : ""}`);
         }
       }
 
       let newN = 0;
       for (const sig of sigs) {
         for (const cell of CELLS) {
-          const rec = openSpread(sig, cell.dte, cell.sigma, gexHoy);
+          const rec = openSpread(sig, cell.dte, cell.sigma, gexHoy, nocionalHoy);
           if (!rec) continue;
           rec.ticker = t;
           // Gestión SOLO al 5d (el backtest dice que a 60/90 días estorba). Se fija al abrir:
