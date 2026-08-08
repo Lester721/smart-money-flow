@@ -1,215 +1,146 @@
-// Backtest de la WHEEL — vender PUTS cash-secured para INGRESO (meta: NO ser asignado).
-// La asignación se MIDE como riesgo (no se persigue). Modela la venta de puts con
-// Black-Scholes (IV ≈ vol realizada 20d), barre delta × DTE × gestión, en 2 modos:
-// MECÁNICO (todos los días) y con FILTRO EVA (días de flujo alcista + alta convicción).
-// La pata de calls cubiertas (recuperación tras asignación) NO se modela aún (v1).
-// Uso: node --env-file=.env.local --import tsx scripts/backtest-wheel.ts
+// BACKTEST DE LA WHEEL — nunca se había hecho.
+//
+// El forward-test del Wheel lleva 57 puts de papel corriendo SIN una sola validación histórica
+// detrás. Con el credit spread hicimos 10 años, OOS, costos, régimen y crash; con la Wheel,
+// nada. Esto lo cierra, sobre la misma caché (2016-2026, 9 tickers).
+//
+// LA ESTRATEGIA: vender un cash-secured put en los días de flujo ALCISTA (el dinero apuesta al
+// alza → vendes el suelo). Colateral = strike × 100. Se sostiene a vencimiento:
+//   · si expira por encima del strike → te quedas la prima entera
+//   · si expira por debajo → te asignan, y el resultado es prima − (strike − precio final)
+//
+// Retorno = resultado / colateral. Es lo que de verdad rinde tu efectivo inmovilizado, y no es
+// comparable con el "retorno sobre riesgo" del credit spread — ahí el riesgo es el ancho del
+// spread, aquí es el strike entero.
+//
+// Se prueban 3 presets de delta (conservador / equilibrado / agresivo) × 3 plazos, con el
+// filtro de convicción de EVA aplicado igual que en el credit spread.
+//
+// Uso: npx tsx scripts/backtest-wheel.ts
 
-import { writeFileSync } from "node:fs";
-import { fetchFlow } from "../lib/massiveFlow";
-import {
-  classifyFlow, executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow,
-} from "../lib/flow";
-import { bsPrice, bsDelta, impliedVol } from "../lib/blackScholes";
-import { fetchDailyBars } from "../lib/massive";
+import { readFileSync } from "node:fs";
+import { classifyFlow } from "../lib/flow";
+import { signals, type DBar, type Signal } from "../lib/backtestCore";
+import { bsPrice, bsDelta } from "../lib/blackScholes";
 
-const TICKERS = (process.env.BT_TICKERS || "AAPL,MSFT,NVDA,AMZN,GOOGL,META,TSLA,AMD,NFLX,QQQ,SPY,HOOD").split(",").map((t) => t.trim()).filter(Boolean);
-const DAYS = Number(process.env.BT_DAYS) || 365;             // ventana de flujo (~1 año, para el head-to-head)
-const MIN_PREMIUM = Number(process.env.BT_MIN_PREMIUM) || 1_000_000;
-const OUT = process.env.BT_OUT || "scripts/backtest-wheel-reporte.md";
+const TICKERS = (process.env.BT_TICKERS || "SPY,AAPL,MSFT,NVDA,META,TSLA,AMD,QQQ,HOOD").split(",");
+const CAPITAL = Number(process.env.W_CAPITAL) || 60_000;
+const AÑOS = 10.5;
+const DIR = "scripts/cache-theta";
+const BT_START = "20160101", BT_END = "20260731";
 
-// 3 presets de delta (usamos el punto medio de cada banda como delta objetivo del put).
-const DELTAS = [{ label: "0.10-0.20 (conserv.)", target: 0.15 }, { label: "0.20-0.30 (balanc.)", target: 0.25 }, { label: "0.30-0.40 (agres.)", target: 0.35 }];
-const DTES = [0, 1, 3, 5, 10, 15, 30];
-// Gestión: null = sostener a vencimiento; 0.5/0.7 = cerrar al capturar 50%/70% de la prima.
-const MGMT: { label: string; take: number | null }[] = [{ label: "vencimiento", take: null }, { label: "50%", take: 0.5 }, { label: "70%", take: 0.7 }];
+// Deltas objetivo (|delta| del put). Más alto = strike más cerca = más prima y más asignación.
+const PRESETS: [string, number][] = [["conservador (Δ0.15)", 0.15], ["equilibrado (Δ0.25)", 0.25], ["agresivo (Δ0.35)", 0.35]];
+const DTES = [14, 30, 45];
 
-const YR = 365 * 24 * 3600 * 1000;
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-interface DBar { time: string; close: number }
-
-function barIdxOnOrBefore(bars: DBar[], ms: number): number {
-  let idx = -1;
-  for (let i = 0; i < bars.length; i++) { if (Date.parse(`${bars[i].time}T00:00:00Z`) <= ms) idx = i; else break; }
-  return idx;
-}
-function realizedVol(bars: DBar[], endIdx: number, lookback = 20): number | null {
-  const start = Math.max(1, endIdx - lookback);
-  const rets: number[] = [];
-  for (let i = start; i <= endIdx; i++) if (bars[i - 1].close > 0 && bars[i].close > 0) rets.push(Math.log(bars[i].close / bars[i - 1].close));
-  if (rets.length < 5) return null;
-  const m = rets.reduce((s, x) => s + x, 0) / rets.length;
-  const v = rets.reduce((s, x) => s + (x - m) ** 2, 0) / (rets.length - 1);
-  return Math.sqrt(v) * Math.sqrt(252);
-}
-function ivProxyScore(iv: number, rv: number | null): number {
-  if (rv == null || !(rv > 0)) return 5;
-  const ratio = iv / rv;
-  if (ratio < 0.9) return 10; if (ratio <= 1.2) return 7; if (ratio <= 1.6) return 4; return 0;
-}
-
-interface Signal { entryIdx: number; spot: number; rv: number; dir: 1 | -1; evaComp: number }
-// Convicción por día (igual que el backtest de credit spread) — para el filtro EVA.
-function signals(rows: FlowRow[], bars: DBar[]): Signal[] {
-  const byDay = new Map<string, FlowRow[]>();
-  for (const r of rows) { const d = r.timestamp.slice(0, 10); const a = byDay.get(d); if (a) a.push(r); else byDay.set(d, [r]); }
-  const out: Signal[] = [];
-  for (const [d, dayRows] of byDay) {
-    const entryIdx = barIdxOnOrBefore(bars, Date.parse(`${d}T20:00:00Z`));
-    if (entryIdx < 20 || entryIdx >= bars.length - 1) continue;
-    const rv = realizedVol(bars, entryIdx); if (rv == null || !(rv > 0)) continue;
-    const spot = bars[entryIdx].close;
-    let net = 0, totP = 0, aA = 0, aC = 0, aU = 0, aI = 0;
-    for (const r of dayRows) {
-      const s = r.sentiment === "bullish" ? 1 : r.sentiment === "bearish" ? -1 : 0;
-      if (s !== 0) net += s * r.premium;
-      if (r.strike == null || !r.expiration || !(r.price > 0)) continue;
-      const T = (Date.parse(`${r.expiration}T20:00:00Z`) - Date.parse(`${d}T20:00:00Z`)) / YR; if (T <= 0) continue;
-      const iv = impliedVol(r.price, spot, r.strike, T, r.type === "call" ? "call" : "put"); if (iv == null || !(iv > 0)) continue;
-      aA += executionScore(executionLevel(r.price, r.bid, r.ask, r.side)) * r.premium;
-      aC += spreadScore(spreadPct(r.bid, r.ask)) * r.premium;
-      aU += unusualTradeScore(r).total * r.premium;
-      aI += ivProxyScore(iv, rv) * r.premium; totP += r.premium;
-    }
-    if (net === 0 || totP <= 0) continue;
-    const wc = aC / totP, wu = aU / totP, wi = aI / totP, wa = aA / totP;
-    const evaComp = ((wc / 10) * 30 + (wu / 10) * 20 + (wi / 10) * 15 + (wa / 10) * 10) / 75 * 100;
-    out.push({ entryIdx, spot, rv, dir: net > 0 ? 1 : -1, evaComp });
+const shiftYmd = (y: string, d: number) =>
+  new Date(Date.parse(`${y.slice(0, 4)}-${y.slice(4, 6)}-${y.slice(6, 8)}T00:00:00Z`) + d * 86_400_000)
+    .toISOString().slice(0, 10).replace(/-/g, "");
+function yearWindows(s0: string, e0: string): [string, string][] {
+  const out: [string, string][] = [];
+  let s = s0;
+  while (Number(s) <= Number(e0)) {
+    const e = String(Math.min(Number(`${s.slice(0, 4)}1231`), Number(e0)));
+    out.push([s, e]); s = `${Number(s.slice(0, 4)) + 1}0101`;
   }
   return out;
 }
+const leer = <T,>(p: string): T | null => { try { return JSON.parse(readFileSync(p, "utf8")); } catch { return null; } };
+const media = (a: number[]) => a.reduce((s, x) => s + x, 0) / Math.max(1, a.length);
 
-// Strike del put OTM cuyo |delta| ≈ target (búsqueda en grilla).
-function strikeForDelta(spot: number, T: number, iv: number, target: number): number | null {
-  let best: number | null = null, bestErr = Infinity;
-  for (let f = 0.55; f <= 1.0; f += 0.005) {
-    const K = spot * f;
-    const d = Math.abs(bsDelta(spot, K, T, iv, "put"));
-    const err = Math.abs(d - target);
-    if (err < bestErr) { bestErr = err; best = K; }
+function barIdxOnOrAfter(bars: DBar[], ms: number): number {
+  for (let i = 0; i < bars.length; i++) if (Date.parse(`${bars[i].time}T20:00:00Z`) >= ms) return i;
+  return -1;
+}
+
+/**
+ * Vende un put cash-secured al delta objetivo. Devuelve el retorno sobre el COLATERAL.
+ * El strike se busca por bisección sobre el delta de Black-Scholes — no hay cadena real aquí,
+ * igual que en el resto de backtests.
+ */
+function wheelPnl(sig: Signal, bars: DBar[], dte: number, deltaObj: number): number | null {
+  const { spot, rv, entryIdx, dir } = sig;
+  if (dir !== 1) return null;               // solo días ALCISTAS: vendes el suelo
+  const T = dte / 365;
+  if (!(rv > 0) || !(spot > 0)) return null;
+
+  // Bisección: buscar el strike cuyo |delta| ≈ deltaObj (delta del put es negativo).
+  let lo = spot * 0.5, hi = spot;
+  for (let i = 0; i < 40; i++) {
+    const mid = (lo + hi) / 2;
+    const d = Math.abs(bsDelta(spot, mid, T, rv, "put"));
+    if (d > deltaObj) hi = mid; else lo = mid;
   }
-  return best;
-}
+  const strike = (lo + hi) / 2;
+  if (!(strike > 0) || strike >= spot) return null;
 
-interface PutResult { retOnColl: number; assigned: boolean; annualized: number }
-// Vende un put a `target` delta, `dte` días, con regla de gestión `take`. Retorno sobre
-// el colateral (strike×100). Éxito = te quedas prima; asignación = riesgo medido.
-function sellPut(sig: Signal, bars: DBar[], target: number, dte: number, take: number | null): PutResult | null {
-  const { spot, rv, entryIdx } = sig;
-  const dteEff = Math.max(dte, 1);                    // 0DTE con barras diarias ≈ 1 día (aprox, ver caveats)
-  const T0 = dteEff / 365;
-  const K = strikeForDelta(spot, T0, rv, target);
-  if (K == null || K <= 0) return null;
-  const P0 = bsPrice(spot, K, T0, rv, "put");         // prima por acción
-  if (!(P0 > 0)) return null;
-  const expiryIdx = entryIdx + dteEff;
-  if (expiryIdx >= bars.length) return null;           // aún no vence en los datos
+  const prima = bsPrice(spot, strike, T, rv, "put");
+  if (!(prima > 0)) return null;
 
-  // Gestión: cerrar temprano si capturas `take` de la prima.
-  if (take != null) {
-    for (let i = entryIdx + 1; i < expiryIdx; i++) {
-      const Trem = (dteEff - (i - entryIdx)) / 365;
-      const Pi = bsPrice(bars[i].close, K, Math.max(Trem, 0.5 / 365), rv, "put");
-      const captured = P0 - Pi;                         // ganancia por acción si cierras aquí
-      if (captured >= take * P0) {
-        const ret = captured / K;
-        return { retOnColl: ret, assigned: false, annualized: ret * (365 / (i - entryIdx)) };
-      }
-    }
-  }
-  // A vencimiento.
-  const sExp = bars[expiryIdx].close;
-  const assigned = sExp < K;
-  const pnl = P0 - Math.max(K - sExp, 0);              // prima − pérdida intrínseca si ITM
-  const ret = pnl / K;
-  return { retOnColl: ret, assigned, annualized: ret * (365 / dteEff) };
-}
+  const expMs = Date.parse(`${bars[entryIdx].time}T20:00:00Z`) + dte * 86_400_000;
+  const expIdx = barIdxOnOrAfter(bars, expMs);
+  if (expIdx < 0) return null;
+  const sExp = bars[expIdx].close;
 
-// Entradas MECÁNICAS cada `step` días sobre TODA la historia de barras (sin flujo) →
-// habilita la ventana larga (~3 años), a diferencia del flujo institucional (~1 año).
-function barSignals(bars: DBar[], step: number, maxDte: number): Signal[] {
-  const out: Signal[] = [];
-  for (let i = 20; i < bars.length - maxDte - 1; i += step) {
-    const rv = realizedVol(bars, i); if (rv == null || !(rv > 0)) continue;
-    out.push({ entryIdx: i, spot: bars[i].close, rv, dir: 1, evaComp: 0 });
-  }
-  return out;
+  // Asignado si cierra por debajo del strike: pierdes (strike − precio), te quedas la prima.
+  const perdida = Math.max(strike - sExp, 0);
+  return (prima - perdida) / strike;       // sobre el COLATERAL (strike), no sobre el spread
 }
-
-interface Stat { n: number; win: number | null; mean: number | null; assign: number | null; ann: number | null }
-function stat(rows: PutResult[]): Stat {
-  if (!rows.length) return { n: 0, win: null, mean: null, assign: null, ann: null };
-  const r = rows.map((x) => x.retOnColl);
-  const round = (x: number) => Math.round(x * 1000) / 10;                 // fracción → %
-  return {
-    n: rows.length,
-    win: Math.round((r.filter((x) => x > 0).length / r.length) * 100),
-    mean: round(r.reduce((a, x) => a + x, 0) / r.length),
-    assign: Math.round((rows.filter((x) => x.assigned).length / rows.length) * 100),
-    ann: round(rows.reduce((a, x) => a + x.annualized, 0) / rows.length),
-  };
-}
-const fmt = (s: Stat) => s.n === 0 ? "—" : `win ${s.win}% · media ${s.mean}% · asig ${s.assign}% · anual ${s.ann}% (n=${s.n})`;
 
 (async () => {
-  console.log(`Backtest WHEEL (vender puts) · ${TICKERS.length} tickers · ${DAYS}d`);
-  const all: { sig: Signal; bars: DBar[] }[] = [];
-  const barsByTicker = new Map<string, DBar[]>();
+  const todas: { sig: Signal; bars: DBar[] }[] = [];
+  const vIni = shiftYmd(BT_START, -40), vFin = shiftYmd(BT_END, 220);
   for (const t of TICKERS) {
-    try {
-      const { trades } = await fetchFlow(t, { targetDays: DAYS, minPremium: MIN_PREMIUM, contractCap: 25, maxPages: 6 });
-      const { rows } = classifyFlow(trades, new Date());
-      let bars: DBar[] = [];
-      for (let i = 0; i < 4; i++) { bars = (await fetchDailyBars(t, 800).catch(() => [])) as DBar[]; if (bars.length > 0) break; await sleep(1000 * (i + 1)); }
-      if (bars.length) barsByTicker.set(t, bars);
-      const sigs = bars.length ? signals(rows, bars) : [];
-      for (const sig of sigs) all.push({ sig, bars });
-      console.log(`[${t}] señales ${sigs.length}${bars.length ? "" : " (SIN BARRAS)"}`);
-    } catch (e) { console.error(`[${t}] ERROR:`, (e as Error).message); }
-    await sleep(2500);
+    const trades: unknown[] = [];
+    for (const [ys, ye] of yearWindows(BT_START, BT_END)) {
+      const y = leer<unknown[]>(`${DIR}/${t}_y_${ys}_${ye}.json`); if (y?.length) trades.push(...y);
+    }
+    const trozos: DBar[] = [];
+    for (const [ys, ye] of yearWindows(vIni, vFin)) {
+      const b = leer<DBar[]>(`${DIR}/${t}_barsPAR_y_${ys}_${ye}.json`); if (b?.length) trozos.push(...b);
+    }
+    const porFecha = new Map(trozos.map((x) => [x.time, x] as const));
+    const bars = [...porFecha.values()].sort((a, b) => (a.time < b.time ? -1 : 1));
+    if (!trades.length || !bars.length) continue;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    for (const sig of signals(classifyFlow(trades as any, new Date()).rows, bars)) todas.push({ sig, bars });
   }
-  console.log(`Total días-señal: ${all.length}`);
 
-  // Umbral de convicción (Top⅓) sobre los días de flujo ALCISTA (para el filtro EVA).
-  const bull = all.filter((x) => x.sig.dir === 1).map((x) => x.sig.evaComp).sort((a, b) => a - b);
-  const convCut = bull.length ? bull[Math.floor(bull.length * 2 / 3)] : Infinity;
-  const isEva = (s: Signal) => s.dir === 1 && s.evaComp >= convCut;     // alcista + alta convicción
+  const k = Math.floor(todas.length / 3);
+  const top = [...todas].sort((a, b) => a.sig.evaComp - b.sig.evaComp).slice(todas.length - k);
 
-  const L: string[] = [
-    "# Backtest de la WHEEL (vender puts cash-secured)",
-    "",
-    `**Meta:** cobrar prima SIN ser asignado. La asignación se MIDE como riesgo. Precios con Black-Scholes (IV≈vol realizada 20d). Ventana de flujo ~${DAYS}d.`,
-    `**Días-señal:** ${all.length}. **Filtro EVA** = días de flujo alcista + convicción Top⅓ (umbral ${Math.round(convCut)}).`,
-    "> Caveats: 0DTE aproximado con barras diarias (≈1 día). La pata de calls cubiertas (recuperación tras asignación) NO se modela aún. Sin comisiones/slippage en v1.",
-    "",
-  ];
+  console.log(`\n## BACKTEST DE LA WHEEL · 2016-2026 · ${todas.length} señales (Top⅓ EVA: ${top.length})`);
+  console.log(`### Solo días de flujo ALCISTA · retorno sobre COLATERAL · cuenta de $${CAPITAL.toLocaleString("en-US")}\n`);
+  console.log("| Preset | Plazo | Ops/año | Asignado | Media | Peor | $/AÑO* | OOS vieja/nueva |");
+  console.log("|---|---|---|---|---|---|---|---|");
 
-  for (const dl of DELTAS) {
-    L.push(`## Delta ${dl.label}`, "");
-    for (const mg of MGMT) {
-      L.push(`### Gestión: ${mg.label}`, "", "| DTE | MECÁNICO (todos) | EVA como está (alcista+conv) | EVA con cambios (solo alcista) |", "|---|---|---|---|");
-      for (const dte of DTES) {
-        const mech: PutResult[] = [], eva: PutResult[] = [], evaLite: PutResult[] = [];
-        for (const { sig, bars } of all) {
-          const r = sellPut(sig, bars, dl.target, dte, mg.take);
-          if (!r) continue;
-          mech.push(r);
-          if (sig.dir === 1) evaLite.push(r);   // EVA con cambios: filtro direccional ligero (solo alcista)
-          if (isEva(sig)) eva.push(r);           // EVA como está: alcista + Top⅓ convicción
-        }
-        L.push(`| ${dte}d | ${fmt(stat(mech))} | ${fmt(stat(eva))} | ${fmt(stat(evaLite))} |`);
-      }
-      L.push("");
+  for (const [nombre, dObj] of PRESETS) {
+    for (const dte of DTES) {
+      const ops = top
+        .map(({ sig, bars }) => { const p = wheelPnl(sig, bars, dte, dObj); return p == null ? null : { ms: sig.entryMs, pnl: p }; })
+        .filter((x): x is { ms: number; pnl: number } => x != null);
+      if (ops.length < 100) continue;
+      const o = [...ops].sort((a, b) => a.ms - b.ms);
+      const mid = Math.floor(o.length / 2);
+      const vieja = media(o.slice(0, mid).map((x) => x.pnl)) * 100;
+      const nueva = media(o.slice(mid).map((x) => x.pnl)) * 100;
+      const m = media(ops.map((x) => x.pnl));
+      const asignado = Math.round(ops.filter((x) => x.pnl < 0).length / ops.length * 100);
+      const peor = Math.min(...ops.map((x) => x.pnl)) * 100;
+      const opsAño = ops.length / AÑOS;
+
+      // $/AÑO: el colateral limita cuántas puedes tener a la vez. Con la cuenta entera
+      // inmovilizada y posiciones de `dte` días, caben ~365/dte rotaciones al año.
+      // Es un TECHO teórico: en la práctica no siempre hay señal disponible para reinvertir.
+      const rotaciones = Math.min(365 / dte, opsAño);
+      const dolarAño = rotaciones * m * CAPITAL;
+      console.log(
+        `| ${nombre} | ${dte}d | ${Math.round(opsAño)} | ${asignado}% | ${m >= 0 ? "+" : ""}${(m * 100).toFixed(2)}% | ${peor.toFixed(1)}% | **$${Math.round(dolarAño).toLocaleString("en-US")}** | ${vieja.toFixed(2)} / ${nueva.toFixed(2)} ${vieja > 0 && nueva > 0 ? "✅" : "✗"} |`,
+      );
     }
   }
-  L.push(
-    "## Cómo leerlo",
-    "- **win%** = % de trades con retorno positivo (te quedaste prima). **asig%** = con qué frecuencia terminaste ASIGNADO (lo que queremos EVITAR).",
-    "- **media** = retorno medio sobre el colateral por trade. **anual** = ese retorno llevado a un año (ojo: infla los DTE cortos).",
-    "- Candidata buena = **win alto + asig bajo + media positiva**. Si el FILTRO EVA baja la asignación y sube la media vs MECÁNICO → el flujo de EVA aporta.",
-  );
-  const report = L.join("\n") + "\n";
-  writeFileSync(OUT, report, "utf8");
-  console.log("\n" + report);
-  console.log(`=== reporte en ${OUT} ===`);
+  console.log(`\n*$/AÑO asume la cuenta entera como colateral y ~${Math.round(365 / 30)} rotaciones al año a 30 días.`);
+  console.log(` Es un TECHO: cada put inmoviliza strike×100 en efectivo, así que con $${CAPITAL.toLocaleString("en-US")}`);
+  console.log(` solo caben 1-2 contratos a la vez en tickers caros. NO es comparable con el credit spread,`);
+  console.log(` donde el riesgo por operación es el ancho del spread y no el strike entero.`);
 })();
