@@ -112,6 +112,25 @@ interface Trade {
   gexNorm?: number;
   /** Nocional del OI cercano ($). El criterio ex-ante de dónde el mecanismo de gamma existe. */
   oiNocional?: number;
+  /**
+   * SOMBRA DEL IRON CONDOR — se GRABA, no decide. Lo que se abre sigue siendo el vertical.
+   *
+   * Sale de P2 (8 ago 2026): EVA hace dos cosas y solo una funciona. Elegir QUÉ DÍAS operar
+   * separa +3,1% de −4,0% incluso con el lado al azar; elegir DE QUÉ LADO no supera a una
+   * moneda al aire. Si el lado da igual, vender los DOS cobra prima de las dos patas sobre la
+   * única parte que sí vale.
+   *
+   * En backtest (P5) dio +6,68% contra +2,52% del vertical, aguantando en las dos mitades y a
+   * todo nivel de coste — pero DOBLANDO las catástrofes (13,5% vs 7,4%), porque el cóndor tiene
+   * dos fronteras en vez de una. Falló el criterio fijado antes de correr, así que aquí solo se
+   * mide: que decidan los datos en vivo.
+   */
+  condor?: {
+    shortPut: number; longPut: number; shortCall: number; longCall: number;
+    netCredit: number; width: number;
+    /** Se rellena al liquidar, igual que el retOnRisk del vertical. */
+    retOnRisk?: number;
+  };
   status: "open" | "closed";
   exitDate?: string; exitSpot?: number; retOnRisk?: number; pnlPerSpread?: number;
   /** Regla de salida asignada AL ABRIR. Ausente = sin gestión (sostener a vencimiento).
@@ -259,6 +278,27 @@ function openSpread(sig: Signal, dte: number, sigma: number, gexHoy: number | nu
   const netCredit = credit * (1 - SLIP) - (COMM * 2) / 100;  // crédito tras slippage + comisión de 2 patas
   if (!(netCredit > 0)) return null;
   const expiryMs = entryMs + dte * 86_400_000;
+
+  // ── Sombra del iron condor ──────────────────────────────────────────────────────────────
+  // Mismos strikes que el vertical en el lado que EVA elige, MÁS el lado contrario simétrico.
+  // 4 patas → el doble de comisión que el vertical. No cambia nada de lo que se abre.
+  const condor = (() => {
+    const shortPut = spot - sigma * em, longPut = shortPut - WIDTH_EM * em;
+    const shortCall = spot + sigma * em, longCall = shortCall + WIDTH_EM * em;
+    if (longPut <= 0) return undefined;
+    const cPut = bsPrice(spot, shortPut, T, rv, "put") - bsPrice(spot, longPut, T, rv, "put");
+    const cCall = bsPrice(spot, shortCall, T, rv, "call") - bsPrice(spot, longCall, T, rv, "call");
+    const cTot = cPut + cCall;
+    const w = WIDTH_EM * em;                                  // el ancho es el mismo en los dos lados
+    const nc = cTot * (1 - SLIP) - (COMM * 4) / 100;
+    // Crédito ≥ ancho significaría dinero gratis: imposible en la práctica, señal de mal precio.
+    if (!(cTot > 0) || !(nc > 0) || !(w - nc > 0)) return undefined;
+    return {
+      shortPut: round(shortPut), longPut: round(longPut),
+      shortCall: round(shortCall), longCall: round(longCall),
+      netCredit: round(nc, 4), width: round(w),
+    };
+  })();
   return {
     id: "", // se completa abajo con `${ticker}|${entryDate}|${dte}|${sigma}`
     ticker: "", entryDate: sig.entryDate, entryMs,
@@ -269,6 +309,7 @@ function openSpread(sig: Signal, dte: number, sigma: number, gexHoy: number | nu
     ivRatio: round(sig.ivRatio, 3), netRatio: round(sig.netRatio, 3),
     ...(gexHoy != null ? { gexNorm: Math.round(gexHoy) } : {}),
     ...(nocionalHoy != null ? { oiNocional: Math.round(nocionalHoy / 1e6) } : {}),   // en millones
+    ...(condor ? { condor } : {}),
     status: "open",
   };
 }
@@ -323,6 +364,16 @@ function settle(t: Trade, bars: DBar[]): boolean {
   t.exitDate = bars[expIdx].time;
   t.exitReason = "vencimiento";
   t.status = "closed";
+
+  // La sombra del cóndor se liquida con el MISMO precio de vencimiento. Solo una de las dos
+  // patas cortas puede acabar dentro del dinero, así que se suman las dos y una es cero.
+  if (t.condor) {
+    const c = t.condor;
+    const perdPut = Math.max(c.shortPut - sExp, 0) - Math.max(c.longPut - sExp, 0);
+    const perdCall = Math.max(sExp - c.shortCall, 0) - Math.max(sExp - c.longCall, 0);
+    const riesgoC = c.width - c.netCredit;
+    if (riesgoC > 0) c.retOnRisk = round(((c.netCredit - (perdPut + perdCall)) / riesgoC) * 100, 1);
+  }
   return true;
 }
 function round(x: number, d = 2): number { const p = 10 ** d; return Math.round(x * p) / p; }
@@ -502,6 +553,26 @@ function pctile(vals: number[], p: number): number | null {
         `- Top⅓ sin filtrar (control): ${fmt(stat(topIv.map((t) => t.retOnRisk!)))}`,
         `- Lo que el filtro DESCARTA: ${fmt(stat(excluido.map((t) => t.retOnRisk!)))}`,
         `- El backtest de 10 años esperaba **+2,3% → +3,2%**. Sirve solo si lo descartado rinde PEOR que lo filtrado; si rinde igual o mejor, el filtro es ruido.`,
+      );
+    }
+
+    // ── IRON CONDOR (sombra) — vender TAMBIÉN el lado contrario ───────────────────────────
+    // P2 mostró que EVA acierta el DÍA pero no el LADO. Si el lado da igual, el cóndor cobra
+    // prima de las dos patas sobre la misma selección. En backtest: +6,68% vs +2,52%, pero con
+    // el DOBLE de catástrofes. Aquí solo se mide sobre las MISMAS jugadas — no se abre nada
+    // distinto, así que la comparación es limpia y no cuesta un dólar comprobarla.
+    const conCondor = closed.filter((t) => t.condor?.retOnRisk != null);
+    if (conCondor.length >= 10) {
+      const rv2 = conCondor.map((t) => t.retOnRisk!);
+      const rc = conCondor.map((t) => t.condor!.retOnRisk!);
+      const cat = (a: number[]) => ((a.filter((x) => x <= -50).length / a.length) * 100).toFixed(1);
+      L.push(
+        "",
+        "### Iron condor (sombra) — mismas jugadas, vendiendo los DOS lados",
+        `- **Cóndor:** ${fmt(stat(rc))} · catástrofes ${cat(rc)}%`,
+        `- Vertical (lo que se abre de verdad): ${fmt(stat(rv2))} · catástrofes ${cat(rv2)}%`,
+        `- El backtest esperaba **+6,68% vs +2,52%** con las catástrofes al doble (13,5% vs 7,4%).`,
+        `- Se GRABA, no decide. Adoptarlo sería aceptar más caída a cambio de más dinero — y esa es una decisión de Lester, no del script.`,
       );
     }
 
