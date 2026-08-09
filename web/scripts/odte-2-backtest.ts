@@ -82,6 +82,41 @@ function condor0dte(spot: number, emEsperado: number, minEntrada: number, spotCi
   return (netCredit - (perdPut + perdCall)) / risk;
 }
 
+/**
+ * VERTICAL 0DTE — el control que faltaba.
+ *
+ * El backtest usaba cóndor porque a 5 días P2 mostró que el LADO no aporta. Pero eso se midió a
+ * 5 días, no a 0. Dar por bueno el cóndor aquí sin comparar sería exactamente el tipo de
+ * supuesto heredado que ya nos ha costado cuatro conclusiones.
+ *
+ * `dir` = 1 vende put spread abajo (alcista); −1 vende call spread arriba (bajista).
+ * 2 patas, así que paga la MITAD de comisión que el cóndor.
+ */
+function vertical0dte(spot: number, emEsperado: number, minEntrada: number, spotCierre: number, dir: 1 | -1): number | null {
+  const minRestantes = CIERRE - minEntrada;
+  if (minRestantes <= 0) return null;
+  const T = (minRestantes / MIN_SESION) / 252;
+  const em = emEsperado;
+  if (!(em > 0)) return null;
+  const rv = em / (spot * Math.sqrt(T));
+
+  const bull = dir === 1;
+  const shortK = bull ? spot - SIGMA * em : spot + SIGMA * em;
+  const longK = bull ? shortK - WIDTH_EM * em : shortK + WIDTH_EM * em;
+  if (longK <= 0) return null;
+  const tipo = bull ? "put" : "call";
+  const credit = bsPrice(spot, shortK, T, rv, tipo) - bsPrice(spot, longK, T, rv, tipo);
+  const width = WIDTH_EM * em;
+  const netCredit = credit * (1 - SLIP) - (COMM * 2) / 100;
+  const risk = width - netCredit;
+  if (!(credit > 0) || !(netCredit > 0) || !(risk > 0)) return null;
+
+  const perd = bull
+    ? Math.max(shortK - spotCierre, 0) - Math.max(longK - spotCierre, 0)
+    : Math.max(spotCierre - shortK, 0) - Math.max(spotCierre - longK, 0);
+  return (netCredit - perd) / risk;
+}
+
 (async () => {
   // ── Datos ────────────────────────────────────────────────────────────────────────────────
   const trozos: DBar[] = [];
@@ -112,9 +147,10 @@ function condor0dte(spot: number, emEsperado: number, minEntrada: number, spotCi
       .filter((s) => s.ivRatio < 1.1).map((s) => bars[s.entryIdx].time),
   );
   const rvDe = new Map(sigs.map((s) => [bars[s.entryIdx].time, s.rv] as const));
+  const dirDe = new Map(sigs.map((s) => [bars[s.entryIdx].time, s.dir] as const));
 
   // ── Se arma un caso por DÍA OPERADO: señal y gamma del cierre ANTERIOR ───────────────────
-  interface Caso { ymd: string; rv: number; gex: number; señal: boolean; serie: [number, number][]; cierre: number }
+  interface Caso { ymd: string; rv: number; gex: number; señal: boolean; dir: 1 | -1; serie: [number, number][]; cierre: number }
   const casos: Caso[] = [];
   let sinIntradia = 0, sinPrevio = 0;
   for (const [ymd, serie] of Object.entries(intradia)) {
@@ -138,7 +174,7 @@ function condor0dte(spot: number, emEsperado: number, minEntrada: number, spotCi
     }
     const cierre = serie[serie.length - 1]?.[1];
     if (!(cierre > 0)) continue;
-    casos.push({ ymd, rv, gex: gex / (spotPrev * spotPrev), señal: top.has(previo), serie, cierre });
+    casos.push({ ymd, rv, gex: gex / (spotPrev * spotPrev), señal: top.has(previo), dir: (dirDe.get(previo) ?? 1) as 1 | -1, serie, cierre });
   }
 
   console.log(`\n## 0DTE paso 2 — backtest con entrada INTRADÍA · ${TICKER}\n`);
@@ -178,14 +214,19 @@ function condor0dte(spot: number, emEsperado: number, minEntrada: number, spotCi
     return sd > 0 ? spot * sd : null;
   };
 
-  const evaluar = (sub: Caso[], min: number) => {
+  let semilla = 7777;
+  const rnd = () => { semilla = (semilla * 1103515245 + 12345) & 0x7fffffff; return semilla / 0x7fffffff; };
+  type Veh = "condor" | "vertEva" | "vertAzar" | "vertPut" | "vertCall";
+  const evaluar = (sub: Caso[], min: number, veh: Veh = "condor") => {
     const r: number[] = [];
     for (const c of sub) {
       const s = spotEn(c.serie, min);
       if (s == null) continue;
       const em = emDe(c.ymd, min, s);
       if (em == null) continue;
-      const p = condor0dte(s, em, min, c.cierre);
+      const dirDe: Record<string, 1 | -1> = { vertEva: c.dir, vertPut: 1, vertCall: -1 } as Record<string, 1 | -1>;
+      const p = veh === "condor" ? condor0dte(s, em, min, c.cierre)
+        : vertical0dte(s, em, min, c.cierre, veh === "vertAzar" ? (rnd() < 0.5 ? 1 : -1) : dirDe[veh]);
       if (p != null) r.push(p);
     }
     if (r.length < 20) return null;
@@ -211,6 +252,23 @@ function condor0dte(spot: number, emEsperado: number, minEntrada: number, spotCi
     console.log("");
   }
 
+  // ── ¿CÓNDOR O VERTICAL? El control que faltaba ───────────────────────────────────────────
+  // Todo lo de arriba asume cóndor porque a 5 días P2 mostró que el LADO no aporta. Pero eso se
+  // midió a 5 días, no a 0. Aquí se compara de verdad, sobre los MISMOS días y a la misma hora.
+  console.log(`### ¿Cóndor o vertical? — mismos días, entrada 11:00
+`);
+  console.log("| Universo | Vehículo | n | Media | Catástrofes | $/año |");
+  console.log("|---|---|---|---|---|---|");
+  for (const [nombre, sub] of universos) {
+    for (const [vn, veh] of [["**cóndor**", "condor"], ["vertical (dir. EVA)", "vertEva"], ["vertical (dir. al azar)", "vertAzar"]] as const) {
+      semilla = 7777;
+      const r = evaluar(sub, 11 * 60, veh as Veh);
+      if (!r) { console.log(`| ${nombre} | ${vn} | — | — | — | — |`); continue; }
+      console.log(`| ${nombre} | ${vn} | ${r.n} | ${r.m >= 0 ? "+" : ""}${r.m.toFixed(2)}% | ${r.cat.toFixed(1)}% | $${Math.round(r.porAño).toLocaleString("en-US")} |`);
+    }
+  }
+  console.log("");
+
   // ── Validación fuera de muestra de la mejor hora ─────────────────────────────────────────
   console.log(`### VALIDACIÓN — la hora se elige en la mitad VIEJA y se mide en la NUEVA\n`);
   for (const [nombre, sub] of universos) {
@@ -224,4 +282,53 @@ function condor0dte(spot: number, emEsperado: number, minEntrada: number, spotCi
   }
   console.log(`\n   Si la hora ganadora cambia entre mitades, la hora NO importa — y eso también es`);
   console.log(`   un resultado: significa que lo que decide es el filtro, no el reloj.`);
+
+  // ── LA PREGUNTA QUE AHORA LO DECIDE TODO ────────────────────────────────────────────────
+  // Lester NO puede ejecutar iron condors: en Robinhood mobile hay que construirlos pata por
+  // pata y tardan horas en llenarse, si se llenan. En 0DTE eso no es una molestia — es perder
+  // la operación, y con ~16 días al año no hay margen para fallar. Un vertical es un botón.
+  //
+  // Así que el vehículo es el VERTICAL, y entonces hace falta una DIRECCIÓN. A 5 días
+  // demostramos que la de EVA no supera a una moneda al aire. La primera lectura a 0 días decía
+  // +1,51% contra −0,72%, que contradice aquello. No vale hasta que aguante en las DOS mitades
+  // y salga del rango del azar.
+  console.log(`\n### ¿La dirección de EVA sirve a 0DTE? — vertical, entrada 11:00\n`);
+  console.log("| Universo | Tramo | dir. EVA | azar (media 15) | azar (mín–máx) | ¿EVA mejor? |");
+  console.log("|---|---|---|---|---|---|");
+  for (const [nombre, sub] of universos) {
+    const orden = [...sub].sort((a, b) => (a.ymd < b.ymd ? -1 : 1));
+    const mid = Math.floor(orden.length / 2);
+    for (const [tramo, grupo] of [["vieja", orden.slice(0, mid)], ["nueva", orden.slice(mid)]] as const) {
+      semilla = 7777;
+      const eva = evaluar(grupo, 11 * 60, "vertEva");
+      if (!eva) { console.log(`| ${nombre} | ${tramo} | — | — | — | — |`); continue; }
+      const muestras: number[] = [];
+      for (let i = 0; i < 15; i++) { semilla = 100 + i * 6151; const r = evaluar(grupo, 11 * 60, "vertAzar"); if (r) muestras.push(r.m); }
+      const mA = media(muestras), mn = Math.min(...muestras), mx = Math.max(...muestras);
+      const veredicto = eva.m > mx ? "**SÍ, fuera del rango**" : eva.m > mA ? "sí, pero dentro del rango" : "no";
+      console.log(`| ${nombre} | ${tramo} | ${eva.m >= 0 ? "+" : ""}${eva.m.toFixed(2)}% | ${mA >= 0 ? "+" : ""}${mA.toFixed(2)}% | ${mn.toFixed(2)}–${mx.toFixed(2)}% | ${veredicto} |`);
+    }
+  }
+  console.log(`\n   Para creérselo: EVA debe ganar en las DOS mitades, y mejor si sale FUERA del`);
+  console.log(`   rango del azar. Dentro del rango = indistinguible de tirar una moneda.`);
+
+  // ── SI EL LADO DA IGUAL, ¿CUÁL SE APRIETA? ──────────────────────────────────────────────
+  // Pregunta puramente práctica: Lester tiene que pulsar UN botón y necesita saber cuál.
+  // "Siempre put" (bull put spread: gana si no se hunde) contra "siempre call".
+  // Medido en las DOS mitades: si uno gana en la vieja y pierde en la nueva, da igual cuál.
+  console.log(`\n### Si el lado da igual, ¿cuál conviene? — vertical, entrada 11:00\n`);
+  console.log("| Universo | Tramo | SIEMPRE put | SIEMPRE call | catástrofes put / call |");
+  console.log("|---|---|---|---|---|");
+  for (const [nombre, sub] of universos.slice(1)) {
+    const orden = [...sub].sort((a, b) => (a.ymd < b.ymd ? -1 : 1));
+    const mid = Math.floor(orden.length / 2);
+    for (const [tramo, grupo] of [["vieja", orden.slice(0, mid)], ["nueva", orden.slice(mid)]] as const) {
+      const rp = evaluar(grupo, 11 * 60, "vertPut"), rc = evaluar(grupo, 11 * 60, "vertCall");
+      if (!rp || !rc) { console.log(`| ${nombre} | ${tramo} | — | — | — |`); continue; }
+      console.log(`| ${nombre} | ${tramo} | ${rp.m >= 0 ? "+" : ""}${rp.m.toFixed(2)}% | ${rc.m >= 0 ? "+" : ""}${rc.m.toFixed(2)}% | ${rp.cat.toFixed(1)}% / ${rc.cat.toFixed(1)}% |`);
+    }
+  }
+  console.log(`\n   El put spread cobra el lado que el mercado paga más caro (todo el mundo compra`);
+  console.log(`   protección), pero es el que revienta en los desplomes. El call cobra menos y le`);
+  console.log(`   atropellan los rallies. Que decidan los datos, y en las DOS mitades.`);
 })();
