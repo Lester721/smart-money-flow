@@ -19,6 +19,12 @@ scripts/cache*/
 # Key de ThetaData (la usa el Terminal, nunca versionar)
 .env.thetadata
 
+# Credenciales del Theta Terminal: usuario y CONTRASEÑA en claro, 2 líneas.
+# El Terminal las exige en este archivo (--creds-file). No estaba ignorado y el repo ya es
+# remoto: crearlo sin esta línea habría subido la contraseña a GitHub en el siguiente commit.
+creds.txt
+*creds*.txt
+
 # Jar del Theta Terminal (se descarga solo, 40MB). El de arriba es solo un *bootstrap*:
 # al arrancar baja el Terminal real y lo deja en lib/ — ese tampoco se versiona.
 ThetaTerminalv3.jar
