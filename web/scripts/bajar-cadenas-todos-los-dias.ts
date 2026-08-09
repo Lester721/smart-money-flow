@@ -12,6 +12,7 @@
 // Uso: node --import tsx scripts/bajar-cadenas-todos-los-dias.ts [añoDesde] [añoHasta] [ticker...]
 
 import { readFileSync, writeFileSync, existsSync, readdirSync, mkdirSync } from "node:fs";
+import { simboloEnFecha } from "../lib/thetadata";
 
 const BASE = process.env.THETA_BASE || "http://127.0.0.1:25503";
 const DIR = "scripts/cache-theta", CDIR = `${DIR}/cadenas`;
@@ -33,9 +34,14 @@ async function pMap<T>(items: T[], n: number, fn: (x: T) => Promise<void>): Prom
 async function bajarDia(sym: string, dia: string): Promise<boolean> {
   const f = `${CDIR}/${sym}_d${dia}.json`;
   if (existsSync(f)) return true;                     // ya estaba: la caché es acumulativa
+  // EL SIMBOLO CAMBIA CON LA FECHA. META era FB antes del 2022-06-09, y pedir "META" para 2016
+  // devuelve vacio sin decir por que. Existe `segmentosPorSimbolo` justo para esto — y es la
+  // TERCERA vez en el proyecto que se pierden anos de META por no usarlo. El fichero se sigue
+  // guardando con el nombre ACTUAL para que el resto del codigo no tenga que saber nada.
+  const simboloReal = simboloEnFecha(sym, dia);
   const out: Record<string, Record<string, [number, number]>> = {};
   try {
-    const r = await fetch(`${BASE}/v3/option/history/eod?symbol=${sym}&expiration=*&start_date=${dia}&end_date=${dia}`,
+    const r = await fetch(`${BASE}/v3/option/history/eod?symbol=${simboloReal}&expiration=*&start_date=${dia}&end_date=${dia}`,
       { signal: AbortSignal.timeout(120_000) });
     if (!r.ok) return false;
     const l = (await r.text()).trim().split("\n");

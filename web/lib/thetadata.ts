@@ -730,3 +730,17 @@ export async function verticalReal(
   if (!(spreadRel < 0.5)) return null;
   return { exp, shortK, longK, width, netCredit, spreadRel };
 }
+
+/**
+ * EL SIMBOLO CORRECTO PARA UNA FECHA. Usar SIEMPRE esto antes de pedir datos historicos.
+ *
+ * META era FB hasta el 2022-06-09. Pedir "META" para 2019 devuelve VACIO sin decir por que — y
+ * eso ya ha costado anos de datos TRES veces en este proyecto (dos por no usar
+ * `segmentosPorSimbolo`, y la tercera al escribir un descargador nuevo desde cero).
+ *
+ * La leccion no es "acordarse": es que el descuido no llegue al dato. Cualquier script que pida
+ * historico pasa por aqui, y si un dia aparece otro renombrado se arregla en un solo sitio.
+ */
+export function simboloEnFecha(symbol: string, ymd: string): string {
+  return segmentosPorSimbolo(symbol, ymd, ymd)[0]?.symbol ?? symbol;
+}

@@ -141,6 +141,19 @@ comision, tiene que ser **0,03**.
 Su cuenta es la 829411230; las operaciones reales se leen con `get_pnl_trade_history`.
 
 
+## SIMBOLOS QUE CAMBIAN DE NOMBRE — usar `simboloEnFecha()` SIEMPRE
+
+META era **FB** hasta el 2022-06-09. Pedir `META` para 2019 devuelve **vacio, sin error**. Ya ha
+costado anos de datos **tres veces**: dos por no usar `segmentosPorSimbolo`, y la tercera al
+escribir un descargador nuevo desde cero.
+
+**Antes de pedir cualquier dato historico:** `simboloEnFecha(ticker, ymd)` (en `lib/thetadata.ts`).
+El fichero de cache se guarda con el nombre ACTUAL; solo la peticion usa el viejo.
+
+**Y al validar cobertura:** un ano que empieza tarde en UN ticker no es "coincide con el cambio de
+nombre" — es un fallo que hay que arreglar. La validacion lo detecto las tres veces; lo que fallo
+fue leerla y racionalizarla.
+
 ## Cómo pedir datos a ThetaData — LEER ANTES DE ESCRIBIR UN DESCARGADOR
 
 Todo lo de aquí está **medido**, no supuesto. Es para no volver a descubrirlo cada vez.
