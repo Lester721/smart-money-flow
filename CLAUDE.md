@@ -124,6 +124,36 @@ Monitorear los feeds definidos en [RSS Feed](RSS%20Feed.md) (CNBC + Investing.co
 
 Todo lo de aquí está **medido**, no supuesto. Es para no volver a descubrirlo cada vez.
 
+### 0. ARRANCAR EL TERMINAL (Norton rompe el TLS)
+
+```bash
+cd "C:\Users\leste\dev\agente-tito-metralleta\web" && \
+JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=C:\\Users\\leste\\dev\\agente-tito-metralleta\\web\\theta-truststore.jks -Djavax.net.ssl.trustStorePassword=changeit" \
+java -jar ThetaTerminalv3.jar
+```
+
+- Necesita **`web/creds.txt`**: 2 líneas, usuario y contraseña. Lo crea Lester — nunca Claude.
+  Está en `.gitignore` (`creds.txt`, `*creds*.txt`); comprobar antes de crearlo si el repo es
+  remoto, porque es una **contraseña en claro**.
+- **`JAVA_TOOL_OPTIONS`, no `-D`**: el jar es un *bootstrap* que lanza un SEGUNDO JVM, y ese no
+  hereda los `-D` de la línea de comandos. Con `-D` a secas falla con
+  `PKIX path building failed` en bucle infinito, que parece un problema de red y no lo es.
+- Arrancó bien cuando el log dice `Subscriptions: ... Options: STANDARD` y
+  `Starting server at: http://0.0.0.0:25503/`.
+
+### 0-bis. FILTRAR POR STRIKE — 180× menos datos
+
+El endpoint de griegas repite `underlying_price` en CADA strike. Si solo se quiere la serie del
+subyacente (que es lo que hace falta para valorar con Black-Scholes), pedir **un solo strike**:
+
+| SPY, 1 día, `interval=1m` | |
+|---|---|
+| sin filtro | **18,5 MB** |
+| `&strike=770` | **103 KB** |
+
+Medido el 2026-08-09. Antes de bajar años, preguntarse **qué columna se necesita de verdad** y
+filtrar por ahí: la diferencia entre 18 GB y 100 MB es esa línea.
+
 ### 1. PARALELIZAR. Es lo que más cambia.
 El plan Standard permite **4 peticiones simultáneas** (el Terminal lo imprime al arrancar:
 `Max concurrent requests: 4`). Un bucle secuencial usa **una** y desperdicia tres.
