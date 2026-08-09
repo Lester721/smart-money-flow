@@ -173,7 +173,7 @@ interface Celda { dte: number; dist: number; rets: { ms: number; r: number; t: s
       if (++n % 20 === 0) process.stdout.write(`\r  ${t}: ${n}/${dias.length} días…`);
     });
 
-    let usadas = 0;
+    let usadas = 0, rotas = 0;
     for (const p of plan) {
       const dia = porDia.get(p.entrada)?.[p.exp];
       if (!dia) continue;
@@ -197,7 +197,21 @@ interface Celda { dte: number; dist: number; rets: { ms: number; r: number; t: s
         const credito = (q1[0] + q1[1]) / 2 - (q2[0] + q2[1]) / 2 - (COMM * 2) / 100;
         const ancho = Math.abs(kL - kC);
         const riesgo = ancho - credito;
+        // FILTRO DE COTIZACION ROTA. `riesgo > 0` no basta: cuando el credito casi iguala al
+        // ancho, el riesgo tiende a CERO y el retorno (credito-perd)/riesgo EXPLOTA. Asi salio
+        // META a +244,85% de media en 2016-2021 y toda la rejilla vieja inflada — media +9,39%
+        // con mediana +0,5%.
+        //
+        // Un credito de mas del 80% del ancho es dinero gratis: no existe en un mercado real, es
+        // un bid/ask malo en una cadena antigua. Se descarta.
         if (!(credito > 0) || !(riesgo > 0)) continue;
+        if (credito > 0.5 * ancho) { rotas++; continue; }
+        // Y el spread relativo: un bid/ask de mas del 50% del punto medio en la pata corta es
+        // una cotizacion sin mercado, no un precio. META daba +244% con el filtro al 80% y
+        // seguia en +15,79%; el cuerpo de la distribucion tiene mediana ~0,7%, asi que cualquier
+        // media de dos digitos en UN ticker es basura, no un hallazgo.
+        const spCorto = (q1[1] - q1[0]) / ((q1[1] + q1[0]) / 2);
+        if (!(spCorto < 0.5)) { rotas++; continue; }
         const perd = bull ? Math.max(kC - sExp, 0) - Math.max(kL - sExp, 0) : Math.max(sExp - kC, 0) - Math.max(sExp - kL, 0);
         celdas.get(`${p.dte}|${dist}`)!.rets.push({ ms: p.sig.entryMs, r: (credito - perd) / riesgo, t });
         usadas++;
