@@ -120,6 +120,27 @@ Notional Value = Open Interest × 100 × Strike        # zonas de relevancia si 
 ### Noticias
 Monitorear los feeds definidos en [RSS Feed](RSS%20Feed.md) (CNBC + Investing.com) y adjuntar noticias relevantes al panel de resultados.
 
+## LESTER OPERA EN ROBINHOOD — costes y estructuras ejecutables
+
+Antes de escribir un backtest, una estimacion de rentabilidad, o de proponer una estructura:
+
+| | |
+|---|---|
+| Comision por opciones | **$0** |
+| Tasas regulatorias | **~$0,03 por contrato** |
+
+Usar $0,65/contrato (broker tradicional) resta **~2,2 puntos sobre el riesgo** que el NO paga —
+suficiente para volver negativa una estrategia positiva. Si un script tiene una constante de
+comision, tiene que ser **0,03**.
+
+**Lo que el movil de Robinhood permite:**
+- Verticales: **un boton**, se llenan rapido.
+- Iron condors: **NO**. Hay que armarlos pata por pata y tardan horas en llenarse, si se llenan.
+  Una estrategia que no se puede ejecutar vale cero por bueno que salga el backtest.
+
+Su cuenta es la 829411230; las operaciones reales se leen con `get_pnl_trade_history`.
+
+
 ## Cómo pedir datos a ThetaData — LEER ANTES DE ESCRIBIR UN DESCARGADOR
 
 Todo lo de aquí está **medido**, no supuesto. Es para no volver a descubrirlo cada vez.

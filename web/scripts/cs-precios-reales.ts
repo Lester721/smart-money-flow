@@ -21,7 +21,10 @@ const BASE = process.env.THETA_BASE || "http://127.0.0.1:25503";
 const DIR = "scripts/cache-theta";
 const TICKERS = (process.argv.slice(2).length ? process.argv.slice(2) : ["SPY", "QQQ", "AAPL", "MSFT", "NVDA"]);
 const DTE = 5, SIGMA = 1;
-const RIESGO = 1200, COMM = 0.65, CATASTROFE = -0.5;
+// COMM: Robinhood no cobra comision por opciones, solo tasas regulatorias (~$0,03 por
+// contrato). Poner $0,65 era asumir un broker tradicional y restaba ~2,2 puntos de riesgo que
+// Lester NO paga. Lo detecto el, no yo.
+const RIESGO = 1200, COMM = Number(process.env.CS_COMM ?? 0.03), CATASTROFE = -0.5;
 const CONC = 4;
 
 const leer = <T,>(p: string): T | null => { try { return JSON.parse(readFileSync(p, "utf8")); } catch { return null; } };
@@ -56,7 +59,7 @@ async function quoteCierre(sym: string, exp: string, strike: number, right: "C" 
   return null;
 }
 
-interface Op { ms: number; ticker: string; ret: number; retModelo: number; spreadRel: number }
+interface Op { ms: number; ticker: string; ret: number; retModelo: number; retComprador: number; spreadRel: number; debito?: number }
 
 // Los strikes REALES de cada expiración. Redondear a $1 fue un error grave: SPY cotiza de $1 en
 // $1, pero AAPL/MSFT/NVDA/TSLA van de $2,50 o $5 en $5 lejos del dinero. Pedir strikes
@@ -203,7 +206,12 @@ async function expiracionesDe(sym: string): Promise<string[]> {
       const credMod = bsPrice(x.sig.spot, x.kC, T, x.sig.rv, tipoBs) - bsPrice(x.sig.spot, x.kL, T, x.sig.rv, tipoBs) - (COMM * 2) / 100;
       const riesgoMod = ancho - credMod;
       const retMod = credMod > 0 && riesgoMod > 0 ? (credMod - perd) / riesgoMod : NaN;
-      ops.push({ ms: x.sig.entryMs, ticker: t, ret: (credito - perd) / riesgo, retModelo: retMod, spreadRel: (a1 - b1) / ((a1 + b1) / 2) });
+      // EL LADO CONTRARIO. Si vender pierde porque el mercado paga POCA prima, comprar deberia
+      // ganar. El comprador paga el ask de la pata que compra y cobra el bid de la que vende —
+      // asi que NO es simplemente -ret: paga su propio spread. Se calcula de verdad.
+      const debito = a1 - b2 + (COMM * 2) / 100;          // compra la cercana, vende la lejana
+      const retComp = debito > 0 ? (perd - debito) / debito : NaN;
+      ops.push({ ms: x.sig.entryMs, ticker: t, ret: (credito - perd) / riesgo, retModelo: retMod, retComprador: retComp, debito, spreadRel: (a1 - b1) / ((a1 + b1) / 2) });
     }
     todas.push(...ops);
     resumen.push(`  ${t}: ${ops.length}/${tareas.length} señales con quotes · ${((Date.now() - t0) / 1000).toFixed(0)}s`);
@@ -215,7 +223,7 @@ async function expiracionesDe(sym: string): Promise<string[]> {
   todas.sort((a, b) => a.ms - b.ms);
 
   const años = (a: Op[]) => (a[a.length - 1].ms - a[0].ms) / (365.25 * 86_400_000);
-  const linea = (a: Op[], campo: "ret" | "retModelo" = "ret") => {
+  const linea = (a: Op[], campo: "ret" | "retModelo" | "retComprador" = "ret") => {
     const r = a.map((x) => x[campo]).filter((x) => Number.isFinite(x)), m = media(r) * 100;
     return { n: a.length, m, cat: (r.filter((x) => x <= CATASTROFE).length / a.length) * 100, porAño: (a.length / años(a)) * (m / 100) * RIESGO };
   };
@@ -226,6 +234,43 @@ async function expiracionesDe(sym: string): Promise<string[]> {
     const r = linea(sub as Op[]);
     console.log(`| ${nom} | ${r.n} | ${r.m >= 0 ? "+" : ""}${r.m.toFixed(2)}% | ${r.cat.toFixed(1)}% | $${Math.round(r.porAño).toLocaleString("en-US")} |`);
   }
+  console.log(`
+### ¿Y si compramos en vez de vender?
+`);
+  console.log("| Tramo | n | Media del COMPRADOR | $/año |");
+  console.log("|---|---|---|---|");
+  for (const [nom, sub] of [["COMPLETO", todas], ["vieja", todas.slice(0, mid)], ["nueva", todas.slice(mid)]] as const) {
+    const r = linea(sub as Op[], "retComprador");
+    console.log(`| ${nom} | ${r.n} | ${r.m >= 0 ? "+" : ""}${r.m.toFixed(2)}% | $${Math.round(r.porAño).toLocaleString("en-US")} |`);
+  }
+  console.log(`   (el comprador paga SU propio spread: compra al ask y vende al bid, no es -1x el vendedor)`);
+  // AUDITORIA DEL NUMERO BUENO. Una media de +29% que aparece al invertir el signo es casi
+  // siempre un denominador roto: si el debito es diminuto, un acierto da +1900% y arrastra la
+  // media entera. La MEDIANA y los extremos lo delatan enseguida.
+  const rc = todas.map((x) => x.retComprador).filter((x) => Number.isFinite(x)).sort((a, b) => a - b);
+  const q = (f: number) => rc[Math.floor(rc.length * f)] * 100;
+  console.log(`
+   AUDITORIA del comprador:`);
+  console.log(`     mediana ${q(0.5).toFixed(1)}%  ·  p25 ${q(0.25).toFixed(1)}%  ·  p75 ${q(0.75).toFixed(1)}%  ·  p95 ${q(0.95).toFixed(1)}%  ·  max ${(rc[rc.length - 1] * 100).toFixed(0)}%`);
+  console.log(`     gana en el ${((rc.filter((x) => x > 0).length / rc.length) * 100).toFixed(0)}% de las operaciones`);
+  const sinTop = rc.slice(0, Math.floor(rc.length * 0.99));
+  console.log(`     media SIN el 1% mejor: ${((sinTop.reduce((a, b) => a + b, 0) / sinTop.length) * 100).toFixed(2)}%`);
+  const sinTop5 = rc.slice(0, Math.floor(rc.length * 0.95));
+  console.log(`     media SIN el 5% mejor: ${((sinTop5.reduce((a, b) => a + b, 0) / sinTop5.length) * 100).toFixed(2)}%`);
+  console.log(`     debito medio pagado: $${(todas.reduce((a, b) => a + (b.debito ?? 0), 0) / todas.length).toFixed(2)}`);
+  // La misma auditoria al VENDEDOR. Si su -2,53% tambien lo deciden cuatro operaciones, entonces
+  // no sabemos nada de ningun lado: el vehiculo seria indistinguible de un juego justo con esta
+  // muestra, y decir "pierde" seria tan infundado como decir "gana".
+  const rv2 = todas.map((x) => x.ret).sort((a, b) => a - b);
+  const qq = (f: number) => rv2[Math.floor(rv2.length * f)] * 100;
+  const sinPeor1 = rv2.slice(Math.ceil(rv2.length * 0.01));
+  const sinPeor5 = rv2.slice(Math.ceil(rv2.length * 0.05));
+  console.log(`
+   AUDITORIA del vendedor (lo que veniamos haciendo):`);
+  console.log(`     mediana ${qq(0.5).toFixed(1)}%  ·  p5 ${qq(0.05).toFixed(1)}%  ·  p95 ${qq(0.95).toFixed(1)}%  ·  min ${(rv2[0] * 100).toFixed(0)}%`);
+  console.log(`     gana en el ${((rv2.filter((x) => x > 0).length / rv2.length) * 100).toFixed(0)}% de las operaciones`);
+  console.log(`     media SIN el 1% PEOR: ${((sinPeor1.reduce((a, b) => a + b, 0) / sinPeor1.length) * 100).toFixed(2)}%`);
+  console.log(`     media SIN el 5% PEOR: ${((sinPeor5.reduce((a, b) => a + b, 0) / sinPeor5.length) * 100).toFixed(2)}%`);
   const rm = linea(todas, "retModelo");
   console.log(`
 ### Descomposición — ¿los precios o la rejilla de strikes?
