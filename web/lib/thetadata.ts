@@ -635,3 +635,98 @@ function bsGammaLocal(S: number, K: number, T: number, iv: number): number {
   const pdf = Math.exp(-(d1 * d1) / 2) / Math.sqrt(2 * Math.PI);
   return pdf / (S * iv * Math.sqrt(T));
 }
+
+// ── PRECIOS REALES DE UN VERTICAL ────────────────────────────────────────────
+//
+// Por qué existe esto: hasta el 2026-08-09 el forward-test valoraba con Black-Scholes y
+// volatilidad realizada, igual que el backtest. Medido con bid/ask reales, ese modelo INFLA el
+// resultado entre 5 y 6 puntos — el credit spread pasa de +3,20% a −2,53%. Un forward-test que
+// valora con el modelo no mide el mercado: confirma la ilusión del backtest.
+//
+// Railway PUEDE llegar a ThetaData: `scripts/with-theta.mjs` arranca un Terminal efímero dentro
+// del contenedor antes de cada job. No hace falta la computadora de Lester.
+
+/** Strikes realmente listados para una expiración. */
+export async function listarStrikes(symbol: string, expYmd: string): Promise<number[]> {
+  const csv = await getCsv(`/v3/option/list/strikes?symbol=${symbol}&expiration=${expYmd}`);
+  if (!csv) return [];
+  const i = idx(csv.header, "strike");
+  if (i < 0) return [];
+  return csv.rows.map((r) => Number(r[i])).filter((x) => x > 0).sort((a, b) => a - b);
+}
+
+/** Expiraciones realmente listadas (YYYYMMDD, ascendente). */
+export async function listarExpiraciones(symbol: string): Promise<string[]> {
+  const csv = await getCsv(`/v3/option/list/expirations?symbol=${symbol}`);
+  if (!csv) return [];
+  const i = idx(csv.header, "expiration");
+  if (i < 0) return [];
+  return csv.rows.map((r) => (r[i] ?? "").replace(/-/g, "")).filter((x) => x.length === 8).sort();
+}
+
+/** bid/ask al cierre de `fechaYmd` para un contrato concreto. null si no cotizó. */
+export async function quoteCierre(
+  symbol: string, expYmd: string, strike: number, right: "C" | "P", fechaYmd: string,
+): Promise<{ bid: number; ask: number } | null> {
+  const csv = await getCsv(
+    `/v3/option/history/eod?symbol=${symbol}&expiration=${expYmd}&start_date=${fechaYmd}&end_date=${fechaYmd}&strike=${strike}&right=${right}`,
+  );
+  if (!csv?.rows.length) return null;
+  const iB = idx(csv.header, "bid"), iA = idx(csv.header, "ask");
+  if (iB < 0 || iA < 0) return null;
+  const r = csv.rows[csv.rows.length - 1];
+  const bid = Number(r[iB]), ask = Number(r[iA]);
+  return bid > 0 && ask > 0 && ask >= bid ? { bid, ask } : null;
+}
+
+export interface VerticalReal {
+  exp: string; shortK: number; longK: number; width: number;
+  /** Crédito al punto medio de las dos patas, menos comisión. */
+  netCredit: number;
+  /** Spread relativo de la pata corta — para descartar cotizaciones sin mercado. */
+  spreadRel: number;
+}
+
+/**
+ * Arma un vertical con strikes y expiración REALES y lo valora con bid/ask del mercado.
+ *
+ * Devuelve null si no es operable. Los dos filtros de cotización rota salen de medirlo:
+ *   · crédito > 50% del ancho  → dinero gratis, no existe (así salió META a +244% de media)
+ *   · spread relativo > 50%    → no hay mercado en esa pata, solo un número en la pantalla
+ */
+export async function verticalReal(
+  symbol: string, fechaYmd: string, spot: number, em: number, dir: 1 | -1,
+  dteObjetivo: number, sigmaMult: number, anchoEm: number, commPorContrato = 0.03,
+): Promise<VerticalReal | null> {
+  if (!(em > 0) || !(spot > 0)) return null;
+  const bull = dir === 1;
+  const right: "C" | "P" = bull ? "P" : "C";
+
+  const objetivo = new Date(Date.parse(`${fechaYmd.slice(0, 4)}-${fechaYmd.slice(4, 6)}-${fechaYmd.slice(6, 8)}T12:00:00Z`) + dteObjetivo * 86_400_000)
+    .toISOString().slice(0, 10).replace(/-/g, "");
+  const exp = (await listarExpiraciones(symbol)).find((e) => e >= objetivo);
+  if (!exp) return null;
+
+  const ks = await listarStrikes(symbol, exp);
+  if (ks.length < 5) return null;
+  const cerca = (arr: number[], x: number) => arr.reduce((b, k) => (Math.abs(k - x) < Math.abs(b - x) ? k : b), arr[0]);
+  const shortK = cerca(ks, bull ? spot - sigmaMult * em : spot + sigmaMult * em);
+  const cand = ks.filter((x) => (bull ? x < shortK : x > shortK));
+  if (!cand.length) return null;
+  const longK = cerca(cand, bull ? shortK - anchoEm * em : shortK + anchoEm * em);
+  if (longK === shortK) return null;
+
+  const [qs, ql] = await Promise.all([
+    quoteCierre(symbol, exp, shortK, right, fechaYmd),
+    quoteCierre(symbol, exp, longK, right, fechaYmd),
+  ]);
+  if (!qs || !ql) return null;
+
+  const width = Math.abs(longK - shortK);
+  const netCredit = (qs.bid + qs.ask) / 2 - (ql.bid + ql.ask) / 2 - (commPorContrato * 2) / 100;
+  const spreadRel = (qs.ask - qs.bid) / ((qs.ask + qs.bid) / 2);
+  if (!(netCredit > 0) || !(width - netCredit > 0)) return null;
+  if (netCredit > 0.5 * width) return null;
+  if (!(spreadRel < 0.5)) return null;
+  return { exp, shortK, longK, width, netCredit, spreadRel };
+}

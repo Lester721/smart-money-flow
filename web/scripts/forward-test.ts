@@ -25,7 +25,7 @@ import {
 } from "../lib/flow";
 import { bsPrice, impliedVol } from "../lib/blackScholes";
 import { asegurarBarrasDeLiquidacion, vencidasSinLiquidar } from "../lib/forwardBars";
-import { fetchGexNormalizado } from "../lib/thetadata";
+import { fetchGexNormalizado, verticalReal } from "../lib/thetadata";
 
 // GEX: se REGISTRA en todos los tickers y no filtra en ninguno.
 //
@@ -273,22 +273,34 @@ function signals(rows: FlowRow[], bars: DBar[]): Signal[] {
 }
 
 // ── Abrir / liquidar un credit spread de papel ────────────────────────────────
-function openSpread(sig: Signal, dte: number, sigma: number, gexHoy: number | null, nocionalHoy: number | null): Trade | null {
+/**
+ * Abre una posicion de papel valorandola con BID/ASK REALES, no con Black-Scholes.
+ *
+ * POR QUE CAMBIO (2026-08-09): medido con precios reales, el modelo INFLA el resultado entre 5 y
+ * 6 puntos — el credit spread pasa de +3,20% a -2,53%. Un forward-test que valora con el mismo
+ * modelo que el backtest no mide el mercado: confirma su propia ilusion. Llevaba desde el 1 de
+ * agosto acumulando cierres asi.
+ *
+ * Railway SI puede: scripts/with-theta.mjs arranca un Terminal efimero dentro del contenedor
+ * antes de cada job. No hace falta la computadora de Lester.
+ *
+ * Devuelve null si no hay cotizacion operable — y eso es informacion, no un fallo: significa que
+ * ese spread no se podia abrir de verdad ese dia.
+ */
+async function openSpread(ticker: string, sig: Signal, dte: number, sigma: number, gexHoy: number | null, nocionalHoy: number | null): Promise<Trade | null> {
   const { spot, rv, entryMs, dir } = sig;
   const T = dte / 365;
   const em = spot * rv * Math.sqrt(dte / 365);
   if (!(em > 0)) return null;
   const bull = dir === 1;
   const type: "put" | "call" = bull ? "put" : "call";       // a favor: bull→put spread abajo, bear→call spread arriba
-  const shortK = bull ? spot - sigma * em : spot + sigma * em;
-  const longK = bull ? shortK - WIDTH_EM * em : shortK + WIDTH_EM * em;
-  if (shortK <= 0 || longK <= 0) return null;
-  const credit = bsPrice(spot, shortK, T, rv, type) - bsPrice(spot, longK, T, rv, type);
-  const width = Math.abs(shortK - longK);
-  if (!(credit > 0) || !(width > 0)) return null;
-  const netCredit = credit * (1 - SLIP) - (COMM * 2) / 100;  // crédito tras slippage + comisión de 2 patas
-  if (!(netCredit > 0)) return null;
-  const expiryMs = entryMs + dte * 86_400_000;
+  // PRECIOS REALES. Nada de bsPrice: strikes y vencimiento listados, credito al punto medio del
+  // bid/ask, y los dos filtros de cotizacion rota (credito <= 50% del ancho, spread < 50%).
+  const real = await verticalReal(ticker, sig.entryDate.replace(/-/g, ""), spot, em, dir, dte, sigma, WIDTH_EM, COMM);
+  if (!real) return null;
+  const { shortK, longK, width, netCredit } = real;
+  const credit = netCredit;
+  const expiryMs = Date.parse(`${real.exp.slice(0, 4)}-${real.exp.slice(4, 6)}-${real.exp.slice(6, 8)}T20:00:00Z`);
 
   // ── Sombra del iron condor ──────────────────────────────────────────────────────────────
   // Mismos strikes que el vertical en el lado que EVA elige, MÁS el lado contrario simétrico.
@@ -438,7 +450,7 @@ function pctile(vals: number[], p: number): number | null {
       let newN = 0;
       for (const sig of sigs) {
         for (const cell of CELLS) {
-          const rec = openSpread(sig, cell.dte, cell.sigma, gexHoy, nocionalHoy);
+          const rec = await openSpread(t, sig, cell.dte, cell.sigma, gexHoy, nocionalHoy);
           if (!rec) continue;
           rec.ticker = t;
           // Gestión SOLO al 5d (el backtest dice que a 60/90 días estorba). Se fija al abrir:
