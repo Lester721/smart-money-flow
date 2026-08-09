@@ -167,18 +167,38 @@ function vertical(spot: number, em: number, spotCierre: number, dir: 1 | -1): nu
   // Si la tarde deshace la mañana, seguir el impulso es justo lo contrario de lo que conviene.
   // Correlación de rangos entre el movimiento de la mañana y el de la tarde.
   const rank = (a: number[]) => { const s = [...a].sort((x, y) => x - y); return a.map((x) => s.indexOf(x) + 1); };
-  const rm = rank(casos.map((c) => c.mañana)), rt = rank(casos.map((c) => c.tarde));
-  const n = rm.length;
-  const d2 = rm.reduce((s, x, i2) => s + (x - rt[i2]) ** 2, 0);
-  const rho = 1 - (6 * d2) / (n * (n * n - 1));
+  const correlacion = (sub: Caso[]) => {
+    if (sub.length < 40) return NaN;
+    const a = rank(sub.map((c) => c.mañana)), b = rank(sub.map((c) => c.tarde));
+    const nn = a.length;
+    return 1 - (6 * a.reduce((s, x, i2) => s + (x - b[i2]) ** 2, 0)) / (nn * (nn * nn - 1));
+  };
+  const rho = correlacion(casos);
   const reversion = casos.filter((c) => Math.abs(c.mañana) > 0.5 && Math.sign(c.tarde) !== Math.sign(c.mañana));
   const conDireccion = casos.filter((c) => Math.abs(c.mañana) > 0.5);
   console.log(`### ¿Existen las "U" y las "n"?\n`);
-  console.log(`   Correlación mañana ↔ tarde: **${rho.toFixed(3)}**`);
+  console.log(`   Correlación mañana ↔ tarde (todos): **${rho.toFixed(3)}**`);
   console.log(`   De los ${conDireccion.length} días con dirección clara por la mañana, la tarde se dio la vuelta en **${reversion.length}** (${(reversion.length / conDireccion.length * 100).toFixed(0)}%)`);
-  console.log(`   → ${rho < -0.05 ? "SÍ: la tarde tiende a DESHACER la mañana. Seguir el impulso juega en contra."
-    : rho > 0.05 ? "NO: la tarde tiende a CONTINUAR la mañana. Seguir el impulso juega a favor."
-    : "NI UNA COSA NI OTRA: la tarde es independiente de la mañana (≈0). El impulso no informa."}\n`);
+
+  // PARTIDO POR RÉGIMEN DE GAMMA — la idea de Lester, y tiene mecanismo detrás.
+  // Con gamma NEGATIVA los dealers AMPLIFICAN: venden en las caídas y compran en las subidas.
+  // Si el impulso continúa en algún sitio, tiene que ser ahí. Con gamma positiva amortiguan, y
+  // el precio se clava — ahí el impulso debería morir. Es una predicción DIFERENCIAL: si sale,
+  // no es casualidad; si el agregado da 0 pero los dos regímenes dan lo mismo, no hay nada.
+  const gPos = casos.filter((c) => c.gex > 0), gNeg = casos.filter((c) => c.gex <= 0);
+  const rhoPos = correlacion(gPos), rhoNeg = correlacion(gNeg);
+  const revDe = (sub: Caso[]) => {
+    const cd = sub.filter((c) => Math.abs(c.mañana) > 0.5);
+    const rv = cd.filter((c) => Math.sign(c.tarde) !== Math.sign(c.mañana));
+    return cd.length ? (rv.length / cd.length) * 100 : NaN;
+  };
+  console.log(`\n   Partido por régimen de gamma (la predicción de la teoría):`);
+  console.log(`     gamma POSITIVA (${gPos.length} días): correlación ${rhoPos.toFixed(3)} · se da la vuelta el ${revDe(gPos).toFixed(0)}%`);
+  console.log(`     gamma NEGATIVA (${gNeg.length} días): correlación ${rhoNeg.toFixed(3)} · se da la vuelta el ${revDe(gNeg).toFixed(0)}%`);
+  console.log(`   → ${rhoNeg > rhoPos + 0.05
+    ? "El impulso SÍ continúa más con gamma negativa, como predice el mecanismo."
+    : rhoNeg < rhoPos - 0.05 ? "Al revés de lo previsto: continúa MENOS con gamma negativa."
+    : "Los dos regímenes se comportan IGUAL: la gamma no cambia si el impulso continúa."}\n`);
 
   // ── La regla, con y sin filtros ──────────────────────────────────────────────────────────
   const años = (a: Caso[]) => {
@@ -204,8 +224,11 @@ function vertical(spot: number, em: number, spotCierre: number, dir: 1 | -1): nu
 
   const universos: [string, Caso[]][] = [
     ["TODOS los días", casos],
-    ["solo gamma POSITIVA", casos.filter((c) => c.gex > 0)],
-    ["gamma+ y señal EVA", casos.filter((c) => c.gex > 0 && c.señal)],
+    ["solo gamma POSITIVA", gPos],
+    ["gamma+ y señal EVA", gPos.filter((c) => c.señal)],
+    // La idea de Lester: si los dealers amplifican, el impulso debería continuar.
+    ["solo gamma NEGATIVA", gNeg],
+    ["gamma− y señal EVA", gNeg.filter((c) => c.señal)],
   ];
   for (const [nombre, sub] of universos) {
     console.log(`### ${nombre} — ${sub.length} días\n`);
