@@ -87,27 +87,39 @@ export default function CreditSpreadView() {
         </div>
       </div>
 
-      {/* El resultado del backtest, en corto */}
-      <div className="card" style={{ borderLeft: "4px solid #12B76A" }}>
-        <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>El resultado del backtest, en corto 📈</div>
+      {/* EL RESULTADO, corregido el 9 ago 2026. Antes decía +3,2% / ~$8.053 al año / ~13%.
+          Era falso: se medía con Black-Scholes y volatilidad realizada, y con comisiones de un
+          bróker que Lester no usa. Con bid/ask reales el mismo vehículo PIERDE dinero. */}
+      <div className="card" style={{ borderLeft: "4px solid #F04438" }}>
+        <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>El resultado, corregido el 9 ago 2026 🔴</div>
         <div className="card-sub">
-          Fuimos <strong>10 años atrás</strong> (2016-2026, <strong>7,595 señales</strong>) — incluido el
-          <strong> crash del COVID</strong> y el bear de 2022. El vehículo que aguanta es el
-          <strong> credit spread a 5 y 7 días</strong>, vendido <strong>solo en el Top⅓ de convicción de EVA</strong> y
-          <strong> saltándose los días en que el flujo paga una IV desproporcionada</strong>:
-          <strong> +3.2%</strong> de retorno medio sobre riesgo. Y no fue suerte: positivo en las
-          <strong> 2 mitades</strong> del período (+3.4% / +3.0%) y en los <strong>3 climas</strong> de mercado.
+          Esta tarjeta decía <strong>+3.2% por operación · ~$8,053 al año · ~13% sobre la cuenta</strong>.
+          <strong> Era falso.</strong> Ese número se medía valorando las opciones con
+          <strong> Black-Scholes</strong> y volatilidad realizada, no con los precios a los que el mercado
+          cotizaba de verdad. Medido con <strong>bid/ask reales</strong>, el mismo vehículo
+          <strong> pierde dinero</strong>.
         </div>
         <div style={{ fontSize: 13.5, color: "#101828", marginTop: 10, background: "#F1F5F4", borderRadius: 8, padding: "10px 12px" }}>
-          <strong>¿En una cuenta de $60,000?</strong> Arriesgando <strong>2% ($1,200)</strong> por operación, con las <strong>~208 operaciones</strong> al año que pasan el filtro, a <strong>+3.2%</strong> de media:
+          <strong>Lo que dio cada versión de la misma estrategia:</strong>
           <div style={{ margin: "8px 0", fontVariantNumeric: "tabular-nums", display: "flex", flexDirection: "column", gap: 5 }}>
-            <div>• <strong>208 operaciones × $39 = </strong><strong style={{ color: "#027A48" }}>~$8,053 al año</strong> &nbsp;(~+13% sobre la cuenta)</div>
-            <div>• <strong>Sin el filtro de IV</strong> (solo Top⅓): 241 × $28 = <strong>~$6,660</strong> &nbsp;— el filtro vale <strong>+$1,393</strong></div>
+            <div>• Black-Scholes, strikes ideales: <strong>+3.20%</strong> &nbsp;<span style={{ color: "#667085" }}>← lo que decía esta página</span></div>
+            <div>• Black-Scholes, strikes reales: <strong>+3.10%</strong></div>
+            <div>• <strong>Precios reales (bid/ask):</strong> <strong style={{ color: "#B42318" }}>−2.53%</strong> &nbsp;<span style={{ color: "#667085" }}>← la realidad</span></div>
           </div>
           <div style={{ color: "#101828" }}>
-            <strong>El capital no es la limitación:</strong> a 5 días tendrías <strong>~4-5 posiciones abiertas a la vez
-            ≈ $5,400</strong> (9% de la cuenta). Lo que escasea son las señales, no el dinero — por eso preferimos
-            frecuencia a rendimiento por operación.
+            <strong>La rejilla de strikes cuesta 0.1 puntos. Los precios cuestan 5.6.</strong> No es que los
+            strikes listados sean peores: es que el mercado <strong>paga mucha menos prima</strong> de la que el
+            modelo suponía. Cobrábamos, en la simulación, un crédito que en la realidad no existe.
+          </div>
+        </div>
+        <div style={{ fontSize: 13.5, color: "#101828", marginTop: 10, background: "#F1F5F4", borderRadius: 8, padding: "10px 12px" }}>
+          <strong>Y no se arregla ajustando parámetros.</strong> Se barrieron 15 combinaciones de distancia y
+          ancho con precios reales, sobre el Top⅓ de convicción. <strong>Ninguna es positiva.</strong> El motivo
+          es aritmético: con un {" "}<strong>94% de aciertos</strong> el equilibrio exige cobrar el <strong>6.2%</strong> del
+          ancho, y el mercado paga <strong>5.0%</strong>. Ese hueco de <strong>1.2 puntos</strong> es, con buena
+          aproximación, <strong>lo que cuesta cruzar el bid/ask</strong>.
+          <div style={{ marginTop: 6 }}>
+            Dicho de otro modo: <strong>el vehículo está bien valorado y perdemos el coste de transacción.</strong>
           </div>
         </div>
         {/* var(--muted), no #667085: sobre el fondo oscuro del tema ese gris da contraste 3,5 —
@@ -199,7 +211,7 @@ export default function CreditSpreadView() {
           <strong>Cambios del 7 ago 2026, tras el backtest de 10 años:</strong>
           <div style={{ margin: "6px 0 0", display: "flex", flexDirection: "column", gap: 4 }}>
             <div>• <strong>Celdas:</strong> se pasó de 5d/60d/90d a <strong>5d y 7d (a 1σ y 1.5σ)</strong> — las 4 que aguantan out-of-sample. El 90d se queda solo como <strong>control</strong>.</div>
-            <div>• <strong>Gestión APAGADA.</strong> La regla que corría (cerrar al ganar 25% / cortar al perder 1× la prima) salió de la muestra vieja de 2 años. Con 10 años resultó ser <strong>la peor de 9 reglas</strong>: bajaba de ~$8,053 a ~$4,973 al año. Las posiciones ya abiertas con ella siguen como grupo de control.</div>
+            <div>• <strong>Gestión APAGADA.</strong> La regla que corría (cerrar al ganar 25% / cortar al perder 1× la prima) salió de la muestra vieja de 2 años. Con 10 años resultó ser <strong>la peor de 9 reglas</strong>. <em>(Las dos cifras que comparábamos aquí —$8,053 y $4,973— eran del modelo. Rehecho con precios reales el 9 ago 2026: los stops tampoco salvan nada, van de −2.76% a −3.59%.)</em></div>
             <div>• <strong>Scorer nuevo &laquo;EVA-IV&raquo;</strong> corriendo en paralelo, sin cambiar qué se abre: mide si saltarse los días de IV desproporcionada funciona también en vivo.</div>
           </div>
           <div style={{ marginTop: 8 }}>

@@ -26,7 +26,7 @@ const leer = <T,>(p: string): T | null => { try { return JSON.parse(readFileSync
 const media = (a: number[]) => a.reduce((s, x) => s + x, 0) / Math.max(1, a.length);
 type CadenaDia = Record<string, Record<string, [number, number]>>;
 
-interface Op { ms: number; eva: number; r: number; t: string }
+interface Op { ms: number; eva: number; r: number; t: string; credWidth: number }
 
 (async () => {
   const ops: Op[] = [];
@@ -69,7 +69,7 @@ interface Op { ms: number; eva: number; r: number; t: string }
       if (!((q1[1] - q1[0]) / ((q1[1] + q1[0]) / 2) < 0.5)) continue;   // sin mercado
       const sExp = bars[expIdx].close;
       const perd = bull ? Math.max(kC - sExp, 0) - Math.max(kL - sExp, 0) : Math.max(sExp - kC, 0) - Math.max(sExp - kL, 0);
-      ops.push({ ms: sig.entryMs, eva: sig.evaComp, r: (credito - perd) / riesgo, t });
+      ops.push({ ms: sig.entryMs, eva: sig.evaComp, r: (credito - perd) / riesgo, t, credWidth: credito / ancho });
     }
   }
 

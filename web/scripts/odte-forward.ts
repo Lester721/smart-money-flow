@@ -1,9 +1,15 @@
 // FORWARD-TEST DE 0DTE — grabando, sin decidir nada.
 //
-// CORRE EN LOCAL, no en Railway. Necesita el spot a las 11:00 de la mañana, o sea el Terminal de
-// ThetaData vivo — y el Terminal está en el PC de Lester. `THETA_BASE` apunta a localhost, así
-// que en Railway estas llamadas fallarían y el `.catch` las convertiría en silencio. Mejor que
-// corra donde puede funcionar y que grite si no puede.
+// CORRE EN RAILWAY, no en el PC de Lester.
+//
+// Yo escribí antes que Railway no podía llegar a ThetaData porque `THETA_BASE` apunta a
+// localhost. FALSO: `scripts/with-theta.mjs` arranca un Terminal EFÍMERO dentro del contenedor
+// antes de cada job, corre el comando y lo apaga. `railway.odte.json` lo usa como startCommand,
+// igual que el forward-test de credit spread.
+//
+// Importa que corra en la nube: la computadora de Lester se enciende de forma irregular — puede
+// que por la mañana, por la tarde o ningún día — y este registrador necesita el spot de las
+// 11:00 ET de CADA sesión. Una dependencia así perdería días sin avisar.
 //
 // LA ESTRATEGIA QUE REGISTRA (backtest: 1.053 días de SPY, 2022-2026):
 //   SPY · 0DTE · solo días de GAMMA POSITIVA (calculada con el OI del cierre anterior)
@@ -18,7 +24,8 @@
 //     vender siempre el call. Gana 4/4 en las dos mitades.
 //   · Gamma NEGATIVA no: pierde -5% validado en las dos mitades.
 //
-// Uso (local, con el Terminal arriba):
+// Uso en Railway: railway.odte.json → node scripts/with-theta.mjs npm run odte-forward
+// Uso local (para probar, con el Terminal arriba):
 //   node --env-file=.env.local --import tsx scripts/odte-forward.ts
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
@@ -31,7 +38,8 @@ const TICKER = "SPY";
 const LEDGER = process.env.ODTE_LEDGER || "data/forward/odte-ledger.json";
 const ENTRADA = 11 * 60, CIERRE = 16 * 60, MIN_SESION = 390;
 const SIGMA = 1, ANCHO = 0.5;
-const SLIP = 0.02, COMM = 0.65;
+// ROBINHOOD: $0 de comisión, ~$0,03 de tasas por contrato. Ver CLAUDE.md.
+const SLIP = 0.02, COMM = 0.03;
 const MAX_DTE_GEX = 21;
 
 interface Pos {
