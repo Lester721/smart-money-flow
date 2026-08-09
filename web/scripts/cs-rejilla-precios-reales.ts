@@ -19,8 +19,10 @@ const BASE = process.env.THETA_BASE || "http://127.0.0.1:25503";
 const DIR = "scripts/cache-theta";
 const CDIR = `${DIR}/cadenas`;
 const TICKERS = process.argv.slice(2).length ? process.argv.slice(2) : ["SPY", "QQQ", "AAPL", "MSFT", "NVDA", "META", "TSLA", "AMD"];
-const DTES = [5, 10, 21, 45];
-const DISTS = [0.75, 1.0, 1.25, 1.5, 2.0];
+const DTES = [10, 21, 30];
+// Se extiende MAS ALLA de 2s: en la primera rejilla el resultado seguia mejorando al
+// llegar a 2s en 5d y 10d, y 2s era el BORDE. Un optimo en el borde no es un optimo.
+const DISTS = [1.25, 1.5, 2.0, 2.5, 3.0];
 // ROBINHOOD: $0 de comision, ~$0,03 de tasas por contrato. Ver CLAUDE.md.
 const RIESGO = 1200, COMM = Number(process.env.CS_COMM ?? 0.03), CATASTROFE = -0.5;
 const CONC = 4;
@@ -112,7 +114,7 @@ async function cadenaDe(sym: string, exp: string, desde: string): Promise<Cadena
   return out;
 }
 
-interface Celda { dte: number; dist: number; rets: { ms: number; r: number }[] }
+interface Celda { dte: number; dist: number; rets: { ms: number; r: number; t: string }[] }
 
 (async () => {
   const celdas = new Map<string, Celda>();
@@ -197,7 +199,7 @@ interface Celda { dte: number; dist: number; rets: { ms: number; r: number }[] }
         const riesgo = ancho - credito;
         if (!(credito > 0) || !(riesgo > 0)) continue;
         const perd = bull ? Math.max(kC - sExp, 0) - Math.max(kL - sExp, 0) : Math.max(sExp - kC, 0) - Math.max(sExp - kL, 0);
-        celdas.get(`${p.dte}|${dist}`)!.rets.push({ ms: p.sig.entryMs, r: (credito - perd) / riesgo });
+        celdas.get(`${p.dte}|${dist}`)!.rets.push({ ms: p.sig.entryMs, r: (credito - perd) / riesgo, t });
         usadas++;
       }
     }
@@ -224,6 +226,39 @@ interface Celda { dte: number; dist: number; rets: { ms: number; r: number }[] }
     }
     console.log(`| **${dte}d** | ${fila.join(" | ")} |`);
   }
+  // ── AUTOPSIA de la mejor celda ──────────────────────────────────────────────────────────
+  // Las mismas tres preguntas que tumbaron los hallazgos anteriores:
+  //   1. ¿lo deciden cuatro operaciones? (quitar el 1% y el 5% mejores)
+  //   2. ¿funciona en varios tickers o lo sostiene uno solo?
+  //   3. ¿cuánto se gana de verdad al año?
+  let mejorK = "", mejorM = -Infinity;
+  for (const [k, c] of celdas) {
+    if (c.rets.length < 150) continue;
+    const o = [...c.rets].sort((a, b) => a.ms - b.ms);
+    const mm = Math.floor(o.length / 2);
+    if (media(o.slice(0, mm).map((x) => x.r)) > 0 && media(o.slice(mm).map((x) => x.r)) > 0
+      && media(c.rets.map((x) => x.r)) > mejorM) { mejorM = media(c.rets.map((x) => x.r)); mejorK = k; }
+  }
+  if (mejorK) {
+    const c = celdas.get(mejorK)!;
+    const rs = [...c.rets].sort((a, b) => a.r - b.r);
+    const sinN = (f: number) => { const s = rs.slice(0, Math.floor(rs.length * (1 - f))); return (s.reduce((a, b) => a + b.r, 0) / s.length) * 100; };
+    console.log(`\n### AUTOPSIA de la mejor celda — ${c.dte}d @${c.dist}σ\n`);
+    console.log(`   media ${(mejorM * 100).toFixed(2)}%  ·  mediana ${(rs[Math.floor(rs.length / 2)].r * 100).toFixed(1)}%  ·  gana el ${((rs.filter((x) => x.r > 0).length / rs.length) * 100).toFixed(0)}%  ·  n=${rs.length}`);
+    console.log(`   media SIN el 1% mejor: ${sinN(0.01).toFixed(2)}%     ← si se hunde aquí, lo deciden cuatro operaciones`);
+    console.log(`   media SIN el 5% mejor: ${sinN(0.05).toFixed(2)}%`);
+    const porT = new Map<string, number[]>();
+    for (const x of c.rets) { if (!porT.has(x.t)) porT.set(x.t, []); porT.get(x.t)!.push(x.r); }
+    console.log(`\n   Por ticker:`);
+    for (const [tk, arr] of [...porT.entries()].sort((a, b) => media(b[1]) - media(a[1]))) {
+      console.log(`     ${tk.padEnd(5)} ${(media(arr) * 100).toFixed(2).padStart(7)}%   (n=${arr.length})`);
+    }
+    console.log(`\n   → positivo en ${[...porT.values()].filter((a) => media(a) > 0).length}/${porT.size} tickers`);
+    const span = (Math.max(...c.rets.map((x) => x.ms)) - Math.min(...c.rets.map((x) => x.ms))) / (365.25 * 86_400_000);
+    const opsAño = c.rets.length / Math.max(0.5, span);
+    console.log(`   → ${Math.round(opsAño)} ops/año × $${(mejorM * RIESGO).toFixed(2)} = $${Math.round(opsAño * mejorM * RIESGO).toLocaleString("en-US")}/año  ·  ${((opsAño * mejorM * RIESGO) / 60000 * 100).toFixed(1)}% sobre $60.000`);
+  }
+
   console.log(`\n### Celdas positivas en las DOS mitades\n`);
   if (!buenas.length) console.log(`   NINGUNA. El vehículo no funciona en ningún plazo ni distancia con precios reales.`);
   else for (const b of buenas) console.log(`   · ${b}`);
