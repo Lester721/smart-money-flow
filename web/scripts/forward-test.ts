@@ -51,7 +51,18 @@ const REPORT = process.env.FWD_REPORT || "data/forward/forward-report.md";
 const STORE = (process.env.FWD_STORE || (process.env.REDIS_URL ? "redis" : "file")).toLowerCase();
 const REDIS_KEY = process.env.FWD_REDIS_KEY || "forward:ledger";
 const SLIP = Number(process.env.FWD_SLIP ?? 0.05);         // 5% de slippage al abrir (conservador, dentro de lo validado)
-const COMM = Number(process.env.FWD_COMM ?? 0.03);         // comisión Robinhood ~$0.03/contrato
+const COMM = Number(process.env.FWD_COMM ?? 0.03);
+/**
+ * RIESGO POR OPERACION — 1,5%, no 2%.
+ *
+ * Medido el 2026-08-09 sobre la celda buena (21d @1,5sigma, 960 posiciones con precios reales):
+ * el PICO de solapamiento son 57 posiciones a la vez. Al 2% eso pide $68.400 de colateral sobre
+ * una cuenta de $60.000 — no cabe, y habria dias en que no se puede abrir. Al 1,5% si entra.
+ *
+ * No es una preferencia de riesgo: es la restriccion de capital medida.
+ */
+const RIESGO_PCT = Number(process.env.FWD_RIESGO_PCT ?? 1.5);
+const RIESGO_OP = 60_000 * (RIESGO_PCT / 100);
 const WIDTH_EM = 0.5;                                       // ancho del spread = 0.5σ
 // CELDAS — reponderadas el 2026-08-07 tras el backtest 2021-2026 (n=5.094, 3,3× la muestra
 // anterior). La conclusión se INVIRTIÓ respecto a la corrida de 2 años:
@@ -92,7 +103,7 @@ const MGMT_CELLS = new Set((process.env.FWD_MGMT_CELLS || "").split(",").map(Num
 const MGMT_TP = Number(process.env.FWD_MGMT_TP ?? 0.25); // cerrar al ganar 25% del crédito
 const MGMT_SL = Number(process.env.FWD_MGMT_SL ?? 1);    // cortar al perder 1× el crédito
 
-const CELLS: { dte: number; sigma: number }[] = (process.env.FWD_CELLS || "5@1,7@1,5@1.5,7@1.5,90@1")
+const CELLS: { dte: number; sigma: number }[] = (process.env.FWD_CELLS || "5@1,7@1,5@1.5,7@1.5,21@1.5,90@1")
   .split(",").map((s) => { const [d, g] = s.split("@"); return { dte: Number(d), sigma: Number(g) }; });
 const YR = 365 * 24 * 3600 * 1000;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

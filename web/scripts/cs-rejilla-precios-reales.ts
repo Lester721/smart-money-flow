@@ -131,7 +131,7 @@ interface Celda { dte: number; dist: number; rets: { ms: number; r: number; t: s
     const sigs = signals(classifyFlow(trades as any, new Date()).rows, bars);
     const k3 = Math.floor(sigs.length / 3);
     const top = [...sigs].sort((a, b) => a.evaComp - b.evaComp).slice(sigs.length - k3)
-      .filter((s) => s.ivRatio < 1.1 && bars[s.entryIdx].time >= "2022-01-01");
+      .filter((s) => s.ivRatio < 1.1 && bars[s.entryIdx].time >= (process.env.CS_DESDE ?? "2022-01-01"));
     if (!top.length) continue;
 
     // Expiraciones listadas, una sola vez por ticker.
