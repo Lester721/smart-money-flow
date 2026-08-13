@@ -25,32 +25,8 @@ import {
 } from "../lib/flow";
 import { impliedVol } from "../lib/blackScholes";
 import { asegurarBarrasDeLiquidacion, vencidasSinLiquidar } from "../lib/forwardBars";
-import { fetchGexNormalizado, verticalReal } from "../lib/thetadata";
-import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
+import { fetchGexNormalizado, verticalReal, quoteCierre } from "../lib/thetadata";
 
-// ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  ⛔ PARADO A PROPÓSITO — 2026-08-12                                       ║
-// ╚══════════════════════════════════════════════════════════════════════════╝
-// Este forward-test valoraba las posiciones con Black-Scholes alimentado con volatilidad
-// REALIZADA. En venta de prima eso asume que el hueco implícita-realizada es cero, que es
-// justo de donde sale el dinero: el backtest deja de medir el mercado y devuelve el supuesto.
-// Coste medido en el credit spread: +3,20% se convirtió en −2,53% con precios reales.
-//
-// La ENTRADA se puede arreglar con verticalReal() (ya existe, usa quotes reales). Lo que falta
-// es la VALORACIÓN día a día de las posiciones abiertas (líneas 312-313 y 358), que necesita pedir la
-// cotización real de cada pata en cada fecha con quoteCierre().
-//
-// NO se arregló a las 01:00 sin Lester delante a propósito: reescribir deprisa la lógica que
-// produce el P&L es como se fabrica otro test que parece correcto y no lo es. Un forward-test
-// parado no miente; uno arreglado a medias, sí.
-//
-// Mientras tanto NO REGISTRA NADA. Su ledger de Redis se borró por contaminado.
-if (!process.env.FWD_ARREGLADO) {
-  console.log("⛔ PARADO: valoraba con Black-Scholes, no con precios reales.");
-  console.log("   Falta portar la valoración diaria a quoteCierre(). Ver la cabecera del archivo.");
-  console.log("   No registra nada a propósito: parado es mejor que mintiendo.");
-  process.exit(0);
-}
 
 // GEX: se REGISTRA en todos los tickers y no filtra en ninguno.
 //
@@ -327,26 +303,10 @@ async function openSpread(ticker: string, sig: Signal, dte: number, sigma: numbe
   const credit = netCredit;
   const expiryMs = Date.parse(`${real.exp.slice(0, 4)}-${real.exp.slice(4, 6)}-${real.exp.slice(6, 8)}T20:00:00Z`);
 
-  // ── Sombra del iron condor ──────────────────────────────────────────────────────────────
-  // Mismos strikes que el vertical en el lado que EVA elige, MÁS el lado contrario simétrico.
-  // 4 patas → el doble de comisión que el vertical. No cambia nada de lo que se abre.
-  const condor = (() => {
-    const shortPut = spot - sigma * em, longPut = shortPut - WIDTH_EM * em;
-    const shortCall = spot + sigma * em, longCall = shortCall + WIDTH_EM * em;
-    if (longPut <= 0) return undefined;
-    const cPut = bsPrice(spot, shortPut, T, rv, "put") - bsPrice(spot, longPut, T, rv, "put");
-    const cCall = bsPrice(spot, shortCall, T, rv, "call") - bsPrice(spot, longCall, T, rv, "call");
-    const cTot = cPut + cCall;
-    const w = WIDTH_EM * em;                                  // el ancho es el mismo en los dos lados
-    const nc = cTot * (1 - SLIP) - (COMM * 4) / 100;
-    // Crédito ≥ ancho significaría dinero gratis: imposible en la práctica, señal de mal precio.
-    if (!(cTot > 0) || !(nc > 0) || !(w - nc > 0)) return undefined;
-    return {
-      shortPut: round(shortPut), longPut: round(longPut),
-      shortCall: round(shortCall), longCall: round(longCall),
-      netCredit: round(nc, 4), width: round(w),
-    };
-  })();
+  // La sombra del iron condor se eliminó el 2026-08-13: se valoraba con bsPrice y no se
+  // operaba nunca. Un número de modelo al lado de uno real es la peor mezcla posible, porque
+  // parece verificado. Además ya medimos que el cóndor sobre estos vehículos no tiene
+  // crédito cobrable una vez cruzas la horquilla.
   return {
     id: "", // se completa abajo con `${ticker}|${entryDate}|${dte}|${sigma}`
     ticker: "", entryDate: sig.entryDate, entryMs,
@@ -357,7 +317,6 @@ async function openSpread(ticker: string, sig: Signal, dte: number, sigma: numbe
     ivRatio: round(sig.ivRatio, 3), netRatio: round(sig.netRatio, 3),
     ...(gexHoy != null ? { gexNorm: Math.round(gexHoy) } : {}),
     ...(nocionalHoy != null ? { oiNocional: Math.round(nocionalHoy / 1e6) } : {}),   // en millones
-    ...(condor ? { condor } : {}),
     status: "open",
   };
 }
@@ -369,7 +328,7 @@ async function openSpread(ticker: string, sig: Signal, dte: number, sigma: numbe
  * Por qué solo en 5d: el backtest mostró que a 5 días cortar AYUDA (+0,9% → +2,2%), pero a
  * 60/90 días ESTORBA (hay tiempo de recuperarse; cortar cristaliza pérdidas que se revierten).
  */
-function manage(t: Trade, bars: DBar[]): boolean {
+async function manage(t: Trade, bars: DBar[]): Promise<boolean> {
   if (!t.mgmt || t.status !== "open") return false;
   const risk = t.width - t.netCredit;
   if (!(risk > 0)) return false;
@@ -379,9 +338,17 @@ function manage(t: Trade, bars: DBar[]): boolean {
   for (let i = startIdx; i < bars.length; i++) {
     const tMs = Date.parse(`${bars[i].time}T20:00:00Z`);
     if (tMs > t.expiryMs) break;                 // a partir de aquí lo liquida settle()
-    const Trem = Math.max((t.expiryMs - tMs) / YR, 1 / 365 / 24);
-    const val = bsPrice(bars[i].close, t.shortK, Trem, t.rv, t.type)
-      - bsPrice(bars[i].close, t.longK, Trem, t.rv, t.type);
+    // Valor REAL del vertical para decidir la gestión: se RECOMPRA la corta al ASK y se VENDE
+    // la larga al BID. Cerrar cuesta la horquilla entera, igual que abrir.
+    const vexp = new Date(t.expiryMs).toISOString().slice(0, 10).replace(/-/g, "");
+    const lado = t.type === "put" ? ("P" as const) : ("C" as const);
+    const fecha = bars[i].time.replace(/-/g, "");
+    const [qs, ql] = await Promise.all([
+      quoteCierre(t.ticker, vexp, t.shortK, lado, fecha),
+      quoteCierre(t.ticker, vexp, t.longK, lado, fecha),
+    ]);
+    if (!qs || !ql) continue;                 // sin cotización real no se decide nada ese día
+    const val = qs.ask - ql.bid;
     const pnlPerShare = t.netCredit - val;
     const hitTp = pnlPerShare >= t.mgmt.tp * t.netCredit;
     const hitSl = pnlPerShare <= -t.mgmt.sl * t.netCredit;
@@ -505,7 +472,7 @@ function pctile(vals: number[], p: number): number | null {
     const bars = barsByTicker.get(t.ticker);
     if (!bars) continue;
     // 1º la gestión (puede cerrar ANTES del vencimiento); 2º el vencimiento.
-    if (manage(t, bars)) { managed++; settled++; continue; }
+    if (await manage(t, bars)) { managed++; settled++; continue; }
     if (Date.now() < t.expiryMs) continue;
     if (settle(t, bars)) settled++;
   }

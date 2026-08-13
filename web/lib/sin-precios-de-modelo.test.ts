@@ -28,7 +28,7 @@ const MODULO = "PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
  */
 const DEUDA_CONOCIDA = new Set([
   // parados, no registran nada
-  "scripts/forward-test.ts", "scripts/forward-ideas.ts",
+  "scripts/forward-ideas.ts",   // parado: depende de los pesos de EVA, pendientes de revisar
   // forward-wheel.ts SALIÓ de aquí el 2026-08-13: ya usa putReal/valorPutReal (bid al vender,
   // ask al recomprar). Esta lista sólo encoge.
   // backtests históricos: resultados no válidos
@@ -81,7 +81,7 @@ describe("ningún resultado sale de un modelo", () => {
   });
 
   it("los tres forward-tests siguen parados mientras valoren con modelo", () => {
-    for (const f of ["scripts/forward-test.ts", "scripts/forward-ideas.ts"]) {
+    for (const f of ["scripts/forward-ideas.ts"]) {
       const s = readFileSync(join(RAIZ, f), "utf8");
       if (!s.includes(MODULO)) continue;          // ya arreglado: no hace falta el freno
       expect(s, `${f} valora con modelo pero NO tiene el freno que impide que registre`)

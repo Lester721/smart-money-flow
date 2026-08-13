@@ -1,4 +1,4 @@
-// LA WHEEL SOBRE HOOD, CON PRIMAS REALES — la falsación más barata del backtest contaminado.
+// LA WHEEL CON PRIMAS REALES (acepta cualquier ticker por argumento) — la falsación más barata del backtest contaminado.
 //
 // Lo que se pone a prueba: `backtest-wheel.ts` promete, en su celda mejor (agresivo Δ0,35 a 14
 // días), **+0,78% por operación y $12.279/año sobre $60.000**. Esa prima salía de
