@@ -18,31 +18,8 @@ import {
 } from "../lib/flow";
 import { bsDelta, impliedVol } from "../lib/blackScholes";
 import { asegurarBarrasDeLiquidacion, vencidasSinLiquidar } from "../lib/forwardBars";
-import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
+import { putReal, valorPutReal } from "../lib/thetadata";   // precios REALES: bid al vender, ask al recomprar
 
-// ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  ⛔ PARADO A PROPÓSITO — 2026-08-12                                       ║
-// ╚══════════════════════════════════════════════════════════════════════════╝
-// Este forward-test valoraba las posiciones con Black-Scholes alimentado con volatilidad
-// REALIZADA. En venta de prima eso asume que el hueco implícita-realizada es cero, que es
-// justo de donde sale el dinero: el backtest deja de medir el mercado y devuelve el supuesto.
-// Coste medido en el credit spread: +3,20% se convirtió en −2,53% con precios reales.
-//
-// La ENTRADA se puede arreglar con verticalReal() (ya existe, usa quotes reales). Lo que falta
-// es la VALORACIÓN día a día de las posiciones abiertas (líneas 114 y 130), que necesita pedir la
-// cotización real de cada pata en cada fecha con quoteCierre().
-//
-// NO se arregló a las 01:00 sin Lester delante a propósito: reescribir deprisa la lógica que
-// produce el P&L es como se fabrica otro test que parece correcto y no lo es. Un forward-test
-// parado no miente; uno arreglado a medias, sí.
-//
-// Mientras tanto NO REGISTRA NADA. Su ledger de Redis se borró por contaminado.
-if (!process.env.WHEEL_ARREGLADO) {
-  console.log("⛔ PARADO: valoraba con Black-Scholes, no con precios reales.");
-  console.log("   Falta portar la valoración diaria a quoteCierre(). Ver la cabecera del archivo.");
-  console.log("   No registra nada a propósito: parado es mejor que mintiendo.");
-  process.exit(0);
-}
 
 const TICKERS = (process.env.FWD_TICKERS || PANEL_TICKERS.join(",")).split(",").map((t) => t.trim()).filter(Boolean);
 const FWD_DAYS = Number(process.env.FWD_DAYS) || 10;
@@ -133,11 +110,16 @@ function strikeForDelta(spot: number, T: number, iv: number, target: number): nu
   return best;
 }
 // Abre un put de papel (solo días alcistas). Colateral = strike×100.
-function openPut(sig: Signal, delta: number, dte: number): WPut | null {
-  const T = Math.max(dte, 1) / 365;
-  const K = strikeForDelta(sig.spot, T, sig.rv, delta); if (K == null || K <= 0) return null;
-  const P0 = bsPrice(sig.spot, K, T, sig.rv, "put"); if (!(P0 > 0)) return null;
-  const expiryMs = sig.entryMs + Math.max(dte, 1) * 86_400_000;
+async function openPut(ticker: string, sig: Signal, delta: number, dte: number): Promise<WPut | null> {
+  // PRECIO REAL. Antes: bsPrice(spot, K, T, rv, "put") — el modelo con volatilidad REALIZADA,
+  // que asume que la prima extra es cero. Ahora: vencimiento y strike LISTADOS, prima = BID
+  // real menos tasas. Si no hay cotización operable devuelve null, y eso es información: ese
+  // put no se podía vender de verdad ese día.
+  const r = await putReal(ticker, sig.entryDate.replace(/-/g, ""), sig.spot, sig.rv, dte, delta);
+  if (!r) return null;
+  const K = r.strike, P0 = r.prima;
+  const y = r.expYmd;
+  const expiryMs = Date.parse(y.slice(0,4) + "-" + y.slice(4,6) + "-" + y.slice(6,8) + "T20:00:00Z");
   return {
     id: "", ticker: "", entryDate: sig.entryDate, entryMs: sig.entryMs, delta, dte,
     spot: round(sig.spot), rv: round(sig.rv, 4), strike: round(K), premium: round(P0, 4), collateral: round(K * 100),
@@ -146,13 +128,16 @@ function openPut(sig: Signal, delta: number, dte: number): WPut | null {
 }
 // Liquida con gestión: cierra si captura TAKE de la prima antes de vencer; si no, a vencimiento
 // (asignado si el precio quedó bajo el strike). Retorno sobre el colateral.
-function settle(p: WPut, bars: DBar[]): boolean {
+async function settle(p: WPut, bars: DBar[]): Promise<boolean> {
   const entryIdx = barIdxOnOrBefore(bars, p.entryMs); if (entryIdx < 0) return false;
   const expiryIdx = barIdxOnOrAfter(bars, p.expiryMs); if (expiryIdx < 0) return false; // aún no vence en los datos
   // Gestión: cerrar temprano al capturar TAKE de la prima.
   for (let i = entryIdx + 1; i < expiryIdx; i++) {
-    const Trem = Math.max((p.expiryMs - Date.parse(`${bars[i].time}T20:00:00Z`)) / YR, 0.5 / 365);
-    const Pi = bsPrice(bars[i].close, p.strike, Trem, p.rv, "put");
+    // Valor REAL de recompra: se recompra al ASK. Cruzar la horquilla en HOOD cuesta ~17%
+    // de la prima, y el modelo no lo veía.
+    const vexp = new Date(p.expiryMs).toISOString().slice(0, 10).replace(/-/g, "");
+    const Pi = await valorPutReal(p.ticker, vexp, p.strike, bars[i].time.replace(/-/g, ""));
+    if (Pi == null) continue;
     if (p.premium - Pi >= TAKE * p.premium) {
       p.retOnColl = round(((p.premium - Pi) / p.strike) * 100, 2); p.assigned = false; p.closedReason = `gestión ${Math.round(TAKE * 100)}%`;
       p.exitSpot = round(bars[i].close); p.exitDate = bars[i].time; p.status = "closed"; return true;
@@ -192,7 +177,7 @@ function pctile(v: number[], p: number): number | null { if (!v.length) return n
       for (const sig of signals(rows, bars)) {
         if (sig.dir !== 1) continue;                          // solo días de flujo ALCISTA (vender puts)
         for (const c of CELLS) {
-          const rec = openPut(sig, c.delta, c.dte); if (!rec) continue;
+          const rec = await openPut(t, sig, c.delta, c.dte); if (!rec) continue;
           rec.ticker = t; rec.id = `${t}|${sig.entryDate}|${c.delta}|${c.dte}`;
           if (byId.has(rec.id)) continue;
           byId.set(rec.id, rec); ledger.push(rec); added.push(rec); newN++;
@@ -210,7 +195,7 @@ function pctile(v: number[], p: number): number | null { if (!v.length) return n
   for (const s of rescate.sinResolver) console.warn(`[${s.ticker}] ⚠ NO se pudieron bajar barras — sus puts vencidos NO liquidan: ${s.motivo}`);
 
   let settled = 0;
-  for (const p of ledger) { if (p.status !== "open") continue; const bars = barsByTicker.get(p.ticker); if (!bars) continue; if (Date.now() < p.expiryMs) continue; if (settle(p, bars)) settled++; }
+  for (const p of ledger) { if (p.status !== "open") continue; const bars = barsByTicker.get(p.ticker); if (!bars) continue; if (Date.now() < p.expiryMs) continue; if (await settle(p, bars)) settled++; }
 
   const zombis = vencidasSinLiquidar(ledger, Date.now());
   if (zombis.length) console.warn(`⚠ ${zombis.length} puts VENCIDOS siguen abiertos: ${zombis.map((z) => `${z.ticker}/${z.expiryDate}`).join(", ")}`);

@@ -14,6 +14,7 @@ import type { RawTrade } from "./flow";
 import { tradeGreeks } from "./greeks";
 import { isMultiLegCondition, isCanceledCondition } from "./conditions";
 import { sideFor } from "./massiveFlow";
+import { bsDelta } from "./blackScholes";   // sólo para SITUAR el strike por delta; el precio sale del bid real
 import type { FetchFlowOptions, FlowResult } from "./massiveFlow";
 
 const BASE = process.env.THETA_BASE || "http://127.0.0.1:25503";
@@ -743,4 +744,56 @@ export async function verticalReal(
  */
 export function simboloEnFecha(symbol: string, ymd: string): string {
   return segmentosPorSimbolo(symbol, ymd, ymd)[0]?.symbol ?? symbol;
+}
+
+/**
+ * Un cash-secured put con PRECIO REAL — para la Wheel.
+ *
+ * El forward-test valoraba la prima con `bsPrice(spot, K, T, rv, "put")`: el modelo alimentado
+ * con volatilidad realizada, que asume que la prima extra es cero. Esto lo sustituye.
+ *
+ *   · El vencimiento es uno LISTADO (el primero en o después de entrada+dte), no entrada+dte.
+ *   · El strike es uno LISTADO. La delta sólo lo SITÚA; no pone precio.
+ *   · La prima es el BID real: se VENDE el put, así que se cobra el bid, nunca el punto medio.
+ *   · Menos las tasas regulatorias, que en Robinhood se pagan aunque la comisión sea $0.
+ *
+ * Devuelve null si no hay cotización operable — y eso es información, no un fallo: significa
+ * que ese put no se podía vender de verdad ese día.
+ */
+export async function putReal(
+  symbol: string, fechaYmd: string, spot: number, iv: number, dteObjetivo: number,
+  deltaObjetivo: number, tasasPorContrato = 0.03,
+): Promise<{ expYmd: string; strike: number; prima: number; bid: number; ask: number } | null> {
+  if (!(spot > 0) || !(iv > 0)) return null;
+  const objetivo = new Date(Date.parse(`${fechaYmd.slice(0, 4)}-${fechaYmd.slice(4, 6)}-${fechaYmd.slice(6, 8)}T12:00:00Z`) + dteObjetivo * 86_400_000)
+    .toISOString().slice(0, 10).replace(/-/g, "");
+  const exp = (await listarExpiraciones(symbol)).find((e) => e >= objetivo);
+  if (!exp) return null;
+
+  const ks = await listarStrikes(symbol, exp);
+  if (ks.length < 5) return null;
+  const T = Math.max((Date.parse(`${exp.slice(0, 4)}-${exp.slice(4, 6)}-${exp.slice(6, 8)}`) - Date.parse(`${fechaYmd.slice(0, 4)}-${fechaYmd.slice(4, 6)}-${fechaYmd.slice(6, 8)}`)) / 31_557_600_000, 1 / 365);
+
+  // La delta sólo sitúa el strike. El dinero sigue saliendo del bid.
+  let mejor: number | null = null, err = Infinity;
+  for (const K of ks) {
+    if (K <= 0 || K > spot * 1.05) continue;
+    const e = Math.abs(Math.abs(bsDelta(spot, K, T, iv, "put")) - deltaObjetivo);
+    if (e < err) { err = e; mejor = K; }
+  }
+  if (mejor == null || err > 0.12) return null;
+
+  const q = await quoteCierre(symbol, exp, mejor, "P", fechaYmd);
+  if (!q || !(q.bid > 0) || q.ask < q.bid) return null;
+  const prima = q.bid - tasasPorContrato;
+  if (!(prima > 0)) return null;
+  return { expYmd: exp, strike: mejor, prima, bid: q.bid, ask: q.ask };
+}
+
+/** Valor real de un put a una fecha, para marcar la posición. Se recompra al ASK. */
+export async function valorPutReal(
+  symbol: string, expYmd: string, strike: number, fechaYmd: string,
+): Promise<number | null> {
+  const q = await quoteCierre(symbol, expYmd, strike, "P", fechaYmd);
+  return q && q.ask > 0 ? q.ask : null;
 }
