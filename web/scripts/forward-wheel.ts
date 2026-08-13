@@ -212,7 +212,7 @@ function pctile(v: number[], p: number): number | null { if (!v.length) return n
     "",
     `Corrida: ${new Date().toISOString().slice(0, 16)}Z · celdas ${CELLS.map((c) => `${c.delta}Δ@${c.dte}d`).join(", ")} · gestión ${Math.round(TAKE * 100)}%`,
     `Ledger: **${ledger.length}** puts de papel (**${open.length}** abiertos · **${closed.length}** cerrados). Nuevos: **${added.length}** · liquidados: **${settled}**.`,
-    "> Meta: cobrar prima SIN ser asignado. Solo se abren puts en días de flujo ALCISTA. Delta conservador/balanceado. Simulación (BS, IV≈vol realizada); sin recuperación con calls cubiertas, sin costos.",
+    "> Meta: cobrar prima SIN ser asignado. Solo se abren puts en días de flujo ALCISTA. **PRECIOS REALES desde el 2026-08-13**: la prima es el BID de ThetaData menos tasas ($0,03/contrato) y la recompra en la gestión es al ASK; strikes y vencimientos LISTADOS. Antes se valoraba con Black-Scholes alimentado con volatilidad realizada — ese ledger se borró. Colateral = strike×100. Sin recuperación con calls cubiertas.",
     "",
   ];
   if (added.length) {

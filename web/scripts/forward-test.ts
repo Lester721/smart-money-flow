@@ -167,13 +167,21 @@ function saveJson(path: string, data: unknown) {
   if (!existsSync(dirname(path))) mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, JSON.stringify(data, null, 2), "utf8");
 }
-// Carga el ledger del backend activo. En redis: si la key está vacía (primera vez),
-// SIEMBRA desde el JSON committeado para no perder las 64 jugadas iniciales.
+// Carga el ledger del backend activo.
+//
+// ⛔ LA SIEMBRA AUTOMÁTICA SE ELIMINÓ el 2026-08-13. Antes, si la clave de Redis estaba vacía,
+// se rellenaba desde data/forward/ledger.json. Esas 64 jugadas están valoradas con Black-Scholes
+// alimentado con volatilidad realizada: se borraron de Redis a propósito y la siembra las
+// devolvió sola en la siguiente corrida, mezclando números de modelo con números reales en la
+// misma tabla. Un ledger vacío es correcto; uno resembrado con datos falsos, no.
+//
+// Si algún día hace falta arrancar con historia, se siembra a mano y desde un fichero cuyas
+// primas salgan de bid/ask reales.
 async function loadLedger(): Promise<Trade[]> {
   if (STORE === "redis") {
     const raw = await getRedis().get(REDIS_KEY);
     if (raw) { try { return JSON.parse(raw) as Trade[]; } catch { return []; } }
-    return readJsonFile(LEDGER); // semilla desde git la primera vez
+    return [];                       // vacío: NO se siembra desde el fichero contaminado
   }
   return readJsonFile(LEDGER);
 }
@@ -494,7 +502,7 @@ function pctile(vals: number[], p: number): number | null {
     `Corrida: ${new Date().toISOString().slice(0, 16)}Z · panel ${TICKERS.length} · celdas ${CELLS.map((c) => `${c.dte}d@${c.sigma}σ`).join(", ")}`,
     `Ledger: **${ledger.length}** de papel (**${open.length}** abiertas · **${closed.length}** cerradas). Nuevas esta corrida: **${added.length}** · liquidadas: **${settled}** (${managed} por gestión).`,
     "",
-    "> PAPEL — nada de esto es una orden real. Entrada al cierre del día de la señal; IV≈vol realizada 20d; slippage 5% + comisión Robinhood; vencimiento por calendario. El 5d se GESTIONA (toma de ganancia 25% / stop 1x, revisado a diario); 60d y 90d se sostienen a vencimiento.",
+    "> PAPEL — nada de esto es una orden real. **PRECIOS REALES desde el 2026-08-13**: el crédito de entrada sale de bid/ask de ThetaData con strikes y vencimientos LISTADOS, y la gestión diaria recompra la corta al ASK y vende la larga al BID. Antes se valoraba con Black-Scholes alimentado con volatilidad realizada, que asume prima extra cero — ese ledger se borró entero. Tasas de Robinhood $0,03 por contrato y pata. El 5d se GESTIONA (toma de ganancia 25% / stop 1x, revisado a diario); 60d y 90d se sostienen a vencimiento.",
     "",
   ];
 
