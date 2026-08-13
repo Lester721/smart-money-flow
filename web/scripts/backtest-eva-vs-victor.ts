@@ -8,7 +8,9 @@ import { fetchFlow } from "../lib/massiveFlow";
 import {
   classifyFlow, unusualTradeScore, executionLevel, executionScore, spreadScore, spreadPct, type FlowRow,
 } from "../lib/flow";
-import { bsPrice, impliedVol } from "../lib/blackScholes";
+import { impliedVol } from "../lib/blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 import { fetchDailyBars } from "../lib/massive";
 import { evaScore, classifyIntent, type EvaScores } from "../lib/scorecardEva";
 

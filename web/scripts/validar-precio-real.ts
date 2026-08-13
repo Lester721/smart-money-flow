@@ -14,13 +14,14 @@
 //
 // Muestra, no censo: buscamos un sesgo sistemático, no el resultado de cada operación.
 //
-// Uso: DATA_PROVIDER=theta node --env-file=.env.thetadata scripts/with-theta.mjs \
+// Uso: DATA_PROVIDER=theta node --env-file=.env.local scripts/with-theta.mjs \
 //        npx tsx scripts/validar-precio-real.ts
 
 import { readFileSync } from "node:fs";
 import { classifyFlow } from "../lib/flow";
 import { signals, creditSpreadPnl, WIDTH_EM, type DBar, type Signal } from "../lib/backtestCore";
-import { bsPrice } from "../lib/blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 
 const TICKERS = (process.env.VP_TICKERS || "SPY,AAPL,NVDA,TSLA,QQQ,AMD").split(",");
 const MUESTRA = Number(process.env.VP_MUESTRA) || 400;

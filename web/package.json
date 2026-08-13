@@ -16,7 +16,9 @@
     "worker:theta": "tsx worker/ideasWorkerTheta.ts",
     "forward-ideas": "tsx scripts/forward-ideas.ts",
     "odte-forward": "tsx scripts/odte-forward.ts",
-    "odte-forward:theta": "node scripts/with-theta.mjs npm run odte-forward"
+    "odte-forward:theta": "node scripts/with-theta.mjs npm run odte-forward",
+    "condor-forward": "node scripts/forward-gex-condor.mjs",
+    "condor-forward:theta": "node scripts/with-theta.mjs npm run condor-forward"
   },
   "engines": {
     "node": ">=22"

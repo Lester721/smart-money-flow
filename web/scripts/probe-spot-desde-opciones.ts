@@ -10,7 +10,7 @@
 // tenemos el precio real de la acción**, y se mide el error contra esa verdad conocida. Solo
 // si el método reproduce 2021 con error despreciable se aplica a 2020. Al revés sería fe.
 //
-// Uso:  DATA_PROVIDER=theta node --env-file=.env.thetadata scripts/with-theta.mjs \
+// Uso:  DATA_PROVIDER=theta node --env-file=.env.local scripts/with-theta.mjs \
 //         npx tsx scripts/probe-spot-desde-opciones.ts
 
 import { fetchDailyUnderlying, monthChunks } from "../lib/thetadata";

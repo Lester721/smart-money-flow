@@ -12,7 +12,7 @@
 // Un año que vuelva vacío se guarda vacío — es una respuesta, no un fallo (ver el mismo
 // razonamiento en backtest-strategy.ts).
 //
-// Uso: DATA_PROVIDER=theta node --env-file=.env.thetadata scripts/with-theta.mjs \
+// Uso: DATA_PROVIDER=theta node --env-file=.env.local scripts/with-theta.mjs \
 //        npx tsx scripts/bajar-oi-historico.ts
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";

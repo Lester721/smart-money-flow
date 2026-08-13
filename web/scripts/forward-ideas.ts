@@ -21,7 +21,32 @@ import { loadMarketFlow, closeIdeasStore } from "../lib/ideasStore";
 import { classifyFlow, type FlowRow } from "../lib/flow";
 import { validationScore } from "../lib/validation";
 import { fetchDailyBars } from "../lib/flowProvider";
-import { bsPrice } from "../lib/blackScholes";
+
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  ⛔ PARADO A PROPÓSITO — 2026-08-12                                       ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+// Este forward-test valoraba las posiciones con Black-Scholes alimentado con volatilidad
+// REALIZADA. En venta de prima eso asume que el hueco implícita-realizada es cero, que es
+// justo de donde sale el dinero: el backtest deja de medir el mercado y devuelve el supuesto.
+// Coste medido en el credit spread: +3,20% se convirtió en −2,53% con precios reales.
+//
+// La ENTRADA se puede arreglar con verticalReal() (ya existe, usa quotes reales). Lo que falta
+// es la VALORACIÓN día a día de las posiciones abiertas (líneas 120 y 254), que necesita pedir la
+// cotización real de cada pata en cada fecha con quoteCierre().
+//
+// NO se arregló a las 01:00 sin Lester delante a propósito: reescribir deprisa la lógica que
+// produce el P&L es como se fabrica otro test que parece correcto y no lo es. Un forward-test
+// parado no miente; uno arreglado a medias, sí.
+//
+// Mientras tanto NO REGISTRA NADA. Su ledger de Redis se borró por contaminado.
+if (!process.env.IDEAS_ARREGLADO) {
+  console.log("⛔ PARADO: valoraba con Black-Scholes, no con precios reales.");
+  console.log("   Falta portar la valoración diaria a quoteCierre(). Ver la cabecera del archivo.");
+  console.log("   No registra nada a propósito: parado es mejor que mintiendo.");
+  process.exit(0);
+}
 
 // ── Parámetros ────────────────────────────────────────────────────────────────
 const MIN_PREMIUM = Number(process.env.FWI_MIN_PREMIUM) || 500_000;

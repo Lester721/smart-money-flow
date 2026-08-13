@@ -10,7 +10,9 @@ import { fetchFlow } from "../lib/massiveFlow";
 import {
   classifyFlow, executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow,
 } from "../lib/flow";
-import { bsPrice, impliedVol } from "../lib/blackScholes";
+import { impliedVol } from "../lib/blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 // El núcleo (señales + P&L del credit spread) vive en lib/ para que los diagnósticos usen
 // el MISMO código, no una copia. Ver lib/backtestCore.ts.
 import {

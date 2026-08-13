@@ -14,7 +14,9 @@
 // Uso: node --import tsx scripts/backtest-regimen-oos.ts
 
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
-import { bsPrice, impliedVol } from "../lib/blackScholes";
+import { impliedVol } from "../lib/blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 import { executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow } from "../lib/flow";
 
 const CACHE_DIR = process.env.BT_CACHE_DIR || "scripts/cache-theta";

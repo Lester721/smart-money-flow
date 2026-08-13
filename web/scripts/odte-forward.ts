@@ -30,7 +30,9 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import { bsPrice, bsGamma } from "../lib/blackScholes";
+import { bsGamma } from "../lib/blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 import { avisar } from "../lib/telegram";
 
 const BASE = process.env.THETA_BASE || "http://127.0.0.1:25503";

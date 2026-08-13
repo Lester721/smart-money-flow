@@ -17,7 +17,7 @@
 // Se guarda en `_oiexp_y_` para NO pisar la caché agregada, que sigue siendo válida para lo que
 // se midió con ella.
 //
-// Uso: DATA_PROVIDER=theta node --env-file=.env.thetadata scripts/with-theta.mjs \
+// Uso: DATA_PROVIDER=theta node --env-file=.env.local scripts/with-theta.mjs \
 //        npx tsx scripts/bajar-oi-por-expiracion.ts
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from "node:fs";

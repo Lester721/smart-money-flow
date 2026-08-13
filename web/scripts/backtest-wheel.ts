@@ -21,7 +21,9 @@
 import { readFileSync } from "node:fs";
 import { classifyFlow } from "../lib/flow";
 import { signals, type DBar, type Signal } from "../lib/backtestCore";
-import { bsPrice, bsDelta } from "../lib/blackScholes";
+import { bsDelta } from "../lib/blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 
 const TICKERS = (process.env.BT_TICKERS || "SPY,AAPL,MSFT,NVDA,META,TSLA,AMD,QQQ,HOOD").split(",");
 const CAPITAL = Number(process.env.W_CAPITAL) || 60_000;

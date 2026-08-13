@@ -23,9 +23,34 @@ import { fetchFlow, fetchDailyBars } from "../lib/flowProvider";
 import {
   classifyFlow, executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow,
 } from "../lib/flow";
-import { bsPrice, impliedVol } from "../lib/blackScholes";
+import { impliedVol } from "../lib/blackScholes";
 import { asegurarBarrasDeLiquidacion, vencidasSinLiquidar } from "../lib/forwardBars";
 import { fetchGexNormalizado, verticalReal } from "../lib/thetadata";
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  ⛔ PARADO A PROPÓSITO — 2026-08-12                                       ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+// Este forward-test valoraba las posiciones con Black-Scholes alimentado con volatilidad
+// REALIZADA. En venta de prima eso asume que el hueco implícita-realizada es cero, que es
+// justo de donde sale el dinero: el backtest deja de medir el mercado y devuelve el supuesto.
+// Coste medido en el credit spread: +3,20% se convirtió en −2,53% con precios reales.
+//
+// La ENTRADA se puede arreglar con verticalReal() (ya existe, usa quotes reales). Lo que falta
+// es la VALORACIÓN día a día de las posiciones abiertas (líneas 312-313 y 358), que necesita pedir la
+// cotización real de cada pata en cada fecha con quoteCierre().
+//
+// NO se arregló a las 01:00 sin Lester delante a propósito: reescribir deprisa la lógica que
+// produce el P&L es como se fabrica otro test que parece correcto y no lo es. Un forward-test
+// parado no miente; uno arreglado a medias, sí.
+//
+// Mientras tanto NO REGISTRA NADA. Su ledger de Redis se borró por contaminado.
+if (!process.env.FWD_ARREGLADO) {
+  console.log("⛔ PARADO: valoraba con Black-Scholes, no con precios reales.");
+  console.log("   Falta portar la valoración diaria a quoteCierre(). Ver la cabecera del archivo.");
+  console.log("   No registra nada a propósito: parado es mejor que mintiendo.");
+  process.exit(0);
+}
 
 // GEX: se REGISTRA en todos los tickers y no filtra en ninguno.
 //

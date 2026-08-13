@@ -15,7 +15,8 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { classifyFlow } from "../lib/flow";
 import { signals, WIDTH_EM, barIdxOnOrAfter, type DBar, type Signal } from "../lib/backtestCore";
-import { bsPrice } from "../lib/blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 
 const BASE = process.env.THETA_BASE || "http://127.0.0.1:25503";
 const DIR = "scripts/cache-theta";

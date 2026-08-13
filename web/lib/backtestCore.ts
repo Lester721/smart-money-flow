@@ -9,7 +9,9 @@
 // backtest sobre caché y comparando el reporte carácter a carácter).
 
 import { executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow } from "./flow";
-import { bsPrice, impliedVol } from "./blackScholes";
+import { impliedVol } from "./blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "./PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 
 export const WIDTH_EM = 0.5; // ancho del spread = 0.5σ (pata protectora más OTM)
 const YR = 365 * 24 * 3600 * 1000;

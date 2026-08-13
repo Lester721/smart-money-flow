@@ -5,7 +5,8 @@
 // las dos primas; a vencimiento solo UNA de las dos patas cortas puede acabar dentro del dinero.
 
 import { WIDTH_EM, barIdxOnOrAfter, type DBar, type Signal } from "./backtestCore";
-import { bsPrice } from "./blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "./PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 
 export interface CostesCondor {
   /** Fracción del crédito que se pierde al cruzar el spread. */

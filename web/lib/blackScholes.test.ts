@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { RISK_FREE, bsDelta, bsPrice, impliedVol } from "./blackScholes";
+import { RISK_FREE, bsDelta, impliedVol } from "./blackScholes";
+import { bsPriceHistorico as bsPrice } from "./PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 
 describe("bsPrice", () => {
   it("cumple la paridad put-call: C − P = S − K·e^(−rT)", () => {

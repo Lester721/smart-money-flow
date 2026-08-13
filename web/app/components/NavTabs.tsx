@@ -11,7 +11,7 @@ const TABS = [
   { href: "/ideas", label: "Ideas", icon: "💡" },
   { href: "/wheel", label: "Wheel", icon: "🎡" },
   { href: "/flow", label: "Time & Sales", icon: "⚡" },
-  { href: "/0dte", label: "0DTE", icon: "🎯" },
+  { href: "/0dte", label: "0DTE · GEX", icon: "🎯" },
   { href: "/credit-spread", label: "EVA Credit Spread", icon: "🛡️" },
 ];
 

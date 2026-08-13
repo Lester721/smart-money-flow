@@ -27,8 +27,14 @@ function d1Of(spot: number, strike: number, T: number, iv: number, r: number): n
 const invalid = (spot: number, strike: number, T: number, iv: number): boolean =>
   !(spot > 0) || !(strike > 0) || !(T > 0) || !(iv > 0);
 
-/** Precio teórico de una europea. Devuelve 0 si los insumos no son válidos. */
-export function bsPrice(
+/**
+ * ⛔ YA NO SE EXPORTA. Antes esto era `bsPrice` y lo usaban 19 backtests y forward-tests para
+ * inventarse el crédito de las estrategias. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts.
+ *
+ * Se queda aquí como función PRIVADA porque `impliedVol` la necesita, y ese uso es el inverso
+ * y sí es legítimo: entra un precio REAL, sale la volatilidad. Nunca al revés.
+ */
+function precioInterno(
   spot: number, strike: number, T: number, iv: number,
   type: OptionType, r = RISK_FREE,
 ): number {
@@ -85,12 +91,12 @@ export function impliedVol(
 
   let lo = IV_LO;
   let hi = IV_HI;
-  if (bsPrice(spot, strike, T, lo, type, r) > price) return null;
-  if (bsPrice(spot, strike, T, hi, type, r) < price) return null;
+  if (precioInterno(spot, strike, T, lo, type, r) > price) return null;
+  if (precioInterno(spot, strike, T, hi, type, r) < price) return null;
 
   for (let i = 0; i < IV_ITERS; i++) {
     const mid = (lo + hi) / 2;
-    const p = bsPrice(spot, strike, T, mid, type, r);
+    const p = precioInterno(spot, strike, T, mid, type, r);
     if (Math.abs(p - price) < IV_TOL) return mid;
     if (p < price) lo = mid;
     else hi = mid;

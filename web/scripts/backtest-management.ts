@@ -7,7 +7,9 @@
 import { writeFileSync } from "node:fs";
 import { fetchFlow } from "../lib/massiveFlow";
 import { classifyFlow, spreadPct, type FlowRow } from "../lib/flow";
-import { bsPrice, impliedVol } from "../lib/blackScholes";
+import { impliedVol } from "../lib/blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 import { fetchDailyBars } from "../lib/massive";
 
 const TICKERS = (process.env.BT_TICKERS || "AAPL,MSFT,NVDA,AMZN,GOOGL,META,TSLA,AMD,NFLX,QQQ,SPY,HOOD").split(",").map((t) => t.trim()).filter(Boolean);

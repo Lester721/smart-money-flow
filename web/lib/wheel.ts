@@ -4,7 +4,9 @@
 // Un contrato son 100 acciones y el colateral de un cash-secured put es
 // strike × 100: ese efectivo queda inmovilizado hasta el vencimiento.
 
-import { bsDelta, bsPrice, impliedVol } from "./blackScholes";
+import { bsDelta, impliedVol } from "./blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "./PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 import { probAbove } from "./expectedMove";
 import type { Level } from "./levels";
 

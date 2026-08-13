@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { bsVega, bsTheta, tradeGreeks } from "./greeks";
-import { bsPrice } from "./blackScholes";
+import { bsPriceHistorico as bsPrice } from "./PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 
 describe("tradeGreeks (wrapper sobre blackScholes)", () => {
   it("recupera la IV del precio y arma un set consistente (call ITM corto plazo)", () => {

@@ -20,7 +20,9 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { classifyFlow } from "../lib/flow";
 import { signals, WIDTH_EM, type DBar } from "../lib/backtestCore";
-import { bsPrice, bsGamma } from "../lib/blackScholes";
+import { bsGamma } from "../lib/blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 
 const DIR = "scripts/cache-theta";
 const TICKER = "SPY";

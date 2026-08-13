@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
 import NavTabs from "../components/NavTabs";
 import EvaLogo from "../components/EvaLogo";
+import GexView from "../components/GexView";
+import ForwardGexCard from "../components/ForwardGexCard";
 
 export const metadata: Metadata = {
-  title: "0DTE — EVA",
-  description: "Análisis de opciones que expiran el mismo día (0 días al vencimiento).",
+  title: "0DTE — GEX de SPX en vivo",
+  description: "Exposición a gamma de SPX 0DTE calculada en vivo, con la señal del cóndor filtrado por GEX y lo que la respalda.",
 };
 
-// Sección aún sin estrategia. Lo que hay aquí es el HALLAZGO que la motiva, anotado para no
-// perderlo: el mecanismo de gamma que medimos en el credit spread se hace MÁS fuerte cuanto
-// más corto es el plazo, y el 0DTE es el plazo más corto que existe. Ver docs/hallazgos.md.
+// Esta sección estuvo mucho tiempo diciendo "sin estrategia todavía" con una lista de lo que
+// faltaba. Ya no: el 2026-08-10/11 se bajaron los 654 días de cadena intradía de SPXW, se midió
+// y salió una candidata. Arriba va el GEX EN VIVO con su señal; abajo queda el hallazgo que
+// motivó todo esto y la advertencia, que sigue vigente palabra por palabra.
+//
+// (Hubo un momento con DOS pestañas —"0DTE" y "GEX 0DTE"— porque monté la vista nueva al lado
+//  en vez de rellenar esta. Están unidas: la ruta /gex ya no existe.)
+
 const HORIZONTES = [
   { h: "1 día", spy: "+0,354", qqq: "+0,357", nvda: "+0,192", amd: "+0,057", max: true },
   { h: "2 días", spy: "+0,322", qqq: "+0,310", nvda: "+0,131", amd: "+0,032", max: false },
@@ -18,12 +25,13 @@ const HORIZONTES = [
   { h: "10 días", spy: "+0,171", qqq: "+0,103", nvda: "+0,254", amd: "−0,249", max: false },
 ];
 
-const FALTA = [
-  { q: "Precio del subyacente intradía", ok: true, c: "fetchSpotSeries lo saca minuto a minuto del endpoint de griegas, sin suscripción de acciones." },
-  { q: "Open interest del vencimiento del día", ok: true, c: "Ya en caché (_oiexp_): incluye dte = 0." },
-  { q: "Precios de opciones 0DTE", ok: true, c: "Mismo endpoint EOD con expiración = hoy." },
-  { q: "Decidir QUÉ estrategia probar", ok: false, c: "Sin esto no se baja nada: cada variante necesita datos distintos." },
-  { q: "Descarga intradía", ok: false, c: "390 datos por día en vez de 1. Acotar a SPY y a pocos años." },
+const MEDIDO = [
+  { q: "Descarga intradía de SPXW", ok: true, c: "654 días (2024-2026), cadena cada 5 min, 3,5 GB. Hecho." },
+  { q: "Precio del subyacente sin look-ahead", ok: true, c: "Del endpoint de griegas, foto del mismo instante que la cotización." },
+  { q: "Qué estrategia probar", ok: true, c: "Cóndor de hierro ±25 con alas 50, filtrado por GEX positivo." },
+  { q: "¿Se puede calcular en vivo?", ok: true, c: "Sí: retraso cero y ~5 s de cómputo. Es lo que se ve arriba." },
+  { q: "Forward-test en papel", ok: false, c: "Empezado el 2026-08-11. Con 55 señales al año hacen falta meses." },
+  { q: "Flujo firmado (quién compra y quién vende)", ok: false, c: "Websocket en ws://127.0.0.1:25520. Pendiente de probar en sesión." },
 ];
 
 export default function ZeroDtePage() {
@@ -33,23 +41,19 @@ export default function ZeroDtePage() {
         <div className="hb-brand">
           <div className="hb-logo"><EvaLogo /></div>
           <div className="hb-name">EVA</div>
-          <div className="hb-chip">0DTE · expiran hoy</div>
+          <div className="hb-chip">0DTE · papel</div>
         </div>
         <NavTabs />
       </div>
 
       <div className="wrap page-stack">
-        <div className="card">
-          <div style={{ fontSize: 20, fontWeight: 700 }}>0DTE — sin estrategia todavía 🎯</div>
-          <div className="card-sub" style={{ maxWidth: 640 }}>
-            Esta sección no tiene lógica ni backtest. Lo que sigue es el <strong>hallazgo que la
-            motiva</strong>, anotado para no perderlo.
-          </div>
-        </div>
+        <GexView />
+
+        <ForwardGexCard />
 
         <div className="card">
           <div style={{ fontSize: 17, fontWeight: 700 }}>
-            El efecto de la gamma crece cuanto más corto es el plazo
+            De dónde salió esto: la gamma pega más cuanto más corto es el plazo
           </div>
           <div className="card-sub" style={{ maxWidth: 640 }}>
             Cuánto más se mueve el precio con gamma negativa que con positiva, en unidades de σ
@@ -76,21 +80,15 @@ export default function ZeroDtePage() {
           <div className="card-sub" style={{ maxWidth: 640 }}>
             Baja de forma monótona en SPY y QQQ: <strong>a un día es el doble de fuerte que a
             diez</strong>. Es la firma de una fuerza mecánica de corto plazo — los dealers cubren
-            gamma en horas, no en semanas. Incluso AMD, donde el efecto no existe a 5 y 10 días,
-            se vuelve positivo a un día.
-          </div>
-          <div className="card-sub" style={{ maxWidth: 640 }}>
-            <strong>La gamma explota cerca del vencimiento.</strong> Un contrato que expira hoy
-            tiene gamma órdenes de magnitud mayor que uno a cinco días, y el 0DTE es hoy el grueso
-            del volumen del S&amp;P. Si el mecanismo vale para algo, es aquí.
+            gamma en horas, no en semanas. Esa tabla es la que mandó bajar los 654 días.
           </div>
         </div>
 
         <div className="card">
-          <div style={{ fontSize: 17, fontWeight: 700 }}>Qué falta para probarlo</div>
+          <div style={{ fontSize: 17, fontWeight: 700 }}>Qué está medido y qué no</div>
           <table className="cs-table">
             <tbody>
-              {FALTA.map((f) => (
+              {MEDIDO.map((f) => (
                 <tr key={f.q}>
                   <td style={{ color: f.ok ? "var(--green)" : "var(--amber)", fontWeight: 700, width: 28 }}>
                     {f.ok ? "✓" : "!"}
@@ -101,12 +99,6 @@ export default function ZeroDtePage() {
               ))}
             </tbody>
           </table>
-          <div className="card-sub" style={{ maxWidth: 640 }}>
-            <strong>&quot;0DTE&quot; no es una estrategia, es un plazo.</strong> Dentro caben vender
-            prima intradía, iron condors, comprar direccional u operar contra el muro de gamma — y
-            cada una necesita datos distintos. Bajar &quot;todo por si acaso&quot; es como
-            empezamos con el GEX: horas perdidas antes de saber qué preguntábamos.
-          </div>
         </div>
 
         <div className="card">
@@ -116,6 +108,12 @@ export default function ZeroDtePage() {
             spread el mismo efecto está confirmado (SPY, 4/4 sub-períodos) y aun así el filtro
             aporta <strong>+$857/año en índices y −$694/año en acciones</strong>: neto, ruido.
             Medir una fuerza real y convertirla en dinero son dos problemas distintos.
+          </div>
+          <div className="card-sub" style={{ maxWidth: 640 }}>
+            Y de lo de arriba, en concreto: <strong>la t es 2,09</strong>, justo en el filo. Los
+            tres años dan positivo y las ocho horas también, pero <strong>ningún año por separado
+            es significativo</strong> y hay una selección leve de ~0,7 puntos. Por eso está en
+            papel y no en la cuenta.
           </div>
         </div>
       </div>

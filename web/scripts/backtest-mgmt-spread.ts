@@ -12,7 +12,8 @@
 // Uso: node --import tsx scripts/backtest-mgmt-spread.ts
 
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
-import { bsPrice } from "../lib/blackScholes";
+// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
+import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
 import { executionLevel, executionScore, spreadScore, spreadPct, unusualTradeScore, type FlowRow } from "../lib/flow";
 import { impliedVol } from "../lib/blackScholes";
 
