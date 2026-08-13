@@ -9,8 +9,7 @@ import {
   classifyFlow, unusualTradeScore, executionLevel, executionScore, spreadScore, spreadPct, type FlowRow,
 } from "../lib/flow";
 import { impliedVol } from "../lib/blackScholes";
-// ⛔ resultado NO válido: valora con modelo. Ver PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts
-import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
+import { quoteCierre } from "../lib/thetadata";   // salida a precio REAL: se vende al bid
 import { fetchDailyBars } from "../lib/massive";
 import { evaScore, classifyIntent, type EvaScores } from "../lib/scorecardEva";
 
@@ -53,7 +52,7 @@ interface Row {
   side: string; exceededOI: boolean; isCall: boolean;
 }
 
-function buildRow(r: FlowRow, bars: DBar[]): Row | null {
+async function buildRow(r: FlowRow, bars: DBar[]): Promise<Row | null> {
   if (r.type === "unknown" || r.strike == null || !r.expiration || !(r.price > 0)) return null;
   const entryMs = Date.parse(r.timestamp);
   const expMs = Date.parse(`${r.expiration}T20:00:00Z`);
@@ -70,14 +69,22 @@ function buildRow(r: FlowRow, bars: DBar[]): Row | null {
   if (cap >= bars.length) return null;
   const exitBar = bars[cap];
   const tExit = (expMs - barMs(exitBar)) / YEAR_MS;
-  const exitVal = tExit <= 0
-    ? Math.max(isCall ? exitBar.close - r.strike : r.strike - exitBar.close, 0)
-    : bsPrice(exitBar.close, r.strike, tExit, ivEntry, isCall ? "call" : "put");
-  // COSTO DE EJECUCIÓN: entras al precio real del trade (r.price) y SALES AL BID
-  // (= valor justo menos media horquilla). Penaliza los contratos de spread ancho,
-  // que es justo lo que el veto de liquidez protege y el backtest antes ignoraba.
-  const sp = spreadPct(r.bid, r.ask);
-  const exitNet = exitVal * (1 - (sp ?? 0) / 200); // /200 = mitad del spread (sp está en %)
+  // SALIDA CON PRECIO REAL (2026-08-13). Antes era bsPrice con la IV de entrada mantenida
+  // constante: menos grave que meter volatilidad realizada —la IV era real— pero seguía
+  // siendo un supuesto en el camino del dinero. Ahora se pide la cotización de ThetaData
+  // del día de salida y se VENDE AL BID, que es lo que cobra quien cierra una opción comprada.
+  // Si no hay cotización real, el flujo se descarta: no se rellena con modelo.
+  const expYmd = new Date(expMs).toISOString().slice(0, 10).replace(/-/g, "");
+  const salidaYmd = exitBar.time.replace(/-/g, "");
+  let exitNet: number;
+  if (tExit <= 0) {
+    // Ya venció: valor intrínseco con el cierre real. No es un estimado, es la liquidación.
+    exitNet = Math.max(isCall ? exitBar.close - r.strike : r.strike - exitBar.close, 0);
+  } else {
+    const q = await quoteCierre(r.symbol ?? "", expYmd, r.strike!, isCall ? "C" : "P", salidaYmd);
+    if (!q || !(q.bid > 0)) return null;      // sin precio real no se inventa: se descarta
+    exitNet = q.bid;
+  }
   return {
     pnl: exitNet / r.price - 1,
     aggr: executionScore(executionLevel(r.price, r.bid, r.ask, r.side)),
@@ -149,7 +156,10 @@ function terciles(rows: Row[], scoreOf: (r: Row) => number) {
       const { rows } = classifyFlow(trades, new Date());
       let bars: DBar[] = [];
       for (let i = 0; i < 4; i++) { bars = (await fetchDailyBars(t, 400).catch(() => [])) as DBar[]; if (bars.length > 0) break; await sleep(800 * (i + 1)); }
-      const rr = rows.map((r) => buildRow(r, bars)).filter((x): x is Row => x != null);
+      // De uno en uno y no con Promise.all: cada buildRow pide una cotización real a ThetaData,
+      // y el Terminal admite 4 peticiones a la vez. Lanzar cientos en paralelo lo satura.
+      const rr: Row[] = [];
+      for (const r of rows) { const x = await buildRow(r, bars); if (x != null) rr.push(x); }
       all.push(...rr);
       console.log(`[${t}] ${rr.length}`);
     } catch (e) { console.error(`[${t}] ERROR:`, (e as Error).message); }
