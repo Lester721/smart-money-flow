@@ -4,13 +4,15 @@
 // Uso: node --env-file=.env.local --import tsx scripts/backtest-eva-vs-victor.ts
 
 import { writeFileSync } from "node:fs";
-import { fetchFlow } from "../lib/massiveFlow";
+// flowProvider y NO massiveFlow: Massive sólo tiene flujo desde 2026-01-13 (comprobado el
+// 2026-08-14: pedir 400 o 955 días devuelve lo mismo). ThetaData sí tiene histórico profundo.
+// Se elige con DATA_PROVIDER=theta; misma firma y mismo RawTrade[] en los dos.
+import { fetchFlow, fetchDailyBars, DATA_PROVIDER } from "../lib/flowProvider";
 import {
   classifyFlow, unusualTradeScore, executionLevel, executionScore, spreadScore, spreadPct, type FlowRow,
 } from "../lib/flow";
 import { impliedVol } from "../lib/blackScholes";
 import { quoteCierre } from "../lib/thetadata";   // salida a precio REAL: se vende al bid
-import { fetchDailyBars } from "../lib/massive";
 import { evaScore, classifyIntent, type EvaScores } from "../lib/scorecardEva";
 
 const TICKERS = (process.env.BT_TICKERS || "AAPL,MSFT,NVDA,AMZN,GOOGL,META,TSLA,AMD,NFLX,QQQ,SPY,HOOD").split(",").map((t) => t.trim()).filter(Boolean);
