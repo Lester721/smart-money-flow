@@ -44,6 +44,53 @@ suelo sobre el que pisa el cóndor 0DTE está más blando de lo que sugiere el n
 | 2026-08-19 | 5 | +$2,4B | 8,3% | 7800 | 7725 |
 | 2026-08-20 | 6 | −$142M | 4,9% | 7800 | 7700 |
 
+## Las cifras en dólares del gráfico — qué son
+
+> Lester, 2026-08-14: *"¿qué son las cantidades de dinero que estoy señalando?"* (las columnas de
+> $ a los dos lados del gráfico de Gamma Exposure).
+
+**Son dólares de cobertura por cada 1% que se mueva el índice.**
+
+Cada número dice: *si SPX se mueve un 1%, cuánto dinero de índice tienen que comprar o vender los
+dealers por culpa de las opciones de ESE strike.*
+
+```
+gamma × open interest × 100 × precio × 1%
+   │           │          │      │
+   │           │          │      └─ para pasarlo a dólares
+   │           │          └──────── cada contrato son 100 unidades
+   │           └─────────────────── contratos vivos en ese strike
+   └─────────────────────────────── cuánto cambia la cobertura por cada dólar de movimiento
+```
+
+**Ejemplo real (2026-08-14, SPX 7.788,04):** el strike 7790 marcaba **$11,3B** en calls. Si SPX se
+mueve un 1% (~78 puntos), la cobertura que los dealers deben ajustar **sólo por las calls de 7790**
+cambia en 11.300 millones. Por eso ese strike llevaba la etiqueta **CW**.
+
+### Por qué unos son millones y otros miles de millones
+
+```
+7885 →   $66M     lejos del precio
+7810 →  $854M
+7800 →   $2,2B
+7790 →  $11,3B    ← el precio estaba en 7788
+```
+
+**La gamma es máxima donde está el precio y se desploma al alejarse**, y en 0DTE ese efecto está
+multiplicado: a pocas horas del vencimiento las opciones al dinero tienen gamma enorme y las
+lejanas casi cero.
+
+**Regla de lectura: los strikes de millones son ruido; los de miles de millones son donde pasa algo.**
+
+### El tamaño dice dónde hay fuerza; el color, en qué sentido
+
+- **Verde (calls)** → amortigua: los dealers venden si sube y compran si baja. Empuja hacia el strike.
+- **Rojo (puts)** → amplifica: si el precio llega ahí, acelera.
+
+En el ejemplo, 7790 tenía **$11,3B verdes contra $2,8B rojos** — cuatro a uno. Ese nivel tiraba del
+precio como un imán. Pero el precio estaba **pegado** a él (0,05%), que es justo lo que el panel de
+decisión marcaba en rojo: el imán es enorme y aun así no sirve de apoyo para vender un rango.
+
 ## Los muros, y cuándo dejan de ser muros
 
 El **muro de calls** es el strike con más gamma del lado de las calls; el de puts, igual. Se
@@ -127,6 +174,7 @@ distintas no son comparables— pero por "cambia de forma que no sabemos", no po
 | *"No entendí lo de que los muros te dicen dónde poner las patas cortas. No sé la diferencia entre las largas y las cortas"* | **Corta = la que vendes**, define dónde ganas. **Larga = la que compras**, es el seguro y define cuánto puedes perder | [Patas cortas y largas](#patas-cortas-y-largas--cómo-se-arma-un-spread) |
 | *"No sé cómo sacarle valor a la tabla de vencimientos"* | Tres usos: saber si el freno de hoy es real, encontrar los **strikes que se repiten** como muro en varios vencimientos (los sólidos), y detectar un vencimiento a contracorriente | [Por qué hacía falta separarlo](#por-qué-hacía-falta-separarlo-por-vencimiento) |
 | *"¿A qué te refieres con que el peso está en el 0DTE? ¿Cómo lo sabes?"* | Gamma de ese vencimiento dividida entre la suma de los cinco. La aritmética completa está en el panel | [Qué es "el tablero"](#qué-es-el-tablero--y-qué-no-es) |
+| *"¿Qué son las cantidades de dinero que estoy señalando?"* (el gráfico de gamma) | **Dólares de cobertura por cada 1% que se mueva el índice** en ese strike. Millones = ruido; miles de millones = donde pasa algo | [Las cifras en dólares](#las-cifras-en-dólares-del-gráfico--qué-son) |
 | *"¿Qué significa el 65% de la gamma del tablero?"* | Que dos de cada tres dólares de gamma **de los próximos días** están en el vencimiento de hoy. **No** es el 65% de todo el mercado — eso estaba mal escrito | [Qué es "el tablero"](#qué-es-el-tablero--y-qué-no-es) |
 
 **Lo que salió de estas preguntas, además de las respuestas:**
