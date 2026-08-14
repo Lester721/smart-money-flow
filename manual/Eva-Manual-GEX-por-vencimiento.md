@@ -113,9 +113,30 @@ distintas no son comparables— pero por "cambia de forma que no sabemos", no po
   esa IV en gamma — mercado → griega, nunca modelo → precio.
 - **Si el Terminal está apagado, el panel lo dice y no enseña números.** No se rellena nada.
 
-## Preguntas de Lester
+## Preguntas de Lester — índice
 
-*(se irán añadiendo aquí según pregunte)*
+> **Cada pregunta suya va aquí con sus palabras**, no reformulada. Si preguntó algo es que el
+> manual no lo explicaba, así que la pregunta es el mejor índice que existe de lo que falta.
+> Todas son del 2026-08-14, la primera sesión en que se sentó a mirar el panel.
+
+| Su pregunta | Respuesta corta | Dónde está entera |
+|---|---|---|
+| *"¿Qué debo ver o buscar del gamma exposure cuando lo estoy viendo?"* | Tres cosas y en este orden: el **signo y el percentil**, **dónde está** la gamma, y **la distancia a los muros** — que es la que casi nadie mira y la que más decide | [Qué mirar, en orden](#qué-mirar-en-orden) |
+| *"¿Qué se supone que me dice?"* | Si hoy el mercado tiene **freno o acelerador**. Nada más | [Lo que dice, en una frase](#lo-que-dice-en-una-frase) |
+| *"¿Cómo puedo usar esta información?"* | Para elegir **qué tipo** de operación encaja hoy, **dónde** poner las patas cortas, y sobre todo **cuándo no operar** | [La tabla de decisión](#la-tabla-de-decisión) |
+| *"No entendí lo de que los muros te dicen dónde poner las patas cortas. No sé la diferencia entre las largas y las cortas"* | **Corta = la que vendes**, define dónde ganas. **Larga = la que compras**, es el seguro y define cuánto puedes perder | [Patas cortas y largas](#patas-cortas-y-largas--cómo-se-arma-un-spread) |
+| *"No sé cómo sacarle valor a la tabla de vencimientos"* | Tres usos: saber si el freno de hoy es real, encontrar los **strikes que se repiten** como muro en varios vencimientos (los sólidos), y detectar un vencimiento a contracorriente | [Por qué hacía falta separarlo](#por-qué-hacía-falta-separarlo-por-vencimiento) |
+| *"¿A qué te refieres con que el peso está en el 0DTE? ¿Cómo lo sabes?"* | Gamma de ese vencimiento dividida entre la suma de los cinco. La aritmética completa está en el panel | [Qué es "el tablero"](#qué-es-el-tablero--y-qué-no-es) |
+| *"¿Qué significa el 65% de la gamma del tablero?"* | Que dos de cada tres dólares de gamma **de los próximos días** están en el vencimiento de hoy. **No** es el 65% de todo el mercado — eso estaba mal escrito | [Qué es "el tablero"](#qué-es-el-tablero--y-qué-no-es) |
+
+**Lo que salió de estas preguntas, además de las respuestas:**
+
+1. El **Panel de decisión** de `/0dte` — nació de su frase *"no me falta información, me falta que
+   la información llegue ordenada en el momento de decidir"*.
+2. Una **corrección**: al buscar los números para explicarle el peso del 0DTE, salió que mi
+   afirmación de que "sube durante la sesión" era falsa. Ver [El reloj](#️-el-reloj--y-una-corrección-de-la-que-me-pillaron).
+
+**Preguntar "¿cómo lo sabes?" es lo que más rápido encuentra los errores.**
 
 ---
 
