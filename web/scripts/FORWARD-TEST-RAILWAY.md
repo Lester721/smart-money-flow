@@ -21,7 +21,12 @@ El ledger ya **no vive en git**; vive en **Redis** (el mismo servicio que usa el
   al **mismo Redis** → ledger unificado. Para una prueba local aislada en archivo, fuerza
   `FWD_STORE=file`.
 
-## Pasos en Railway (una vez) — proyecto "secure-analysis"
+## Pasos en Railway (una vez) — proyecto **`thriving-creation`**
+
+> Antes decía `secure-analysis`. Ese proyecto era el primer montaje y se **borró el 2026-08-14**:
+> tenía un solo servicio, sin volumen, que intentaba construirse en cada push y fallaba siempre.
+> Todo vive ahora en `thriving-creation`, junto al Redis. (`feisty-adventure` es de otro
+> proyecto de Lester, no tocarlo.)
 
 1. **New → GitHub Repo →** elige `Lester721/smart-money-flow` (el mismo repo del worker).
 2. En **Settings** del nuevo servicio:
