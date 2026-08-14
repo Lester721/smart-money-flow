@@ -3,6 +3,7 @@ import NavTabs from "../components/NavTabs";
 import EvaLogo from "../components/EvaLogo";
 import GexView from "../components/GexView";
 import GexVencimientos from "../components/GexVencimientos";
+import GexPerfil from "../components/GexPerfil";
 import PanelDecision from "../components/PanelDecision";
 import ForwardGexCard from "../components/ForwardGexCard";
 
@@ -57,7 +58,14 @@ export default function ZeroDtePage() {
             visto el contexto. El forward-test va al final: es el marcador, no la decisión. */}
         <GexVencimientos />
 
-        <PanelDecision />
+        {/* LADO A LADO, y lo pidió Lester: el gráfico dice DÓNDE están los muros y el panel de
+            decisión dice SI COMPENSA apoyarse en ellos. Uno encima del otro obligaba a recordar
+            números al bajar; juntos se leen de un vistazo. En pantalla estrecha se apilan solos
+            (auto-fit), con el gráfico primero. */}
+        <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(480px, 1fr))", alignItems: "start" }}>
+          <GexPerfil />
+          <PanelDecision />
+        </div>
 
         <ForwardGexCard />
 
