@@ -176,13 +176,23 @@ export default function GexVencimientos() {
             </ol>
           </div>
 
-          {/* El aviso que MarketSnack NO da y que invalida comparaciones enteras. */}
-          <div style={{ marginTop: 14, fontSize: 12, color: C.tenue, borderTop: `1px solid ${C.linea}`, paddingTop: 10 }}>
-            <b>Cuidado al comparar entre días.</b> La gamma crece como 1/√T, así que el peso del
-            0DTE <b>sube solo</b> según avanza la sesión: la misma posición pesa mucho más a las
-            15:50 que a las 10:00, sin que nadie haya hecho nada. Para comparar dos días hay que
-            mirarlos <b>a la misma hora</b>. Medido el 2026-08-13: a las 16:00 el 0DTE salía con el
-            56,4% del tablero; MarketSnack, a las 12:15, daba 32%.
+          {/* Qué es "el tablero" y qué NO es. Lo preguntó Lester el 2026-08-14 y tenía razón:
+              estaba escrito de forma que sugería "toda la gamma del mercado", que es falso. */}
+          <div style={{ marginTop: 14, fontSize: 12, color: C.tenue, borderTop: `1px solid ${C.linea}`, paddingTop: 10, lineHeight: 1.6 }}>
+            <b>Cómo se calcula el peso.</b> Para cada vencimiento se suman su gamma de calls y la de
+            puts <b>en valor absoluto</b> (no el neto: un vencimiento con mucha gamma repartida a los
+            dos lados manda aunque su neto sea casi cero), y se divide entre la suma de los{" "}
+            {d.vencimientos.length}. Por eso los pesos suman 100%.
+            <br /><br />
+            <b>Lo que NO es:</b> estos {d.vencimientos.length} son los vencimientos <b>más cercanos</b>,
+            no todo el mercado. Hay opciones de SPX a meses vista que no entran aquí. El porcentaje
+            significa «de la gamma de los próximos días», no «de toda la que existe».
+            <br /><br />
+            <b>Cuidado al comparar entre días: hazlo siempre a la misma hora.</b> El peso del 0DTE
+            se mueve durante la sesión por dos fuerzas opuestas — la gamma crece como 1/√T según se
+            acerca el vencimiento, pero al final del día las opciones muy fuera del dinero dejan de
+            cotizar y aportan cero. Medido el 2026-08-14: <b>65% a las 12:25 y 47,8% a las 16:00</b>.
+            No tenemos medido el patrón, así que dos lecturas a horas distintas <b>no son comparables</b>.
           </div>
         </>
       )}

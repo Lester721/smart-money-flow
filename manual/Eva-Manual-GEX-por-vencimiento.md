@@ -55,16 +55,53 @@ imán.** En el ejemplo, ambos muros del 0DTE están en 7800 con el índice en 77
 a quedarse pegado ahí hasta el cierre. Es el escenario que le gusta a un cóndor, que gana si el
 índice se queda quieto.
 
-## ⚠️ La trampa del reloj — lo que MarketSnack no dice
+## Qué es "el tablero" — y qué NO es
 
-La gamma crece según se acerca el vencimiento: va como **1/√T**. Traducido:
+Lo preguntó Lester el 2026-08-14: *"¿qué significa el 65% de la gamma del tablero?"*. Estaba mal
+escrito y sugería "toda la gamma del mercado", que es falso.
 
-> **El peso del 0DTE sube solo según avanza el día, sin que nadie compre ni venda nada.**
+**El peso de cada vencimiento = su gamma / la suma de los cinco.** Ejemplo real (2026-08-14, 16:00):
 
-Medido: el 2026-08-13 a las **16:00** el 0DTE salía con el **56,4%**. MarketSnack, a las **12:15**,
-daba **32%**. No cambió el mercado: cambió la hora a la que se miró.
+| vencimiento | DTE | gamma calls | gamma puts | suma |
+|---|---|---|---|---|
+| 2026-08-14 | 0 | $17.682M | $18.390M | **$36.072M** |
+| 2026-08-17 | 3 | $10.301M | $7.519M | $17.820M |
+| 2026-08-18 | 4 | $4.159M | $3.036M | $7.195M |
+| 2026-08-19 | 5 | $5.675M | $3.410M | $9.085M |
+| 2026-08-20 | 6 | $2.485M | $2.845M | $5.330M |
+| | | | **TOTAL** | **$75.502M** |
 
-**Regla: si comparas dos días, míralos a la misma hora.** Si no, no estás comparando nada.
+`36.072 / 75.502 = 47,8%`
+
+Dos detalles del cálculo:
+
+- **Se suman calls y puts en valor absoluto, no el neto.** Un vencimiento con mucha gamma repartida
+  a los dos lados manda aunque su neto sea casi cero: hay mucho que cubrir, aunque se compense.
+- **"El tablero" son los CINCO vencimientos más cercanos, no todo el mercado.** Hay opciones de SPX
+  a meses vista que no se cuentan. El porcentaje significa «de la gamma de los próximos días».
+
+## ⚠️ El reloj — y una corrección de la que me pillaron
+
+**Compara siempre a la misma hora.** Eso se mantiene. Pero el motivo que di primero era falso.
+
+El 2026-08-14 por la mañana escribí que *"el peso del 0DTE sube solo según avanza la sesión"*,
+basándome en comparar **nuestro** dato de las 16:00 (56,4%) con el de **MarketSnack** a las 12:15
+(32%). **Dos fuentes distintas y dos días distintos** — exactamente la trampa que este proyecto
+tiene apuntada como regla, y caí en ella yo.
+
+Con la comparación limpia —misma fuente, mismo día— sale al revés:
+
+```
+2026-08-14  12:25 →  65,0%
+2026-08-14  16:00 →  47,8%      BAJÓ
+```
+
+**Por qué:** hay dos fuerzas opuestas. La gamma crece como 1/√T según se acerca el vencimiento,
+pero al final del día **las opciones muy fuera del dinero del 0DTE dejan de cotizar** cuando ya no
+valen nada, y aportan cero. Menos strikes contando, menos gamma total en ese vencimiento.
+
+**No tenemos medido el patrón.** Así que la regla práctica se mantiene —dos lecturas a horas
+distintas no son comparables— pero por "cambia de forma que no sabemos", no por "sube".
 
 ## Detalles del cálculo que conviene saber
 
