@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import NavTabs from "../components/NavTabs";
 import EvaLogo from "../components/EvaLogo";
 import GexView from "../components/GexView";
+import GexVencimientos from "../components/GexVencimientos";
+import PanelDecision from "../components/PanelDecision";
 import ForwardGexCard from "../components/ForwardGexCard";
 
 export const metadata: Metadata = {
@@ -48,6 +50,14 @@ export default function ZeroDtePage() {
 
       <div className="wrap page-stack">
         <GexView />
+
+        {/* El orden NO es casual, y lo fijó Lester el 2026-08-14: primero CUÁNTA gamma hay
+            (GexView), luego DÓNDE está (GexVencimientos), y sólo entonces la DECISIÓN
+            (PanelDecision). La señal vivía arriba del todo y obligaba a decidir antes de haber
+            visto el contexto. El forward-test va al final: es el marcador, no la decisión. */}
+        <GexVencimientos />
+
+        <PanelDecision />
 
         <ForwardGexCard />
 

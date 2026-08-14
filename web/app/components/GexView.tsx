@@ -1,6 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+// Petición compartida: este panel y PanelDecision necesitan los MISMOS datos. Si cada uno
+// pidiera lo suyo serían dos esperas de ~20 s y, peor, dos fotos de instantes distintos.
+import { pedirGex } from "@/lib/gexCliente";
 
 // GEX de SPX 0DTE — el diseño de MarketSnack (docs/referencias-visuales) en oscuro, con lo
 // mismo que enseñan ellos y cuatro cosas que no enseñan:
@@ -45,9 +48,9 @@ export default function GexView() {
   const [error, setError] = useState<string | null>(null);
   const [nStrikes, setNStrikes] = useState(40);
 
-  const cargar = useCallback(async () => {
+  const cargar = useCallback(async (forzar = false) => {
     setCargando(true); setError(null);
-    try { setD(await (await fetch("/api/gex", { cache: "no-store" })).json()); }
+    try { setD(await pedirGex(forzar)); }
     catch (e) { setError(String(e)); }
     setCargando(false);
   }, []);
@@ -61,7 +64,7 @@ export default function GexView() {
       <h2 style={{ marginTop: 0 }}>GEX 0DTE · SPX</h2>
       <p style={{ color: C.ambar }}>{d.motivo}</p>
       <p className="muted">Necesita el Theta Terminal encendido. {d.dia} · {d.ahora} ET</p>
-      <button className="btn" onClick={() => void cargar()}>Reintentar</button>
+      <button className="btn" onClick={() => void cargar(true)}>Reintentar</button>
     </div>
   );
 
@@ -94,7 +97,7 @@ export default function GexView() {
             <div style={{ fontSize: 12 }}>foto de las <b style={{ color: "var(--text)" }}>{d.hora}</b> ET · quedan {d.minutosAlCierre} min</div>
             <div style={{ fontSize: 11 }}>calculado en {((d.ms ?? 0) / 1000).toFixed(1)} s</div>
           </div>
-          <button className="btn" onClick={() => void cargar()} disabled={cargando}>{cargando ? "…" : "Actualizar"}</button>
+          <button className="btn" onClick={() => void cargar(true)} disabled={cargando}>{cargando ? "…" : "Actualizar"}</button>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(150px,1fr))",
@@ -109,50 +112,10 @@ export default function GexView() {
         </div>
       </div>
 
-      {/* ══ la señal ══ */}
-      <div className="card" style={{ borderLeft: `3px solid ${d.señal?.operar ? C.verde : C.rojo}` }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-          <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".06em", padding: "3px 9px", borderRadius: 5,
-                         background: d.señal?.operar ? "rgba(18,183,106,.16)" : "rgba(240,68,56,.16)",
-                         color: d.señal?.operar ? C.verde : C.rojo }}>
-            {d.señal?.operar ? "SEÑAL" : "SIN SEÑAL"}
-          </span>
-          <b style={{ fontSize: 15 }}>{d.señal?.operar ? "Cóndor de hierro ±25 · alas 50" : "No operar"}</b>
-        </div>
-
-        {!d.señal?.operar ? (
-          <p style={{ margin: 0 }}>{d.señal?.motivo}. <b>Es lo único firme que hemos medido:</b> con GEX
-            negativo la misma estructura da −2% a −5% en todas las horas y las dos mitades del periodo.</p>
-        ) : (
-          <>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(210px,1fr))", gap: 10 }}>
-              <Pata accion="vender" tipo="call" k={d.señal.callCorta!} p={d.señal.precios!.callCorta} corta
-                    extra={`delta ${d.señal.deltaCorta}`} />
-              <Pata accion="comprar" tipo="call" k={d.señal.callLarga!} p={d.señal.precios!.callLarga} />
-              <Pata accion="vender" tipo="put" k={d.señal.putCorta!} p={d.señal.precios!.putCorta} corta />
-              <Pata accion="comprar" tipo="put" k={d.señal.putLarga!} p={d.señal.precios!.putLarga} />
-            </div>
-            <div style={{ display: "flex", gap: 22, flexWrap: "wrap", fontSize: 14 }}>
-              <span>crédito <b style={{ color: C.verde }}>${d.señal.credito}</b></span>
-              <span>riesgo máximo <b>${d.señal.riesgoMax}</b></span>
-              <span>gana entre <b>{d.señal.rangoGanador?.[0]}</b> y <b>{d.señal.rangoGanador?.[1]}</b></span>
-            </div>
-            <p className="muted" style={{ margin: 0, fontSize: 12 }}>
-              Precios cruzando la horquilla entera. Sostener al cierre: SPX se liquida en efectivo y
-              salir antes cuesta más que la pérdida máxima.
-            </p>
-          </>
-        )}
-        {d.historia && (
-          <div style={{ fontSize: 12, padding: "9px 12px", borderRadius: 8, background: "rgba(148,163,184,.07)" }}>
-            <span className="muted">Respaldo — {d.historia.n} días (2024-2026): con GEX positivo esta estructura
-              acertó </span><b>{d.historia.aciertoConSeñal}%</b>
-            <span className="muted">, media </span><b>{d.historia.mediaConSeñal}%</b>
-            <span className="muted"> por operación (t=2,09). </span>
-            <b style={{ color: C.ambar }}>Nunca se ha operado hacia adelante.</b>
-          </div>
-        )}
-      </div>
+      {/* La SEÑAL ya no se pinta aquí: se mudó a `PanelDecision`, que va DEBAJO del panel de
+          vencimientos. Lo pidió Lester el 2026-08-14 y tiene sentido — la decisión se toma
+          después de ver el contexto (cuánta gamma hay y dónde está), no antes. Los datos son
+          los mismos: los dos paneles comparten una sola petición vía `lib/gexCliente`. */}
 
       {/* ══ el perfil por strike ══ */}
       <div className="card">
