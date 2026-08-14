@@ -183,7 +183,10 @@ async function cierreSPX(dia) {
     const f = await foto(DIA);
     if (!f) { console.log(`    ✗ sin datos para ${DIA} (¿festivo? ¿aún no son las ${HORA}?)`); }
     else {
-      const base = { dia: DIA, hora: HORA, registradoEn: ahoraET(), spx: Math.round(f.U * 100) / 100,
+      // railway o local: sin esto el ledger no se puede auditar (ver lib/origenEjecucion.ts)
+      const origen = Object.keys(process.env).some(k => k.startsWith('RAILWAY_'))
+        ? `railway:${process.env.RAILWAY_SERVICE_NAME || '?'}` : 'local';
+      const base = { dia: DIA, hora: HORA, registradoEn: ahoraET(), origen, spx: Math.round(f.U * 100) / 100,
                      gexNeto: Math.round(f.gexNeto / 1e6), gexCalls: Math.round(f.gexCalls / 1e6), gexPuts: Math.round(f.gexPuts / 1e6) };
       if (f.gexNeto <= 0) {
         ledger.push({ ...base, estado: 'sin señal', motivo: 'GEX negativo — el veto' });

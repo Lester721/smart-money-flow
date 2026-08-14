@@ -18,6 +18,7 @@ const DAYS = Number(process.env.BT_DAYS) || 180;
 const MIN_PREMIUM = Number(process.env.BT_MIN_PREMIUM) || 1_000_000;
 const HOLD = Number(process.env.BT_HOLD) || 10;
 const OUT = process.env.BT_OUT || "scripts/backtest-eva-vs-victor-reporte.md";
+const DUMP = process.env.BT_DUMP || "scripts/eva-filas.json";
 const YEAR_MS = 365 * 24 * 3600 * 1000;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -50,6 +51,11 @@ interface Row {
   pnl: number; aggr: number; conv: number; unus: number; ivp: number;
   spreadPct: number | null; oi: number; volume: number; dte: number | null;
   side: string; exceededOI: boolean; isCall: boolean;
+  // `ticker` y `fecha` NO los usa este informe: existen para que el laboratorio
+  // (`scripts/eva-laboratorio.ts`) pueda partir la muestra por tiempo y por activo sin volver a
+  // descargar nada. Bajar estos 933 flujos cuesta ~20 minutos; experimentar sobre el volcado,
+  // segundos. Y partir por tiempo es la única defensa contra sobreajustar los pesos.
+  ticker: string; fecha: string;
 }
 
 async function buildRow(r: FlowRow, bars: DBar[]): Promise<Row | null> {
@@ -99,6 +105,7 @@ async function buildRow(r: FlowRow, bars: DBar[]): Promise<Row | null> {
     ivp: ivProxyScore(ivEntry, realizedVol(bars, entryIdx)),
     spreadPct: spreadPct(r.bid, r.ask), oi: r.openInterest, volume: r.volume, dte: r.dte,
     side: r.side, exceededOI: r.flags.exceededOI, isCall,
+    ticker: r.underlying ?? "", fecha: new Date(r.timestamp).toISOString().slice(0, 10),
   };
 }
 
@@ -171,6 +178,11 @@ function terciles(rows: Row[], scoreOf: (r: Row) => number) {
     } catch (e) { console.error(`[${t}] ERROR:`, (e as Error).message); }
     await sleep(2500);
   }
+
+  // Volcado crudo para el laboratorio. Se guarda ANTES de calcular nada: si un análisis sale
+  // raro, se puede volver a los datos de partida sin repetir los 20 minutos de descarga.
+  writeFileSync(DUMP, JSON.stringify(all), "utf8");
+  console.log(`=== ${all.length} filas volcadas en ${DUMP} ===`);
 
   const V = terciles(all, victorScore);
   const Ew = terciles(all, evaWeightsScore);

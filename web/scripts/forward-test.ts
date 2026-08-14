@@ -25,6 +25,7 @@ import {
 } from "../lib/flow";
 import { impliedVol } from "../lib/blackScholes";
 import { asegurarBarrasDeLiquidacion, vencidasSinLiquidar } from "../lib/forwardBars";
+import { etiquetaEjecucion } from "../lib/origenEjecucion";
 import { fetchGexNormalizado, verticalReal, quoteCierre } from "../lib/thetadata";
 
 
@@ -144,6 +145,10 @@ interface Trade {
     retOnRisk?: number;
   };
   status: "open" | "closed";
+  /** Quién la escribió: `railway:<servicio>` o `local`. Opcional porque las
+   *  operaciones anteriores al 2026-08-13 no lo llevan. Sin este campo no se puede
+   *  distinguir lo que produce el servicio de lo que produce una prueba mía. */
+  origen?: string;
   exitDate?: string; exitSpot?: number; retOnRisk?: number; pnlPerSpread?: number;
   /** Regla de salida asignada AL ABRIR. Ausente = sin gestión (sostener a vencimiento).
    *  Se fija al abrir a propósito: cambiarle las reglas a una posición ya abierta arruinaría
@@ -326,6 +331,7 @@ async function openSpread(ticker: string, sig: Signal, dte: number, sigma: numbe
     ...(gexHoy != null ? { gexNorm: Math.round(gexHoy) } : {}),
     ...(nocionalHoy != null ? { oiNocional: Math.round(nocionalHoy / 1e6) } : {}),   // en millones
     status: "open",
+    origen: etiquetaEjecucion(),   // railway o local: sin esto el ledger no se puede auditar
   };
 }
 /**

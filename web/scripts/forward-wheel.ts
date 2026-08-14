@@ -18,6 +18,7 @@ import {
 } from "../lib/flow";
 import { bsDelta, impliedVol } from "../lib/blackScholes";
 import { asegurarBarrasDeLiquidacion, vencidasSinLiquidar } from "../lib/forwardBars";
+import { etiquetaEjecucion } from "../lib/origenEjecucion";
 import { putReal, valorPutReal } from "../lib/thetadata";   // precios REALES: bid al vender, ask al recomprar
 
 
@@ -41,6 +42,10 @@ interface WPut {
   strike: number; premium: number; collateral: number; expiryMs: number; expiryDate: string;
   evaComp: number; victorComp: number;
   status: "open" | "closed";
+  /** Quién la escribió: `railway:<servicio>` o `local`. Opcional porque las
+   *  operaciones anteriores al 2026-08-13 no lo llevan. Sin este campo no se puede
+   *  distinguir lo que produce el servicio de lo que produce una prueba mía. */
+  origen?: string;
   exitDate?: string; exitSpot?: number; retOnColl?: number; assigned?: boolean; closedReason?: string;
 }
 
@@ -124,6 +129,7 @@ async function openPut(ticker: string, sig: Signal, delta: number, dte: number):
     id: "", ticker: "", entryDate: sig.entryDate, entryMs: sig.entryMs, delta, dte,
     spot: round(sig.spot), rv: round(sig.rv, 4), strike: round(K), premium: round(P0, 4), collateral: round(K * 100),
     expiryMs, expiryDate: new Date(expiryMs).toISOString().slice(0, 10), evaComp: sig.evaComp, victorComp: sig.victorComp, status: "open",
+    origen: etiquetaEjecucion(),   // railway o local: sin esto el ledger no se puede auditar
   };
 }
 // Liquida con gestión: cierra si captura TAKE de la prima antes de vencer; si no, a vencimiento
