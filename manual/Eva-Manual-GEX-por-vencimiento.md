@@ -91,6 +91,46 @@ En el ejemplo, 7790 tenía **$11,3B verdes contra $2,8B rojos** — cuatro a uno
 precio como un imán. Pero el precio estaba **pegado** a él (0,05%), que es justo lo que el panel de
 decisión marcaba en rojo: el imán es enorme y aun así no sirve de apoyo para vender un rango.
 
+## Por qué un strike hace de imán
+
+> Lester, 2026-08-14: *"¿por qué es un imán por la diferencia entre 11,3B y 2,8B?"*
+>
+> **Corrección de partida:** no es la *diferencia* lo que hace de imán, es que **el neto sea grande
+> y positivo**. La proporción 4 a 1 era sólo mi forma de decir "aquí el neto es claramente positivo".
+> Estaba escrito de forma imprecisa.
+
+En ese strike había **$11,3B de fuerza que amortigua** (verde, calls) contra **$2,8B que amplifica**
+(rojo, puts). Neto: **$8,5B amortiguando**.
+
+### El mecanismo
+
+Con los dealers largos de gamma en un strike:
+
+- **Si el precio SUBE hacia el strike** → su cobertura se desequilibra → **venden** índice para
+  reequilibrarse → empuja el precio hacia abajo.
+- **Si el precio BAJA desde el strike** → **compran** → lo empuja hacia arriba.
+
+**Venden cuando sube y compran cuando baja.** El precio no puede alejarse fácilmente en ninguna
+dirección: cada intento genera la operación contraria. **No es que atraiga, es que castiga la
+salida por los dos lados.**
+
+### Si estuviera al revés
+
+$11,3B **rojos** contra $2,8B verdes en el mismo strike sería **lo contrario de un imán**: los
+dealers comprarían cuando sube y venderían cuando baja, **acelerando** el movimiento. El precio
+pasaría de largo y más rápido.
+
+> **La barra grande dice dónde hay fuerza; el color, si esa fuerza te frena o te empuja.**
+
+### Lo medido y lo que es teoría — no es lo mismo
+
+- **Medido por nosotros (652 días):** que un muro aguanta el **61% pegado** al precio y el **92% a
+  partir del 0,6%**. Ese número sale de nuestros datos.
+- **Teoría de estructura de mercado:** el mecanismo de cobertura de arriba. Es estándar y está bien
+  documentado, pero **no lo hemos medido por separado**. Medimos su *consecuencia* (los muros
+  aguantan), no la cobertura en sí. Nadie ha visto las órdenes de un dealer: el mecanismo es la
+  explicación que mejor encaja con lo que sí observamos.
+
 ## Los muros, y cuándo dejan de ser muros
 
 El **muro de calls** es el strike con más gamma del lado de las calls; el de puts, igual. Se
@@ -174,6 +214,7 @@ distintas no son comparables— pero por "cambia de forma que no sabemos", no po
 | *"No entendí lo de que los muros te dicen dónde poner las patas cortas. No sé la diferencia entre las largas y las cortas"* | **Corta = la que vendes**, define dónde ganas. **Larga = la que compras**, es el seguro y define cuánto puedes perder | [Patas cortas y largas](#patas-cortas-y-largas--cómo-se-arma-un-spread) |
 | *"No sé cómo sacarle valor a la tabla de vencimientos"* | Tres usos: saber si el freno de hoy es real, encontrar los **strikes que se repiten** como muro en varios vencimientos (los sólidos), y detectar un vencimiento a contracorriente | [Por qué hacía falta separarlo](#por-qué-hacía-falta-separarlo-por-vencimiento) |
 | *"¿A qué te refieres con que el peso está en el 0DTE? ¿Cómo lo sabes?"* | Gamma de ese vencimiento dividida entre la suma de los cinco. La aritmética completa está en el panel | [Qué es "el tablero"](#qué-es-el-tablero--y-qué-no-es) |
+| *"¿Por qué es un imán por la diferencia entre 11,3B y 2,8B?"* | No es la diferencia: es que el **neto sea grande y positivo**. Los dealers **venden cuando sube y compran cuando baja**, así que castigan la salida por los dos lados | [Por qué un strike hace de imán](#por-qué-un-strike-hace-de-imán) |
 | *"¿Qué son las cantidades de dinero que estoy señalando?"* (el gráfico de gamma) | **Dólares de cobertura por cada 1% que se mueva el índice** en ese strike. Millones = ruido; miles de millones = donde pasa algo | [Las cifras en dólares](#las-cifras-en-dólares-del-gráfico--qué-son) |
 | *"¿Qué significa el 65% de la gamma del tablero?"* | Que dos de cada tres dólares de gamma **de los próximos días** están en el vencimiento de hoy. **No** es el 65% de todo el mercado — eso estaba mal escrito | [Qué es "el tablero"](#qué-es-el-tablero--y-qué-no-es) |
 
