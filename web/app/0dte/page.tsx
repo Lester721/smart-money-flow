@@ -56,16 +56,18 @@ export default function ZeroDtePage() {
             (GexView), luego DÓNDE está (GexVencimientos), y sólo entonces la DECISIÓN
             (PanelDecision). La señal vivía arriba del todo y obligaba a decidir antes de haber
             visto el contexto. El forward-test va al final: es el marcador, no la decisión. */}
-        <GexVencimientos />
-
-        {/* LADO A LADO, y lo pidió Lester: el gráfico dice DÓNDE están los muros y el panel de
-            decisión dice SI COMPENSA apoyarse en ellos. Uno encima del otro obligaba a recordar
-            números al bajar; juntos se leen de un vistazo. En pantalla estrecha se apilan solos
-            (auto-fit), con el gráfico primero. */}
+        {/* LADO A LADO justo debajo del Net GEX, y lo colocó ahí Lester el 2026-08-14: primero
+            CUÁNTA gamma hay (la cabecera), y acto seguido DÓNDE están los muros (el gráfico) junto
+            a SI COMPENSA apoyarse en ellos (la decisión). Los tres pasos de la lectura, seguidos.
+            En pantalla estrecha se apilan solos. */}
         <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(480px, 1fr))", alignItems: "start" }}>
           <GexPerfil />
           <PanelDecision />
         </div>
+
+        {/* El reparto por vencimiento va DESPUÉS: es el contexto de fondo, no el paso de la
+            decisión del día. */}
+        <GexVencimientos />
 
         <ForwardGexCard />
 
@@ -77,6 +79,9 @@ export default function ZeroDtePage() {
             Cuánto más se mueve el precio con gamma negativa que con positiva, en unidades de σ
             esperada. Medido sobre ~2.630 días por ticker (2016–2026), no sobre las señales.
           </div>
+          {/* En un contenedor propio: en pantalla estrecha estas tablas se salían de la
+              tarjeta y cortaban texto. Que haga scroll la tabla, no la página. */}
+          <div style={{ overflowX: "auto" }}>
           <table className="cs-table">
             <thead>
               <tr>
@@ -95,6 +100,7 @@ export default function ZeroDtePage() {
               ))}
             </tbody>
           </table>
+          </div>
           <div className="card-sub" style={{ maxWidth: 640 }}>
             Baja de forma monótona en SPY y QQQ: <strong>a un día es el doble de fuerte que a
             diez</strong>. Es la firma de una fuerza mecánica de corto plazo — los dealers cubren
@@ -104,6 +110,7 @@ export default function ZeroDtePage() {
 
         <div className="card">
           <div style={{ fontSize: 17, fontWeight: 700 }}>Qué está medido y qué no</div>
+          <div style={{ overflowX: "auto" }}>
           <table className="cs-table">
             <tbody>
               {MEDIDO.map((f) => (
@@ -117,6 +124,7 @@ export default function ZeroDtePage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         <div className="card">

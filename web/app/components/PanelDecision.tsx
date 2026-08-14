@@ -44,6 +44,27 @@ function Estructura({ txt }: { txt: string }) {
   );
 }
 
+/** Un bloque de la tabla de decisión. Apilado en vez de fila de tabla: en media pantalla una
+ *  tabla de dos columnas se desborda y corta el texto. */
+function Fila({ activa, titulo, etiqueta, children }: {
+  activa: boolean; titulo: React.ReactNode; etiqueta: React.ReactNode; children: React.ReactNode;
+}) {
+  return (
+    <div style={{
+      border: `1px solid ${activa ? "rgba(18,183,106,.45)" : C.linea}`,
+      background: activa ? "rgba(18,183,106,.07)" : "transparent",
+      borderRadius: 10, padding: "10px 13px",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 6 }}>
+        {etiqueta}
+        <span style={{ fontSize: 13.5 }}>{titulo}</span>
+        {activa && <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, color: C.verde }}>◀ es lo que hay ahora</span>}
+      </div>
+      <div style={{ fontSize: 13.5, lineHeight: 1.55 }}>{children}</div>
+    </div>
+  );
+}
+
 function Pata({ accion, tipo, k, p, corta, extra }: {
   accion: "vender" | "comprar"; tipo: "call" | "put"; k: number; p: number; corta?: boolean; extra?: string;
 }) {
@@ -219,48 +240,41 @@ export default function PanelDecision() {
           medido nunca. Cada fila lleva su etiqueta. */}
       <div style={{ marginTop: 16 }}>
         <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Qué encaja — y con qué strikes</div>
-        <table className="cs-table">
-          <thead><tr><th style={{ width: "27%" }}>Lo que ves</th><th>Qué haría · con los niveles de ahora</th></tr></thead>
-          <tbody>
-            <tr style={filaActiva === 1 ? { background: "var(--green-bg)" } : undefined}>
-              <td>GEX positivo <b>y muros lejos</b></td>
-              <td>
-                <Etiqueta ok texto="MEDIDO · 652 días" />
-                <b>Cóndor de hierro</b> — vender el rango entre los muros:<br />
-                <Estructura txt={`vender put ${kPut} / comprar put ${kPut - ALA}`} />
-                <Estructura txt={`vender call ${kCall} / comprar call ${kCall + ALA}`} />
-                <span style={{ color: C.tenue, fontSize: 12 }}>
-                  O sólo una pata si tienes sesgo: <b>put credit spread {kPut}/{kPut - ALA}</b> (alcista)
-                  o <b>call credit spread {kCall}/{kCall + ALA}</b> (bajista).
-                </span>
-              </td>
-            </tr>
-            <tr style={filaActiva === 2 ? { background: "var(--green-bg)" } : undefined}>
-              <td>GEX negativo</td>
-              <td>
-                <Etiqueta texto="NO MEDIDO" />
-                <b>No vender rango</b> — eso sí está medido: la misma estructura da −2% a −5%.<br />
-                <span style={{ color: C.tenue, fontSize: 12 }}>
-                  Lo que <em>encajaría</em> es comprar movimiento (<b>strangle {kPutLejos}P / {kCallLejos}C</b>),
-                  pero <b>nunca lo hemos probado</b>. Que vender pierda no significa que comprar gane:
-                  la horquilla te cobra en las dos direcciones.
-                </span>
-              </td>
-            </tr>
-            <tr style={filaActiva === 3 ? { background: "var(--green-bg)" } : undefined}>
-              <td>GEX positivo <b>pero muros pegados</b></td>
-              <td>
-                <Etiqueta texto="ESPERAR" />
-                <b>Régimen bueno, entrada mala.</b> El muro está a menos del 0,6% y sólo aguanta el 61%.<br />
-                <span style={{ color: C.tenue, fontSize: 12 }}>
-                  Si aun así quieres entrar, <b>aléjate</b>: put credit spread{" "}
-                  <b>{kPutLejos}/{kPutLejos - ALA}</b> (a 0,8% del precio, donde el muro aguanta el 92%).
-                  Cobrarás menos, pero la pared es firme.
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {/* Bloques apilados y NO una tabla de dos columnas: en media pantalla la tabla se
+            desbordaba y cortaba el texto por la derecha (visible en la captura de Lester del
+            2026-08-14). Apilado cabe siempre y se lee mejor. */}
+        <div style={{ display: "grid", gap: 10 }}>
+          <Fila activa={filaActiva === 1} titulo={<>GEX positivo <b>y muros lejos</b></>}
+                etiqueta={<Etiqueta ok texto="MEDIDO · 652 días" />}>
+            <b>Cóndor de hierro</b> — vender el rango entre los muros:
+            <Estructura txt={`vender put ${kPut} / comprar put ${kPut - ALA}`} />
+            <Estructura txt={`vender call ${kCall} / comprar call ${kCall + ALA}`} />
+            <span style={{ color: C.tenue, fontSize: 12.5 }}>
+              O sólo una pata si tienes sesgo: <b>put credit spread {kPut}/{kPut - ALA}</b> (alcista)
+              o <b>call credit spread {kCall}/{kCall + ALA}</b> (bajista).
+            </span>
+          </Fila>
+
+          <Fila activa={filaActiva === 2} titulo={<>GEX negativo</>}
+                etiqueta={<Etiqueta texto="NO MEDIDO" />}>
+            <b>No vender rango</b> — eso sí está medido: la misma estructura da −2% a −5%.
+            <div style={{ color: C.tenue, fontSize: 12.5, marginTop: 4 }}>
+              Lo que <em>encajaría</em> es comprar movimiento
+              (<b>strangle {kPutLejos}P / {kCallLejos}C</b>), pero <b>nunca lo hemos probado</b>.
+              Que vender pierda no significa que comprar gane: la horquilla cobra en las dos direcciones.
+            </div>
+          </Fila>
+
+          <Fila activa={filaActiva === 3} titulo={<>GEX positivo <b>pero muros pegados</b></>}
+                etiqueta={<Etiqueta texto="ESPERAR" />}>
+            <b>Régimen bueno, entrada mala.</b> El muro está a menos del 0,6% y sólo aguanta el 61%.
+            <div style={{ color: C.tenue, fontSize: 12.5, marginTop: 4 }}>
+              Si aun así quieres entrar, <b>aléjate</b>: put credit spread{" "}
+              <b>{kPutLejos}/{kPutLejos - ALA}</b> — a 0,8% del precio, donde el muro aguanta el 92%.
+              Cobras menos, pero la pared es firme.
+            </div>
+          </Fila>
+        </div>
         <div style={{ fontSize: 12, color: C.tenue, marginTop: 6 }}>
           La fila resaltada es la que corresponde a lo que hay ahora mismo. Strikes calculados con
           los muros y el precio de la foto de arriba, redondeados a 5. El GEX{" "}
