@@ -31,8 +31,11 @@ const DEUDA_CONOCIDA = new Set([
   "scripts/forward-ideas.ts",   // parado: depende de los pesos de EVA, pendientes de revisar
   // forward-wheel.ts SALIÓ de aquí el 2026-08-13: ya usa putReal/valorPutReal (bid al vender,
   // ask al recomprar). Esta lista sólo encoge.
+  // backtest-eva-vs-victor.ts SALIÓ de aquí el 2026-08-13: su salida ya usa el bid real de
+  // ThetaData (quoteCierre) y sólo conserva impliedVol, que va en la dirección legítima
+  // — precio de mercado → volatilidad, nunca modelo → precio.
   // backtests históricos: resultados no válidos
-  "scripts/backtest-composite.ts", "scripts/backtest-eva-vs-victor.ts",
+  "scripts/backtest-composite.ts",
   "scripts/backtest-management.ts", "scripts/backtest-mgmt-spread.ts",
   "scripts/backtest-oos.ts", "scripts/backtest-pnl.ts", "scripts/backtest-regimen-oos.ts",
   "scripts/backtest-strategy.ts", "scripts/backtest-wheel.ts",

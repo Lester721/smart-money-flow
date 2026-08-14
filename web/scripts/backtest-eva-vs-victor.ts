@@ -81,7 +81,13 @@ async function buildRow(r: FlowRow, bars: DBar[]): Promise<Row | null> {
     // Ya venció: valor intrínseco con el cierre real. No es un estimado, es la liquidación.
     exitNet = Math.max(isCall ? exitBar.close - r.strike : r.strike - exitBar.close, 0);
   } else {
-    const q = await quoteCierre(r.symbol ?? "", expYmd, r.strike!, isCall ? "C" : "P", salidaYmd);
+    // `r.underlying` y NO `r.symbol`: symbol es el código OCC del contrato
+    // ("AAPL260821P00335000"), no el ticker. Pasarlo aquí devolvía null en TODAS las peticiones
+    // y el descarte se comía el 100% de los flujos — el informe salía con 0 y parecía que no
+    // había datos, cuando lo que fallaba era el argumento. (2026-08-13)
+    const subyacente = r.underlying ?? "";
+    if (!subyacente) return null;
+    const q = await quoteCierre(subyacente, expYmd, r.strike!, isCall ? "C" : "P", salidaYmd);
     if (!q || !(q.bid > 0)) return null;      // sin precio real no se inventa: se descarta
     exitNet = q.bid;
   }
