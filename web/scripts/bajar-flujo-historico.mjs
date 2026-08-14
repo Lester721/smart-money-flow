@@ -142,19 +142,32 @@ async function bajarDia(sym, dia) {
     if (!porContrato.has(k)) porContrato.set(k, []);
     porContrato.get(k).push(n);
   }
+  // DE CUATRO EN CUATRO, no de una en una. El Terminal admite 4 peticiones simultáneas
+  // ("Max concurrent requests: 4" en su propio arranque) y estábamos usando UNA. Medido el
+  // 2026-08-14: AAPL iba a 14 s por día y NVDA a 30 s —NVDA tiene el triple de operaciones
+  // grandes y por cada una hay que pedir su cotización—, lo que daba 32 horas para lo que faltaba.
+  // El cuello de botella era íntegramente esta espera en serie.
+  const CONCURRENCIA = 4;
   let conBBO = 0;
-  for (const [k, lista] of porContrato) {
-    const [exp, strike, right] = k.split("|");
-    const serie = await cotizaciones(sym, exp.replace(/-/g, ""), strike, right, dia);
-    for (const n of lista) {
-      const q = serie ? bboAsOf(serie, Date.parse(n.ts + "Z")) : null;
-      // Sin cotización se guarda null y se marca. NO se rellena con el precio del trade ni con
-      // una media: un hueco tapado no se distingue de un dato bueno.
-      n.bid = q ? q.bid : null;
-      n.ask = q ? q.ask : null;
-      n.oi = oiMap[k] ?? null;
-      if (q) conBBO++;
-    }
+  const entradas = [...porContrato.entries()];
+  for (let i = 0; i < entradas.length; i += CONCURRENCIA) {
+    const tanda = entradas.slice(i, i + CONCURRENCIA);
+    const series = await Promise.all(tanda.map(([k]) => {
+      const [exp, strike, right] = k.split("|");
+      return cotizaciones(sym, exp.replace(/-/g, ""), strike, right, dia);
+    }));
+    tanda.forEach(([k, lista], j) => {
+      const serie = series[j];
+      for (const n of lista) {
+        const q = serie ? bboAsOf(serie, Date.parse(n.ts + "Z")) : null;
+        // Sin cotización se guarda null y se marca. NO se rellena con el precio del trade ni con
+        // una media: un hueco tapado no se distingue de un dato bueno.
+        n.bid = q ? q.bid : null;
+        n.ask = q ? q.ask : null;
+        n.oi = oiMap[k] ?? null;
+        if (q) conBBO++;
+      }
+    });
   }
 
   writeFileSync(fichero, JSON.stringify({ dia, sym, minPrima: MIN_PRIMA, notables, conBBO, contratos: porContrato.size }));
