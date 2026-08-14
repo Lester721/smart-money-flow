@@ -26,8 +26,14 @@ El ledger ya **no vive en git**; vive en **Redis** (el mismo servicio que usa el
 1. **New → GitHub Repo →** elige `Lester721/smart-money-flow` (el mismo repo del worker).
 2. En **Settings** del nuevo servicio:
    - **Root Directory:** `web`
-   - **Config File Path:** `railway.forward.json`  ← clave: usa esta config, NO la del worker.
+   - **Railway Config File:** `web/railway.forward.json`  ← clave: usa esta config, NO la del worker.
      (Trae ya el `startCommand: npm run forward-test`, el `cronSchedule` y `restartPolicyType: NEVER`.)
+
+     ⚠️ **Las dos rutas NO se cuentan igual.** El Root Directory es `web`, pero el config lleva
+     `web/` delante igualmente: **Railway lo busca desde la raíz del repo, no desde el Root
+     Directory.** Comprobado el 2026-08-13 — el servicio del cóndor falló dos veces con
+     `service config at 'railway.condor.json' not found` hasta ponerle el prefijo, y el Wheel,
+     que sí corre, tiene `web/railway.wheel.json`.
    - Si tu versión de Railway no lee `cronSchedule` del archivo, ponlo a mano en
      **Settings → Cron Schedule:** `0 22 * * 1-5` (weekdays 22:00 UTC = 6:00 PM GMT-4, tras el cierre US).
 3. **Variables** del servicio:

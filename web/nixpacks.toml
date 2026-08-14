@@ -1,0 +1,20 @@
+# Java para el Theta Terminal.
+#
+# El Terminal de ThetaData es un .jar y necesita Java. Nixpacks detecta que esto es un proyecto
+# Node y monta la imagen con `nodejs_24, npm-9_x` — sin Java. Resultado: `with-theta.mjs` intenta
+# ejecutar `java`, el contenedor no lo tiene, y el servicio muere en 2 segundos.
+#
+# Así se descubrió (2026-08-13): el servicio del cóndor moría al instante y sin escribir un solo
+# log. La pista estaba en la cabecera del build:  setup │ nodejs_24, npm-9_x
+#
+# `"..."` NO es un hueco por rellenar: es la sintaxis de nixpacks para "conserva lo que detectaste
+# y añade esto". Sin ella se perdería Node.
+#
+# jdk21 porque es el que arranca el Terminal en la máquina de Lester (Temurin 21.0.12 LTS), y el
+# Terminal v3 pide Java 21 o superior. No bajar de ahí.
+#
+# Esto vale para los TRES servicios que usan ThetaData —cóndor, Wheel y Credit Spread—, que se
+# construyen todos desde `web/` y compartían el mismo agujero.
+
+[phases.setup]
+nixPkgs = ["...", "jdk21_headless"]
