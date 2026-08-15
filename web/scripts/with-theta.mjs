@@ -70,8 +70,20 @@ function shutdown() {
 /** Apagar + soltar candado. Se usa en TODAS las salidas: si el candado no se suelta, el
  *  siguiente servicio se queda esperando hasta que expire el TTL. */
 async function cerrar() { shutdown(); await soltarCandado(); }
-process.on("SIGINT", async () => { await cerrar(); process.exit(130); });
-process.on("SIGTERM", async () => { await cerrar(); process.exit(143); });
+// SI RAILWAY MATA EL CONTENEDOR, QUE SE SEPA. El 2026-08-15 un push mío disparó un despliegue
+// nuevo mientras la Wheel llevaba 12 minutos corriendo; Railway paró el contenedor a mitad
+// ("Stopping Container", 5 de 12 tickers) y la corrida no dejó ni rastro: sin latido, sin
+// operaciones, y desde fuera parecía que el servicio no había hecho nada. Ahora deja dicho que
+// lo pararon, que es información muy distinta de "falló" o de "no corrió".
+async function avisarParada(señal) {
+  try {
+    const { escribirLatidoDirecto } = await import("../lib/origenEjecucion.ts");
+    await escribirLatidoDirecto(process.env.LATIDO_SERVICIO || "with-theta",
+      `PARADO por ${señal} a mitad de corrida (Railway detuvo el contenedor: ¿despliegue nuevo?)`);
+  } catch { /* nos vamos igual */ }
+}
+process.on("SIGINT", async () => { await avisarParada("SIGINT"); await cerrar(); process.exit(130); });
+process.on("SIGTERM", async () => { await avisarParada("SIGTERM"); await cerrar(); process.exit(143); });
 
 // ── CANDADO: UNA SOLA SESIÓN DE THETADATA EN TODO EL PROYECTO ───────────────
 //
@@ -88,7 +100,10 @@ process.on("SIGTERM", async () => { await cerrar(); process.exit(143); });
 // un servicio que muera sin soltar no deje a los demás bloqueados para siempre.
 const LOCK_KEY = process.env.THETA_LOCK_KEY || "lock:theta";
 const LOCK_TTL = Number(process.env.THETA_LOCK_TTL || 1800);     // 30 min: más que cualquier job
-const LOCK_ESPERA = Number(process.env.THETA_LOCK_ESPERA || 600); // esperar hasta 10 min al otro
+// Esperar TANTO como pueda durar la corrida del otro, no menos: el Credit Spread tarda ~18 min y
+// la Wheel arranca 30 min después. Si un día el primero se pasa de 30, el segundo tiene que
+// aguantar, no rendirse. Se iguala al TTL del candado: así siempre acaba pudiendo entrar.
+const LOCK_ESPERA = Number(process.env.THETA_LOCK_ESPERA || 1800);
 const QUIEN = `${process.env.RAILWAY_SERVICE_NAME || "local"}:${process.pid}`;
 
 let _lockCli = null;
