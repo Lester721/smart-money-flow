@@ -5,7 +5,7 @@
 // un error real del proyecto.
 
 import { describe, it, expect } from "vitest";
-import { pasarBarrera, listonT, comprobarDescarte, type FilaHallazgo } from "./barreraHallazgos";
+import { pasarBarrera, listonT, comprobarDescarte, potencia, type FilaHallazgo } from "./barreraHallazgos";
 
 /** Genera filas con una separación controlada entre el tercio alto y el bajo por criterio. */
 function filas(opciones: {
@@ -101,5 +101,29 @@ describe("un filtro que descarta casi todo es un bug (el caso de r.symbol)", () 
   });
   it("deja pasar un descarte normal", () => {
     expect(() => comprobarDescarte(1000, 800, "sin bid/ask")).not.toThrow();
+  });
+});
+
+describe("el lado negativo también se criba (escepticismo simétrico)", () => {
+  const fs = (n: number, ruido: number): FilaHallazgo[] =>
+    Array.from({ length: n }, (_, i) => ({
+      pnl: (((i * 2654435761) % 1000) / 1000 - 0.5) * ruido,
+      ticker: ["A", "B", "C", "D"][i % 4],
+      fecha: `2025-0${(i % 9) + 1}-15`,
+    }));
+
+  it("un 'no funciona' con muestra pequeña NO es concluyente", () => {
+    const p = potencia(fs(60, 0.4), 0.02);      // busco un 2% con mucho ruido y poca muestra
+    expect(p.concluyente).toBe(false);
+    expect(p.mensaje).toMatch(/no lo pudimos ver.*NO.*no existe/i);
+  });
+
+  it("con muestra grande y poco ruido, un negativo SÍ concluye", () => {
+    const p = potencia(fs(6000, 0.05), 0.02);
+    expect(p.concluyente).toBe(true);
+  });
+
+  it("la separación detectable encoge al crecer la muestra", () => {
+    expect(potencia(fs(6000, 0.2), 0.02).detectable).toBeLessThan(potencia(fs(200, 0.2), 0.02).detectable);
   });
 });

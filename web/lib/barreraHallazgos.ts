@@ -173,6 +173,41 @@ export function pasarBarrera(
 }
 
 /**
+ * ¿TENÍA FUERZA LA PRUEBA PARA DETECTAR ALGO? — la criba que le faltaba al lado negativo.
+ *
+ * Lester, 2026-08-15: *"pareces emocionado por destrozar a EVA, sin embargo deberías estar
+ * emocionado por que pase"*. Tiene razón, y debajo del tono hay un fallo de método mío:
+ *
+ * **Estaba aplicando cuatro cribas a los resultados POSITIVOS y ninguna a los NEGATIVOS.**
+ * Eso es escepticismo asimétrico, y empuja sistemáticamente a no encontrar nunca nada. Un
+ * "no funciona" con muestra pequeña o ruido alto no significa que no haya efecto: significa que
+ * **la prueba no podía verlo**. Y eso no es una conclusión, es una prueba mal dimensionada.
+ *
+ * Devuelve la separación mínima que la muestra podría haber detectado (potencia ~80%). Si el
+ * efecto que se buscaba es más pequeño que eso, el "no hay nada" NO vale.
+ *
+ * @returns `detectable` = separación mínima detectable · `concluyente` = si un negativo se puede
+ *          reportar como "no hay efecto" o sólo como "no lo pudimos ver"
+ */
+export function potencia(filas: FilaHallazgo[], efectoQueImporta: number): {
+  detectable: number; concluyente: boolean; mensaje: string;
+} {
+  const pnls = filas.map((f) => f.pnl);
+  const k = Math.floor(filas.length / 3);
+  if (k < 3) return { detectable: Infinity, concluyente: false, mensaje: "muestra insuficiente para calcular la potencia" };
+  const sd = Math.sqrt(varianza(pnls));
+  // Separación mínima detectable con α=0,05 y potencia 80%: (1,96 + 0,84) × EE de la diferencia.
+  const detectable = 2.8 * sd * Math.sqrt(2 / k);
+  const concluyente = detectable <= Math.abs(efectoQueImporta);
+  return {
+    detectable, concluyente,
+    mensaje: concluyente
+      ? `con n=${filas.length} se podía detectar una separación de ${(detectable * 100).toFixed(2)}%, así que un negativo SÍ es concluyente frente a un efecto de ${(efectoQueImporta * 100).toFixed(2)}%`
+      : `con n=${filas.length} sólo se detectaría una separación de ${(detectable * 100).toFixed(2)}%, MAYOR que el efecto de ${(efectoQueImporta * 100).toFixed(2)}% que se busca — un "no funciona" aquí significa "no lo pudimos ver", NO "no existe". Hace falta más muestra antes de descartar.`,
+  };
+}
+
+/**
  * UN FILTRO QUE DESCARTA CASI TODO ES UN BUG, NO UN RESULTADO. Lanza excepción.
  *
  * De dónde sale: el 2026-08-13 puse en el backtest de EVA la línea correcta

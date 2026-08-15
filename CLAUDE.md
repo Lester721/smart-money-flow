@@ -421,6 +421,23 @@ falla el test.
 - **Él no tiene que saber de estadística ni de backtesting.** Ese es mi trabajo. Cuando le paso un
   número sin haberlo cribado, le fallo en lo único que no puede verificar por su cuenta.
 
+## 6. El escepticismo va en las DOS direcciones
+
+Estaba aplicando cuatro cribas a los resultados **positivos** y ninguna a los **negativos**. Eso
+empuja sistemáticamente a no encontrar nunca nada: un "no funciona" con muestra pequeña o ruido
+alto no significa que no haya efecto, significa que **la prueba no podía verlo**.
+
+**Guardián:** `potencia()` en `web/lib/barreraHallazgos.ts`. Antes de reportar un negativo, calcula
+la separación mínima que esa muestra podía detectar. Si el efecto que se busca es más pequeño que
+eso, el resultado se reporta como **"no lo pudimos ver"**, nunca como "no existe".
+
+Lester, 2026-08-15: *"pareces emocionado por destrozar a EVA, sin embargo deberías estar emocionado
+por que pase. Si pasa, si nos da una ventaja en el mercado, es el éxito de los dos"*.
+
+**El rigor es el MÉTODO, no el objetivo.** El objetivo es encontrar algo que funcione, y ser
+riguroso es lo que hace que un hallazgo real sea fiable — no una forma de lucirse tumbando cosas.
+Ya me lo había dicho una vez ("estoy por empezarte a llamar nube negra") y volví a lo mismo.
+
 ---
 
 # 🔬 CUÁNDO SUBIR A ULTRACODE
