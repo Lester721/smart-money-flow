@@ -103,15 +103,32 @@ for (const k of claves) {
   const atras = ultimo ? Math.round((Date.parse(hoyET()) - Date.parse(ultimo)) / 86_400_000) : null;
   if (atras != null && atras > 4) { console.log(`      ⚠ la última operación es de hace ${atras} días`); avisos++; }
 
-  // El campo `origen` se añadió el 2026-08-13. Lo anterior no lo lleva y NO es un fallo: es
-  // historia. Avisar de lo mismo todos los días enseña a ignorar el contador — y un contador
-  // que se ignora no sirve para nada.
-  const nuevasSinFirma = v.filter((o) => (o.dia ?? o.entryDate ?? "") > DESDE_ORIGEN && !o.origen).length;
-  const viejasSinFirma = (orig["SIN ORIGEN"] ?? 0) - nuevasSinFirma;
-  if (viejasSinFirma > 0) console.log(`      ${viejasSinFirma} anteriores al ${DESDE_ORIGEN} (el campo no existía)`);
-  if (nuevasSinFirma > 0) {
-    console.log(`      ⚠ ${nuevasSinFirma} operaciones POSTERIORES al ${DESDE_ORIGEN} sin firmar` +
-                ` → ese servicio corría un despliegue viejo cuando las escribió`);
+  // ¿QUÉ ES HISTORIA Y QUÉ ES UN FALLO DE VERDAD?
+  //
+  // Una fecha fija no vale. Las 7 operaciones que la Wheel escribió el 2026-08-14 no llevan
+  // firma porque su contenedor corría un despliegue anterior al campo — es un hecho pasado que
+  // ya NO se puede cambiar, y avisar de ello todos los días para siempre convierte el contador
+  // en ruido. Pero tampoco se pueden ignorar sin más: mientras el servicio siga sin firmar,
+  // sigue siendo un problema vivo.
+  //
+  // La frontera se calcula sola: la PRIMERA operación firmada de este ledger. Todo lo anterior
+  // es historia (el servicio aún no tenía el código); todo lo posterior sin firmar es un fallo
+  // real y actual. En cuanto el servicio corra con el código nuevo, el aviso se apaga solo y sin
+  // que nadie toque un dato.
+  const firmadas = v.filter((o) => o.origen).map((o) => o.dia ?? o.entryDate ?? "").filter(Boolean).sort();
+  const frontera = firmadas[0] ?? null;
+  const sinFirma = v.filter((o) => !o.origen);
+  const posteriores = frontera ? sinFirma.filter((o) => (o.dia ?? o.entryDate ?? "") > frontera).length : 0;
+  const historicas = sinFirma.length - posteriores;
+  if (historicas > 0) {
+    console.log(`      ${historicas} sin firmar, ` + (frontera
+      ? `anteriores a la primera firmada (${frontera}): historia, no se pueden arreglar`
+      : `y este servicio NUNCA ha firmado ninguna → todavía no ha corrido con el código nuevo`));
+    if (!frontera) avisos++;
+  }
+  if (posteriores > 0) {
+    console.log(`      ⚠ ${posteriores} operaciones sin firmar POSTERIORES a una que sí lo está` +
+                ` → el servicio dejó de firmar, eso es un fallo vivo`);
     avisos++;
   }
 }
