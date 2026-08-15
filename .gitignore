@@ -42,3 +42,6 @@ web/data/respaldos/
 
 # Offset de mensajes leídos de Telegram (estado local, no código)
 web/data/telegram-offset.json
+
+# Bitácora de mensajes de Telegram (datos, no código)
+web/data/telegram-mensajes.jsonl

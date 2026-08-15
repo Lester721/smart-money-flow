@@ -13,7 +13,7 @@
 // El offset de los mensajes ya leídos se guarda en data/telegram-offset.json para no releer lo
 // mismo dos veces. NUNCA se imprime el token.
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, appendFileSync } from "node:fs";
 import { dirname } from "node:path";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -22,8 +22,26 @@ if (!TOKEN || !CHAT) { console.error("Faltan TELEGRAM_BOT_TOKEN o TELEGRAM_CHAT_
 
 const API = `https://api.telegram.org/bot${TOKEN}`;
 const OFFSET = "data/telegram-offset.json";
+// TODO MENSAJE SE GUARDA EN DISCO AL LLEGAR, ANTES DE HACER NADA MÁS.
+//
+// El 2026-08-15 perdí varios mensajes de Lester y no se pudieron recuperar. La causa: había
+// lanzado un escucha con la salida redirigida a la basura; el proceso SÍ consumía los mensajes
+// —y con eso Telegram los borra de su servidor para siempre— pero los imprimía en un sitio que
+// nadie miraba. Un mensaje suyo no puede depender de que yo esté mirando la consola correcta.
+//
+// Con esto, aunque el proceso muera, esté en segundo plano o tenga la salida perdida, el mensaje
+// queda escrito. Se lee con --historial.
+const BITACORA = "data/telegram-mensajes.jsonl";
 const arg = (n) => { const i = process.argv.indexOf(n); return i > 0 ? process.argv[i + 1] : null; };
 const bandera = (n) => process.argv.includes(n);
+
+/** Deja el mensaje escrito en disco ANTES de procesarlo. Nunca lanza. */
+function anotar(m, cuando) {
+  try {
+    if (!existsSync(dirname(BITACORA))) mkdirSync(dirname(BITACORA), { recursive: true });
+    appendFileSync(BITACORA, JSON.stringify({ cuando, texto: m.text, id: m.message_id }) + "\n", "utf8");
+  } catch { /* si ni esto se puede, al menos sale por consola */ }
+}
 
 const leerOffset = () => { try { return JSON.parse(readFileSync(OFFSET, "utf8")).offset ?? 0; } catch { return 0; } };
 const guardarOffset = (o) => {
@@ -73,8 +91,13 @@ async function esperar(minutos) {
       const m = u.message;
       if (!m?.text) continue;
       if (String(m.chat?.id) !== String(CHAT)) continue;      // sólo el chat de Lester
-      guardarOffset(offset);
       const cuando = new Date(m.date * 1000).toLocaleString("sv-SE", { timeZone: "America/New_York" }).slice(0, 16);
+      // A DISCO PRIMERO, ANTES DE CONFIRMARLE NADA A TELEGRAM. En cuanto se guarda el offset,
+      // Telegram BORRA el mensaje de su servidor: si el proceso muriera entre una cosa y la otra,
+      // el mensaje se perdería para siempre. Anotar antes cuesta un milisegundo y lo hace
+      // irrecuperable sólo si falla el disco.
+      anotar(m, cuando);
+      guardarOffset(offset);
       console.log(`\n📩 MENSAJE DE LESTER (${cuando} ET):`);
       console.log(m.text);
       process.exit(0);
@@ -94,6 +117,7 @@ async function leer() {
   for (const u of mios) {
     const m = u.message;
     const cuando = new Date(m.date * 1000).toLocaleString("sv-SE", { timeZone: "America/New_York" }).slice(0, 16);
+    anotar(m, cuando);
     console.log(`📩 ${cuando} ET: ${m.text}`);
     offset = u.update_id + 1;
   }
@@ -105,5 +129,13 @@ try {
   else if (bandera("--leer")) await leer();
   else if (bandera("--enviar-fichero")) await enviar(readFileSync(arg("--enviar-fichero"), "utf8"));
   else if (bandera("--enviar")) await enviar(arg("--enviar"));
-  else { console.error("Usa --enviar, --enviar-fichero, --esperar o --leer"); process.exit(1); }
+  else if (bandera("--historial")) {
+    // Todo lo que ha llegado alguna vez, aunque el proceso que lo recibió muriera.
+    const n = Number(arg("--historial") || 15);
+    try {
+      const l = readFileSync(BITACORA, "utf8").trim().split("\n").slice(-n);
+      for (const x of l) { const m = JSON.parse(x); console.log(`📩 ${m.cuando} ET: ${m.texto}`); }
+    } catch { console.log("(la bitácora está vacía)"); }
+  }
+  else { console.error("Usa --enviar, --enviar-fichero, --esperar, --leer o --historial"); process.exit(1); }
 } catch (e) { console.error(`✗ ${e.message}`); process.exit(1); }
