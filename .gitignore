@@ -39,3 +39,6 @@ web/scripts/eva-*.json
 
 # Respaldos de Redis (datos, no código)
 web/data/respaldos/
+
+# Offset de mensajes leídos de Telegram (estado local, no código)
+web/data/telegram-offset.json
