@@ -33,3 +33,6 @@ next-env.d.ts
 
 # --- artefactos internos del agente (planes/briefs/reports de desarrollo) ---
 .superpowers/
+
+# Salidas de mediciones (megas de datos, se regeneran)
+web/scripts/eva-*.json
