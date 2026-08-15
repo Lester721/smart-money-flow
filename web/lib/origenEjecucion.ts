@@ -16,8 +16,24 @@
 
 export type Origen = "railway" | "local";
 
+// ⚠ NO VALE "cualquier variable que empiece por RAILWAY_". Eso se rompió el 2026-08-15, el día
+// que metí `RAILWAY_TOKEN` en el .env.local del portátil para poder consultar la API: a partir de
+// ese momento TODAS mis pruebas locales se firmaban como "railway", que es exactamente lo
+// contrario de para lo que existe este campo. Lo pillé porque corrí el script a mano y miré el
+// latido; si no, cada prueba mía habría tapado un fallo del servicio de verdad.
+//
+// Se comprueban las variables que Railway INYECTA EN EL CONTENEDOR y que no tienen ningún motivo
+// para estar en un portátil. Un token de API no es una de ellas: es una credencial que uno pega.
+const MARCAS_DE_CONTENEDOR = [
+  "RAILWAY_SERVICE_ID",
+  "RAILWAY_DEPLOYMENT_ID",
+  "RAILWAY_ENVIRONMENT_ID",
+  "RAILWAY_PROJECT_ID",
+  "RAILWAY_REPLICA_ID",
+];
+
 export function origenEjecucion(): Origen {
-  return Object.keys(process.env).some((k) => k.startsWith("RAILWAY_")) ? "railway" : "local";
+  return MARCAS_DE_CONTENEDOR.some((k) => process.env[k]) ? "railway" : "local";
 }
 
 /** Etiqueta completa: origen + servicio, para el caso de que Railway corra varios. */

@@ -39,6 +39,10 @@ for (const campo of ["servicio", "origen", "commit", "cuandoISO", "cuandoET", "r
   ok(`tiene el campo "${campo}"`, L[campo] != null && L[campo] !== "", String(L[campo]).slice(0, 24));
 ok("cuandoISO es una fecha parseable", Number.isFinite(Date.parse(L.cuandoISO)));
 ok("origen coincide con el entorno", L.origen === origenEjecucion(), L.origen);
+// EL FALLO DEL 2026-08-15: `RAILWAY_TOKEN` en el .env.local del portátil hacía que todo lo local
+// se firmara como "railway". Un token es una credencial que uno pega, no una marca de contenedor.
+ok("aquí, en el portátil, el origen es LOCAL", origenEjecucion() === "local",
+   `RAILWAY_TOKEN ${process.env.RAILWAY_TOKEN ? "SÍ" : "no"} está en el entorno`);
 ok("commit coincide con versionEjecucion()", L.commit === versionEjecucion(), L.commit);
 
 // ── 2. se escribe y se lee de Redis de verdad ───────────────────────────────
