@@ -274,6 +274,125 @@ export async function fetchDailyUnderlying(symbolRaw: string, startYmd: string, 
   return out;
 }
 
+/**
+ * BARRAS DIARIAS COMPLETAS — el sustituto de `fetchDailyBars` de Massive.
+ *
+ * `fetchDailyUnderlying` (arriba) sólo devuelve el CIERRE, y eso es una trampa para quien lo use
+ * como reemplazo: Massive devuelve `{time, close, high, low}` y varios cálculos de la web usan el
+ * máximo y el mínimo (los toques de umbral en validation, el patrón histórico en ideas). Portarlo
+ * sin ellos habría dado 200 con números plausibles y CONCLUSIONES DISTINTAS, sin un solo error.
+ *
+ * Comprobado el 2026-08-15 pidiéndole la cabecera al Terminal, no suponiéndolo: el endpoint
+ * `/v3/stock/history/eod` devuelve `open, high, low, close, volume` — el dato estaba ahí desde
+ * el principio, sólo que no se leía.
+ *
+ * Si una fila no trae máximo o mínimo, se deja el CIERRE en su lugar y se marca `aproximada`.
+ * Quien lo consuma puede así distinguir un rango real de uno rellenado, en vez de comerse un
+ * número que parece un máximo y no lo es.
+ */
+export interface BarraDiaria {
+  time: string;            // YYYY-MM-DD
+  open: number; high: number; low: number; close: number; volume: number;
+  aproximada?: true;       // sin máximo/mínimo reales: se usó el cierre
+}
+
+export async function fetchBarrasDiarias(
+  symbolRaw: string, startYmd: string, endYmd: string,
+): Promise<BarraDiaria[]> {
+  const out: BarraDiaria[] = [];
+  const { symbol, esIndice } = resolverSubyacente(symbolRaw);
+  const ruta = esIndice ? "index" : "stock";
+  // Nunca pedir hasta HOY: sin tiempo real, la petición entera devuelve 400 y se pierde el rango.
+  const finReal = endYmd > ultimoDiaServible() ? ultimoDiaServible() : endYmd;
+  for (const seg of segmentosPorSimbolo(symbol, startYmd, finReal))
+  for (const [cs, ce] of monthChunks(seg.start, seg.end)) {
+    const csv = await getCsv(`/v3/${ruta}/history/eod?symbol=${seg.symbol}&start_date=${cs}&end_date=${ce}`);
+    if (!csv) continue;
+    const iC = idx(csv.header, "close");
+    const iT = idx(csv.header, "last_trade") >= 0 ? idx(csv.header, "last_trade") : idx(csv.header, "created");
+    if (iC < 0 || iT < 0) continue;
+    const iO = idx(csv.header, "open"), iH = idx(csv.header, "high");
+    const iL = idx(csv.header, "low"), iV = idx(csv.header, "volume");
+    for (const r of csv.rows) {
+      const close = Number(r[iC]);
+      const day = (r[iT] || "").slice(0, 10);
+      if (!day || !(close > 0)) continue;
+      const high = iH >= 0 ? Number(r[iH]) : NaN;
+      const low = iL >= 0 ? Number(r[iL]) : NaN;
+      const falta = !(high > 0) || !(low > 0);
+      out.push({
+        time: day,
+        open: iO >= 0 && Number(r[iO]) > 0 ? Number(r[iO]) : close,
+        high: falta ? close : high,
+        low: falta ? close : low,
+        close,
+        volume: iV >= 0 ? Number(r[iV]) || 0 : 0,
+        ...(falta ? { aproximada: true as const } : {}),
+      });
+    }
+  }
+  out.sort((a, b) => a.time.localeCompare(b.time));
+  return out;
+}
+
+/**
+ * BARRAS INTRADÍA — el sustituto de `fetchBars` de Massive (las velas de 5 min de la web).
+ *
+ * Devuelve el MISMO shape que Massive: `{time (segundos epoch), open, high, low, close}`, para
+ * que la ruta y el componente que las pinta no noten el cambio.
+ *
+ * Comprobado contra el Terminal el 2026-08-15: `/v3/stock/history/ohlc` con `interval` devuelve
+ * `timestamp, open, high, low, close, volume, count, vwap` — 80 velas de 5 min en un día.
+ * (Sin `interval` el endpoint responde 400: "Bulk history requests are limited to intervals of at
+ * least 1 minute". No es un fallo, es que hay que pedirlo.)
+ */
+/**
+ * EL ÚLTIMO DÍA QUE LA SUSCRIPCIÓN PUEDE SERVIR.
+ *
+ * La suscripción Stocks VALUE no incluye tiempo real: pedir un rango que llegue a HOY devuelve
+ * `HTTP 400 · "Real time data unavailable with current stock subscription"`. Y como el lector de
+ * CSV traga los errores devolviendo null, el resultado eran CERO barras — y la ruta respondiendo
+ * 200 con `bars: []`. Otro vacío silencioso: el gráfico en blanco y nadie enterándose.
+ *
+ * Se corta en AYER. Un día de menos es mucho mejor que un gráfico vacío sin explicación.
+ */
+function ultimoDiaServible(): string {
+  return new Date(Date.now() - 86_400_000).toISOString().slice(0, 10).replace(/-/g, "");
+}
+
+export async function fetchBarrasIntradia(
+  symbolRaw: string, minutos: number, dias: number,
+): Promise<{ time: number; open: number; high: number; low: number; close: number }[]> {
+  const { symbol, esIndice } = resolverSubyacente(symbolRaw);
+  const ruta = esIndice ? "index" : "stock";
+  const ymd = (ms: number) => new Date(ms).toISOString().slice(0, 10).replace(/-/g, "");
+  const finYmd = ultimoDiaServible();
+  const ini = Date.now() - dias * 86_400_000;
+  const out: { time: number; open: number; high: number; low: number; close: number }[] = [];
+
+  for (const seg of segmentosPorSimbolo(symbol, ymd(ini), finYmd)) {
+    const csv = await getCsv(
+      `/v3/${ruta}/history/ohlc?symbol=${seg.symbol}&start_date=${seg.start}&end_date=${seg.end}&interval=${minutos}m`,
+    );
+    if (!csv) continue;
+    const iT = idx(csv.header, "timestamp");
+    const iO = idx(csv.header, "open"), iH = idx(csv.header, "high");
+    const iL = idx(csv.header, "low"), iC = idx(csv.header, "close");
+    if (iT < 0 || iO < 0 || iH < 0 || iL < 0 || iC < 0) continue;   // sin las 5, no se inventa
+    for (const r of csv.rows) {
+      const ms = Date.parse(`${r[iT]}Z`);
+      const close = Number(r[iC]);
+      if (!Number.isFinite(ms) || !(close > 0)) continue;
+      out.push({
+        time: Math.floor(ms / 1000),
+        open: Number(r[iO]), high: Number(r[iH]), low: Number(r[iL]), close,
+      });
+    }
+  }
+  out.sort((a, b) => a.time - b.time);
+  return out;
+}
+
 // ── Subyacente DIARIO derivado de OPCIONES (sin suscripción de acciones) ────────────────────
 // La suscripción Stocks VALUE solo sirve precios desde 2021-01, pero las OPCIONES llegan a
 // 2016. Como el precio del subyacente es lo único que falta para probar el crash del COVID,

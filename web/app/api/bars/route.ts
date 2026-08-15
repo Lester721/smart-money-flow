@@ -1,6 +1,9 @@
 // GET /api/bars?ticker=XXX&tf=1y|15m10d|5m5d — barras del subyacente para la gráfica de flujo.
 
-import { fetchBars, MassiveError } from "@/lib/massive";
+import { MassiveError } from "@/lib/massive";
+// POR EL CONMUTADOR. Antes llamaba a Massive a pelo: sin la clave devolvía 200 con `bars: []`,
+// que desde fuera parece que funciona mientras el gráfico se queda en blanco.
+import { fetchBars } from "@/lib/flowProvider";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

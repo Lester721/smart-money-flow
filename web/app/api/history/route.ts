@@ -1,6 +1,11 @@
 // GET /api/history?ticker=XXX — barras diarias del subyacente para la gráfica.
 
-import { fetchDailyBars, MassiveError } from "@/lib/massive";
+import { MassiveError } from "@/lib/massive";
+// POR EL CONMUTADOR, NO POR MASSIVE DIRECTAMENTE. Con DATA_PROVIDER=theta esto sirve barras de
+// ThetaData con máximo y mínimo reales; con "massive" se comporta igual que siempre. Antes esta
+// ruta llamaba a Massive a pelo: sin la clave devolvía 200 con `bars: []`, o sea que desde fuera
+// parecía funcionar mientras la web se quedaba sin datos. Un vacío silencioso.
+import { fetchDailyBars } from "@/lib/flowProvider";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
