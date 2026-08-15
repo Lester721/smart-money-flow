@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { pedirGex, distanciaPct, fiabilidadMuro, type DatosGex } from "@/lib/gexCliente";
+import Info from "./Info";
 
 // PANEL DE DECISIÓN — los números que hay que cruzar para decidir, juntos y en el mismo sitio.
 //
@@ -152,10 +153,37 @@ export default function PanelDecision() {
           border: `1px solid ${cuadra ? "rgba(18,183,106,.35)" : "rgba(240,68,56,.35)"}`,
           background: cuadra ? "rgba(18,183,106,.07)" : "rgba(240,68,56,.07)",
         }}>
-          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>
-            {cuadra
+          <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 6, display: "flex", alignItems: "center", gap: 2 }}>
+            <span>{cuadra
               ? "Los números cuadran: los muros aguantan más de lo que hace falta para empatar."
-              : "Los números NO cuadran: hace falta acertar más de lo que aguantan los muros."}
+              : "Los números NO cuadran: hace falta acertar más de lo que aguantan los muros."}</span>
+            <Info titulo="La cuenta que descarta operaciones en un vistazo" ancho={470}>
+              <p style={{ margin: "0 0 9px" }}>
+                <b>Acierto necesario para empatar = riesgo ÷ (riesgo + crédito).</b>
+              </p>
+              <p style={{ margin: "0 0 9px", fontFamily: "ui-monospace, Menlo, monospace", fontSize: 13 }}>
+                {s.riesgoMax} ÷ ({s.riesgoMax} + {s.credito}) = <b>{empate.toFixed(1)}%</b>
+              </p>
+              <p style={{ margin: "0 0 9px" }}>
+                Cobras <b>${s.credito}</b> y arriesgas <b>${s.riesgoMax}</b>: uno a{" "}
+                <b>{ratio.toFixed(0)}</b>. Como pierdes {ratio.toFixed(0)} veces más de lo que ganas,
+                tienes que acertar <b>{empate.toFixed(1)}%</b> de las veces sólo para quedarte igual.
+              </p>
+              {peorMuro && (
+                <p style={{ margin: "0 0 9px" }}>
+                  Y la pared en la que te apoyas —el muro más flojo— aguanta el{" "}
+                  <b style={{ color: COLOR_NIVEL[peorMuro.nivel] }}>{peorMuro.pct}%</b>.{" "}
+                  {cuadra
+                    ? <>Aguanta más de lo que hace falta: <b>los números cuadran</b>.</>
+                    : <>Hace falta más de lo que aguanta: <b>no cuadra</b>. No significa que vaya a salir mal — significa que hoy no te pagan lo suficiente por esa pared.</>}
+                </p>
+              )}
+              <p style={{ margin: 0, fontSize: 12, color: C.tenue }}>
+                El <b>{peorMuro?.pct}%</b> sale de 652 días medidos según la <b>distancia</b> del muro
+                al precio: pegado (menos del 0,3%) aguanta el 61%; a partir del 0,6%, el 92%. Lo que
+                decide no es lo alto que sea el muro, es lo lejos que esté.
+              </p>
+            </Info>
           </div>
           <div style={{ display: "flex", gap: 20, flexWrap: "wrap", fontSize: 13 }}>
             <span>arriesgas <b>${s.riesgoMax}</b> para ganar <b>${s.credito}</b> · <b>1 a {ratio.toFixed(0)}</b></span>

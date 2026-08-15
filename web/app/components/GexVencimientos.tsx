@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Info from "./Info";
 
 // GEX POR VENCIMIENTO — la vista "Trading Session" de MarketSnack, con lo que ellos no ponen.
 //
@@ -54,7 +55,42 @@ export default function GexVencimientos() {
     <div className="card">
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
         <div>
-          <div style={{ fontSize: 17, fontWeight: 700 }}>¿En qué vencimiento está la gamma?</div>
+          <div style={{ fontSize: 17, fontWeight: 700, display: "flex", alignItems: "center" }}>
+            ¿En qué vencimiento está la gamma?
+            <Info titulo="De dónde sale el porcentaje" ancho={480}>
+              {d?.ok && d.vencimientos ? (() => {
+                const filas = d.vencimientos;
+                const suma = (v: typeof filas[number]) => Math.abs(v.gexCalls) + Math.abs(v.gexPuts);
+                const total = filas.reduce((a, v) => a + suma(v), 0);
+                const dom = filas.reduce((a, v) => (suma(v) > suma(a) ? v : a), filas[0]);
+                return (
+                  <>
+                    <p style={{ margin: "0 0 9px" }}>
+                      <b>El peso de cada vencimiento = su gamma ÷ la suma de los {filas.length}.</b>{" "}
+                      Ahora mismo el del <b>{dom.exp}</b> suma{" "}
+                      <b>${(suma(dom) / 1000).toFixed(1)}B</b> de un total de{" "}
+                      <b>${(total / 1000).toFixed(1)}B</b> → <b>{dom.peso}%</b>.
+                    </p>
+                    <p style={{ margin: "0 0 9px" }}>
+                      Se suman <b>calls y puts en valor absoluto</b>, no el neto: un vencimiento con
+                      mucha gamma repartida a los dos lados manda aunque su neto sea casi cero, porque
+                      hay mucho que cubrir igualmente.
+                    </p>
+                    <p style={{ margin: "0 0 9px" }}>
+                      <b>Lo que NO es:</b> estos {filas.length} son los vencimientos <b>más cercanos</b>,
+                      no todo el mercado. Hay opciones de SPX a meses vista que no entran aquí. El
+                      porcentaje significa «de la gamma de los próximos días».
+                    </p>
+                    <p style={{ margin: 0, fontSize: 12, color: C.tenue }}>
+                      <b>Por qué importa:</b> está medido que la gamma aprieta el doble a 1 día que a
+                      10. Si el peso no está en el 0DTE, el freno de hoy es más flojo de lo que
+                      sugiere el número agregado — y el cóndor 0DTE se apoya justo en ese freno.
+                    </p>
+                  </>
+                );
+              })() : <p style={{ margin: 0 }}>Sin datos del Terminal: no hay porcentajes que explicar.</p>}
+            </Info>
+          </div>
           <div className="card-sub" style={{ maxWidth: 620 }}>
             El mismo GEX de arriba, pero repartido. Arriba se ve <em>cuánta</em> hay; aquí, <em>dónde</em> está.
           </div>

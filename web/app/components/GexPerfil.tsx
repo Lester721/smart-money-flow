@@ -16,7 +16,7 @@ import Info from "./Info";
 // Comparte la petición con los demás paneles vía `lib/gexCliente`: una sola llamada para todos.
 
 const C = {
-  rojo: "#F04438", verde: "#12B76A", azul: "#3B82F6", ambar: "#F79009",
+  rojo: "#F04438", verde: "#12B76A", azul: "#3B82F6", ambar: "#F79009", violeta: "#A855F7",
   tenue: "rgba(148,163,184,.75)",
 };
 const M = (x: number) => (Math.abs(x) >= 1000 ? `${(x / 1000).toFixed(1)}B` : `${Math.round(x)}M`);
@@ -102,6 +102,24 @@ export default function GexPerfil() {
               <b>La barra grande dice dónde hay fuerza; el color, si esa fuerza te frena o te empuja.</b>{" "}
               Verde (calls) amortigua · rojo (puts) amplifica.
             </p>
+            {mand && (
+              <p style={{ margin: "0 0 9px", paddingTop: 8, borderTop: "1px solid rgba(148,163,184,.18)" }}>
+                <b style={{ color: C.violeta }}>Las tres líneas del gráfico</b><br />
+                <span style={{ color: C.violeta }}>◆</span>{" "}
+                <b>{mand.imán ? "IMÁN" : "ACELERADOR"} {mand.strike.toLocaleString("es-ES")}</b> — el
+                strike con más gamma de todo el gráfico, el que acabas de leer arriba.{" "}
+                {mand.imán
+                  ? "Ahí el precio tiende a quedarse pegado."
+                  : "Ahí el precio tiende a pasar de largo y más rápido."}<br />
+                <span style={{ color: C.azul }}>—</span> <b>SPX</b> — dónde está el precio ahora.{" "}
+                {Math.abs(mand.strike - U) / U < 0.003
+                  ? <>Está <b>pegado</b> al {mand.imán ? "imán" : "acelerador"} ({((Math.abs(mand.strike - U) / U) * 100).toFixed(2)}%): la fuerza es enorme, pero tan cerca que no sirve de apoyo para vender un rango.</>
+                  : <>Está a <b>{((Math.abs(mand.strike - U) / U) * 100).toFixed(2)}%</b> del {mand.imán ? "imán" : "acelerador"}.</>}<br />
+                <span style={{ color: C.ambar }}>┄</span> <b>Gamma Flip</b> — el precio donde el GEX
+                neto cambiaría de signo. Por encima, el mercado tiene freno; por debajo, acelerador.
+                {d.giro == null && <> Hoy no aparece: la gamma es del mismo signo en todo el rango visible.</>}
+              </p>
+            )}
             <p style={{ margin: 0, fontSize: 12, color: C.tenue }}>
               Los strikes de <b>millones</b> son ruido; los de <b>miles de millones</b> son donde
               pasa algo — la gamma es máxima donde está el precio y se desploma al alejarse.
@@ -135,9 +153,13 @@ export default function GexPerfil() {
           const mC = d.muroCall === b.strike, mP = d.muroPut === b.strike;
           const esPrecio = b.strike === strikePrecio;
           const esGiro = d.giro != null && Math.abs(b.strike - d.giro) < 3;
+          const esImán = mand != null && b.strike === mand.strike;
           return (
             <div key={b.strike}>
               {esGiro && <Marca texto={`Gamma Flip ${d.giro?.toLocaleString("es-ES")}`} color={C.ambar} punteada izquierda />}
+              {/* La línea del IMÁN: el strike de mayor gamma total. Si ahí mandan los puts no es
+                  un imán sino un ACELERADOR, y la etiqueta lo dice — son efectos opuestos. */}
+              {esImán && <Marca texto={`${mand!.imán ? "◆ IMÁN" : "▲ ACELERADOR"} ${mand!.strike.toLocaleString("es-ES")}`} color={C.violeta} />}
               {esPrecio && <Marca texto={`SPX ${U.toLocaleString("es-ES", { minimumFractionDigits: 2 })}`} color={C.azul} />}
               <div style={{ display: "flex", alignItems: "center", gap: 8, height: 22 }}>
                 <div style={{ width: 66, textAlign: "right", fontSize: 12.5, color: C.tenue, fontVariantNumeric: "tabular-nums" }}>
