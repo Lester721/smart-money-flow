@@ -41,6 +41,13 @@ import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-
 // parado no miente; uno arreglado a medias, sí.
 //
 // Mientras tanto NO REGISTRA NADA. Su ledger de Redis se borró por contaminado.
+//
+// ⚠️ AL REACTIVARLO, hay que devolver el Terminal a `railway.ideas.json`:
+//        "startCommand": "node scripts/with-theta.mjs npm run forward-ideas"
+//    Se le quitó el 2026-08-15 porque, estando parado, levantaba un Theta Terminal entero para
+//    imprimir tres líneas y salir. Eso no sólo era ruido en los logs: **es una sesión más**, y
+//    ThetaData sólo admite UNA por cuenta — cada arranque podía tumbar la descarga que estuviera
+//    corriendo en local. Ver la memoria `thetadata-sesiones-chocan`.
 if (!process.env.IDEAS_ARREGLADO) {
   console.log("⛔ PARADO: valoraba con Black-Scholes, no con precios reales.");
   console.log("   Falta portar la valoración diaria a quoteCierre(). Ver la cabecera del archivo.");
