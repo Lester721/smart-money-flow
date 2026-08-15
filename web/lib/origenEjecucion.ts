@@ -51,8 +51,20 @@ export interface Latido {
   resultado: string;       // resumen de una línea: qué hizo esta corrida
 }
 
+/**
+ * Qué versión corre este contenedor. Se prueban varias variables porque NO está comprobado cuál
+ * inyecta Railway en un servicio de tipo cron — y si diera por hecha una que no existe, el
+ * comprobador avisaría todos los días de un problema inventado, que es peor que no avisar.
+ * Si ninguna está, devuelve "desconocido" y el comprobador lo dice como lo que es: no se sabe.
+ */
 export function versionEjecucion(): string {
-  return process.env.RAILWAY_GIT_COMMIT_SHA || process.env.GIT_COMMIT_SHA || "desconocido";
+  return (
+    process.env.RAILWAY_GIT_COMMIT_SHA ||
+    process.env.RAILWAY_DEPLOYMENT_ID ||
+    process.env.GIT_COMMIT_SHA ||
+    process.env.SOURCE_COMMIT ||
+    "desconocido"
+  );
 }
 
 export function construirLatido(servicio: string, resultado: string): Latido {

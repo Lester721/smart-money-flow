@@ -24,6 +24,9 @@ const DESDE_ORIGEN = "2026-08-13";   // el día que se añadió el campo `origen
 const hoyET = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
 const ahoraET = new Date().toLocaleString("sv-SE", { timeZone: "America/New_York" }).slice(0, 16);
 const corto = (c) => (c || "").slice(0, 8) || "?";
+/** ¿Es un SHA de git (40 hex) o el id de despliegue de Railway (un UUID)? Compararlos sería
+ *  fabricar un aviso falso todos los días. */
+const esSha = (c) => /^[0-9a-f]{40}$/i.test(String(c || ""));
 
 /** El commit que Railway DEBERÍA estar corriendo = la punta de main en el remoto. */
 function commitDeMain() {
@@ -55,7 +58,13 @@ if (!latidos.length) {
     if (L.origen !== "railway") {
       console.log(`                 ⚠ el último que corrió NO fue Railway, fue "${L.origen}"`); avisos++;
     } else if (L.commit === "desconocido") {
-      console.log(`                 ⚠ el contenedor no expone RAILWAY_GIT_COMMIT_SHA`); avisos++;
+      console.log(`                 ⚠ el contenedor no expone ninguna variable de versión`); avisos++;
+    } else if (!esSha(L.commit)) {
+      // NO es un SHA de git (será el id de despliegue de Railway). Compararlo con main daría
+      // "despliegue viejo" TODOS los días — un aviso inventado, que es peor que ninguno. Se
+      // enseña tal cual: si cambia, es que hubo un redespliegue, y eso ya dice bastante.
+      console.log(`                 · versión "${corto(L.commit)}" (no es un SHA de git: no se puede`);
+      console.log(`                   comparar con main, pero si cambia es que se redesplegó)`);
     } else if (COMMIT_MAIN && corto(L.commit) !== corto(COMMIT_MAIN)) {
       console.log(`                 ⚠ DESPLIEGUE VIEJO: corre ${corto(L.commit)}, main está en ` +
                   `${corto(COMMIT_MAIN)} → hay que redesplegar ese servicio`);

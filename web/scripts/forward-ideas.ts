@@ -17,6 +17,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname } from "node:path";
 import Redis from "ioredis";
+import { escribirLatido, escribirLatidoDirecto } from "../lib/origenEjecucion";
 import { loadMarketFlow, closeIdeasStore } from "../lib/ideasStore";
 import { classifyFlow, type FlowRow } from "../lib/flow";
 import { validationScore } from "../lib/validation";
@@ -105,7 +106,9 @@ async function loadLedger(): Promise<IdeaTrade[]> {
   return readJson(LEDGER);
 }
 async function persist(l: IdeaTrade[], report: string) {
-  if (STORE === "redis") { const r = getRedis(); await r.set(REDIS_KEY, JSON.stringify(l)); await r.set(`${REDIS_KEY}:report`, report); return; }
+  if (STORE === "redis") { const r = getRedis(); await r.set(REDIS_KEY, JSON.stringify(l)); await r.set(`${REDIS_KEY}:report`, report);
+    // El latido va SIEMPRE, aunque no se añada nada. Ver origenEjecucion.
+    await escribirLatido(r, "ideas", `${l.length} en el ledger`); return; }
   saveJson(LEDGER, l); saveJson(REPORT, report);
 }
 
@@ -411,4 +414,10 @@ function hitBucket(t: IdeaTrade): string {
   // el proceso no termina y el cron de Railway se queda "Running" para siempre.
   if (redis) await redis.quit();
   await closeIdeasStore();
-})();
+
+// Si esto revienta, también se deja constancia. Ver el comentario del latido en origenEjecucion.
+})().catch(async (e) => {
+  try { await escribirLatidoDirecto("ideas", `FALLÓ: ${e?.message ?? e}`); } catch { /* que salga el error igual */ }
+  console.error(e);
+  process.exit(1);
+});

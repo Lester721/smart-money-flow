@@ -120,6 +120,35 @@ ok("avisa DESPLIEGUE VIEJO", /DESPLIEGUE VIEJO/.test(salida),
    (salida.split("\n").find((l) => l.includes("DESPLIEGUE VIEJO")) || "").trim().slice(0, 96));
 ok("nombra el commit de main correcto", salida.includes(mainSha.slice(0, 8)), mainSha.slice(0, 8));
 
+// ── 5bis. un id de despliegue NO se compara con main ────────────────────────
+// Si Railway inyecta un UUID de despliegue en vez de un SHA de git, compararlo con main daría
+// "DESPLIEGUE VIEJO" todos los días. Un aviso inventado es peor que ninguno: enseña a ignorarlos.
+console.log("\n5bis. un id de despliegue no se confunde con un commit viejo");
+await r.set("latido:__auditoria__", JSON.stringify({
+  ...falso, commit: "7f3a1c9e-4b2d-4e8a-9c1f-2a6b8d0e5f31",
+  resultado: "latido con id de despliegue, no con SHA de git",
+}));
+let salida2 = "";
+try { salida2 = execFileSync("node", ["--env-file=.env.local", "scripts/estado-railway.mjs"], { encoding: "utf8" }); }
+catch (e) { salida2 = (e.stdout || "") + (e.stderr || ""); }
+const bloque = salida2.split("\n").slice(
+  salida2.split("\n").findIndex((l) => l.includes("__auditoria__")), 4).join(" ");
+ok("NO dice 'DESPLIEGUE VIEJO' por un UUID", !/DESPLIEGUE VIEJO/.test(bloque), bloque.trim().slice(0, 88));
+ok("avisa de que no se puede comparar", /no es un SHA de git/.test(salida2));
+
+// ── 5ter. los cuatro servicios están cableados ──────────────────────────────
+console.log("\n5ter. los CUATRO cron escriben latido");
+for (const [ruta, nombre] of [
+  ["scripts/forward-wheel.ts", "wheel"],
+  ["scripts/forward-test.ts", "credit-spread"],
+  ["scripts/forward-gex-condor.mjs", "gex-condor"],
+  ["scripts/forward-ideas.ts", "ideas"],
+]) {
+  const txt = readFileSync(ruta, "utf8");
+  ok(`${nombre}: escribe latido en la corrida normal`, txt.includes("escribirLatido("));
+  ok(`${nombre}: escribe latido si revienta`, txt.includes("escribirLatidoDirecto("));
+}
+
 // ── 6. sale con código ≠ 0 cuando hay avisos ────────────────────────────────
 console.log("\n6. el código de salida sirve para encadenar");
 ok("sale ≠ 0 habiendo avisos", codigo !== 0, `código ${codigo}`);
