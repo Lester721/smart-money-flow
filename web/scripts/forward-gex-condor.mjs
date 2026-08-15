@@ -50,6 +50,11 @@ const ALA = 50;
 const COMM = 0.03;
 const PASO_STRIKE = 5;
 
+// Distribución REAL del crédito del ±25 en los últimos 12 meses del backtest (n=73, precios reales,
+// cruzando la horquilla entera). Medido el 2026-08-15 con gex-condor-ultimos-dias.mjs. Sirve para
+// que el aviso de crédito compare contra un RANGO y no contra la mediana del año bueno.
+const CRED = { p10: 360, p25: 470, p50: 600, p90: 1070 };
+
 const hoyET = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 const ahoraET = () => new Date().toLocaleString('sv-SE', { timeZone: 'America/New_York' }).slice(0, 16);
 const arg = (n) => { const i = process.argv.indexOf(n); return i > 0 ? process.argv[i + 1] : null; };
@@ -224,12 +229,19 @@ async function cierreSPX(dia) {
     const cred = [...cer.map(o => o.credito * 100)].sort((a, b) => a - b);
     const credMed = cred[Math.floor(cred.length / 2)];
     di(`    cerradas: ${cer.length}  ·  acierto ${Math.round(gan.length / cer.length * 100)}% (backtest 73%)`);
-    di(`    crédito mediano: $${credMed.toFixed(0)} (backtest $725)`);
+    di(`    crédito mediano: $${credMed.toFixed(0)}  (últimos 12 meses del backtest: p10 $${CRED.p10} · mediana $${CRED.p50} · p90 $${CRED.p90})`);
     di(`    P&L acumulado: $${tot.toFixed(0)}  ·  por operación $${(tot / cer.length).toFixed(0)} (backtest $196)`);
     if (cer.length < 20) di(`    ⚠ con ${cer.length} cierres esto todavía no dice nada. Hacen falta ~30.`);
     // El crédito corto es la señal temprana de que lo medido no aparece en vivo, y pesa más que
     // el P&L de una operación suelta: en un cóndor el crédito ES el beneficio máximo.
-    if (credMed < 600) di(`    ⚠ crédito mediano $${credMed.toFixed(0)} muy por debajo de los $725 del backtest.`);
+    //
+    // EL UMBRAL SE RE-BASÓ EL 2026-08-15, y el motivo importa. Antes avisaba por debajo de $600
+    // comparando con los $725 de mediana de TODA la serie — o sea, contra el año bueno. Medida la
+    // distribución real de los últimos 12 meses (n=73), la mediana es $600 y el p10 es $360: el
+    // crédito rebota con la volatilidad, no baja en línea recta. Un aviso que salta la mitad de
+    // los días normales no es un aviso, es ruido, y enseña a ignorar los avisos de verdad.
+    if (credMed < CRED.p10)
+      di(`    ⚠ crédito mediano $${credMed.toFixed(0)}: por debajo del percentil 10 ($${CRED.p10}) de los últimos 12 meses.`);
   } else di(`    sin cierres todavía`);
 
   await guardar(ledger, lineas.join('\n'));
