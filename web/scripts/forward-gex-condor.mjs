@@ -103,11 +103,14 @@ const leer = async () => {
   try { return JSON.parse(fs.readFileSync(LEDGER, 'utf8')); } catch { return []; }
 };
 
-const guardar = async (l, reporte = '') => {
+const guardar = async (l, reporte = '', resumen = '') => {
   if (STORE === 'redis') {
     const r = await redis();
     await r.set(REDIS_KEY, JSON.stringify(l));
     if (reporte) await r.set(`${REDIS_KEY}:report`, reporte);
+    // Siempre, aunque hoy no hubiera señal. Ver el comentario del latido en origenEjecucion.
+    const { escribirLatido } = await import('../lib/origenEjecucion.ts');
+    await escribirLatido(r, 'gex-condor', resumen || `${l.length} operaciones en el ledger`);
     return;
   }
   if (!fs.existsSync(path.dirname(LEDGER))) fs.mkdirSync(path.dirname(LEDGER), { recursive: true });
@@ -247,4 +250,17 @@ async function cierreSPX(dia) {
   await guardar(ledger, lineas.join('\n'));
   console.log(`\n    guardado en ${STORE === 'redis' ? `Redis, key "${REDIS_KEY}"` : LEDGER}\n`);
   if (_redis) await _redis.quit();
-})();
+
+// SI ESTO REVIENTA, TAMBIÉN SE DEJA CONSTANCIA. Un servicio que se cae sin escribir nada se ve,
+// desde fuera, EXACTAMENTE igual que uno que no arrancó — que es el agujero que costó la mañana
+// del 2026-08-15. Con el latido de fallo, `estado-railway.mjs` dice "corrió y petó, y esto es lo
+// que dijo" en vez de callarse. El error se relanza después: el cron tiene que seguir fallando.
+})().catch(async (e) => {
+  try {
+    const { escribirLatidoDirecto } = await import('../lib/origenEjecucion.ts');
+    // Directo: abre su propia conexión, porque puede haber petado ANTES de crear el cliente.
+    await escribirLatidoDirecto('gex-condor', `FALLÓ: ${e?.message ?? e}`);
+  } catch { /* si ni eso se puede, que al menos el error salga */ }
+  console.error(e);
+  process.exit(1);
+});

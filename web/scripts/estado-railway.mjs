@@ -1,66 +1,112 @@
-// ESTADO REAL DE LOS CRON DE RAILWAY — mirando lo que ESCRIBIERON, no lo que dijo el log.
+// ESTADO REAL DE LOS CRON DE RAILWAY — por lo que ESCRIBEN, no por lo que dice el log.
 //
-// Un log puede decir "ok" y no haber guardado nada; y en Railway el disco del contenedor se borra
-// en cada arranque, así que lo único que prueba que un cron corrió de verdad es lo que hay en
-// Redis. Cada operación lleva `origen` (railway o local) — sin eso, una prueba mía tapa un fallo
-// suyo.
+// Uso:  node --env-file=.env.local scripts/estado-railway.mjs
+//   Sólo mira: no escribe nada en Redis y no imprime ninguna credencial.
+//   Sale con código 1 si hay algún aviso, para poder encadenarlo.
 //
-// Uso: node --env-file=.env.local scripts/estado-railway.mjs
-// No imprime NINGUNA credencial.
+// POR QUÉ NO BASTA CON MIRAR LOS LEDGERS. Un servicio que corre bien pero no tiene nada que
+// añadir ese día NO ESCRIBE NADA. Desde fuera, "corrió y no había señal" y "lleva tres días
+// muerto" se ven exactamente igual. El 2026-08-15 eso costó una mañana entera: la Wheel
+// funcionaba, pero como el dedup no añadía operaciones no había forma de comprobar si el
+// contenedor tenía el código actual — la única respuesta posible era "espera a las 18:00 a ver".
+//
+// Por eso cada cron deja ahora un LATIDO en CADA corrida, con el commit que Railway le inyectó.
+// Este comprobador lo compara con `main` y dice, sin esperar a nada, si algún servicio se quedó
+// en un despliegue viejo.
 
+import { execFileSync } from "node:child_process";
 import Redis from "ioredis";
 
 if (!process.env.REDIS_URL) { console.error("falta REDIS_URL en .env.local"); process.exit(1); }
 const r = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 3 });
 
-const hoyET = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
 const DESDE_ORIGEN = "2026-08-13";   // el día que se añadió el campo `origen`
+const hoyET = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
 const ahoraET = new Date().toLocaleString("sv-SE", { timeZone: "America/New_York" }).slice(0, 16);
+const corto = (c) => (c || "").slice(0, 8) || "?";
 
-const claves = await r.keys("*");
-claves.sort();
-console.log(`AHORA (hora de Nueva York): ${ahoraET}\n`);
-console.log(`claves en Redis: ${claves.length}\n`);
+/** El commit que Railway DEBERÍA estar corriendo = la punta de main en el remoto. */
+function commitDeMain() {
+  if (process.env.COMMIT_MAIN) return process.env.COMMIT_MAIN.trim();
+  try { return execFileSync("git", ["rev-parse", "origin/main"], { encoding: "utf8" }).trim(); }
+  catch { return ""; }
+}
 
 let avisos = 0;
+const COMMIT_MAIN = commitDeMain();
+
+console.log(`AHORA (hora de Nueva York): ${ahoraET}`);
+console.log(`main en el remoto: ${corto(COMMIT_MAIN) || "(no se pudo leer)"}`);
+
+// ── 1. LATIDOS: qué commit corre cada servicio ──────────────────────────────
+console.log("\n── SERVICIOS ────────────────────────────────────────────────────────");
+const latidos = (await r.keys("latido:*")).sort();
+if (!latidos.length) {
+  console.log("  (todavía ningún latido: los servicios lo escribirán en su próxima corrida)");
+  console.log("   hasta entonces no se puede saber qué commit corre cada uno.");
+} else {
+  for (const k of latidos) {
+    let L; try { L = JSON.parse(await r.get(k)); } catch { continue; }
+    const horas = (Date.now() - Date.parse(L.cuandoISO)) / 3_600_000;
+    console.log(`  ${String(L.servicio).padEnd(14)} ${String(L.origen).padEnd(8)} commit ${corto(L.commit)}` +
+                `  ·  corrió ${L.cuandoET} (hace ${horas.toFixed(1)} h)`);
+    console.log(`  ${" ".repeat(14)} ${L.resultado}`);
+    if (horas > 26) { console.log(`                 ⚠ lleva ${horas.toFixed(0)} h sin correr`); avisos++; }
+    if (L.origen !== "railway") {
+      console.log(`                 ⚠ el último que corrió NO fue Railway, fue "${L.origen}"`); avisos++;
+    } else if (L.commit === "desconocido") {
+      console.log(`                 ⚠ el contenedor no expone RAILWAY_GIT_COMMIT_SHA`); avisos++;
+    } else if (COMMIT_MAIN && corto(L.commit) !== corto(COMMIT_MAIN)) {
+      console.log(`                 ⚠ DESPLIEGUE VIEJO: corre ${corto(L.commit)}, main está en ` +
+                  `${corto(COMMIT_MAIN)} → hay que redesplegar ese servicio`);
+      avisos++;
+    } else if (COMMIT_MAIN) console.log(`                 ✓ al día con main`);
+  }
+}
+
+// ── 2. LEDGERS ──────────────────────────────────────────────────────────────
+console.log("\n── LEDGERS ──────────────────────────────────────────────────────────");
+const claves = (await r.keys("*")).filter((k) => !k.startsWith("latido:")).sort();
 for (const k of claves) {
   const tipo = await r.type(k);
   if (tipo !== "string") { console.log(`  ${k.padEnd(34)} (${tipo})`); continue; }
   const crudo = await r.get(k);
 
-  // Los informes de texto se enseñan aparte, buscando avisos.
   if (k.endsWith(":report")) {
-    const warns = (crudo.match(/⚠|WARN|error|ERROR|falló|fallo/gi) || []).length;
-    if (warns) avisos += warns;
-    console.log(`  ${k.padEnd(34)} informe de ${crudo.length} caracteres · ${warns ? `⚠ ${warns} avisos` : "sin avisos"}`);
+    const lineas = crudo.split("\n").filter((x) => x.includes("⚠"));
+    if (lineas.length) avisos += lineas.length;
+    console.log(`  ${k.padEnd(34)} ${lineas.length ? `⚠ ${lineas.length} avisos` : "sin avisos"}`);
+    for (const l of lineas) console.log(`        ${l.trim()}`);
     continue;
   }
 
   let v; try { v = JSON.parse(crudo); } catch { console.log(`  ${k.padEnd(34)} ${crudo.slice(0, 60)}`); continue; }
+  if (!Array.isArray(v)) { console.log(`  ${k.padEnd(34)} ${JSON.stringify(v).slice(0, 90)}`); continue; }
 
-  if (Array.isArray(v)) {
-    const dias = v.map((o) => o.dia ?? o.entryDate ?? o.fecha).filter(Boolean).sort();
-    const orig = {};
-    for (const o of v) orig[o.origen ?? "SIN ORIGEN"] = (orig[o.origen ?? "SIN ORIGEN"] ?? 0) + 1;
-    const abiertas = v.filter((o) => o.estado === "abierta").length;
-    console.log(`  ${k}`);
-    console.log(`      ${v.length} operaciones · ${dias[0] ?? "?"} → ${dias[dias.length - 1] ?? "?"} · ` +
-                `${abiertas} abiertas`);
-    console.log(`      origen: ${Object.entries(orig).map(([a, b]) => `${a}=${b}`).join(" · ")}`);
-    const ultimo = dias[dias.length - 1];
-    const dias_atras = ultimo ? Math.round((Date.parse(hoyET()) - Date.parse(ultimo)) / 86_400_000) : null;
-    if (dias_atras != null && dias_atras > 4) { console.log(`      ⚠ la última operación es de hace ${dias_atras} días`); avisos++; }
-    // El campo `origen` se añadió el 2026-08-13 a las 23:20 (commit 0c39633). Lo anterior no lo
-    // lleva y NO es un fallo: es historia. Sólo se avisa de las posteriores, que sí deberían
-    // llevarlo. Contar las viejas como fallo cada día enseña a ignorar el contador.
-    const sinOrigenNuevas = v.filter((o) => (o.dia ?? o.entryDate ?? "") > DESDE_ORIGEN).filter((o) => !o.origen).length;
-    const sinOrigenViejas = (orig["SIN ORIGEN"] ?? 0) - sinOrigenNuevas;
-    if (sinOrigenViejas > 0) console.log(`      ${sinOrigenViejas} anteriores al ${DESDE_ORIGEN} (el campo no existía todavía)`);
-    if (sinOrigenNuevas > 0) { console.log(`      ⚠ ${sinOrigenNuevas} operaciones POSTERIORES al ${DESDE_ORIGEN} sin marcar el origen`); avisos++; }
-  } else {
-    console.log(`  ${k.padEnd(34)} ${JSON.stringify(v).slice(0, 90)}`);
+  const dias = v.map((o) => o.dia ?? o.entryDate ?? o.fecha).filter(Boolean).sort();
+  const orig = {};
+  for (const o of v) orig[o.origen ?? "SIN ORIGEN"] = (orig[o.origen ?? "SIN ORIGEN"] ?? 0) + 1;
+  console.log(`  ${k}`);
+  console.log(`      ${v.length} operaciones · ${dias[0] ?? "?"} → ${dias[dias.length - 1] ?? "?"} · ` +
+              `${v.filter((o) => o.estado === "abierta").length} abiertas`);
+  console.log(`      origen: ${Object.entries(orig).map(([a, b]) => `${a}=${b}`).join(" · ")}`);
+  const ultimo = dias[dias.length - 1];
+  const atras = ultimo ? Math.round((Date.parse(hoyET()) - Date.parse(ultimo)) / 86_400_000) : null;
+  if (atras != null && atras > 4) { console.log(`      ⚠ la última operación es de hace ${atras} días`); avisos++; }
+
+  // El campo `origen` se añadió el 2026-08-13. Lo anterior no lo lleva y NO es un fallo: es
+  // historia. Avisar de lo mismo todos los días enseña a ignorar el contador — y un contador
+  // que se ignora no sirve para nada.
+  const nuevasSinFirma = v.filter((o) => (o.dia ?? o.entryDate ?? "") > DESDE_ORIGEN && !o.origen).length;
+  const viejasSinFirma = (orig["SIN ORIGEN"] ?? 0) - nuevasSinFirma;
+  if (viejasSinFirma > 0) console.log(`      ${viejasSinFirma} anteriores al ${DESDE_ORIGEN} (el campo no existía)`);
+  if (nuevasSinFirma > 0) {
+    console.log(`      ⚠ ${nuevasSinFirma} operaciones POSTERIORES al ${DESDE_ORIGEN} sin firmar` +
+                ` → ese servicio corría un despliegue viejo cuando las escribió`);
+    avisos++;
   }
 }
 
-console.log(`\n${avisos === 0 ? "✅ NINGÚN AVISO" : `⚠ ${avisos} avisos — hay que mirarlos`}`);
+console.log(`\n${avisos === 0 ? "✅ NINGÚN AVISO" : `⚠ ${avisos} avisos`}`);
 await r.quit();
+process.exit(avisos === 0 ? 0 : 1);

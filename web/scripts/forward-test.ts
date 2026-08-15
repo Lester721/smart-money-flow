@@ -25,7 +25,7 @@ import {
 } from "../lib/flow";
 import { impliedVol } from "../lib/blackScholes";
 import { asegurarBarrasDeLiquidacion, vencidasSinLiquidar } from "../lib/forwardBars";
-import { etiquetaEjecucion } from "../lib/origenEjecucion";
+import { etiquetaEjecucion, escribirLatido, escribirLatidoDirecto } from "../lib/origenEjecucion";
 import { fetchGexNormalizado, verticalReal, quoteCierre } from "../lib/thetadata";
 
 
@@ -191,11 +191,13 @@ async function loadLedger(): Promise<Trade[]> {
   return readJsonFile(LEDGER);
 }
 // Persiste ledger + reporte en el backend activo.
-async function persist(ledger: Trade[], report: string) {
+async function persist(ledger: Trade[], report: string, resumen = "") {
   if (STORE === "redis") {
     const r = getRedis();
     await r.set(REDIS_KEY, JSON.stringify(ledger));
     await r.set(`${REDIS_KEY}:report`, report);
+    // Siempre, aunque no se añada nada. Ver el comentario del latido en origenEjecucion.
+    await escribirLatido(r, "credit-spread", resumen || `${ledger.length} operaciones en el ledger`);
     return;
   }
   saveJson(LEDGER, ledger);
@@ -665,4 +667,16 @@ function pctile(vals: number[], p: number): number | null {
     ? `=== ledger en Redis key "${REDIS_KEY}" (reporte en "${REDIS_KEY}:report") ===`
     : `=== ledger: ${LEDGER} · reporte: ${REPORT} ===`);
   if (redis) await redis.quit(); // cierra la conexión para que el proceso (cron) termine
-})();
+
+// SI ESTO REVIENTA, TAMBIÉN SE DEJA CONSTANCIA. Un servicio que se cae sin escribir nada se ve,
+// desde fuera, EXACTAMENTE igual que uno que no arrancó — que es el agujero que costó la mañana
+// del 2026-08-15. Con el latido de fallo, `estado-railway.mjs` dice "corrió y petó, y esto es lo
+// que dijo" en vez de callarse. El error se relanza después: el cron tiene que seguir fallando.
+})().catch(async (e) => {
+  try {
+    // Directo: abre su propia conexión, porque puede haber petado ANTES de crear el cliente.
+    await escribirLatidoDirecto('credit-spread', `FALLÓ: ${e?.message ?? e}`);
+  } catch { /* si ni eso se puede, que al menos el error salga */ }
+  console.error(e);
+  process.exit(1);
+});

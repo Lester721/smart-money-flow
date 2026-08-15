@@ -18,7 +18,7 @@ import {
 } from "../lib/flow";
 import { bsDelta, impliedVol } from "../lib/blackScholes";
 import { asegurarBarrasDeLiquidacion, vencidasSinLiquidar } from "../lib/forwardBars";
-import { etiquetaEjecucion } from "../lib/origenEjecucion";
+import { etiquetaEjecucion, escribirLatido, escribirLatidoDirecto } from "../lib/origenEjecucion";
 import { putReal, valorPutReal } from "../lib/thetadata";   // precios REALES: bid al vender, ask al recomprar
 
 
@@ -63,8 +63,16 @@ async function loadLedger(): Promise<WPut[]> {
   if (STORE === "redis") { const raw = await getRedis().get(REDIS_KEY); if (raw) { try { return JSON.parse(raw) as WPut[]; } catch { return []; } } return readJsonFile(LEDGER); }
   return readJsonFile(LEDGER);
 }
-async function persist(ledger: WPut[], report: string) {
-  if (STORE === "redis") { const r = getRedis(); await r.set(REDIS_KEY, JSON.stringify(ledger)); await r.set(`${REDIS_KEY}:report`, report); return; }
+async function persist(ledger: WPut[], report: string, resumen = "") {
+  if (STORE === "redis") {
+    const r = getRedis();
+    await r.set(REDIS_KEY, JSON.stringify(ledger));
+    await r.set(`${REDIS_KEY}:report`, report);
+    // El latido va SIEMPRE, aunque no se haya añadido ni una operación: es la única forma de
+    // distinguir "corrió y no tenía nada que hacer" de "lleva días muerto". Ver origenEjecucion.
+    await escribirLatido(r, "wheel", resumen || `${ledger.length} puts en el ledger`);
+    return;
+  }
   saveJson(LEDGER, ledger); saveJson(REPORT, report);
 }
 
@@ -248,4 +256,16 @@ function pctile(v: number[], p: number): number | null { if (!v.length) return n
   console.log("\n" + report);
   console.log(STORE === "redis" ? `=== ledger en Redis "${REDIS_KEY}" ===` : `=== ledger: ${LEDGER} ===`);
   if (redis) await redis.quit();
-})();
+
+// SI ESTO REVIENTA, TAMBIÉN SE DEJA CONSTANCIA. Un servicio que se cae sin escribir nada se ve,
+// desde fuera, EXACTAMENTE igual que uno que no arrancó — que es el agujero que costó la mañana
+// del 2026-08-15. Con el latido de fallo, `estado-railway.mjs` dice "corrió y petó, y esto es lo
+// que dijo" en vez de callarse. El error se relanza después: el cron tiene que seguir fallando.
+})().catch(async (e) => {
+  try {
+    // Directo: abre su propia conexión, porque puede haber petado ANTES de crear el cliente.
+    await escribirLatidoDirecto('wheel', `FALLÓ: ${e?.message ?? e}`);
+  } catch { /* si ni eso se puede, que al menos el error salga */ }
+  console.error(e);
+  process.exit(1);
+});
