@@ -1,3 +1,37 @@
+> ## ⛔ CORRECCIÓN — leer ANTES que el informe
+>
+> **El hallazgo principal de este informe es falso.** Se midió esa misma madrugada, unas horas
+> después de escribirlo, y no se sostiene.
+>
+> El informe dice que el cóndor se deshincha porque vende a **±25 puntos fijos** mientras el SPX
+> sube, y que por eso el crédito cayó de $1.165 a $600. **La mecánica va al revés:** vender más
+> cerca del dinero paga **MÁS**, no menos — medido, $960 a 0,28% del índice contra $595 a 0,52%.
+> Si la estructura se ha ido acercando al dinero, el crédito debería subir.
+>
+> Año a año (±25 fijos, días GEX+, entrada 11:00):
+>
+> | Año | Separación | Acierto | Crédito | Nunca tocado | Retorno |
+> |---|---|---|---|---|---|
+> | 2024 | 0,448% | 73% | $865 | 59% | 4,33% |
+> | 2025 | 0,415% | 70% | $725 | 58% | 2,95% |
+> | 2026 | **0,347%** | **77%** | $595 | **65%** | **4,87%** |
+>
+> Según se acercaba al dinero, el cóndor **mejoró**. El crédito lo mueve la volatilidad (el índice
+> se movió 0,371% / 0,444% / 0,370% esos tres años), no la distancia de los strikes. Y
+> re-especificar al 0,44% constante da 4,85% en 2026 contra 4,87% del fijo: lo mismo.
+>
+> Los créditos en vivo tampoco eran una tubería rota: agosto en caché da mediana $580 con mínimo
+> $355, y el día 10 pagó $355.
+>
+> **Lo único del informe que sí queda en pie sobre esto:** que había un agujero sin contar. Pero es
+> otro — el 61% de los días con GEX positivo no tienen cadena en el fichero, con cobertura del 15%
+> en 2024, 45% en 2025 y 70% en 2026. Comprobado que NO son los días malos (los que faltan se
+> mueven menos, así que la medición es conservadora), pero con sólo 22 operaciones de 2024, decir
+> "positivo en tres años" es más flojo de lo que parecía.
+>
+> Medido en `web/scripts/gex-2026/gex-condor-{porcentaje,cobertura,deriva,ultimos-dias}.mjs`.
+> **El resto del informe —lo que cayó y por qué, y los mecanismos de mercado— sigue en pie.**
+
 > **Cómo se hizo:** 20 agentes en cuatro fases (inventario · candidatas · verificación adversarial ·
 > síntesis), lanzados el 2026-08-15 a petición de Lester: *"te reto a que encuentres las piezas en
 > este rompecabezas para crear el cohete que romperá el muro"*.
