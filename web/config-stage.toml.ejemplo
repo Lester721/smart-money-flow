@@ -1,0 +1,45 @@
+# CONFIG PARA CORRER UN SEGUNDO TERMINAL A LA VEZ QUE RAILWAY
+#
+# Cópialo a `config.toml` (que está en .gitignore, así que es sólo tuyo y NO llega a Railway):
+#
+#     cp config-stage.toml.ejemplo config.toml
+#
+# POR QUÉ. ThetaData permite **una sola sesión activa por cuenta**: si un segundo Terminal entra
+# con las mismas credenciales, invalida la primera. Nos costó varias horas el 2026-08-14 —
+# la descarga local moría cada vez que Railway corría un cron, con este error:
+#
+#     ERROR: MDDS upstream unavailable: io exception       (el que se queda fuera)
+#     HTTP 478 = INVALID_SESSION_ID                        (sus peticiones fallan)
+#
+# LA VÍA OFICIAL, confirmada por el soporte de ThetaData el 2026-08-15:
+#
+#   "Each account supports one active session at a time. […] The supported way to run two
+#    connections simultaneously is to use the staging environment for the second one. You can
+#    run two Terminals side-by-side by giving each its own config and setting
+#    mdds_type = "STAGE" for the second instance."
+#
+# Reparto: **Railway se queda en PROD** (escribe su propio config por defecto) y **lo local va a
+# STAGE**. Así la descarga y los forward-tests dejan de pisarse.
+#
+# ⚠️ ANTES DE FIARSE: hay que COMPROBAR que STAGE devuelve los mismos datos que PROD, no
+# suponerlo. Si trajera datos parciales, la descarga se corrompería en silencio — exactamente el
+# fallo que ya nos costó 3.905 ficheros falsos. Comparar el mismo día por las dos vías y verificar
+# que el número de operaciones y los precios coinciden. Mientras no esté comprobado, PROD.
+
+host = "0.0.0.0"
+port = 25503
+log_directory = "/tmp"
+
+[env]
+mdds_type = "STAGE"          # ← lo único que cambia respecto al de producción
+
+[auth]
+base_url = "https://nexus-api.thetadata.us/identity/terminal/auth_user"
+
+[mdds]
+enable = true
+
+[mdds_server]
+host = "mdds-01.thetadata.us"
+port = 443
+tls = true
