@@ -39,7 +39,15 @@ import { join } from "node:path";
 
 const B = (process.env.THETA_BASE || "http://127.0.0.1:25503").replace(/\/+$/, "").replace(/\/v3$/, "") + "/v3";
 const DESDE = process.env.FLUJO_DESDE || "20240102";
-const HASTA = process.env.FLUJO_HASTA || new Date().toISOString().slice(0, 10).replace(/-/g, "");
+// HASTA en hora de NUEVA YORK y hasta AYER. Con toISOString() (UTC) a las 20:00 ET ya es el día
+// siguiente y pedía mañana: HTTP 400. Y el día en curso todavía no está liquidado en el histórico.
+// La hora del mercado nunca con UTC ni con la variable TZ — ya nos costó un error en julio.
+const ayerET = () => {
+  const hoy = new Date(new Date().toLocaleString("en-US", { timeZone: "America/New_York" }));
+  hoy.setDate(hoy.getDate() - 1);
+  return `${hoy.getFullYear()}${String(hoy.getMonth() + 1).padStart(2, "0")}${String(hoy.getDate()).padStart(2, "0")}`;
+};
+const HASTA = process.env.FLUJO_HASTA || ayerET();
 const TICKERS = (process.env.FLUJO_TICKERS || "AAPL,MSFT,NVDA,TSLA,META,AMD,QQQ,SPY").split(",").map((t) => t.trim()).filter(Boolean);
 const MIN_PRIMA = Number(process.env.FLUJO_MIN_PRIMA || 1_000_000);
 const DIR = process.env.FLUJO_DIR || "scripts/cache-theta/flujo-historico";
@@ -49,16 +57,29 @@ mkdirSync(DIR, { recursive: true });
 const ahora = () => new Date().toLocaleTimeString("en-US", { hour12: false });
 const log = (m) => console.log(`[${ahora()}] ${m}`);
 
+// Devuelve {estado} para DISTINGUIR dos cosas que antes se confundían en un mismo `null`:
+//   "vacio"  → el servidor contestó bien y ese día no hay datos (festivo). ES un resultado.
+//   "fallo"  → la petición no llegó o dio error. NO es un resultado.
+//
+// Confundirlas rompió la descarga del 2026-08-14: al matar el Terminal a media tarde, el proceso
+// siguió corriendo, cada petición falló, y el código escribía un fichero de "sin datos" y pasaba
+// al siguiente. 3.905 días se marcaron como hechos en segundos —cinco tickers ENTEROS— y la
+// lógica de reanudar los daba por buenos para siempre.
 async function csv(ruta, ms = 120_000) {
   try {
     const r = await fetch(`${B}${ruta}`, { signal: AbortSignal.timeout(ms), cache: "no-store" });
-    if (!r.ok) return null;
+    // 472 es el código de ThetaData para "no hay datos", NO un error. Se comprobó el 2026-08-14:
+    // los cinco primeros días que lo devolvieron eran 20240115 (Luther King), 20240219
+    // (Presidents' Day), 20240329 (Viernes Santo), 20240527 (Memorial Day) y 20240619
+    // (Juneteenth) — festivos de bolsa, en orden. El mercado estaba cerrado: eso ES un resultado.
+    if (r.status === 472) return { estado: "vacio" };
+    if (!r.ok) return { estado: "fallo", codigo: `HTTP ${r.status}` };
     const t = await r.text();
     const l = t.trim().split("\n");
-    if (l.length < 2 || l[0].includes(" ")) return null;      // cabecera con espacios = mensaje de error, no CSV
-    const cab = l[0].split(",");
-    return { cab, filas: l.slice(1).map((x) => x.split(",")) };
-  } catch { return null; }
+    if (l.length < 2) return { estado: "vacio" };
+    if (l[0].includes(" ")) return { estado: "fallo", codigo: "respuesta no-CSV" };
+    return { estado: "ok", cab: l[0].split(","), filas: l.slice(1).map((x) => x.split(",")) };
+  } catch (e) { return { estado: "fallo", codigo: e.name === "TimeoutError" ? "timeout" : "red" }; }
 }
 
 const num = (s) => Number(String(s).replace(/"/g, ""));
@@ -81,7 +102,7 @@ function diasHabiles(desde, hasta) {
 /** Cotización del contrato a lo largo del día, para cruzar por tiempo con cada operación. */
 async function cotizaciones(sym, exp, strike, right, dia) {
   const d = await csv(`/option/history/quote?symbol=${sym}&expiration=${exp}&strike=${strike}&right=${right}&start_date=${dia}&end_date=${dia}&interval=1m`, 45_000);
-  if (!d) return null;
+  if (d.estado !== "ok") return null;
   const iT = d.cab.indexOf("timestamp"), iB = d.cab.indexOf("bid"), iA = d.cab.indexOf("ask");
   if (iT < 0 || iB < 0 || iA < 0) return null;
   const out = [];
@@ -101,13 +122,54 @@ function bboAsOf(serie, ms) {
   return r < 0 ? null : { bid: serie[r][1], ask: serie[r][2] };
 }
 
+/** Open interest de un MES entero, cacheado en memoria. Se pide una vez por (ticker, mes) y
+ *  sirve para los ~21 días hábiles de ese mes. Clave del mapa: "expiración|strike|C/P". */
+const cacheOI = new Map();
+async function oiDelMes(sym, dia) {
+  const mes = dia.slice(0, 6);
+  const clave = `${sym}|${mes}`;
+  if (cacheOI.has(clave)) return cacheOI.get(clave);
+  // Sólo se guarda UN mes a la vez: el bucle recorre los días en orden, así que en cuanto cambia
+  // de mes el anterior ya no hace falta y liberarlo evita comerse la memoria en tres años.
+  cacheOI.clear();
+  // El último día REAL del mes. Poner "31" a pelo pedía 20250231, que no existe — y la petición
+  // volvía vacía, así que TODAS las operaciones de febrero, abril, junio, septiembre y noviembre
+  // se guardaban con `oi: null`. Sin OI no hay Inusualidad ni Estructura: dos de las seis
+  // categorías de EVA. Lo cazó la validación de contenido, no el recuento de ficheros.
+  const ultimo = new Date(Date.UTC(+mes.slice(0, 4), +mes.slice(4, 6), 0)).getUTCDate();
+  const ini = `${mes}01`, fin = `${mes}${String(ultimo).padStart(2, "0")}`;
+  const mapa = {};
+  const oi = await csv(`/option/history/open_interest?symbol=${sym}&expiration=*&start_date=${ini}&end_date=${fin}`, 180_000);
+  if (oi.estado === "ok") {
+    const o = Object.fromEntries(oi.cab.map((k, i) => [k, i]));
+    const iT = o.timestamp;
+    for (const f of oi.filas) {
+      const v = num(f[o.open_interest]);
+      if (!(v > 0)) continue;
+      // El OI viene fechado: se indexa por DÍA además de por contrato, porque el open interest de
+      // un contrato cambia cada jornada y usar el de otro día sería mezclar datos.
+      const d = iT != null ? txt(f[iT]).slice(0, 10).replace(/-/g, "") : dia;
+      (mapa[d] ??= {})[`${txt(f[o.expiration])}|${num(f[o.strike])}|${txt(f[o.right]).startsWith("C") ? "C" : "P"}`] = v;
+    }
+  }
+  // GUARDIÁN: un mes sin un solo dato de OI es un fallo, no un resultado. Sin este aviso, el error
+  // del "31 de febrero" se guardó en 22 ficheros con `oi: null` sin que nada chistara.
+  const dias = Object.keys(mapa).length;
+  if (dias === 0) log(`  ⚠⚠ ${sym} ${mes}: el OI del mes vino VACÍO (${ini}→${fin}). Las operaciones se guardarán SIN open interest.`);
+  cacheOI.set(clave, mapa);
+  return mapa;
+}
+
 async function bajarDia(sym, dia) {
   const fichero = join(DIR, `${sym}_${dia}.json`);
   if (existsSync(fichero)) return { saltado: true };
 
   // 1. TODAS las operaciones del día, una llamada.
   const tr = await csv(`/option/history/trade?symbol=${sym}&expiration=*&start_date=${dia}&end_date=${dia}`, 180_000);
-  if (!tr) { writeFileSync(fichero, JSON.stringify({ dia, sym, sinDatos: true, notables: [] })); return { sinDatos: true }; }
+  // SI FALLA, NO SE ESCRIBE NADA: el día se queda pendiente y se reintenta en la próxima vuelta.
+  // Escribir un marcador aquí fue el error que arruinó 3.905 días el 2026-08-14.
+  if (tr.estado === "fallo") return { fallo: tr.codigo };
+  if (tr.estado === "vacio") { writeFileSync(fichero, JSON.stringify({ dia, sym, sinDatos: true, notables: [] })); return { sinDatos: true }; }
 
   const c = Object.fromEntries(tr.cab.map((k, i) => [k, i]));
   const notables = [];
@@ -123,16 +185,14 @@ async function bajarDia(sym, dia) {
     });
   }
 
-  // 2. Open interest de todas las expiraciones (para Inusualidad y Estructura), una llamada.
-  const oiMap = {};
-  const oi = await csv(`/option/history/open_interest?symbol=${sym}&expiration=*&start_date=${dia}&end_date=${dia}`, 90_000);
-  if (oi) {
-    const o = Object.fromEntries(oi.cab.map((k, i) => [k, i]));
-    for (const f of oi.filas) {
-      const v = num(f[o.open_interest]);
-      if (v > 0) oiMap[`${txt(f[o.expiration])}|${num(f[o.strike])}|${txt(f[o.right]).startsWith("C") ? "C" : "P"}`] = v;
-    }
-  }
+  // 2. Open interest — POR MES, no por día.
+  //
+  //    Medido el 2026-08-14: el endpoint de OI SÍ acepta rangos de fechas (un mes entero:
+  //    110.163 filas, 7 MB, 17 s), mientras que el de operaciones con `expiration=*` está topado
+  //    a un solo día (HTTP 400: "Option history requests without a specific expiration must be
+  //    for a single day"). Yo estaba pidiendo el OI día a día igualmente: 684 llamadas por ticker
+  //    donde bastan 33. Lo cazó Lester preguntando si no lo estaba haciendo de la forma más lenta.
+  const oiMap = await oiDelMes(sym, dia);
 
   // 3. Bid/ask SÓLO de los contratos notables. Se agrupa por contrato para no pedir dos veces
   //    la misma serie cuando hay varias operaciones grandes en el mismo strike.
@@ -164,7 +224,10 @@ async function bajarDia(sym, dia) {
         // una media: un hueco tapado no se distingue de un dato bueno.
         n.bid = q ? q.bid : null;
         n.ask = q ? q.ask : null;
-        n.oi = oiMap[k] ?? null;
+        // `0` y `null` NO son lo mismo: 0 = el contrato no tenía open interest (la operación es
+      // 100% apertura, lo más inusual que hay); null = no sabemos, la petición del mes falló.
+      // Si el día SÍ está en el mapa, la ausencia del contrato significa cero, no desconocido.
+      n.oi = oiMap[dia] ? (oiMap[dia][k] ?? 0) : null;
         if (q) conBBO++;
       }
     });
@@ -182,12 +245,24 @@ async function main() {
   const yaHay = readdirSync(DIR).filter((f) => f.endsWith(".json")).length;
   if (yaHay) log(`ya hay ${yaHay} ficheros: se reanuda donde se quedó, no se repite ninguno`);
 
-  let hechos = 0, saltados = 0, sinDatos = 0, notablesTot = 0, sinBBO = 0;
+  let hechos = 0, saltados = 0, sinDatos = 0, notablesTot = 0, sinBBO = 0, fallosSeguidos = 0;
   const t0 = Date.now();
   for (const sym of TICKERS) {
     for (const dia of dias) {
       const r = await bajarDia(sym, dia);
       if (r.saltado) { saltados++; continue; }
+      if (r.fallo) {
+        // Cortar en seco. Si el Terminal se cayó, seguir sólo sirve para acumular fallos y dar
+        // la falsa sensación de avance. Los días fallidos NO se han escrito: se reintentan solos.
+        fallosSeguidos++;
+        log(`  ⚠ ${sym} ${dia} FALLÓ (${r.fallo}) · ${fallosSeguidos} seguidos · NO se escribe, se reintentará`);
+        if (fallosSeguidos >= 5) {
+          log(`ABORTADO: 5 fallos seguidos. El Terminal no responde. ${hechos} bajados en esta vuelta.`);
+          process.exit(2);
+        }
+        continue;
+      }
+      fallosSeguidos = 0;
       hechos++;
       if (r.sinDatos) sinDatos++;
       else { notablesTot += r.notables; sinBBO += r.notables - r.conBBO; }
