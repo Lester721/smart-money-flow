@@ -36,3 +36,6 @@ next-env.d.ts
 
 # Salidas de mediciones (megas de datos, se regeneran)
 web/scripts/eva-*.json
+
+# Respaldos de Redis (datos, no código)
+web/data/respaldos/
