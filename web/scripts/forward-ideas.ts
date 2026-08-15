@@ -53,6 +53,13 @@ if (!process.env.IDEAS_ARREGLADO) {
   console.log("⛔ PARADO: valoraba con Black-Scholes, no con precios reales.");
   console.log("   Falta portar la valoración diaria a quoteCierre(). Ver la cabecera del archivo.");
   console.log("   No registra nada a propósito: parado es mejor que mintiendo.");
+  // PERO SÍ DEJA CONSTANCIA DE QUE ESTÁ PARADO. Salir en silencio hacía que el comprobador lo
+  // leyera como "o nunca ha corrido, o el servicio está caído" — un aviso falso todos los días
+  // por algo que está bien y es deliberado. Una pausa a propósito tiene que verse DISTINTA de un
+  // fallo: por eso el prefijo es "EN PAUSA" y no "PARADO", que el comprobador cuenta como avería.
+  await escribirLatidoDirecto("ideas",
+    "EN PAUSA a propósito: valoraba con Black-Scholes. Falta portar la valoración a quoteCierre(). " +
+    "Se reactiva poniendo IDEAS_ARREGLADO=1.");
   process.exit(0);
 }
 

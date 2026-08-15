@@ -108,10 +108,14 @@ const mainSha = execFileSync("git", ["rev-parse", "origin/main"], { encoding: "u
 // OJO: el comprobador ya no lee cualquier clave `latido:*`, sino los servicios ESPERADOS. Así
 // que para probarlo hay que usar el nombre de uno de verdad. Se usa "ideas" y se deja como
 // estaba al terminar (se guarda su valor previo unas líneas más abajo).
-const CLAVE_PRUEBA = "latido:ideas";
-const previoIdeas = await r.get(CLAVE_PRUEBA);
+// Un servicio de MENTIRA, no uno real. La versión anterior usaba "ideas" y le metía latidos
+// falsos: si la limpieza fallaba —y falló— quedaba basura en producción, y el comprobador
+// enseñaba un commit inventado como si fuera el de un servicio de verdad.
+const SERV_PRUEBA = "__auditoria-servicio__";
+const CLAVE_PRUEBA = `latido:${SERV_PRUEBA}`;
+const previoIdeas = null;
 const falso = {
-  servicio: "ideas", origen: "railway", commit: "0000000000000000000000000000000000000000",
+  servicio: SERV_PRUEBA, origen: "railway", commit: "0000000000000000000000000000000000000000",
   cuandoISO: new Date().toISOString(),
   cuandoET: new Date().toLocaleString("sv-SE", { timeZone: "America/New_York" }).slice(0, 16),
   resultado: "latido FALSO de la auditoría, con un commit que no es el de main",
@@ -119,19 +123,22 @@ const falso = {
 await r.set(CLAVE_PRUEBA, JSON.stringify(falso));
 let salida = "", codigo = 0;
 try {
-  salida = execFileSync("node", ["--env-file=.env.local", "scripts/estado-railway.mjs"], { encoding: "utf8" });
+  salida = execFileSync("node", ["--env-file=.env.local", "scripts/estado-railway.mjs"], { encoding: "utf8", env: { ...process.env, SERVICIOS_ESPERADOS: SERV_PRUEBA } });
 } catch (e) { salida = (e.stdout || "") + (e.stderr || ""); codigo = e.status ?? -1; }
 // CON el token, el comprobador cruza el latido con lo que hay DESPLEGADO. Un latido viejo cuando
 // el despliegue está al día NO es "despliegue viejo": es "aún no ha corrido con él". Distinguir
 // las dos cosas es justo lo que se arregló, así que aquí se comprueba que NO grita de más.
-ok("con la API, latido viejo + despliegue al día NO se llama 'DESPLIEGUE VIEJO'",
-   !/DESPLIEGUE VIEJO/.test(salida) && /aún no ha corrido con él/.test(salida));
+// El servicio de prueba no existe en Railway, así que la API no puede decir qué tiene desplegado.
+// Lo CORRECTO ahí es avisar —fallar cerrado—, no callarse ni afirmar "despliegue viejo" como si
+// se supiera. Se comprueba que avisa y que NO inventa un diagnóstico que no puede sostener.
+ok("con un servicio que la API no conoce, avisa en vez de callarse",
+   /main está en/.test(salida) && !/DESPLIEGUE VIEJO/.test(salida));
 ok("nombra el commit de main correcto", salida.includes(mainSha.slice(0, 8)), mainSha.slice(0, 8));
 
 // SIN token no puede cruzar, y entonces sí tiene que avisar en vez de callarse.
 let salidaSinToken = "", codSinToken = 0;
 try {
-  const env = { ...process.env, RAILWAY_API: "0" };   // --env-file repone el token; hace falta bandera
+  const env = { ...process.env, RAILWAY_API: "0", SERVICIOS_ESPERADOS: SERV_PRUEBA };
   salidaSinToken = execFileSync("node", ["--env-file=.env.local", "scripts/estado-railway.mjs"],
     { encoding: "utf8", env });
 } catch (e) { salidaSinToken = (e.stdout || "") + (e.stderr || ""); codSinToken = e.status ?? -1; }
@@ -148,7 +155,7 @@ await r.set(CLAVE_PRUEBA, JSON.stringify({
   resultado: "latido con id de despliegue, no con SHA de git",
 }));
 let salida2 = "";
-try { salida2 = execFileSync("node", ["--env-file=.env.local", "scripts/estado-railway.mjs"], { encoding: "utf8" }); }
+try { salida2 = execFileSync("node", ["--env-file=.env.local", "scripts/estado-railway.mjs"], { encoding: "utf8", env: { ...process.env, SERVICIOS_ESPERADOS: SERV_PRUEBA } }); }
 catch (e) { salida2 = (e.stdout || "") + (e.stderr || ""); }
 const bloque = salida2.split("\n").slice(
   salida2.split("\n").findIndex((l) => l.includes("__auditoria__")), 4).join(" ");
@@ -198,10 +205,13 @@ ok("sale ≠ 0 habiendo avisos", codigo !== 0, `código ${codigo}`);
 
 // ── 7. limpieza ─────────────────────────────────────────────────────────────
 console.log("\n7. limpieza");
-await r.del("latido:__auditoria__");
-ok("la clave de prueba queda borrada", (await r.get("latido:__auditoria__")) === null);
-const quedan = (await r.keys("*__auditoria__*")).length;
-ok("no queda ninguna clave de auditoría", quedan === 0, `${quedan} encontradas`);
+// SE BORRA TODO LO QUE EMPIECE POR __auditoria, no sólo la primera clave. La versión anterior
+// borraba `latido:__auditoria__` y se dejaba `latido:__auditoria-servicio__` colgada en
+// producción, donde el comprobador la contaba como "latido con un nombre inventado". Una
+// herramienta de diagnóstico que deja basura es una herramienta que genera trabajo.
+for (const k of await r.keys("*__auditoria*")) await r.del(k);
+const quedan = (await r.keys("*__auditoria*")).length;
+ok("no queda NINGUNA clave de auditoría en Redis", quedan === 0, `${quedan} encontradas`);
 
 console.log(`\n${fallan === 0 ? "✅" : "❌"}  ${pasan} pasan · ${fallan} fallan`);
 await r.quit();

@@ -90,7 +90,12 @@ console.log("\n── SERVICIOS ────────────────
 // llega a desplegarse— sencillamente no aparece: no sale en ninguna línea, no suma ningún aviso,
 // y el comprobador remata en verde. Un servicio muerto se vería idéntico a uno sano, que es
 // exactamente lo que esto existe para impedir.
-const ESPERADOS = ["gex-condor", "credit-spread", "wheel", "ideas"];
+// La lista se puede sustituir por entorno SÓLO para las pruebas: la auditoría necesita un
+// servicio de mentira al que meterle latidos falsos, y antes usaba "ideas" —un servicio REAL—
+// dejando basura en producción cuando su limpieza no acertaba. Una herramienta de diagnóstico
+// no puede ensuciar lo que vigila.
+const ESPERADOS = (process.env.SERVICIOS_ESPERADOS || "gex-condor,credit-spread,wheel,ideas")
+  .split(",").map((x) => x.trim()).filter(Boolean);
 const sueltos = (await r.keys("latido:*")).map((k) => k.replace("latido:", "")).filter((n) => !ESPERADOS.includes(n));
 if (sueltos.length) {
   console.log(`  ⚠ latidos con un nombre que no es de ningún servicio esperado: ${sueltos.join(", ")}`);
@@ -118,7 +123,12 @@ if (sueltos.length) {
     // EL LATIDO DE FALLO NO SIRVE DE NADA SI NADIE LO LEE. La primera versión imprimía el
     // resultado y seguía: un cron que petara todos los días salía "✓ al día con main" y el
     // comprobador remataba en verde. Se escribió el latido de fallo justamente para esto.
-    if (/^(FALLÓ|PARADO|NO CORRIÓ|ABORTADO)/i.test(String(L.resultado || ""))) {
+    // UNA PAUSA DELIBERADA NO ES UNA AVERÍA. Ideas está parada a propósito desde el 2026-08-12
+    // (valoraba con Black-Scholes); avisar de eso cada día sería ruido por algo que está BIEN.
+    // Pero tampoco puede desaparecer del panel: se enseña como pausa, que es su estado real.
+    if (/^EN PAUSA/i.test(String(L.resultado || ""))) {
+      console.log(`                 ⏸  en pausa a propósito, no es una avería`);
+    } else if (/^(FALLÓ|PARADO|NO CORRIÓ|ABORTADO)/i.test(String(L.resultado || ""))) {
       console.log(`                 ⚠ LA ÚLTIMA CORRIDA NO TERMINÓ BIEN`);
       avisos++;
     }
