@@ -13,8 +13,28 @@
 # jdk21 porque es el que arranca el Terminal en la máquina de Lester (Temurin 21.0.12 LTS), y el
 # Terminal v3 pide Java 21 o superior. No bajar de ahí.
 #
+# ⚠ POR QUÉ `jdk21` Y NO `jdk21_headless`, QUE SERÍA MÁS LIGERO.
+# El 2026-08-15 los builds de Wheel e Ideas murieron con:
+#
+#     pkgs.buildEnv error: two given paths contain a conflicting subpath:
+#       openjdk-headless-21.0.8/bin/jdeps  y  openjdk-21.0.8/bin/jdeps
+#
+# Esos DOS servicios tienen además una variable NIXPACKS_PKGS puesta a mano en Railway con
+# `jdk21`, de cuando se arregló lo de Java a mano. Nixpacks SUMA esa lista a la de este fichero,
+# y `jdk21` + `jdk21_headless` son dos paquetes distintos que instalan el mismo `/bin/jdeps`:
+# Nix no sabe con cuál quedarse y aborta. El Cóndor y el Credit Spread NO tienen esa variable,
+# sólo cogían el de aquí, y por eso ellos construían bien y los otros dos no. Se veía en la
+# cabecera del build:  setup │ jdk21, nodejs_24, npm-9_x, nodejs_24, npm-9_x, jdk21_headless
+#
+# Pidiendo el MISMO paquete en los dos sitios, Nix lo unifica en vez de chocar.
+#
+# LO LIMPIO SERÍA borrar esa variable NIXPACKS_PKGS de Wheel y de Ideas y dejar este fichero como
+# única fuente — así se podría volver a `jdk21_headless`, que se ahorra las librerías gráficas
+# (este build se baja ~950 MB por culpa de gtk3, cairo y pango, que Java headless no necesita).
+# Mientras la variable siga puesta, aquí tiene que decir `jdk21`.
+#
 # Esto vale para los TRES servicios que usan ThetaData —cóndor, Wheel y Credit Spread—, que se
 # construyen todos desde `web/` y compartían el mismo agujero.
 
 [phases.setup]
-nixPkgs = ["...", "jdk21_headless"]
+nixPkgs = ["...", "jdk21"]
