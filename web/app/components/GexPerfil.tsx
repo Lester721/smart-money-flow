@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { pedirGex, type DatosGex } from "@/lib/gexCliente";
+import Info from "./Info";
 
 // EL PERFIL DE GAMMA POR STRIKE — vivía dentro de `GexView`. Se sacó a su propio componente el
 // 2026-08-14 para poder ponerlo AL LADO del panel de decisión, que es como Lester lo pidió:
@@ -47,11 +48,68 @@ export default function GexPerfil() {
   const tope = Math.max(1, vals[Math.floor(vals.length * 0.9)] ?? 1);
   const ancho = (v: number) => Math.min(100, (v / tope) * 100);
 
+  // El strike que MANDA hoy: el de mayor gamma total (calls + puts). Es el que explica la nota ⓘ,
+  // y por eso el texto es dinámico — si mañana manda otro, o si mandan los puts, la explicación
+  // cambia sola en vez de quedarse contando un ejemplo viejo.
+  const mand = cerca.length
+    ? (() => {
+        const b = cerca.reduce((a, x) => (x.call + x.put > a.call + a.put ? x : a), cerca[0]);
+        return { strike: b.strike, call: b.call, put: b.put, imán: b.call >= b.put };
+      })()
+    : null;
+
   return (
     <div className="card">
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
         <div>
           <b style={{ fontSize: 17 }}>Gamma Exposure</b>
+          <Info titulo="Qué son estas cifras y por qué un strike hace de imán" ancho={520}>
+            <p style={{ margin: "0 0 9px" }}>
+              Cada número es <b>dinero de cobertura por cada 1% que se mueva el índice</b>: si SPX
+              se mueve un 1%, cuánto tienen que comprar o vender los dealers <em>por culpa de las
+              opciones de ese strike</em>.
+            </p>
+            {mand && (
+              <>
+                <p style={{ margin: "0 0 9px" }}>
+                  Ahora mismo el strike que más manda es <b>{mand.strike.toLocaleString("es-ES")}</b>,
+                  con <b style={{ color: C.verde }}>${M(mand.call / 1e6)}</b> en calls contra{" "}
+                  <b style={{ color: C.rojo }}>${M(mand.put / 1e6)}</b> en puts.
+                  Neto: <b>${M(Math.abs(mand.call - mand.put) / 1e6)}</b>{" "}
+                  {mand.imán ? "amortiguando" : "amplificando"}.
+                </p>
+                <p style={{ margin: "0 0 9px" }}>
+                  {mand.imán ? (
+                    <>
+                      Con los dealers <b>largos de gamma</b> ahí: si el precio <b>sube</b> hacia{" "}
+                      {mand.strike.toLocaleString("es-ES")} tienen que <b>vender</b> índice, y eso lo
+                      empuja abajo; si <b>baja</b>, tienen que <b>comprar</b>, y eso lo empuja arriba.{" "}
+                      <b>Venden cuando sube y compran cuando baja.</b> No es que el strike atraiga:{" "}
+                      <b>castiga la salida por los dos lados</b>. Eso es el imán.
+                    </>
+                  ) : (
+                    <>
+                      Aquí mandan los <b style={{ color: C.rojo }}>puts</b>, así que es{" "}
+                      <b>lo contrario de un imán</b>: los dealers <b>compran cuando sube</b> y{" "}
+                      <b>venden cuando baja</b>, <b>acelerando</b> el movimiento. El precio pasa de
+                      largo y más rápido.
+                    </>
+                  )}
+                </p>
+              </>
+            )}
+            <p style={{ margin: "0 0 9px" }}>
+              <b>La barra grande dice dónde hay fuerza; el color, si esa fuerza te frena o te empuja.</b>{" "}
+              Verde (calls) amortigua · rojo (puts) amplifica.
+            </p>
+            <p style={{ margin: 0, fontSize: 12, color: C.tenue }}>
+              Los strikes de <b>millones</b> son ruido; los de <b>miles de millones</b> son donde
+              pasa algo — la gamma es máxima donde está el precio y se desploma al alejarse.
+              Y ojo: lo del <b>61% / 92%</b> según la distancia lo medimos nosotros sobre 652 días;
+              el mecanismo de cobertura de arriba es teoría estándar que <b>no hemos medido por
+              separado</b>. Medimos la consecuencia, no la causa.
+            </p>
+          </Info>
           <span className="muted" style={{ fontSize: 13, marginLeft: 10 }}>por cada 1% que se mueva el índice</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
