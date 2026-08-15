@@ -34,7 +34,7 @@ describe("asegurarBarrasDeLiquidacion", () => {
 
   it("rescata al ticker que faltaba y lo mete en el mapa", async () => {
     const mapa = new Map([["AAPL", barra]]);
-    const r = await asegurarBarrasDeLiquidacion([abierta("AMD"), abierta("AAPL")], mapa, async () => barra);
+    const r = await asegurarBarrasDeLiquidacion([abierta("AMD"), abierta("AAPL")], mapa, async () => barra, 4, () => 0);
     expect(r.rescatados).toEqual(["AMD"]);
     expect(r.sinResolver).toEqual([]);
     expect(mapa.get("AMD")).toEqual(barra);
@@ -42,7 +42,7 @@ describe("asegurarBarrasDeLiquidacion", () => {
 
   it("reporta —NO se traga— el ticker que sigue sin barras", async () => {
     const mapa = new Map<string, typeof barra>();
-    const r = await asegurarBarrasDeLiquidacion([abierta("SPX")], mapa, async () => { throw new Error("no es una acción"); }, 2);
+    const r = await asegurarBarrasDeLiquidacion([abierta("SPX")], mapa, async () => { throw new Error("no es una acción"); }, 2, () => 0);
     expect(r.rescatados).toEqual([]);
     expect(r.sinResolver).toEqual([{ ticker: "SPX", motivo: "no es una acción" }]);
   });
@@ -50,7 +50,7 @@ describe("asegurarBarrasDeLiquidacion", () => {
   it("reintenta: si el primer intento falla y el segundo va, lo rescata igual", async () => {
     const mapa = new Map<string, typeof barra>();
     let n = 0;
-    const r = await asegurarBarrasDeLiquidacion([abierta("AMD")], mapa, async () => (++n === 1 ? [] : barra), 3);
+    const r = await asegurarBarrasDeLiquidacion([abierta("AMD")], mapa, async () => (++n === 1 ? [] : barra), 3, () => 0);
     expect(n).toBe(2);
     expect(r.rescatados).toEqual(["AMD"]);
   });
@@ -58,7 +58,7 @@ describe("asegurarBarrasDeLiquidacion", () => {
   it("no toca a los que ya tenían barras (no gasta llamadas de más)", async () => {
     const mapa = new Map([["AAPL", barra]]);
     let llamadas = 0;
-    await asegurarBarrasDeLiquidacion([abierta("AAPL")], mapa, async () => { llamadas++; return barra; });
+    await asegurarBarrasDeLiquidacion([abierta("AAPL")], mapa, async () => { llamadas++; return barra; }, 4, () => 0);
     expect(llamadas).toBe(0);
   });
 });

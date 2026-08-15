@@ -176,7 +176,9 @@ function pctile(v: number[], p: number): number | null { if (!v.length) return n
       const { trades } = await fetchFlow(t, { targetDays: FWD_DAYS, minPremium: MIN_PREMIUM, contractCap: 25, maxPages: 6 });
       const { rows } = classifyFlow(trades, new Date());
       let bars: DBar[] = [];
-      for (let i = 0; i < 4; i++) { bars = (await fetchDailyBars(t, 800).catch(() => [])) as DBar[]; if (bars.length > 0) break; await sleep(1000 * (i + 1)); }
+      // Espera 3s, 6s, 12s entre intentos. El Terminal se degrada al final de una corrida larga:
+      // el 2026-08-14 los TRES ÚLTIMOS tickers del bucle se quedaron sin barras con esperas de 1s.
+      for (let i = 0; i < 4; i++) { bars = (await fetchDailyBars(t, 800).catch(() => [])) as DBar[]; if (bars.length > 0) break; await sleep(3000 * 2 ** i); }
       if (!bars.length) { console.log(`[${t}] sin barras — omitido`); continue; }
       barsByTicker.set(t, bars);
       let newN = 0;

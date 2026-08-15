@@ -45,7 +45,10 @@ export async function asegurarBarrasDeLiquidacion(
   ledger: Posicion[],
   barsByTicker: Map<string, DBar[]>,
   fetchBars: (ticker: string) => Promise<DBar[]>,
-  intentos = 3,
+  intentos = 4,
+  // La espera es inyectable para que los tests no tarden 65 segundos. En producción es larga a
+  // propósito; en los tests se pasa 0 y se comprueba la LÓGICA de reintento, que es lo que importa.
+  esperaMs: (i: number) => number = (i) => 5000 * 3 ** i,
 ): Promise<{ rescatados: string[]; sinResolver: { ticker: string; motivo: string }[] }> {
   const rescatados: string[] = [];
   const sinResolver: { ticker: string; motivo: string }[] = [];
@@ -59,7 +62,12 @@ export async function asegurarBarrasDeLiquidacion(
       } catch (e) {
         motivo = (e as Error).message;
       }
-      if (!bars.length && i < intentos - 1) await new Promise((r) => setTimeout(r, 1500 * (i + 1)));
+      // Espera EXPONENCIAL y larga: 5 s, 15 s, 45 s. Antes eran 1,5 y 3 s — nada si el Terminal
+      // viene degradado tras un cuarto de hora de trabajo, que es justo cuando falla. El
+      // 2026-08-14 QQQ, SPY y HOOD (los tres ÚLTIMOS del bucle) se quedaron sin barras y sus puts
+      // vencidos no liquidaron. Este job corre una vez al día: 65 s de paciencia no cuestan nada
+      // y la alternativa es que las posiciones se queden abiertas para siempre.
+      if (!bars.length && i < intentos - 1) await new Promise((r) => setTimeout(r, esperaMs(i)));
     }
     if (bars.length) { barsByTicker.set(tk, bars); rescatados.push(tk); }
     else sinResolver.push({ ticker: tk, motivo });
