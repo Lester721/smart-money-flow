@@ -216,28 +216,38 @@ for (const k of claves) {
   // en ruido. Pero tampoco se pueden ignorar sin más: mientras el servicio siga sin firmar,
   // sigue siendo un problema vivo.
   //
-  // La frontera se calcula sola: la PRIMERA operación firmada de este ledger. Todo lo anterior
-  // es historia (el servicio aún no tenía el código); todo lo posterior sin firmar es un fallo
-  // real y actual. En cuanto el servicio corra con el código nuevo, el aviso se apaga solo y sin
-  // que nadie toque un dato.
-  const firmadas = v.filter((o) => o.origen).map((o) => o.dia ?? o.entryDate ?? "").filter(Boolean).sort();
-  const frontera = firmadas[0] ?? null;
-  const sinFirma = v.filter((o) => !o.origen);
-  const posteriores = frontera ? sinFirma.filter((o) => (o.dia ?? o.entryDate ?? "") > frontera).length : 0;
-  const historicas = sinFirma.length - posteriores;
-  if (historicas > 0) {
-    console.log(`      ${historicas} sin firmar, ` + (frontera
-      ? `anteriores a la primera firmada (${frontera}): historia, no se pueden arreglar`
-      : `y este servicio NUNCA ha firmado ninguna → todavía no ha corrido con el código nuevo`));
-    if (!frontera) avisos++;
-  }
-  if (posteriores > 0) {
-    console.log(`      ⚠ ${posteriores} operaciones sin firmar POSTERIORES a una que sí lo está` +
-                ` → el servicio dejó de firmar, eso es un fallo vivo`);
+  // LO INTENTÉ Y ERA UN AVISO FALSO, así que se quita. La idea era: la primera operación FIRMADA
+  // marca la frontera, y lo posterior sin firmar es un fallo vivo. Pero eso ordena por la fecha
+  // de la SEÑAL (`entryDate`), no por cuándo se escribió el registro — y la Wheel rellena señales
+  // históricas: las 24 que firmó el 2026-08-15 llevan fecha de entrada del 4 de agosto. Resultado:
+  // 54 operaciones viejas parecían "posteriores a una firmada" y saltaba un fallo inexistente.
+  //
+  // Es la trampa de las etiquetas de tiempo otra vez: confundir la fecha del DATO con el momento
+  // de ESCRIBIRLO. Los registros antiguos no guardan cuándo se escribieron, así que desde aquí no
+  // hay forma honesta de decidirlo. Una comprobación que no se puede hacer fiable se QUITA, no se
+  // deja gritando: el ruido de un monitor cuesta más que su silencio.
+  //
+  // La pregunta "¿está firmando ahora?" ya la contesta el LATIDO, que sí lleva su propia hora.
+  // Aquí sólo se cuenta, y se avisa de lo único inequívoco: que no haya firmado NUNCA nada.
+  const firmadas = v.filter((o) => o.origen).length;
+  const sinFirmar = v.length - firmadas;
+  if (sinFirmar) console.log(`      ${sinFirmar} sin firmar (de antes del campo "origen") · ${firmadas} firmadas`);
+  if (firmadas === 0 && v.length > 0) {
+    console.log(`      ⚠ NINGUNA operación firmada: no ha escrito nunca con el código nuevo`);
     avisos++;
   }
 }
 
-console.log(`\n${avisos === 0 ? "✅ NINGÚN AVISO" : `⚠ ${avisos} avisos`}`);
+// FALLAR CERRADO. Si no se pudo mirar —Redis vacío, sin token— NO se dice que todo va bien: se
+// dice que no se pudo comprobar. Un monitor que ante la duda dice "verde" es peor que ninguno.
+const sinDatos = claves.length === 0;
+console.log("");
+console.log(sinDatos
+  ? "❓ NO SE PUDO COMPROBAR — Redis no tiene ni una clave. ¿Es el Redis correcto?"
+  : avisos === 0
+    ? "✅ SISTEMA SANO — ningún fallo que arreglar"
+    : `⚠ ${avisos} FALLO${avisos > 1 ? "S" : ""} DEL SISTEMA — hay algo que hacer`);
+if (notas) console.log(`   (+ ${notas} notas de los forward-tests: información sobre las pruebas, no fallos)`);
+if (!DESPLIEGUES) console.log("   (sin RAILWAY_TOKEN no he podido cruzar con lo que hay desplegado)");
 await r.quit();
 process.exit(avisos === 0 && !sinDatos ? 0 : 1);
