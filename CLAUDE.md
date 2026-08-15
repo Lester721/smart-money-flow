@@ -346,3 +346,77 @@ Estampa el mismo bloque de procedencia. Un reporte sin él no se usa para decidi
 - **Fuente de verdad:** los `.md` son la versión editable; los `.pages`/`.pdf` son los originales de referencia. Al actualizar reglas, editar el `.md` correspondiente y reflejar el cambio aquí.
 - **Al implementar código:** este directorio es documentación de diseño. Cualquier implementación (parser de option chain, motor de flujo, lector RSS) debe respetar las fórmulas y umbrales exactos de arriba.
 - La regla de **liquidez/GEX** es una salvaguarda: ante la duda, no operar y avisar.
+
+---
+
+# ⛔ LOS CINCO ERRORES QUE NO SE REPITEN
+
+Escrito el 2026-08-15 a petición de Lester, después de que mis fallos le costaran horas de
+trabajo suyo. **No son consejos: cada uno tiene un guardián en el código que falla solo.**
+Si algo de aquí se incumple, se rompe un test — no depende de que yo me acuerde.
+
+## 1. Ningún precio sale de un modelo
+
+Los backtests valoraban con Black-Scholes alimentado con **volatilidad realizada**. En venta de
+prima el dinero sale del hueco entre implícita y realizada; meter la realizada asume que ese
+hueco es cero y el backtest devuelve tu propio supuesto disfrazado de resultado. El credit spread
+pasó de **+3,20% a −2,53%** al usar precios reales.
+
+**Guardián:** `web/lib/sin-precios-de-modelo.test.ts`. La lista de deuda **sólo encoge**.
+Black-Scholes vale sólo en la dirección mercado → griega, nunca modelo → precio.
+
+## 2. Un filtro que descarta casi todo es un BUG, no un resultado
+
+`if (!q) return null; // sin precio real no se inventa` — la línea es correcta. Pero le pasaba a
+`quoteCierre` el código OCC del contrato en vez del ticker, así que **descartó el 100% de los
+flujos** y el informe salió con ceros. Lo conté como "no hay datos". Semanas así.
+
+**Guardián:** `comprobarDescarte()` en `web/lib/barreraHallazgos.ts`. Lanza excepción si un filtro
+se come más del 90%.
+
+## 3. Un fallo de red NO se escribe como si fuera un resultado
+
+El descargador escribía un fichero de "sin datos" cuando la petición fallaba. Al morir el
+Terminal, **3.905 de 5.472 días se marcaron como hechos en segundos** — cinco tickers enteros
+vacíos. El contador decía 5.472/5.472 y parecía terminado.
+
+**Guardián:** `csv()` en `bajar-flujo-historico.mjs` distingue `vacio` (HTTP 200 o 472 = es un
+resultado) de `fallo` (no se escribe nada y aborta a los 5 seguidos).
+
+## 4. Validar el CONTENIDO, no el recuento
+
+`ls | wc -l` no valida nada. El bug del "31 de febrero" (pedir `${mes}31` para febrero) dejó
+**60 de 60 operaciones con `oi: null`** y el recuento de ficheros seguía perfecto.
+
+**Guardián:** `web/scripts/validar-flujo-historico.mjs` abre todos los ficheros, desglosa **por
+ticker y por año**, y sale con código 1 si algo falla. Un total sano esconde trozos muertos.
+
+## 5. Ningún hallazgo se reporta sin sus cuatro cribas
+
+Le presenté un hallazgo con **t=5,64**, monótono y coherente en las dos mitades. Vivía en dos
+semanas y en un solo ticker. **Partir en dos MITADES lo aprobaba; partir en TRES lo mató.**
+
+**Guardián:** `pasarBarrera()` en `web/lib/barreraHallazgos.ts` — se **niega** a devolver un
+hallazgo si falla alguna:
+
+| criba | de dónde salió |
+|---|---|
+| muestra mínima | el cóndor con 4 operaciones |
+| ningún activo > 20% | NFLX era el 25% |
+| mismo signo en los **tres** tercios de tiempo | la inusualidad |
+| \|t\| contra el listón de Bonferroni | el IV proxy pasó de t=+6,7 a t=−3,8 |
+
+Sus tests reproducen **los casos reales** que me engañaron: si la barrera dejara de tumbarlos,
+falla el test.
+
+---
+
+## Y tres reglas de trato que también fallé
+
+- **La hora y las fechas se COMPRUEBAN, no se infieren.** Le dije "son las 4am" cuando eran las
+  00:59 (leía UTC), y "llevamos meses" cuando el proyecto empezó el **2026-07-24**. Comprobar con
+  PowerShell y con `git log`, no con la sensación.
+- **Sus preguntas van al manual con sus palabras.** Si preguntó, es que no estaba explicado. Y sus
+  "¿cómo lo sabes?" han destapado dos errores míos en un día.
+- **Él no tiene que saber de estadística ni de backtesting.** Ese es mi trabajo. Cuando le paso un
+  número sin haberlo cribado, le fallo en lo único que no puede verificar por su cuenta.
