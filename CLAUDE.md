@@ -420,3 +420,43 @@ falla el test.
   "¿cómo lo sabes?" han destapado dos errores míos en un día.
 - **Él no tiene que saber de estadística ni de backtesting.** Ese es mi trabajo. Cuando le paso un
   número sin haberlo cribado, le fallo en lo único que no puede verificar por su cuenta.
+
+---
+
+# 🔬 CUÁNDO SUBIR A ULTRACODE
+
+Ultracode lanza **varios agentes en paralelo**, unos buscando y otros intentando **refutar** lo
+que encontraron los primeros. Cuesta bastantes más tokens.
+
+**La regla no es "cuando sea difícil". Es cuando algo SALGA BIEN.** Mis fallos nunca fueron por no
+saber resolver algo: fueron por **creérmelo demasiado pronto**. La inusualidad tenía t=5,64 y era
+ruido; el IV proxy tenía t=+6,7 y al período siguiente daba −3,8.
+
+**Lester no tiene que acordarse de pedirlo: lo propongo yo cuando se dé un disparador.**
+
+## Disparadores — proponerlo SIEMPRE que ocurra alguno
+
+1. **Una medición pasa la barrera y el resultado es positivo.** Ese es el momento exacto. Antes de
+   contárselo como hallazgo, una tanda de agentes con el encargo explícito de **tumbarlo** desde
+   ángulos distintos: concentración por activo, por período, look-ahead, supervivencia a la
+   horquilla, y si el vehículo real lo puede cobrar.
+2. **Antes de que comprometa dinero real** en una estrategia. Aquí el coste en tokens es
+   irrelevante comparado con el coste de equivocarse.
+3. **Auditorías amplias** donde yo tendría que muestrear: "¿dónde más pasa esto?", "¿qué otros
+   sitios tienen este bug?". Ahí el paralelismo cubre lo que yo dejaría fuera.
+4. **Cuando él pida una decisión y haya varios caminos defendibles** — un panel de agentes
+   independientes proponiendo y puntuando bate a que yo elija uno y lo argumente.
+
+## Cuándo NO — decirlo también, para no quemarle tokens
+
+- **Construir** paneles, APIs o scripts: el cuello de botella es decidir qué enseñar, no razonar.
+- **Bajar datos**: el límite es ThetaData y un solo Terminal. Quince agentes se pelearían por las
+  mismas cuatro conexiones.
+- **Depurar un error concreto** ya localizado.
+- **Conversación** y preguntas.
+
+## Cómo se dice
+
+Cuando se dé un disparador, decírselo así de claro: *"esto es un momento de ultracode: hay un
+número que parece bueno y quiero varios agentes intentando destrozarlo antes de que te lo cuente
+como hallazgo. Escribe 'ultracode' si quieres que lo haga."* Él lo activa; yo lo propongo.
