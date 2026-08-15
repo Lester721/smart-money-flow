@@ -58,6 +58,37 @@ interface Fila {
 
 const media = (x: number[]) => x.reduce((a, b) => a + b, 0) / x.length;
 
+/**
+ * UN CAMPO PRESENTE PERO SIEMPRE NULO ES UN BUG, NO UN DATO.
+ *
+ * `columnas()` en el medidor comprueba que la columna EXISTA. Esto comprueba que su VALOR sirva,
+ * que es distinto y fue el tercer fallo silencioso de la misma noche: `dte` salió null en las
+ * 26.880 filas (Date.parse no entiende "20240102"), y como en JavaScript `null <= 30` es TRUE,
+ * el corte "≤30 días" se quedó con la muestra ENTERA y ">30 días" con cero. Nada falló.
+ *
+ * Si un campo que se va a usar está roto en más del `maxNulosPct`, se para aquí.
+ */
+function comprobarCampo<T>(filas: T[], nombre: keyof T & string, maxNulosPct = 0.9): void {
+  const nulos = filas.filter((f) => {
+    const v = f[nombre] as unknown;
+    return v == null || (typeof v === "number" && !Number.isFinite(v));
+  }).length;
+  if (nulos >= filas.length * maxNulosPct) {
+    throw new Error(
+      `campo "${nombre}": ${nulos} de ${filas.length} filas lo tienen nulo o no finito.
+` +
+      `  Eso NO es un dato escaso, es un campo roto. Y ojo: en JavaScript null <= 30 es TRUE,
+` +
+      `  así que un filtro sobre este campo estaría cogiendo la muestra entera sin avisar.`);
+  }
+}
+
+/** dte recalculado aquí a partir de `dia` y `exp`, que sí son válidos, en vez de fiarse del guardado. */
+const dteDe = (dia: string, exp: string): number => {
+  const iso = dia.includes("-") ? dia : `${dia.slice(0, 4)}-${dia.slice(4, 6)}-${dia.slice(6, 8)}`;
+  return Math.round((Date.parse(`${exp}T20:00:00Z`) - Date.parse(`${iso}T20:00:00Z`)) / 86_400_000);
+};
+
 /** Las cuatro categorías medibles, con las funciones de Victor SIN tocar. */
 function categorias(f: Fila, repeticiones: number) {
   const anchoPct = f.ask > 0 ? (100 * (f.ask - f.bid)) / ((f.ask + f.bid) / 2) : null;
@@ -104,11 +135,21 @@ function main() {
     veces.set(k, (veces.get(k) ?? 0) + 1);
   }
 
+  // Los campos que se van a usar, comprobados de verdad ANTES de puntuar.
+  for (const campo of ["pnl", "prima", "bid", "ask", "oi", "size", "price", "spot"] as const)
+    comprobarCampo(crudas, campo);
+
   const filas = crudas.map((f) => {
     const k = `${f.ticker}|${f.dia}|${f.exp}|${f.strike}|${f.right}`;
-    const c = categorias(f, veces.get(k) ?? 1);
-    return { ...f, cat: c, victor: total(c, PESOS_VICTOR), eva: total(c, EVA_WEIGHTS as never) };
+    const conDte = { ...f, dte: dteDe(f.dia, f.exp) };      // NO se usa el dte guardado
+    const c = categorias(conDte, veces.get(k) ?? 1);
+    return { ...conDte, cat: c, victor: total(c, PESOS_VICTOR), eva: total(c, EVA_WEIGHTS as never) };
   });
+  comprobarCampo(filas, "dte");
+  const plazos = filas.map((f) => f.dte).sort((a, b) => a - b);
+  console.log(`plazo (días al vencimiento): mínimo ${plazos[0]} · mediana ${plazos[plazos.length >> 1]} · ` +
+              `máximo ${plazos[plazos.length - 1]} · a más de 30 días: ${filas.filter((f) => f.dte > 30).length}
+`);
 
   const conTotal = filas.filter((f) => f.victor != null);
   comprobarDescarte(filas.length, conTotal.length, "filas con total puntuable");
@@ -163,13 +204,29 @@ function main() {
                 `t=${r.t.toFixed(2).padStart(6)} separación=${(100 * r.sep).toFixed(2)}%`);
   }
 
+  // ESCEPTICISMO SIMÉTRICO: la potencia se comprueba SIEMPRE, no sólo cuando falla todo. El
+  // resultado que manda aquí es el TOTAL y es negativo; hay que saber si es «no existe» o «no lo
+  // pudimos ver», pasen o no otras pruebas por su cuenta. Aplicar cribas sólo al lado positivo es
+  // en sí mismo un sesgo: garantiza no encontrar nunca nada.
+  console.log("\nEL TOTAL NO SEPARA. ¿Es «no existe» o «no lo pudimos ver»?\n");
+  // Se mide contra DOS listones, porque la respuesta depende de qué ventaja se busque:
+  //   2%  — el mínimo estadístico. Pero NO es operable: sólo la horquilla se lleva el 1,81% de la
+  //         prima al entrar y salir, así que un 2% no deja nada en el bolsillo.
+  //   10% — una ventaja que sí valdría la pena después de costes.
+  for (const [efecto, nota] of [
+    [0.02, "el mínimo estadístico — NO es operable, la horquilla se come el 1,81%"],
+    [0.10, "una ventaja que sí valdría la pena después de costes"],
+  ] as const) {
+    const p = potencia(aBarrera(conTotal), efecto);
+    console.log(`  buscando un ${(100 * efecto).toFixed(0)}% — ${nota}`);
+    console.log(`    ${p.mensaje}`);
+    console.log(`    → ${p.concluyente
+      ? "CONCLUYENTE: con esta muestra se habría visto. No está."
+      : "NO concluyente: hace falta más muestra."}\n`);
+  }
+
   if (!pasan.length) {
-    console.log("\nNINGUNA PASA. Antes de decir «no funciona», la comprobación de potencia:");
-    const p = potencia(aBarrera(conTotal), 0.02);      // ¿se vería un 2% por operación?
-    console.log(`  ${p.mensaje}`);
-    console.log(p.concluyente
-      ? "  → CONCLUYENTE: con esta muestra un efecto que importe se habría visto. No está."
-      : "  → NO CONCLUYENTE: hace falta más muestra antes de enterrar nada.");
+    console.log("\nNINGUNA PASA.");
   } else {
     console.log("\nHay pruebas que pasan. NO se cree todavía: toca atacarlas con ultracode " +
                 "(criterio de CLAUDE.md — cuando algo sale BIEN es cuando hay que escalar).");

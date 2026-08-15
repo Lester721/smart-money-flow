@@ -50,6 +50,8 @@ const ahora = () => new Date().toLocaleTimeString("en-US", { hour12: false });
 const log = (m) => console.log(`[${ahora()}] ${m}`);
 const num = (s) => Number(String(s).replace(/"/g, ""));
 const txt = (s) => String(s).replace(/"/g, "");
+/** "20240102" → "2024-01-02". Date.parse NO entiende la forma compacta. */
+const aIso = (d) => (String(d).includes("-") ? String(d) : `${String(d).slice(0,4)}-${String(d).slice(4,6)}-${String(d).slice(6,8)}`);
 
 async function csv(ruta, ms = 60_000) {
   try {
@@ -298,7 +300,12 @@ async function main() {
         ticker: n.ticker, dia: n.dia, ts: n.ts, exp: n.exp, strike: n.strike, right: n.right,
         size: n.size, price: n.price, prima: n.prima, bid: n.bid, ask: n.ask, oi: n.oi,
         spot, iv, delta: g.delta, gamma: g.gamma, theta: g.theta,
-        dte: Math.round((Date.parse(`${n.exp}T20:00:00Z`) - Date.parse(`${n.dia}T20:00:00Z`)) / 86_400_000),
+        // OJO: n.dia viene compacto ("20240102") y Date.parse NO lo entiende — devolvía NaN,
+        // que JSON escribe como null, y en JavaScript `null <= 30` es TRUE. Resultado: dte nulo
+        // en las 26.880 filas, expiryScore constante y el corte por plazo cogiendo la muestra
+        // entera. Se formatea antes de parsear, y `columnas()` no lo habría pillado porque el
+        // campo sí existía: era el VALOR el que estaba roto.
+        dte: Math.round((Date.parse(`${n.exp}T20:00:00Z`) - Date.parse(`${aIso(n.dia)}T20:00:00Z`)) / 86_400_000),
         diaSalida: salida, exitBid, salidaAdelantada: adelantada,
         // P&L de comprar el mismo contrato y venderlo al bid tras HOLD días hábiles.
         pnl: exitBid / n.price - 1,
