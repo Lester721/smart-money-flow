@@ -45,7 +45,15 @@ if ((process.env.DATA_PROVIDER || "massive").toLowerCase() !== "theta") {
   passthrough.on("error", (e) => { console.error(`[with-theta] ${e.message}`); process.exit(1); });
 } else {
 
-if (!KEY) { console.error("[with-theta] Falta THETADATA_API_KEY"); process.exit(1); }
+if (!KEY) {
+  console.error("[with-theta] Falta THETADATA_API_KEY");
+  const { escribirLatidoDirecto } = await import("../lib/origenEjecucion.ts");
+  const rw = (process.env.RAILWAY_SERVICE_NAME || "").toLowerCase();
+  for (const [pista, nombre] of Object.entries({ "cóndor": "gex-condor", condor: "gex-condor",
+      wheel: "wheel", "credit spread": "credit-spread", ideas: "ideas" }))
+    if (rw.includes(pista)) { await escribirLatidoDirecto(nombre, "NO CORRIÓ: falta THETADATA_API_KEY"); break; }
+  process.exit(1);
+}
 
 async function ensureJar() {
   if (existsSync(JAR)) return;
@@ -75,13 +83,32 @@ async function cerrar() { shutdown(); await soltarCandado(); }
 // ("Stopping Container", 5 de 12 tickers) y la corrida no dejó ni rastro: sin latido, sin
 // operaciones, y desde fuera parecía que el servicio no había hecho nada. Ahora deja dicho que
 // lo pararon, que es información muy distinta de "falló" o de "no corrió".
-async function avisarParada(señal) {
+// ¿BAJO QUÉ NOMBRE SE ESCRIBE EL LATIDO?
+// Tiene que ser el MISMO que usa el cron al terminar bien, o el comprobador mira una clave y el
+// fallo se escribe en otra. La primera versión usaba `process.env.LATIDO_SERVICIO`, una variable
+// que yo inventé y NO puse en ningún sitio: cada parada habría escrito en `latido:with-theta`,
+// una clave fantasma que (1) dejaba al servicio de verdad pareciendo sano y (2) avisaría para
+// siempre de un servicio que no existe. Se deriva del nombre real que inyecta Railway.
+const SERVICIOS = { "cóndor": "gex-condor", condor: "gex-condor", wheel: "wheel",
+                    "credit spread": "credit-spread", ideas: "ideas" };
+function nombreLatido() {
+  if (process.env.LATIDO_SERVICIO) return process.env.LATIDO_SERVICIO;
+  const rw = (process.env.RAILWAY_SERVICE_NAME || "").toLowerCase();
+  for (const [pista, nombre] of Object.entries(SERVICIOS)) if (rw.includes(pista)) return nombre;
+  return null;      // NO se inventa un nombre: mejor no escribir que escribir en el sitio falso
+}
+
+/** Deja dicho por qué esta corrida no llegó a ninguna parte. Nunca lanza. */
+async function avisarNoCorrio(motivo) {
+  const servicio = nombreLatido();
+  if (!servicio) { log(`(no sé bajo qué servicio dejar el aviso: RAILWAY_SERVICE_NAME="${process.env.RAILWAY_SERVICE_NAME || ""}")`); return; }
   try {
     const { escribirLatidoDirecto } = await import("../lib/origenEjecucion.ts");
-    await escribirLatidoDirecto(process.env.LATIDO_SERVICIO || "with-theta",
-      `PARADO por ${señal} a mitad de corrida (Railway detuvo el contenedor: ¿despliegue nuevo?)`);
+    await escribirLatidoDirecto(servicio, motivo);
   } catch { /* nos vamos igual */ }
 }
+const avisarParada = (señal) =>
+  avisarNoCorrio(`PARADO por ${señal} a mitad de corrida (Railway detuvo el contenedor: ¿despliegue nuevo?)`);
 process.on("SIGINT", async () => { await avisarParada("SIGINT"); await cerrar(); process.exit(130); });
 process.on("SIGTERM", async () => { await avisarParada("SIGTERM"); await cerrar(); process.exit(143); });
 
@@ -99,7 +126,12 @@ process.on("SIGTERM", async () => { await avisarParada("SIGTERM"); await cerrar(
 // El candado vive en Redis porque es lo único que comparten los contenedores. Con TTL, para que
 // un servicio que muera sin soltar no deje a los demás bloqueados para siempre.
 const LOCK_KEY = process.env.THETA_LOCK_KEY || "lock:theta";
-const LOCK_TTL = Number(process.env.THETA_LOCK_TTL || 1800);     // 30 min: más que cualquier job
+// TTL CORTO + RENOVACIÓN, no TTL largo y a rezar. Con un TTL fijo de 30 min y un trabajo que
+// tarda 28, el día que tarde 31 el candado CADUCA con el trabajo dentro y entra un segundo
+// Terminal: exactamente la colisión que esto viene a evitar, pero provocada sola. Con renovación,
+// el TTL sólo tiene que cubrir el hueco entre dos renovaciones — y si el dueño muere de golpe,
+// el siguiente entra en 2 minutos en vez de en 30.
+const LOCK_TTL = Number(process.env.THETA_LOCK_TTL || 120);       // 2 min, renovado cada 40 s
 // Esperar TANTO como pueda durar la corrida del otro, no menos: el Credit Spread tarda ~18 min y
 // la Wheel arranca 30 min después. Si un día el primero se pasa de 30, el segundo tiene que
 // aguantar, no rendirse. Se iguala al TTL del candado: así siempre acaba pudiendo entrar.
@@ -140,7 +172,29 @@ async function cogerCandado() {
   return false;
 }
 
+let _renovador = null;
+/** Renueva el candado mientras el trabajo siga vivo. Si deja de ser mío, aborto: seguir con un
+ *  candado ajeno es peor que no tenerlo. */
+function empezarRenovacion() {
+  if (!_lockCli) return;
+  _renovador = setInterval(async () => {
+    try {
+      const dueño = await _lockCli.get(LOCK_KEY);
+      if (dueño !== QUIEN) {
+        log(`✗ el candado ya no es mío (lo tiene "${dueño}"). Abortando para no chocar.`);
+        clearInterval(_renovador); _renovador = null;
+        await avisarNoCorrio(`ABORTADO: perdí el candado de ThetaData a mitad (lo tiene ${dueño})`);
+        shutdown();
+        process.exit(75);
+      }
+      await _lockCli.expire(LOCK_KEY, LOCK_TTL);
+    } catch (e) { log(`(no pude renovar el candado: ${e.message})`); }
+  }, Math.max(10, Math.floor(LOCK_TTL / 3)) * 1000);
+  _renovador.unref?.();
+}
+
 async function soltarCandado() {
+  if (_renovador) { clearInterval(_renovador); _renovador = null; }
   const cli = _lockCli;
   if (!cli) return;
   try {
@@ -155,7 +209,10 @@ async function soltarCandado() {
 (async () => {
   await ensureJar();
 
-  if (!(await cogerCandado())) { await soltarCandado(); process.exit(75); }   // 75 = EX_TEMPFAIL
+  if (!(await cogerCandado())) {
+    await avisarNoCorrio(`NO CORRIÓ: la sesión de ThetaData seguía ocupada tras ${LOCK_ESPERA}s`);
+    await soltarCandado(); process.exit(75);                                   // 75 = EX_TEMPFAIL
+  }
 
   // Java: preferIPv4Stack evita el cuelgue por IPv6 al contactar el servidor de auth.
   const opts = ["-Djava.net.preferIPv4Stack=true"];
@@ -175,6 +232,20 @@ async function soltarCandado() {
   // de comandos, pero sí las variables de entorno — que es donde el problema de TLS se manifiesta.
   const jto = [process.env.JAVA_TOOL_OPTIONS, ...opts].filter(Boolean).join(" ");
 
+  // MODO PRUEBA: ejercitar el candado SIN levantar un Terminal de verdad.
+  // La auditoría corre este mismo script para comprobar el candado. Si arrancara Java, se
+  // conectaría a ThetaData con la MISMA clave y le robaría la sesión a lo que estuviera corriendo
+  // en Railway en ese momento — o sea, la herramienta que comprueba que no hay colisiones sería
+  // la que las provoca. Con THETA_SIN_TERMINAL=1 se salta el arranque y se sale limpio.
+  if (process.env.THETA_SIN_TERMINAL === "1") {
+    log("THETA_SIN_TERMINAL=1 → no arranco Java (modo prueba del candado).");
+    empezarRenovacion();
+    const hijo = runChild();
+    hijo.on("exit", async (code) => { await cerrar(); process.exit(code ?? 1); });
+    hijo.on("error", async (e) => { console.error(`[with-theta] ${e.message}`); await cerrar(); process.exit(1); });
+    return;
+  }
+
   log("arrancando el Theta Terminal…");
   term = spawn("java", ["-jar", JAR, "--api-key", KEY], {
     stdio: ["ignore", "pipe", "pipe"],
@@ -189,12 +260,25 @@ async function soltarCandado() {
     if (await ready()) break;
     await new Promise((r) => setTimeout(r, 3000));
   }
-  if (!(await ready())) { log(`el Terminal no respondió en ${BOOT_TIMEOUT}s`); await cerrar(); process.exit(1); }
+  if (!(await ready())) {
+    log(`el Terminal no respondió en ${BOOT_TIMEOUT}s`);
+    await avisarNoCorrio(`NO CORRIÓ: el Theta Terminal no respondió en ${BOOT_TIMEOUT}s`);
+    await cerrar(); process.exit(1);
+  }
+  empezarRenovacion();
   log(`Terminal listo en ${((Date.now() - t0) / 1000).toFixed(0)}s — corriendo: ${cmd.join(" ")}`);
 
   const child = runChild();
   child.on("exit", async (code) => { await cerrar(); process.exit(code ?? 1); });
-  child.on("error", async (e) => { console.error(`[with-theta] no pude correr el comando: ${e.message}`); await cerrar(); process.exit(1); });
-})().catch(async (e) => { console.error(`[with-theta] ERROR: ${e.message}`); await cerrar(); process.exit(1); });
+  child.on("error", async (e) => {
+    console.error(`[with-theta] no pude correr el comando: ${e.message}`);
+    await avisarNoCorrio(`NO CORRIÓ: no se pudo lanzar el comando (${e.message})`);
+    await cerrar(); process.exit(1);
+  });
+})().catch(async (e) => {
+  console.error(`[with-theta] ERROR: ${e.message}`);
+  await avisarNoCorrio(`NO CORRIÓ: el lanzador falló (${e.message})`);
+  await cerrar(); process.exit(1);
+});
 
 } // fin del modo ThetaData

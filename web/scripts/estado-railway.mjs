@@ -24,6 +24,10 @@ import Redis from "ioredis";
 // cifras se distingue "se quedó atrás" de "aún no ha corrido desde el último despliegue".
 // Sin RAILWAY_TOKEN esto se salta y todo lo demás sigue funcionando igual.
 async function desplegados() {
+  // RAILWAY_API=0 apaga el cruce a propósito: sirve para trabajar sin red y para que la auditoría
+  // pueda comprobar que, SIN poder cruzar, el comprobador avisa en vez de callarse. Hace falta
+  // una bandera explícita porque `--env-file` vuelve a poner el token aunque se borre del entorno.
+  if (process.env.RAILWAY_API === "0") return null;
   if (!process.env.RAILWAY_TOKEN) return null;
   const Q = `query { projects { edges { node { name services { edges { node { name
     deployments(first: 1) { edges { node { status createdAt meta } } } } } } } } } }`;
@@ -81,17 +85,43 @@ console.log(`main en el remoto: ${corto(COMMIT_MAIN) || "(no se pudo leer)"}`);
 
 // ── 1. LATIDOS: qué commit corre cada servicio ──────────────────────────────
 console.log("\n── SERVICIOS ────────────────────────────────────────────────────────");
-const latidos = (await r.keys("latido:*")).sort();
-if (!latidos.length) {
-  console.log("  (todavía ningún latido: los servicios lo escribirán en su próxima corrida)");
-  console.log("   hasta entonces no se puede saber qué commit corre cada uno.");
-} else {
-  for (const k of latidos) {
-    let L; try { L = JSON.parse(await r.get(k)); } catch { continue; }
+// SE RECORRE LA LISTA DE SERVICIOS QUE DEBERÍA HABER, NO LAS CLAVES QUE HAY.
+// Con `keys("latido:*")` un servicio que NUNCA ha escrito latido —porque su build falla y no
+// llega a desplegarse— sencillamente no aparece: no sale en ninguna línea, no suma ningún aviso,
+// y el comprobador remata en verde. Un servicio muerto se vería idéntico a uno sano, que es
+// exactamente lo que esto existe para impedir.
+const ESPERADOS = ["gex-condor", "credit-spread", "wheel", "ideas"];
+const sueltos = (await r.keys("latido:*")).map((k) => k.replace("latido:", "")).filter((n) => !ESPERADOS.includes(n));
+if (sueltos.length) {
+  console.log(`  ⚠ latidos con un nombre que no es de ningún servicio esperado: ${sueltos.join(", ")}`);
+  console.log(`    (alguien escribió bajo un nombre inventado; nadie lo va a actualizar nunca)`);
+  avisos += sueltos.length;
+}
+{
+  for (const servicio of ESPERADOS) {
+    const crudoL = await r.get(`latido:${servicio}`);
+    if (!crudoL) {
+      const dep = buscarDespliegue(DESPLIEGUES, servicio);
+      console.log(`  ${servicio.padEnd(14)} ⚠ NINGÚN LATIDO` +
+                  (dep ? ` · desplegado ${corto(dep.commit)} (${dep.estado})` : ""));
+      console.log(`                 o nunca ha corrido con el código nuevo, o el servicio está caído`);
+      avisos++;
+      continue;
+    }
+    let L; try { L = JSON.parse(crudoL); } catch {
+      console.log(`  ${servicio.padEnd(14)} ⚠ su latido no es JSON válido`); avisos++; continue;
+    }
     const horas = (Date.now() - Date.parse(L.cuandoISO)) / 3_600_000;
     console.log(`  ${String(L.servicio).padEnd(14)} ${String(L.origen).padEnd(8)} commit ${corto(L.commit)}` +
                 `  ·  corrió ${L.cuandoET} (hace ${horas.toFixed(1)} h)`);
     console.log(`  ${" ".repeat(14)} ${L.resultado}`);
+    // EL LATIDO DE FALLO NO SIRVE DE NADA SI NADIE LO LEE. La primera versión imprimía el
+    // resultado y seguía: un cron que petara todos los días salía "✓ al día con main" y el
+    // comprobador remataba en verde. Se escribió el latido de fallo justamente para esto.
+    if (/^(FALLÓ|PARADO|NO CORRIÓ|ABORTADO)/i.test(String(L.resultado || ""))) {
+      console.log(`                 ⚠ LA ÚLTIMA CORRIDA NO TERMINÓ BIEN`);
+      avisos++;
+    }
     if (horas > 26) { console.log(`                 ⚠ lleva ${horas.toFixed(0)} h sin correr`); avisos++; }
     if (L.origen !== "railway") {
       console.log(`                 ⚠ el último que corrió NO fue Railway, fue "${L.origen}"`); avisos++;
@@ -200,4 +230,4 @@ for (const k of claves) {
 
 console.log(`\n${avisos === 0 ? "✅ NINGÚN AVISO" : `⚠ ${avisos} avisos`}`);
 await r.quit();
-process.exit(avisos === 0 ? 0 : 1);
+process.exit(avisos === 0 && !sinDatos ? 0 : 1);

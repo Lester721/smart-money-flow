@@ -105,26 +105,45 @@ for (const [ruta, patron, nombre] of [
 // ── 5. el comprobador DETECTA un despliegue viejo ───────────────────────────
 console.log("\n5. el comprobador detecta un despliegue viejo");
 const mainSha = execFileSync("git", ["rev-parse", "origin/main"], { encoding: "utf8" }).trim();
+// OJO: el comprobador ya no lee cualquier clave `latido:*`, sino los servicios ESPERADOS. Así
+// que para probarlo hay que usar el nombre de uno de verdad. Se usa "ideas" y se deja como
+// estaba al terminar (se guarda su valor previo unas líneas más abajo).
+const CLAVE_PRUEBA = "latido:ideas";
+const previoIdeas = await r.get(CLAVE_PRUEBA);
 const falso = {
-  servicio: "__auditoria__", origen: "railway", commit: "0000000000000000000000000000000000000000",
+  servicio: "ideas", origen: "railway", commit: "0000000000000000000000000000000000000000",
   cuandoISO: new Date().toISOString(),
   cuandoET: new Date().toLocaleString("sv-SE", { timeZone: "America/New_York" }).slice(0, 16),
   resultado: "latido FALSO de la auditoría, con un commit que no es el de main",
 };
-await r.set("latido:__auditoria__", JSON.stringify(falso));
+await r.set(CLAVE_PRUEBA, JSON.stringify(falso));
 let salida = "", codigo = 0;
 try {
   salida = execFileSync("node", ["--env-file=.env.local", "scripts/estado-railway.mjs"], { encoding: "utf8" });
 } catch (e) { salida = (e.stdout || "") + (e.stderr || ""); codigo = e.status ?? -1; }
-ok("avisa DESPLIEGUE VIEJO", /DESPLIEGUE VIEJO/.test(salida),
-   (salida.split("\n").find((l) => l.includes("DESPLIEGUE VIEJO")) || "").trim().slice(0, 96));
+// CON el token, el comprobador cruza el latido con lo que hay DESPLEGADO. Un latido viejo cuando
+// el despliegue está al día NO es "despliegue viejo": es "aún no ha corrido con él". Distinguir
+// las dos cosas es justo lo que se arregló, así que aquí se comprueba que NO grita de más.
+ok("con la API, latido viejo + despliegue al día NO se llama 'DESPLIEGUE VIEJO'",
+   !/DESPLIEGUE VIEJO/.test(salida) && /aún no ha corrido con él/.test(salida));
 ok("nombra el commit de main correcto", salida.includes(mainSha.slice(0, 8)), mainSha.slice(0, 8));
+
+// SIN token no puede cruzar, y entonces sí tiene que avisar en vez de callarse.
+let salidaSinToken = "", codSinToken = 0;
+try {
+  const env = { ...process.env, RAILWAY_API: "0" };   // --env-file repone el token; hace falta bandera
+  salidaSinToken = execFileSync("node", ["--env-file=.env.local", "scripts/estado-railway.mjs"],
+    { encoding: "utf8", env });
+} catch (e) { salidaSinToken = (e.stdout || "") + (e.stderr || ""); codSinToken = e.status ?? -1; }
+ok("sin RAILWAY_TOKEN avisa del latido desfasado en vez de callarse",
+   /main está en/.test(salidaSinToken) && codSinToken !== 0);
+ok("y dice que no pudo cruzar con lo desplegado", /sin RAILWAY_TOKEN/.test(salidaSinToken));
 
 // ── 5bis. un id de despliegue NO se compara con main ────────────────────────
 // Si Railway inyecta un UUID de despliegue en vez de un SHA de git, compararlo con main daría
 // "DESPLIEGUE VIEJO" todos los días. Un aviso inventado es peor que ninguno: enseña a ignorarlos.
 console.log("\n5bis. un id de despliegue no se confunde con un commit viejo");
-await r.set("latido:__auditoria__", JSON.stringify({
+await r.set(CLAVE_PRUEBA, JSON.stringify({
   ...falso, commit: "7f3a1c9e-4b2d-4e8a-9c1f-2a6b8d0e5f31",
   resultado: "latido con id de despliegue, no con SHA de git",
 }));
@@ -159,6 +178,10 @@ try {
   salidaLock = execFileSync("node", ["--env-file=.env.local", "scripts/with-theta.mjs",
     "node", "-e", "console.log('el trabajo corrió')"],
     { encoding: "utf8", env: { ...process.env, DATA_PROVIDER: "theta",
+      // SIN Terminal: si la auditoría arrancara Java se conectaría a ThetaData con la misma clave
+      // y le robaría la sesión a lo que estuviera corriendo en Railway. La herramienta que
+      // comprueba que no hay colisiones NO puede ser la que las provoque.
+      THETA_SIN_TERMINAL: "1",
       THETA_LOCK_KEY: "lock:__auditoria__", THETA_LOCK_ESPERA: "40", THETA_BOOT_TIMEOUT: "1" } });
 } catch (e) { salidaLock = (e.stdout || "") + (e.stderr || ""); }
 ok("detecta que otro servicio tiene la sesión", /otro servicio tiene la sesión/.test(salidaLock));

@@ -99,16 +99,26 @@ async function estado() {
 
 async function logs(nombreServicio) {
   const d = await gql(Q_ESTADO);
-  let encontrado = null;
+  // SE RECOGEN TODAS LAS COINCIDENCIAS, NO LA ÚLTIMA. El bucle original reasignaba sin `break` y
+  // ganaba la última de CUALQUIER proyecto — y hay TRES servicios llamados "smart-money-flow" en
+  // proyectos distintos. Pedir el log de uno y recibir el de otro, sin ninguna señal, es
+  // exactamente el fallo silencioso que este script viene a eliminar.
+  const casan = [];
   for (const { node: p } of d.projects.edges)
     for (const { node: s } of p.services.edges)
-      if (s.name.toLowerCase().includes(nombreServicio.toLowerCase())) encontrado = s;
+      if (s.name.toLowerCase().includes(nombreServicio.toLowerCase())) casan.push({ proyecto: p.name, s });
 
-  if (!encontrado) { console.error(`No encuentro ningún servicio que contenga "${nombreServicio}".`); process.exit(1); }
+  if (!casan.length) { console.error(`No encuentro ningún servicio que contenga "${nombreServicio}".`); process.exit(1); }
+  if (casan.length > 1) {
+    console.error(`"${nombreServicio}" casa con ${casan.length} servicios. Sé más específico:`);
+    for (const c of casan) console.error(`   ${c.proyecto} · ${c.s.name}`);
+    process.exit(1);
+  }
+  const { proyecto, s: encontrado } = casan[0];
   const dep = encontrado.deployments.edges[0]?.node;
   if (!dep) { console.error(`"${encontrado.name}" no tiene despliegues.`); process.exit(1); }
 
-  console.log(`${encontrado.name} · ${ESTADOS[dep.status] || dep.status} · ${haceCuanto(dep.createdAt)}`);
+  console.log(`${proyecto} · ${encontrado.name} · ${ESTADOS[dep.status] || dep.status} · ${haceCuanto(dep.createdAt)}`);
   console.log(`commit ${(dep.meta?.commitHash || "").slice(0, 8)} — ${String(dep.meta?.commitMessage || "").split("\n")[0]}\n`);
 
   const l = await gql(Q_LOGS, { id: dep.id, limit: LINEAS });

@@ -63,17 +63,26 @@ async function servicios() {
   return out;
 }
 
-/** ¿Hay alguien con la sesión de ThetaData cogida? */
+/**
+ * ¿Hay alguien con la sesión de ThetaData cogida? TRES estados, no dos.
+ *
+ * La primera versión devolvía null tanto para "libre" como para "no lo pude comprobar" (sin
+ * REDIS_URL, o cualquier fallo de ioredis). Con Redis caído habría impreso "🔓 sesión libre" —
+ * afirmando un hecho que no comprobó— y habría lanzado igual, provocando la colisión de dos
+ * Terminal que este script existe para evitar. No saber NO es lo mismo que estar libre.
+ */
 async function candado() {
-  if (!process.env.REDIS_URL) return null;
+  if (!process.env.REDIS_URL) return { estado: "desconocido", motivo: "no hay REDIS_URL" };
+  let r = null;
   try {
     const { default: Redis } = await import("ioredis");
-    const r = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2 });
+    r = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 2 });
     const v = await r.get("lock:theta");
     const ttl = v ? await r.ttl("lock:theta") : 0;
-    await r.quit();
-    return v ? { quien: v, ttl } : null;
-  } catch { return null; }
+    return v ? { estado: "cogido", quien: v, ttl } : { estado: "libre" };
+  } catch (e) {
+    return { estado: "desconocido", motivo: e.message };
+  } finally { try { await r?.quit(); } catch { /* nos vamos */ } }
 }
 
 const lista = await servicios();
@@ -83,8 +92,10 @@ if (bandera("--listar") || !objetivo) {
   for (const s of lista)
     console.log(`  ${s.nombre.padEnd(26)} ${String(s.estado).padEnd(10)} ${s.commit}  cron: ${s.cron}`);
   const c = await candado();
-  console.log(c ? `\n🔒 la sesión de ThetaData la tiene "${c.quien}" (${c.ttl}s) — hay algo corriendo`
-                : "\n🔓 sesión de ThetaData libre");
+  console.log("\n" + (c.estado === "cogido"
+    ? `🔒 la sesión de ThetaData la tiene "${c.quien}" (${c.ttl}s) — hay algo corriendo`
+    : c.estado === "libre" ? "🔓 sesión de ThetaData libre"
+    : `❓ NO se pudo comprobar el candado: ${c.motivo}`));
   console.log(`\npara lanzar uno:  node --env-file=.env.local scripts/railway-run.mjs "Wheel"`);
   process.exit(0);
 }
@@ -98,9 +109,14 @@ if (s.estado !== "SUCCESS") {
   process.exit(1);
 }
 const c = await candado();
-if (c) {
+if (c.estado === "cogido") {
   console.error(`✗ NO se lanza: "${c.quien}" tiene la sesión de ThetaData (quedan ${c.ttl}s).`);
   console.error(`  ThetaData sólo permite UNA. Espera a que termine.`);
+  process.exit(1);
+}
+if (c.estado === "desconocido" && !bandera("--sin-candado")) {
+  console.error(`✗ NO se lanza: no pude comprobar el candado (${c.motivo}).`);
+  console.error(`  No saber no es lo mismo que estar libre. Con --sin-candado se fuerza.`);
   process.exit(1);
 }
 
@@ -116,8 +132,10 @@ if (bandera("--esperar")) {
   while (Date.now() - t0 < 45 * 60_000) {
     await new Promise((r) => setTimeout(r, 10_000));
     const c2 = await candado();
-    if (c2 && !cogio) { cogio = true; console.log(`  🔒 cogió el candado (${c2.quien}) tras ${((Date.now()-t0)/1000).toFixed(0)}s`); }
-    if (cogio && !c2) { console.log(`  ✅ terminó tras ${((Date.now()-t0)/60000).toFixed(1)} min`); break; }
+    // `candado()` devuelve SIEMPRE un objeto: hay que mirar el estado, no si es truthy. Con la
+    // versión anterior este bucle se creía que el candado estaba cogido siempre y no salía nunca.
+    if (c2.estado === "cogido" && !cogio) { cogio = true; console.log(`  🔒 cogió el candado (${c2.quien}) tras ${((Date.now()-t0)/1000).toFixed(0)}s`); }
+    if (cogio && c2.estado === "libre") { console.log(`  ✅ terminó tras ${((Date.now()-t0)/60000).toFixed(1)} min`); break; }
   }
   if (!cogio) console.log("  (no llegó a coger el candado: puede que este servicio no use ThetaData)");
 }
