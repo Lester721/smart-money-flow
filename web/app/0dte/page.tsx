@@ -70,6 +70,11 @@ export default function ZeroDtePage() {
             único que dice si la pared aguanta, y no se puede saber mirando un instante. */}
         <UnderlyingGamma />
 
+        {/* El Flow Tape NO se enchufa todavía: clasifica mal. Ver la cabecera de lib/flowTape.ts
+            — las cotizaciones de intervalo 1m pueden tener 60 s de antigüedad frente a la
+            operación, y eso hace que impresiones normales parezcan "fuera de la horquilla".
+            Un panel que etiqueta mal es peor que no tenerlo. */}
+
         {/* El reparto por vencimiento va DESPUÉS: es el contexto de fondo, no el paso de la
             decisión del día. */}
         <GexVencimientos />
