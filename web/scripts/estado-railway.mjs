@@ -35,7 +35,8 @@ function commitDeMain() {
   catch { return ""; }
 }
 
-let avisos = 0;
+let avisos = 0;   // fallos del sistema: hay que arreglarlos
+let notas = 0;    // observaciones del forward-test: información, no fallos
 const COMMIT_MAIN = commitDeMain();
 
 console.log(`AHORA (hora de Nueva York): ${ahoraET}`);
@@ -82,10 +83,20 @@ for (const k of claves) {
   const crudo = await r.get(k);
 
   if (k.endsWith(":report")) {
+    // DOS COSAS DISTINTAS QUE ANTES SE MEZCLABAN, y mezclarlas hacía inútil el contador:
+    //
+    //   · SALUD DEL SISTEMA — "el servicio no corrió", "se quedó en un despliegue viejo". Se
+    //     arreglan, y hasta que se arreglen hay algo que hacer.
+    //   · NOTAS DEL FORWARD-TEST — "con 3 cierres esto no dice nada, hacen falta ~30", "el
+    //     crédito está por debajo del p10". NO son fallos: es la prueba diciendo la verdad
+    //     sobre sí misma, y la de los 30 cierres va a estar ahí durante meses.
+    //
+    // Si las dos suman al mismo contador, nunca sale verde aunque todo esté perfecto — y un
+    // contador que nunca sale verde no se mira. Se cuentan aparte.
     const lineas = crudo.split("\n").filter((x) => x.includes("⚠"));
-    if (lineas.length) avisos += lineas.length;
-    console.log(`  ${k.padEnd(34)} ${lineas.length ? `⚠ ${lineas.length} avisos` : "sin avisos"}`);
-    for (const l of lineas) console.log(`        ${l.trim()}`);
+    console.log(`  ${k.padEnd(34)} ${lineas.length ? `${lineas.length} notas del forward-test` : "sin notas"}`);
+    for (const l of lineas) console.log(`        · ${l.replace("⚠", "").trim()}`);
+    notas += lineas.length;
     continue;
   }
 
