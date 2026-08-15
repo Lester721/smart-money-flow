@@ -23,7 +23,7 @@ import { classifyFlow, type FlowRow } from "../lib/flow";
 import { validationScore } from "../lib/validation";
 import { fetchDailyBars } from "../lib/flowProvider";
 
-import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
+import { quoteCierre, verticalReal, simboloEnFecha } from "../lib/thetadata";
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
 // ║  ⛔ PARADO A PROPÓSITO — 2026-08-12                                       ║
@@ -49,25 +49,25 @@ import { bsPriceHistorico as bsPrice } from "../lib/PRECIO-TEORICO-NO-USAR-PARA-
 //    imprimir tres líneas y salir. Eso no sólo era ruido en los logs: **es una sesión más**, y
 //    ThetaData sólo admite UNA por cuenta — cada arranque podía tumbar la descarga que estuviera
 //    corriendo en local. Ver la memoria `thetadata-sesiones-chocan`.
-// PARADO, PERO DEJANDO CONSTANCIA. Salir en silencio hacía que el comprobador lo leyera como
-// "o nunca ha corrido, o el servicio está caído": un aviso falso todos los días por algo que
-// está bien y es deliberado. Con el prefijo EN PAUSA el panel lo enseña como pausa, no avería.
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  REACTIVADO el 2026-08-15 — ya valora con PRECIOS REALES                  ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+// Estuvo parado desde el 2026-08-12 porque valoraba con Black-Scholes alimentado con volatilidad
+// realizada: eso asume que la prima implícita es igual a la realizada, que es justo donde vive el
+// dinero al vender prima. En el credit spread ese error convirtió un +3,20% en −2,53%.
 //
-// ⚠ SIN `await` AQUÍ. Este bloque está en el nivel superior del módulo, y `tsx` compila a
-// CommonJS: un `await` de nivel superior revienta el arranque con «Top-level await is currently
-// not supported with the "cjs" output format». Lo comprobé de la peor manera — desplegándolo—,
-// porque `tsc --noEmit` NO se queja: TypeScript sí admite ese await, el que no puede es tsx.
-// Se encadena con .finally y se sale ahí dentro.
-if (!process.env.IDEAS_ARREGLADO) {
-  console.log("⛔ PARADO: valoraba con Black-Scholes, no con precios reales.");
-  console.log("   Falta portar la valoración diaria a quoteCierre(). Ver la cabecera del archivo.");
-  console.log("   No registra nada a propósito: parado es mejor que mintiendo.");
-  escribirLatidoDirecto("ideas",
-    "EN PAUSA a propósito: valoraba con Black-Scholes. Falta portar la valoración a quoteCierre(). " +
-    "Se reactiva poniendo IDEAS_ARREGLADO=1.")
-    .catch(() => { /* si no se puede avisar, al menos no se sigue */ })
-    .finally(() => process.exit(0));
-} else {
+// Lo que se portó, y son los dos únicos sitios que inventaban:
+//   · La SALIDA del contrato comprado → `quoteCierre()`, y se vende al BID (lo que se cobra de
+//     verdad al deshacer una posición larga). Si no hay cotización, la posición NO se cierra.
+//   · La ENTRADA del spread → `verticalReal()`, que usa vencimientos y strikes LISTADOS y los
+//     valora con bid/ask reales. Si no sale un vertical operable, la idea se descarta y se cuenta.
+// La liquidación del spread a vencimiento ya era real (valor intrínseco, sin modelo).
+//
+// Comprobado antes de reactivarlo: corrida completa contra una clave de prueba, 95 posiciones
+// registradas y 27 ideas descartadas por no tener strikes con mercado. Ejemplo del crédito real:
+// SPX corto 7610 / largo 7520 a $14,65, con vencimiento 2026-09-18 — uno LISTADO, no "entrada+30".
+//
+// EL LEDGER ANTERIOR SE BORRÓ por contaminado. Este empieza de cero.
 
 // ── Parámetros ────────────────────────────────────────────────────────────────
 const MIN_PREMIUM = Number(process.env.FWI_MIN_PREMIUM) || 500_000;
@@ -152,26 +152,55 @@ function realizedVol(bars: DBar[], endIdx: number, lookback = 20): number | null
 const round = (x: number, d = 2) => Math.round(x * 10 ** d) / 10 ** d;
 
 // ── Liquidación ──────────────────────────────────────────────────────────────
-/** Copiar el trade: se compró la opción; se valora a los COPY_SESSIONS días (o al vencer). */
-function settleCopy(t: IdeaTrade, bars: DBar[]): boolean {
+/**
+ * Copiar el trade: se compró la opción; se cierra a los COPY_SESSIONS días (o al vencer).
+ *
+ * ⚠ LA VALORACIÓN ES LA QUE TUVO PARADO ESTE FORWARD-TEST DESDE EL 2026-08-12.
+ * Antes salía con `bsPrice(...)`: Black-Scholes alimentado con volatilidad REALIZADA. Eso asume
+ * que la prima implícita es igual a la realizada, que es justo donde vive el dinero — el modelo
+ * dejaba de medir el mercado y devolvía la suposición. En el credit spread ese mismo error
+ * convirtió un +3,20% en −2,53% al usar precios reales.
+ *
+ * Ahora se pide la cotización REAL del contrato el día de la salida y **se vende al BID**, que es
+ * lo que cobras de verdad al deshacer una posición larga. Si vence, valor intrínseco, que no
+ * necesita modelo.
+ *
+ * SI NO HAY COTIZACIÓN, NO SE CIERRA. Se devuelve "sinCotizacion" y la posición se queda abierta:
+ * inventar un precio para poder cerrar es exactamente lo que se vino a eliminar.
+ */
+async function settleCopy(t: IdeaTrade, bars: DBar[]): Promise<"cerrada" | "pronto" | "sinCotizacion"> {
   const entryIdx = idxOnOrBefore(bars, t.entryMs);
-  if (entryIdx < 0) return false;
+  if (entryIdx < 0) return "pronto";
   const exitIdx = Math.min(entryIdx + COPY_SESSIONS, bars.length - 1);
   const expIdx = idxOnOrAfter(bars, t.expiryMs);
   const useIdx = expIdx >= 0 && expIdx < exitIdx ? expIdx : exitIdx;
   const salidaMs = Date.parse(`${bars[useIdx].time}T20:00:00Z`);
-  if (Date.now() < salidaMs) return false;              // todavía no toca cerrarla
-  if (useIdx <= entryIdx) return false;
-  const s = bars[useIdx].close;
-  const Trem = Math.max((t.expiryMs - salidaMs) / YR, 0);
-  const val = Trem > 0
-    ? bsPrice(s, t.optStrike!, Trem, t.rv, t.optType!)
-    : (t.optType === "call" ? Math.max(s - t.optStrike!, 0) : Math.max(t.optStrike! - s, 0));
+  if (Date.now() < salidaMs) return "pronto";           // todavía no toca cerrarla
+  if (useIdx <= entryIdx) return "pronto";
+
+  const vencido = salidaMs >= t.expiryMs;
+  let val: number | null = null;
+  if (vencido) {
+    const s = bars[useIdx].close;
+    val = t.optType === "call" ? Math.max(s - t.optStrike!, 0) : Math.max(t.optStrike! - s, 0);
+  } else {
+    const fecha = bars[useIdx].time.replace(/-/g, "");
+    const q = await quoteCierre(
+      simboloEnFecha(t.ticker, fecha),
+      t.optExpiry!.replace(/-/g, ""),
+      t.optStrike!,
+      t.optType === "call" ? "C" : "P",
+      fecha,
+    );
+    if (!q) return "sinCotizacion";                     // NO se inventa: se queda abierta
+    val = q.bid;                                        // se VENDE: se cobra el bid
+  }
+
   const costo = t.optPrice! * (1 + SLIP);               // pagamos algo peor que el mid
   t.retOnRisk = round(((val - costo) / costo) * 100, 1); // riesgo = lo pagado
   t.exitDate = bars[useIdx].time;
   t.status = "closed";
-  return true;
+  return "cerrada";
 }
 
 /** Credit spread: se sostiene a vencimiento y se liquida por valor intrínseco. */
@@ -216,6 +245,7 @@ function hitBucket(t: IdeaTrade): string {
   const ledger = await loadLedger();
   const byId = new Map(ledger.map((t) => [t.id, t] as const));
   const added: IdeaTrade[] = [];
+  let sinVertical = 0;   // ideas que no se pudieron armar con strikes reales operables
 
   // 1. Ideas del búfer del worker (lo que la vista /ideas muestra).
   const { trades } = await loadMarketFlow();
@@ -294,36 +324,46 @@ function hitBucket(t: IdeaTrade): string {
     for (const dte of SPREAD_DTES) {
       const em = spot * rv * Math.sqrt(dte / 365);
       if (!(em > 0)) continue;
-      const bull = dir === 1;
-      const type = bull ? "put" : "call";
-      const shortK = bull ? spot - SIGMA * em : spot + SIGMA * em;
-      const longK = bull ? shortK - WIDTH_EM * em : shortK + WIDTH_EM * em;
-      if (shortK <= 0 || longK <= 0) continue;
-      const credit = bsPrice(spot, shortK, dte / 365, rv, type) - bsPrice(spot, longK, dte / 365, rv, type);
-      const width = Math.abs(shortK - longK);
-      const netCredit = credit * (1 - SLIP);
-      if (!(credit > 0) || !(width > 0) || !(netCredit > 0)) continue;
       const id = `${r.underlying}|${r.symbol}|${day}|spread${dte}`;
       if (byId.has(id)) continue;
-      const exp = entryMs + dte * 86_400_000;
+
+      // EL CRÉDITO SALE DEL MERCADO, NO DE UN MODELO. `verticalReal` elige un vencimiento y unos
+      // strikes que EXISTEN (los teóricos de arriba sólo sitúan la zona) y los valora con bid/ask
+      // reales, descartando cotizaciones rotas. Devuelve null si no es operable — y eso es
+      // información: significa que esa idea no se podía jugar así ese día, no que valga cero.
+      const v = await verticalReal(
+        simboloEnFecha(r.underlying, day.replace(/-/g, "")),
+        day.replace(/-/g, ""), spot, em, dir, dte, SIGMA, WIDTH_EM,
+      );
+      if (!v) { sinVertical++; continue; }
+
+      const expMsReal = Date.parse(`${v.exp.slice(0, 4)}-${v.exp.slice(4, 6)}-${v.exp.slice(6, 8)}T20:00:00Z`);
       const rec: IdeaTrade = {
         ...base, id, vehicle: `spread${dte}d`, dte,
-        shortK: round(shortK), longK: round(longK), width: round(width), netCredit: round(netCredit, 4),
-        expiryMs: exp, expiryDate: new Date(exp).toISOString().slice(0, 10),
+        shortK: round(v.shortK), longK: round(v.longK), width: round(v.width),
+        netCredit: round(v.netCredit, 4),
+        expiryMs: expMsReal, expiryDate: `${v.exp.slice(0, 4)}-${v.exp.slice(4, 6)}-${v.exp.slice(6, 8)}`,
       };
       byId.set(id, rec); ledger.push(rec); added.push(rec);
     }
   }
 
   // 4. Liquidar lo que toque.
-  let cerradas = 0;
+  // `settleCopy` es ASÍNCRONA desde que pide la cotización real, y devuelve tres estados en vez
+  // de un sí/no: cerrada, pronto (aún no toca) y sinCotizacion (no hubo mercado ese día). La
+  // tercera se CUENTA y se reporta: una posición que no se puede cerrar con un precio real se
+  // queda abierta, y eso hay que verlo, no taparlo cerrándola con un modelo.
+  let cerradas = 0, sinCotizacion = 0;
   for (const t of ledger) {
     if (t.status !== "open") continue;
     const bars = barsBy.get(t.ticker) ?? (await fetchDailyBars(t.ticker, 300).catch(() => [])) as DBar[];
     if (!bars.length) continue;
     barsBy.set(t.ticker, bars);
-    const ok = t.vehicle === "copiar" ? settleCopy(t, bars) : settleSpread(t, bars);
-    if (ok) cerradas++;
+    if (t.vehicle === "copiar") {
+      const res = await settleCopy(t, bars);
+      if (res === "cerrada") cerradas++;
+      else if (res === "sinCotizacion") sinCotizacion++;
+    } else if (settleSpread(t, bars)) cerradas++;
   }
 
   // 5. Reporte — la pregunta central: ¿QUÉ FILTRO sirve?
@@ -335,6 +375,16 @@ function hitBucket(t: IdeaTrade): string {
     "# Forward-test de IDEAS — ¿qué ideas tomar, y cómo jugarlas?",
     "",
     `Corrida: ${new Date().toISOString().slice(0, 16)}Z · ledger: **${ledger.length}** (**${abiertas.length}** abiertas · **${cerr.length}** cerradas) · nuevas: **${added.length}** · liquidadas: **${cerradas}**`,
+    "",
+    "> **PRECIOS REALES desde el 2026-08-15.** El contrato comprado se cierra al BID real de",
+    "> ThetaData y el crédito del spread sale del bid/ask de strikes y vencimientos LISTADOS",
+    "> (`quoteCierre` y `verticalReal`). Antes se valoraba con Black-Scholes alimentado con",
+    "> volatilidad realizada, que asume prima extra CERO — el mismo error que en el credit spread",
+    "> convirtió un +3,20% en −2,53%. El ledger anterior se borró por contaminado.",
+    "",
+    `> Descartes de esta corrida: **${sinVertical}** ideas sin vertical operable (strikes reales sin`,
+    `> mercado) · **${sinCotizacion}** posiciones que NO se cerraron por no haber cotización real`,
+    "> ese día — se quedan abiertas en vez de cerrarse con un precio inventado.",
     "",
     "> PAPEL — nada de esto es una orden real. Dos formas de jugar cada idea:",
     `> **copiar** = comprar el mismo contrato (salida a ${COPY_SESSIONS} sesiones o al vencer) ·`,
@@ -414,7 +464,8 @@ function hitBucket(t: IdeaTrade): string {
   }
 
   L.push("## Caveats",
-    "- Vehículo `copiar` valorado con Black-Scholes e IV constante (no modela colapso de IV).",
+    "- Vehículo `copiar`: se cierra al BID real del contrato. Si no hubo cotización ese día, la",
+    "  posición se queda ABIERTA en vez de cerrarse con un precio inventado.",
     "- Spreads sostenidos a vencimiento, sin gestión. Slippage 5% incluido; sin comisiones en la salida.",
     "- El búfer de Ideas es rodante (TTL de un día): este script debe correr A DIARIO o se pierden ideas.",
     "");
@@ -435,4 +486,3 @@ function hitBucket(t: IdeaTrade): string {
   process.exit(1);
 });
 
-}   // fin del `else` del bloque EN PAUSA de arriba
