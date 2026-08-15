@@ -149,6 +149,26 @@ for (const [ruta, nombre] of [
   ok(`${nombre}: escribe latido si revienta`, txt.includes("escribirLatidoDirecto("));
 }
 
+// ── 5quater. el candado de ThetaData impide dos Terminales a la vez ─────────
+// Es lo que tumbó el Cóndor y el Credit Spread el 2026-08-15: los dos arrancaron su Terminal a
+// las 13:36:58 y ninguno pudo servir datos. ThetaData permite UNA sesión por cuenta.
+console.log("\n5quater. el candado impide dos sesiones de ThetaData a la vez");
+await r.set("lock:__auditoria__", "Otro Servicio:999", "EX", 12);
+let salidaLock = "";
+try {
+  salidaLock = execFileSync("node", ["--env-file=.env.local", "scripts/with-theta.mjs",
+    "node", "-e", "console.log('el trabajo corrió')"],
+    { encoding: "utf8", env: { ...process.env, DATA_PROVIDER: "theta",
+      THETA_LOCK_KEY: "lock:__auditoria__", THETA_LOCK_ESPERA: "40", THETA_BOOT_TIMEOUT: "1" } });
+} catch (e) { salidaLock = (e.stdout || "") + (e.stderr || ""); }
+ok("detecta que otro servicio tiene la sesión", /otro servicio tiene la sesión/.test(salidaLock));
+ok("dice quién la tiene", /Otro Servicio:999/.test(salidaLock));
+ok("ESPERA en vez de arrancar un segundo Terminal", /esperando hasta 40s/.test(salidaLock));
+ok("lo coge cuando el otro lo suelta", /candado de ThetaData cogido/.test(salidaLock));
+ok("y lo suelta al terminar", /candado soltado/.test(salidaLock));
+await r.del("lock:__auditoria__");
+ok("no deja el candado puesto", (await r.get("lock:__auditoria__")) === null);
+
 // ── 6. sale con código ≠ 0 cuando hay avisos ────────────────────────────────
 console.log("\n6. el código de salida sirve para encadenar");
 ok("sale ≠ 0 habiendo avisos", codigo !== 0, `código ${codigo}`);

@@ -67,11 +67,80 @@ let term = null;
 function shutdown() {
   if (term && !term.killed) { log("apagando el Terminal…"); try { term.kill("SIGTERM"); } catch {} }
 }
-process.on("SIGINT", () => { shutdown(); process.exit(130); });
-process.on("SIGTERM", () => { shutdown(); process.exit(143); });
+/** Apagar + soltar candado. Se usa en TODAS las salidas: si el candado no se suelta, el
+ *  siguiente servicio se queda esperando hasta que expire el TTL. */
+async function cerrar() { shutdown(); await soltarCandado(); }
+process.on("SIGINT", async () => { await cerrar(); process.exit(130); });
+process.on("SIGTERM", async () => { await cerrar(); process.exit(143); });
+
+// ── CANDADO: UNA SOLA SESIÓN DE THETADATA EN TODO EL PROYECTO ───────────────
+//
+// ThetaData permite UNA conexión por cuenta. Si dos servicios levantan su Terminal a la vez, el
+// segundo NUNCA llega a servir datos: se queda esperando 180s y muere sin decir por qué.
+//
+// El 2026-08-15 eso tumbó dos servicios a la vez y costó la mañana entera. Lester le dio a
+// "Run now" al Cóndor y al Credit Spread casi al mismo segundo (13:36:58 los dos, según el log):
+// el Cóndor se quedó colgado antes de arrancar siquiera su script — ni imprimió su cabecera— y
+// el Credit Spread estuvo media hora en "Running" sin escribir nada. Desde fuera parecía un
+// fallo de código. No lo era.
+//
+// El candado vive en Redis porque es lo único que comparten los contenedores. Con TTL, para que
+// un servicio que muera sin soltar no deje a los demás bloqueados para siempre.
+const LOCK_KEY = process.env.THETA_LOCK_KEY || "lock:theta";
+const LOCK_TTL = Number(process.env.THETA_LOCK_TTL || 1800);     // 30 min: más que cualquier job
+const LOCK_ESPERA = Number(process.env.THETA_LOCK_ESPERA || 600); // esperar hasta 10 min al otro
+const QUIEN = `${process.env.RAILWAY_SERVICE_NAME || "local"}:${process.pid}`;
+
+let _lockCli = null;
+async function lockCliente() {
+  if (!process.env.REDIS_URL) return null;
+  if (!_lockCli) {
+    const { default: Redis } = await import("ioredis");
+    _lockCli = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 3 });
+  }
+  return _lockCli;
+}
+
+/** Coge el candado, esperando si otro lo tiene. Devuelve false si se agota la espera. */
+async function cogerCandado() {
+  const cli = await lockCliente();
+  if (!cli) { log("sin REDIS_URL: no hay candado (en local no hace falta)."); return true; }
+  const t0 = Date.now();
+  let avisado = false;
+  while (Date.now() - t0 < LOCK_ESPERA * 1000) {
+    const puesto = await cli.set(LOCK_KEY, QUIEN, "EX", LOCK_TTL, "NX");
+    if (puesto === "OK") {
+      log(`candado de ThetaData cogido por ${QUIEN}`);
+      return true;
+    }
+    if (!avisado) {
+      log(`⏳ otro servicio tiene la sesión de ThetaData: ${await cli.get(LOCK_KEY)}`);
+      log(`   esperando hasta ${LOCK_ESPERA}s a que la suelte (ThetaData sólo permite UNA).`);
+      avisado = true;
+    }
+    await new Promise((r) => setTimeout(r, 5000));
+  }
+  log(`✗ el candado sigue ocupado por ${await cli.get(LOCK_KEY)} tras ${LOCK_ESPERA}s.`);
+  log(`  NO se arranca un segundo Terminal: moriría sin servir datos. Este job no corre hoy.`);
+  return false;
+}
+
+async function soltarCandado() {
+  const cli = _lockCli;
+  if (!cli) return;
+  try {
+    // Sólo se suelta si el candado es MÍO: si ya expiró y lo cogió otro, no se le quita.
+    const dueño = await cli.get(LOCK_KEY);
+    if (dueño === QUIEN) { await cli.del(LOCK_KEY); log("candado soltado."); }
+    await cli.quit();
+  } catch { /* nos vamos igual */ }
+  _lockCli = null;
+}
 
 (async () => {
   await ensureJar();
+
+  if (!(await cogerCandado())) { await soltarCandado(); process.exit(75); }   // 75 = EX_TEMPFAIL
 
   // Java: preferIPv4Stack evita el cuelgue por IPv6 al contactar el servidor de auth.
   const opts = ["-Djava.net.preferIPv4Stack=true"];
@@ -105,12 +174,12 @@ process.on("SIGTERM", () => { shutdown(); process.exit(143); });
     if (await ready()) break;
     await new Promise((r) => setTimeout(r, 3000));
   }
-  if (!(await ready())) { log(`el Terminal no respondió en ${BOOT_TIMEOUT}s`); shutdown(); process.exit(1); }
+  if (!(await ready())) { log(`el Terminal no respondió en ${BOOT_TIMEOUT}s`); await cerrar(); process.exit(1); }
   log(`Terminal listo en ${((Date.now() - t0) / 1000).toFixed(0)}s — corriendo: ${cmd.join(" ")}`);
 
   const child = runChild();
-  child.on("exit", (code) => { shutdown(); process.exit(code ?? 1); });
-  child.on("error", (e) => { console.error(`[with-theta] no pude correr el comando: ${e.message}`); shutdown(); process.exit(1); });
-})().catch((e) => { console.error(`[with-theta] ERROR: ${e.message}`); shutdown(); process.exit(1); });
+  child.on("exit", async (code) => { await cerrar(); process.exit(code ?? 1); });
+  child.on("error", async (e) => { console.error(`[with-theta] no pude correr el comando: ${e.message}`); await cerrar(); process.exit(1); });
+})().catch(async (e) => { console.error(`[with-theta] ERROR: ${e.message}`); await cerrar(); process.exit(1); });
 
 } // fin del modo ThetaData
