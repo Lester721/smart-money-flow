@@ -17,6 +17,42 @@
 import { execFileSync } from "node:child_process";
 import Redis from "ioredis";
 
+// ── QUÉ COMMIT ESTÁ DESPLEGADO AHORA MISMO (API de Railway) ─────────────────
+// El latido dice qué commit CORRIÓ; esto dice cuál está DESPLEGADO. No es lo mismo, y confundirlo
+// da un aviso falso: el 2026-08-15 el Cóndor corrió a las 10:21 con 1273ff6, se redesplegó
+// después a 393f79b, y el comprobador cantó "despliegue viejo" cuando no lo había. Con las dos
+// cifras se distingue "se quedó atrás" de "aún no ha corrido desde el último despliegue".
+// Sin RAILWAY_TOKEN esto se salta y todo lo demás sigue funcionando igual.
+async function desplegados() {
+  if (!process.env.RAILWAY_TOKEN) return null;
+  const Q = `query { projects { edges { node { name services { edges { node { name
+    deployments(first: 1) { edges { node { status createdAt meta } } } } } } } } } }`;
+  try {
+    const r = await fetch("https://backboard.railway.com/graphql/v2", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.RAILWAY_TOKEN}` },
+      body: JSON.stringify({ query: Q }), signal: AbortSignal.timeout(20_000),
+    });
+    const j = await r.json();
+    if (j.errors?.length) return null;
+    const m = new Map();
+    for (const { node: p } of j.data.projects.edges)
+      for (const { node: sv } of p.services.edges) {
+        const d = sv.deployments.edges[0]?.node;
+        if (d) m.set(sv.name, { commit: d.meta?.commitHash || "", estado: d.status, cuando: d.createdAt });
+      }
+    return m;
+  } catch { return null; }
+}
+/** "gex-condor" ↔ "Forward · Cóndor 0DTE": el latido y Railway no usan el mismo nombre. */
+const ALIAS = { "gex-condor": "Cóndor", "credit-spread": "Credit Spread", wheel: "Wheel", ideas: "Ideas" };
+function buscarDespliegue(mapa, servicio) {
+  if (!mapa) return null;
+  const pista = (ALIAS[servicio] || servicio).toLowerCase();
+  for (const [nombre, v] of mapa) if (nombre.toLowerCase().includes(pista)) return v;
+  return null;
+}
+
 if (!process.env.REDIS_URL) { console.error("falta REDIS_URL en .env.local"); process.exit(1); }
 const r = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 3 });
 
@@ -35,6 +71,7 @@ function commitDeMain() {
   catch { return ""; }
 }
 
+const DESPLIEGUES = await desplegados();
 let avisos = 0;   // fallos del sistema: hay que arreglarlos
 let notas = 0;    // observaciones del forward-test: información, no fallos
 const COMMIT_MAIN = commitDeMain();
@@ -67,9 +104,20 @@ if (!latidos.length) {
       console.log(`                 · versión "${corto(L.commit)}" (no es un SHA de git: no se puede`);
       console.log(`                   comparar con main, pero si cambia es que se redesplegó)`);
     } else if (COMMIT_MAIN && corto(L.commit) !== corto(COMMIT_MAIN)) {
-      console.log(`                 ⚠ DESPLIEGUE VIEJO: corre ${corto(L.commit)}, main está en ` +
-                  `${corto(COMMIT_MAIN)} → hay que redesplegar ese servicio`);
-      avisos++;
+      // El latido va por detrás de main. Con la API se distingue el motivo, que es lo que importa.
+      const dep = buscarDespliegue(DESPLIEGUES, L.servicio);
+      if (dep && corto(dep.commit) === corto(COMMIT_MAIN)) {
+        console.log(`                 · ya está desplegado ${corto(COMMIT_MAIN)}, pero aún no ha corrido con él`);
+        console.log(`                   (el latido es de la corrida anterior). No hay nada que arreglar.`);
+      } else if (dep) {
+        console.log(`                 ⚠ DESPLIEGUE VIEJO: desplegado ${corto(dep.commit)} (${dep.estado}), ` +
+                    `main en ${corto(COMMIT_MAIN)} → redesplegar`);
+        avisos++;
+      } else {
+        console.log(`                 ⚠ corrió ${corto(L.commit)} y main está en ${corto(COMMIT_MAIN)}` +
+                    `${DESPLIEGUES ? "" : " (sin RAILWAY_TOKEN no puedo mirar qué hay desplegado)"}`);
+        avisos++;
+      }
     } else if (COMMIT_MAIN) console.log(`                 ✓ al día con main`);
   }
 }
@@ -100,6 +148,12 @@ for (const k of claves) {
     continue;
   }
 
+  if (k === "lock:theta") {
+    const ttl = await r.ttl(k);
+    console.log(`  ${k.padEnd(34)} 🔒 la sesión de ThetaData la tiene "${crudo}" (caduca en ${ttl}s)`);
+    console.log(`  ${" ".repeat(34)} eso significa que ESE servicio está corriendo ahora mismo.`);
+    continue;
+  }
   let v; try { v = JSON.parse(crudo); } catch { console.log(`  ${k.padEnd(34)} ${crudo.slice(0, 60)}`); continue; }
   if (!Array.isArray(v)) { console.log(`  ${k.padEnd(34)} ${JSON.stringify(v).slice(0, 90)}`); continue; }
 
