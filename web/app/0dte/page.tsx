@@ -3,6 +3,7 @@ import NavTabs from "../components/NavTabs";
 import EvaLogo from "../components/EvaLogo";
 import GexView from "../components/GexView";
 import GexVencimientos from "../components/GexVencimientos";
+import UnderlyingGamma from "../components/UnderlyingGamma";
 import GexPerfil from "../components/GexPerfil";
 import PanelDecision from "../components/PanelDecision";
 import ForwardGexCard from "../components/ForwardGexCard";
@@ -64,6 +65,10 @@ export default function ZeroDtePage() {
           <GexPerfil />
           <PanelDecision />
         </div>
+
+        {/* La PELÍCULA, después de la foto: si el precio respetó los muros o los cruzó. Es lo
+            único que dice si la pared aguanta, y no se puede saber mirando un instante. */}
+        <UnderlyingGamma />
 
         {/* El reparto por vencimiento va DESPUÉS: es el contexto de fondo, no el paso de la
             decisión del día. */}
