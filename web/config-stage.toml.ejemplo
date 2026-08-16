@@ -21,10 +21,29 @@
 # Reparto: **Railway se queda en PROD** (escribe su propio config por defecto) y **lo local va a
 # STAGE**. Así la descarga y los forward-tests dejan de pisarse.
 #
-# ⚠️ ANTES DE FIARSE: hay que COMPROBAR que STAGE devuelve los mismos datos que PROD, no
-# suponerlo. Si trajera datos parciales, la descarga se corrompería en silencio — exactamente el
-# fallo que ya nos costó 3.905 ficheros falsos. Comparar el mismo día por las dos vías y verificar
-# que el número de operaciones y los precios coinciden. Mientras no esté comprobado, PROD.
+# ✅ COMPROBADO EL 2026-08-15 — STAGE devuelve EXACTAMENTE los mismos datos que PROD.
+#
+# Se levantaron los dos Terminales a la vez (PROD en 25503, STAGE en 25504) y se pidió el mismo
+# dato por las dos vías, comparando el fichero entero con md5:
+#
+#   cadena de opciones de HOOD ..... 1.995 filas    idénticas
+#   interés abierto de HOOD ........ 1.949 filas    idénticas
+#   barras diarias de SPY .............. 6 filas    idénticas
+#   operaciones 0DTE de SPXW ..... 1.001.611 filas  idénticas
+#   vencimientos listados de SPY ... 2.109 filas    idénticas
+#
+# Ninguna diferencia, ni una fila. No hay datos parciales.
+#
+# Y LOS DOS CONVIVEN: con PROD ya corriendo, el segundo Terminal arrancó en STAGE sin invalidar
+# la sesión del primero. Los dos sirvieron datos a la vez.
+#
+# EL WEBSOCKET TAMBIÉN VA EN STAGE (comprobado abriendo ws://127.0.0.1:25520/v1/events con sólo
+# STAGE levantado). Eso es lo que permite mover el worker de Ideas a ThetaData y cancelar Massive.
+#
+# ⚠️ UN DETALLE DE LA PRUEBA EN LOCAL: los dos Terminales quieren el puerto 25520 para el
+# websocket, y el segundo no lo consigue ("Address already in use"). El HTTP sí funciona en los
+# dos porque el puerto se cambia en este fichero. En Railway NO pasa: cada servicio va en su
+# propio contenedor, con su propia red.
 
 host = "0.0.0.0"
 port = 25503

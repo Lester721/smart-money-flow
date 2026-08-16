@@ -246,10 +246,23 @@ async function soltarCandado() {
     return;
   }
 
+  // LA CLAVE NO VA EN LA LÍNEA DE COMANDOS.
+  //
+  // Antes se pasaba `--api-key <clave>`, y eso la deja visible ENTERA en la lista de procesos:
+  // cualquier programa corriendo con este usuario la lee con un `tasklist`. Lo levantó el otro
+  // proyecto de Lester el 2026-08-15 y tenía razón.
+  //
+  // El Terminal admite tres vías (lo dice su propio `--help`): argumento, fichero `.env`, o
+  // variable de entorno. Y además lee solo `creds.txt` del directorio de trabajo — comprobado
+  // apartando el fichero: sin él NO arranca ("Credentials file not found"). Así que el argumento
+  // sobraba. Se le pasa la variable de entorno por si `creds.txt` no estuviera, y nada por argv.
+  //
+  // Un fichero también es legible por quien tenga acceso al disco, pero NO se cuela en la lista
+  // de procesos, ni en capturas del administrador de tareas, ni en volcados de fallo.
   log("arrancando el Theta Terminal…");
-  term = spawn("java", ["-jar", JAR, "--api-key", KEY], {
+  term = spawn("java", ["-jar", JAR], {
     stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, JAVA_TOOL_OPTIONS: jto },
+    env: { ...process.env, JAVA_TOOL_OPTIONS: jto, THETA_API_KEY: KEY },
   });
   term.stdout.on("data", (d) => process.stdout.write(`[theta] ${d}`));
   term.stderr.on("data", (d) => process.stderr.write(`[theta] ${d}`));
