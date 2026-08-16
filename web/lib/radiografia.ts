@@ -34,6 +34,19 @@ export interface Umbrales {
   maxNulos?: number;
   /** Nº mínimo de valores DISTINTOS. Un campo con 2 valores no ordena nada en tercios. */
   minDistintos?: number;
+  /**
+   * Campos donde el CERO es un resultado legítimo y esperable, no un hueco de datos.
+   *
+   * Hay que nombrarlos UNO A UNO y a propósito: la excepción no se concede por defecto ni se
+   * consigue bajando `maxCeros`, porque entonces dejaría de proteger a los predictores.
+   *
+   * El caso que obligó a añadirlo (2026-08-16): al medir "comprar calls muy fuera del dinero y
+   * aguantar" sobre 28 tickers —ya con perdedores dentro—, 778 de 1.356 meses dieron CERO EXACTO.
+   * No es un fallo: es la tasa base real de la estrategia, la opción expira sin valor. Un pago de
+   * lotería tiene el cero como resultado MODAL. El campo del RESULTADO puede estar lleno de ceros;
+   * un PREDICTOR lleno de ceros sigue siendo un campo muerto.
+   */
+  cerosLegitimos?: string[];
 }
 
 const P = (v: number[], q: number) => v[Math.min(v.length - 1, Math.floor(v.length * q))];
@@ -50,7 +63,7 @@ export function radiografia<T extends object>(
   nombre = "datos",
   u: Umbrales = {},
 ): void {
-  const { maxCeros = 0.5, maxNulos = 0.5, minDistintos = 5 } = u;
+  const { maxCeros = 0.5, maxNulos = 0.5, minDistintos = 5, cerosLegitimos = [] } = u;
   if (!filas.length) throw new Error(`radiografía de "${nombre}": 0 filas. No hay nada que medir.`);
 
   const lineas: string[] = [];
@@ -65,7 +78,7 @@ export function radiografia<T extends object>(
 
     if (nulos >= filas.length * maxNulos)
       muertos.push(`"${c}": ${nulos} de ${filas.length} nulos o no finitos (${((nulos / filas.length) * 100).toFixed(1)}%)`);
-    else if (nums.length && ceros >= nums.length * maxCeros)
+    else if (nums.length && ceros >= nums.length * maxCeros && !cerosLegitimos.includes(c))
       muertos.push(`"${c}": ${ceros} de ${nums.length} son CERO EXACTO (${((ceros / nums.length) * 100).toFixed(1)}%)` +
                    ` — el descargador de este dato casi seguro filtra justo lo que quieres medir`);
     else if (nums.length && distintos < minDistintos)

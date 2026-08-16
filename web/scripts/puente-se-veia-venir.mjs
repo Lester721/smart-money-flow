@@ -67,23 +67,30 @@ const cargar = (sym, dia) => {
   return existsSync(f) ? JSON.parse(readFileSync(f, "utf8")) : null;
 };
 
-/** Interés abierto por día: {día: {strike: [oiCall, oiPut]}}, agregado sobre todos los vencimientos. */
-function cargarOI(sym) {
-  const out = new Map();
-  for (const f of readdirSync(ODIR)) {
-    if (!f.startsWith(`${sym}_oi_y_`)) continue;
-    const j = JSON.parse(readFileSync(`${ODIR}/${f}`, "utf8"));
-    for (const [dia, strikes] of Object.entries(j)) out.set(dia, strikes);
-  }
-  return out;
+// ── EL INTERÉS ABIERTO, AHORA ANCHO ─────────────────────────────────────────
+//
+// La primera versión leía `{sym}_oi_y_*.json`, que se descargó para el GEX y **sólo contiene
+// strikes dentro del ±25% del precio y vencimientos ≤60 días**. Medir con eso "el OI en strikes
+// >60% por encima" dio 570 ceros de 573 y una separación falsa con t=5,59. Ver
+// [mirar-el-fichero-antes-de-medilo] en memoria.
+//
+// Ahora se lee `oi-ancho/`, que no filtra nada: comprobado, NVDA 2019 pasa de tener strikes
+// 125–202,5 a tenerlos de 70 a 1210.
+//
+// Sólo se lee el ÚLTIMO DÍA DE CADA MES, que es cuando se miden los predictores: son ~128 lecturas
+// por ticker en vez de 2.663.
+const OIDIR = `${ODIR}/oi-ancho`;
+/** {vencimiento: {"strike|C": oi}} de un día, o null si no está. */
+function oiDelDia(sym, dia) {
+  const f = `${OIDIR}/${sym}_d${dia}.json`;
+  return existsSync(f) ? JSON.parse(readFileSync(f, "utf8")) : null;
 }
 
 const filas = [];
 const sinOI = new Set();
 
 for (const [sym, dias] of porSim) {
-  const oiPorDia = cargarOI(sym);
-  if (!oiPorDia.size) sinOI.add(sym);
+  if (!existsSync(`${OIDIR}/${sym}_d${dias[Math.floor(dias.length / 2)]}.json`)) sinOI.add(sym);
 
   // splits, para normalizar strikes y precios a unidades finales
   const splits = [];
@@ -162,13 +169,20 @@ for (const [sym, dias] of porSim) {
 
     // 1-2. interés abierto lejos del dinero y ratio call/put
     let oiC = 0, oiP = 0, oiLejosC = 0;
-    const oiDia = oiPorDia.get(d);
+    // AHORA CON TODOS LOS VENCIMIENTOS Y TODOS LOS STRIKES.
+    // `oiLejosC` es lo que mide la hipotesis de Lester: cuanto interes abierto hay acumulado en
+    // calls muy por encima del precio, o sea gente con posiciones vivas apostando a una subida
+    // grande. Con el fichero viejo esto era CERO por construccion.
+    const oiDia = oiDelDia(sym, d);
     if (oiDia) {
-      for (const [kStr, v] of Object.entries(oiDia)) {
-        const K = Number(kStr) / F;
-        const c0 = Number(v[0]) || 0, p0 = Number(v[1]) || 0;
-        oiC += c0; oiP += p0;
-        if (K > sp * 1.6) oiLejosC += c0;
+      for (const grupo of Object.values(oiDia)) {
+        for (const [clave, oi] of Object.entries(grupo)) {
+          const K = Number(clave.slice(0, -2)) / F;
+          const n = Number(oi) || 0;
+          if (!(K > 0) || !(n > 0)) continue;
+          if (clave.slice(-1) === "C") { oiC += n; if (K > sp * 1.6) oiLejosC += n; }
+          else oiP += n;
+        }
       }
     }
 
@@ -232,7 +246,7 @@ for (const [sym, dias] of porSim) {
     });
   }
   console.log(`${sym.padEnd(5)} ${filas.filter((f) => f.ticker === sym).length} meses medibles` +
-              (oiPorDia.size ? "" : "  ⚠ SIN datos de interés abierto"));
+              (sinOI.has(sym) ? "  ⚠ SIN interés abierto ancho" : ""));
 }
 
 if (sinOI.size) console.log(`\n⚠ sin interés abierto: ${[...sinOI].join(", ")} — sus predictores de OI van nulos`);

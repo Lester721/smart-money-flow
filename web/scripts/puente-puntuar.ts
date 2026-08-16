@@ -48,7 +48,11 @@ function main() {
   // ANTES DE MEDIR NADA: ¿de qué están hechos estos datos? Lanza si algún campo está muerto.
   // Esto es lo que faltaba el 2026-08-16, cuando `oiLejos` tenía 570 ceros de 573 y produjo una
   // separación con t=5,59 que pareció el mejor hallazgo del proyecto durante media hora.
-  radiografia(filas, ["resultado", ...INDICADORES.map(([c]) => c)], "puente");
+  radiografia(filas, ["resultado", ...INDICADORES.map(([c]) => c)], "puente",
+    // El CERO es el resultado normal aqui: la opcion expira sin valor. Con los 28 tickers —ya con
+    // perdedores dentro— pasa en el 57% de los meses. Eso es la tasa base de la estrategia, no un
+    // hueco. Los PREDICTORES siguen protegidos.
+    { cerosLegitimos: ["resultado"] });
 
   const porTicker = new Map<string, number>();
   for (const f of filas) porTicker.set(f.ticker, (porTicker.get(f.ticker) ?? 0) + 1);
