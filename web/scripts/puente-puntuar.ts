@@ -19,6 +19,7 @@
 
 import { readFileSync } from "node:fs";
 import { pasarBarrera, potencia, informe, type FilaHallazgo } from "../lib/barreraHallazgos";
+import { radiografia } from "../lib/radiografia";
 
 const PRUEBAS = 14;   // 7 indicadores x 2 medidas del resultado (media y frecuencia)
 const INDICADORES = [
@@ -44,6 +45,11 @@ function main() {
   if (!filas.length) { console.error("puente-filas.json vacío"); process.exit(1); }
 
   console.log(`${filas.length} observaciones (acción, mes)\n`);
+  // ANTES DE MEDIR NADA: ¿de qué están hechos estos datos? Lanza si algún campo está muerto.
+  // Esto es lo que faltaba el 2026-08-16, cuando `oiLejos` tenía 570 ceros de 573 y produjo una
+  // separación con t=5,59 que pareció el mejor hallazgo del proyecto durante media hora.
+  radiografia(filas, ["resultado", ...INDICADORES.map(([c]) => c)], "puente");
+
   const porTicker = new Map<string, number>();
   for (const f of filas) porTicker.set(f.ticker, (porTicker.get(f.ticker) ?? 0) + 1);
   console.log("reparto: " + [...porTicker].sort((a, b) => b[1] - a[1]).map(([t, n]) => `${t}=${n}`).join(" · "));
