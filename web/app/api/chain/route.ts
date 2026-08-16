@@ -3,10 +3,10 @@
 import { countExpirations, sortByOpenInterestDesc, toRow } from "@/lib/compute";
 import { structureScore } from "@/lib/structure";
 import { saveChainSnapshot, type ChainSnapshot } from "@/lib/chainStore";
-import { fetchOptionChain, MassiveError } from "@/lib/massive";
+import { MassiveError } from "@/lib/massive";
 // La ficha va por el conmutador: con DATA_PROVIDER=theta la identidad sale de la SEC y los
 // precios de ThetaData, sin depender de Massive.
-import { fetchCompany } from "@/lib/flowProvider";
+import { fetchCompany, fetchOptionChain } from "@/lib/flowProvider";
 import type { ChainEvent, ChainMeta, Row } from "@/lib/types";
 
 export const runtime = "nodejs";

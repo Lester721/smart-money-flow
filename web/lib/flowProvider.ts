@@ -58,3 +58,25 @@ export async function fetchCompany(ticker: string) {
   const { fichaCompleta } = await import("./empresa");
   return fichaCompleta(ticker);
 }
+
+/**
+ * Cadena de opciones del proveedor activo.
+ *
+ * Con ThetaData son DOS llamadas para toda la cadena (comodín `expiration=*`), así que no hay
+ * paginación ni truncado: `pages: 1` y `truncated: false` no son un apaño, es que no aplican.
+ * Massive paginaba con `next_url` y podía cortar la cadena a la mitad sin avisar.
+ */
+export async function fetchOptionChain(ticker: string, progress: { onPage?: (p: number, acc: number) => void } = {}) {
+  if (!usingTheta) {
+    const { fetchOptionChain: massiveChain } = await import("./massive");
+    return massiveChain(ticker, progress);
+  }
+  const r = await thetadata.cadenaOpciones(ticker);
+  if (!r) {
+    // NO se devuelve una cadena vacía como si fuera un resultado: no haber encontrado ninguna
+    // sesión con datos es un problema, y tiene que verse.
+    throw new Error(`Sin cadena de opciones para ${ticker}: ninguna sesión con datos en los últimos 7 días.`);
+  }
+  progress.onPage?.(1, r.contracts.length);
+  return { contracts: r.contracts as never[], underlyingPrice: r.underlyingPrice, pages: 1, truncated: false };
+}

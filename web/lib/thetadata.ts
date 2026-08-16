@@ -931,3 +931,101 @@ export async function valorPutReal(
   const q = await quoteCierre(symbol, expYmd, strike, "P", fechaYmd);
   return q && q.ask > 0 ? q.ask : null;
 }
+
+// ── LA CADENA DE OPCIONES ENTERA — el sustituto de `fetchOptionChain` de Massive ────────────
+//
+// DOS LLAMADAS PARA TODA LA CADENA, gracias al comodín `expiration=*`: una de interés abierto y
+// otra de precios de cierre. Massive paginaba (`next_url`) y podía truncar; aquí no hay páginas.
+// Comprobado el 2026-08-15 con HOOD: 1.949 filas de OI y 1.995 de precios, en segundos.
+//
+// Y trae algo que Massive NO daba en este plan: el BID. En types.ts está escrito que el precio
+// para Open Premium salía del último trade porque "bid no está disponible" — con ThetaData sí lo
+// está, así que quien quiera puede calcularlo con el bid de verdad en vez de con una aproximación.
+
+/** El último día con datos de opciones. Se prueban varios hacia atrás: festivos y fines de semana. */
+async function ultimaSesionConCadena(symbol: string): Promise<{ dia: string; filas: string[][]; cab: string[] } | null> {
+  const etHoy = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  for (let i = 0; i <= 6; i++) {
+    const d = new Date(Date.parse(`${etHoy}T12:00:00Z`) - i * 86_400_000)
+      .toISOString().slice(0, 10).replace(/-/g, "");
+    const csv = await getCsv(`/v3/option/history/eod?symbol=${symbol}&expiration=*&start_date=${d}&end_date=${d}`);
+    if (csv?.rows.length) return { dia: d, filas: csv.rows, cab: csv.header };
+  }
+  return null;
+}
+
+export interface ContratoCadena {
+  details: { contract_type: string; expiration_date: string; strike_price: number; ticker: string };
+  open_interest: number;
+  day: { volume: number; close: number; vwap: number };
+  last_trade: { price: number };
+  /** Extra que Massive no daba en este plan. */
+  bid?: number;
+  ask?: number;
+}
+
+/**
+ * Devuelve la cadena en el mismo formato que consume la web (`RawContract`), más bid/ask.
+ * `null` si no hay ninguna sesión con datos — que es distinto de "la cadena está vacía".
+ */
+export async function cadenaOpciones(symbolRaw: string): Promise<{
+  contracts: ContratoCadena[]; underlyingPrice: number | null; dia: string;
+} | null> {
+  const { symbol } = resolverSubyacente(symbolRaw);
+  const eod = await ultimaSesionConCadena(symbol);
+  if (!eod) return null;
+
+  const c = eod.cab;
+  const iE = idx(c, "expiration"), iK = idx(c, "strike"), iR = idx(c, "right");
+  const iC = idx(c, "close"), iV = idx(c, "volume"), iB = idx(c, "bid"), iA = idx(c, "ask");
+  if (iE < 0 || iK < 0 || iR < 0 || iC < 0) return null;   // sin las básicas no se inventa nada
+
+  // Interés abierto del mismo día, en una sola llamada.
+  const oi = new Map<string, number>();
+  const csvOi = await getCsv(
+    `/v3/option/history/open_interest?symbol=${symbol}&expiration=*&start_date=${eod.dia}&end_date=${eod.dia}`);
+  if (csvOi) {
+    const jE = idx(csvOi.header, "expiration"), jK = idx(csvOi.header, "strike");
+    const jR = idx(csvOi.header, "right"), jO = idx(csvOi.header, "open_interest");
+    if (jE >= 0 && jK >= 0 && jR >= 0 && jO >= 0)
+      for (const r of csvOi.rows)
+        oi.set(`${limpia(r[jE])}|${Number(r[jK])}|${limpia(r[jR])}`, Number(r[jO]) || 0);
+  }
+
+  const contracts: ContratoCadena[] = [];
+  for (const r of eod.filas) {
+    const exp = limpia(r[iE]), strike = Number(r[iK]), right = limpia(r[iR]);
+    const close = Number(r[iC]);
+    if (!exp || !(strike > 0) || !right) continue;
+    const tipo = right.toUpperCase().startsWith("C") ? "call" : "put";
+    contracts.push({
+      details: {
+        contract_type: tipo,
+        expiration_date: exp,
+        strike_price: strike,
+        // OJO CON LOS DOS ARGUMENTOS: `occFor` quiere la fecha CON guiones (la corta por
+        // posiciones) y un booleano, no "C"/"P". La primera versión le quitaba los guiones y le
+        // pasaba la letra: como cualquier texto no vacío cuenta como `true`, TODOS los puts
+        // salían marcados como call. Lo cantaron a la vez el compilador y el propio resultado.
+        ticker: occFor(symbol, exp, strike, tipo === "call"),
+      },
+      open_interest: oi.get(`${exp}|${strike}|${right}`) ?? 0,
+      day: { volume: iV >= 0 ? Number(r[iV]) || 0 : 0, close: close || 0, vwap: close || 0 },
+      last_trade: { price: close || 0 },
+      ...(iB >= 0 && Number(r[iB]) > 0 ? { bid: Number(r[iB]) } : {}),
+      ...(iA >= 0 && Number(r[iA]) > 0 ? { ask: Number(r[iA]) } : {}),
+    });
+  }
+
+  // Precio del subyacente: el cierre de esa misma sesión, no el de hoy.
+  let underlyingPrice: number | null = null;
+  try {
+    const b = await fetchBarrasDiarias(symbolRaw, eod.dia, eod.dia);
+    underlyingPrice = b[b.length - 1]?.close ?? null;
+  } catch { /* la cadena vale igual sin él */ }
+
+  return { contracts, underlyingPrice, dia: eod.dia };
+}
+
+/** Quita las comillas que mete el CSV de ThetaData. */
+function limpia(x: string | undefined): string { return String(x ?? "").replace(/"/g, "").trim(); }
