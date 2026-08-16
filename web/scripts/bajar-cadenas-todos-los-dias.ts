@@ -75,10 +75,29 @@ async function bajarDia(sym: string, dia: string): Promise<boolean> {
     for (const f of readdirSync(DIR)) {
       if (f.startsWith(`${t}_barsPAR_y_`) && f.endsWith(".json")) for (const x of leer<{ time: string }[]>(`${DIR}/${f}`) ?? []) trozos.push(x);
     }
-    const dias = [...new Set(trozos.map((x) => x.time))]
+    const dias: string[] = [...new Set(trozos.map((x) => x.time))]
       .filter((d) => Number(d.slice(0, 4)) >= AÑO_INI && Number(d.slice(0, 4)) <= AÑO_FIN)
       .map((d) => d.replace(/-/g, "")).sort();
-    if (!dias.length) { console.log(`  ${t}: sin barras`); continue; }
+    // SIN BARRAS NO ES MOTIVO PARA SALTARSE UN TICKER.
+    //
+    // La lista de días salía de `{TICKER}_barsPAR_y_*.json`, que sólo existe para los 9 símbolos
+    // originales. Al pedir 20 tickers nuevos el script los saltó TODOS diciendo "sin barras",
+    // terminó con código 0 y una tabla de cobertura vacía: una hora y media de descarga que no
+    // descargó nada y no falló. Se vio validando en disco, no leyendo su salida.
+    //
+    // Los días hábiles del mercado americano son LOS MISMOS para todas las acciones, así que si
+    // el ticker no tiene barras propias se usan las de cualquier símbolo que sí las tenga. Un día
+    // en que ese ticker no cotizara devolverá una cadena vacía, y `bajarDia` ya no cachea vacíos.
+    if (!dias.length) {
+      const refs = readdirSync(DIR).filter((f) => f.includes("_barsPAR_y_") && f.endsWith(".json"));
+      const prestados: string[] = [];
+      for (const f of refs) for (const x of leer<{ time: string }[]>(`${DIR}/${f}`) ?? []) prestados.push(x.time);
+      for (const d of [...new Set(prestados)]
+        .filter((d) => Number(d.slice(0, 4)) >= AÑO_INI && Number(d.slice(0, 4)) <= AÑO_FIN)
+        .map((d) => d.replace(/-/g, "")).sort()) dias.push(d);
+      if (!dias.length) { console.log(`  ${t}: sin barras y sin ningún calendario del que copiar`); continue; }
+      console.log(`  ${t}: sin barras propias — usando el calendario de mercado (${dias.length} días)`);
+    }
 
     const faltan = dias.filter((d) => !existsSync(`${CDIR}/${t}_d${d}.json`));
     if (!faltan.length) { console.log(`  ${t}: ${dias.length} días, todos en caché`); continue; }
