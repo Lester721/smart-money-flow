@@ -83,7 +83,8 @@ const PRIMA_MIN = Number(process.env.PRIMA_MIN || 3_000_000);
 const DTE_MIN = Number(process.env.DTE_MIN || 0);        // 0 = todos; el corte se hace al puntuar
 const CUBO_EXP_DIAS = 30;                                 // vencimiento del control: ±30 días
 const CUBO_PRIMA_LO = 0.5, CUBO_PRIMA_HI = 2.0;           // prima del control: entre ½× y 2×
-const CUBO_MIN = 5;                                       // menos de 5 comparables: no hay control
+const CUBO_MIN = 5;
+const PRECIO_MID = process.env.PRECIO === "mid";   // diagnostico de horquilla, ver retorno()                                       // menos de 5 comparables: no hay control
 
 const sinG = (s) => String(s).replace(/-/g, "");
 const aIso = (d) => `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
@@ -178,6 +179,22 @@ function retorno(cadEnt, cadSal, expYmd, clave, factor) {
     claveSal = `${k / factor}|${right}`;
   }
   const sal = cadSal?.[expYmd]?.[claveSal];
+  // MODO PUNTO MEDIO — diagnostico, NO operable.
+  //
+  // Comprando al ask y vendiendo al bid, un contrato con la horquilla mas estrecha gana ventaja
+  // SIN que nadie haya elegido mejor. La auditoria midio que el contrato del flujo tiene la
+  // horquilla ~26% mas estrecha que su cubo de control en los cuatro horizontes: o sea que la
+  // diferencia pareada podria ser peaje, no seleccion.
+  //
+  // Midiendo punto medio contra punto medio el peaje desaparece de los DOS lados. Nadie puede
+  // operar al punto medio de forma sistematica, asi que esto no es un resultado alternativo: es la
+  // forma de saber CUANTO de la diferencia era liquidez y cuanto eleccion de contrato.
+  if (PRECIO_MID) {
+    const entMid = (ent[0] + ent[1]) / 2;
+    if (!(entMid > 0)) return null;
+    const salMid = sal ? (sal[0] + sal[1]) / 2 : 0;
+    return (salMid * factor - entMid) / entMid;
+  }
   const bid = sal ? sal[0] : 0;              // AUSENTE = puja cero = pérdida total (ver cabecera)
   // Tras un split hay N veces más contratos: el retorno POR CONTRATO se compara con el ask de UNO,
   // así que el valor de la posición se multiplica por el factor.
