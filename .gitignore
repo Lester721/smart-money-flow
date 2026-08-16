@@ -45,3 +45,7 @@ web/data/telegram-offset.json
 
 # Bitácora de mensajes de Telegram (datos, no código)
 web/data/telegram-mensajes.jsonl
+
+# Salidas generadas por los analisis: se rehacen corriendo el script y pesan cientos de MB
+web/scripts/10x-resumen.json
+web/scripts/eva-largo-*.json
