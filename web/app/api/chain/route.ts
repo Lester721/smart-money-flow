@@ -3,7 +3,10 @@
 import { countExpirations, sortByOpenInterestDesc, toRow } from "@/lib/compute";
 import { structureScore } from "@/lib/structure";
 import { saveChainSnapshot, type ChainSnapshot } from "@/lib/chainStore";
-import { fetchCompany, fetchOptionChain, MassiveError } from "@/lib/massive";
+import { fetchOptionChain, MassiveError } from "@/lib/massive";
+// La ficha va por el conmutador: con DATA_PROVIDER=theta la identidad sale de la SEC y los
+// precios de ThetaData, sin depender de Massive.
+import { fetchCompany } from "@/lib/flowProvider";
 import type { ChainEvent, ChainMeta, Row } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -35,7 +38,7 @@ export async function GET(request: Request) {
         const company = await fetchCompany(ticker);
         send({ type: "company", company });
 
-        send({ type: "step", label: "Conectando con Massive…" });
+        send({ type: "step", label: "Cargando la cadena de opciones…" });
 
         const { contracts, underlyingPrice, pages, truncated } =
           await fetchOptionChain(ticker, {

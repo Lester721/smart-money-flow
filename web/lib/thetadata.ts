@@ -357,8 +357,22 @@ export async function fetchBarrasDiarias(
  * Se corta en AYER. Un día de menos es mucho mejor que un gráfico vacío sin explicación.
  */
 function ultimoDiaServible(): string {
-  return new Date(Date.now() - 86_400_000).toISOString().slice(0, 10).replace(/-/g, "");
+  // EN HORA DE NUEVA YORK, NO EN UTC. A las 21:23 ET ya es el día siguiente en UTC, así que
+  // `toISOString()` devolvía HOY cuando yo creía estar pidiendo AYER — y la petición volvía a
+  // chocar con el límite de tiempo real. Es la trampa del huso horario, que en este proyecto ya
+  // ha costado un look-ahead: la fecha del mercado NUNCA se saca de UTC.
+  const et = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  return new Date(Date.parse(`${et}T12:00:00Z`) - 86_400_000)
+    .toISOString().slice(0, 10).replace(/-/g, "");
 }
+
+// LA SUSCRIPCIÓN NO INCLUYE TIEMPO REAL, y el propio error lo dice:
+//   "Real time data unavailable with current stock subscription. Please upgrade ... or specify
+//    venue=utp_cta for 15 minute delayed data"
+// Con este parámetro el mismo endpoint sirve datos retrasados 15 minutos, que para gráficos y
+// fichas es de sobra. Sin él, la petición ENTERA falla y se pierde el rango completo — incluidos
+// los días viejos, que sí estaban disponibles.
+const VENUE = "&venue=utp_cta";
 
 export async function fetchBarrasIntradia(
   symbolRaw: string, minutos: number, dias: number,
@@ -372,7 +386,8 @@ export async function fetchBarrasIntradia(
 
   for (const seg of segmentosPorSimbolo(symbol, ymd(ini), finYmd)) {
     const csv = await getCsv(
-      `/v3/${ruta}/history/ohlc?symbol=${seg.symbol}&start_date=${seg.start}&end_date=${seg.end}&interval=${minutos}m`,
+      `/v3/${ruta}/history/ohlc?symbol=${seg.symbol}&start_date=${seg.start}&end_date=${seg.end}` +
+      `&interval=${minutos}m${esIndice ? "" : VENUE}`,
     );
     if (!csv) continue;
     const iT = idx(csv.header, "timestamp");

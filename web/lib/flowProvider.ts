@@ -48,3 +48,13 @@ export async function fetchBars(
   // ThetaData pide el intervalo en minutos; "day" se traduce a la sesión entera (390 min).
   return thetadata.fetchBarrasIntradia(ticker, timespan === "day" ? 390 : multiplier, days);
 }
+
+/** Ficha de empresa del proveedor activo. Con ThetaData, la identidad sale de la SEC (gratis). */
+export async function fetchCompany(ticker: string) {
+  if (!usingTheta) {
+    const { fetchCompany: massiveCompany } = await import("./massive");
+    return massiveCompany(ticker);
+  }
+  const { fichaCompleta } = await import("./empresa");
+  return fichaCompleta(ticker);
+}
