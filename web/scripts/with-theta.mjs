@@ -25,6 +25,17 @@ const JAR_URL = process.env.THETA_JAR_URL || "https://downloads.thetadata.us/The
 const BASE = process.env.THETA_BASE || "http://127.0.0.1:25503";
 const BOOT_TIMEOUT = Number(process.env.THETA_BOOT_TIMEOUT || 180);
 const KEY = process.env.THETADATA_API_KEY;
+// ── STAGE: la segunda sesión, para lo que corre EN CONTINUO ──────────────────
+// ThetaData admite una sesión por cuenta en PROD y otra en STAGE — su soporte lo confirmó por
+// escrito y el 2026-08-15 se comprobó que STAGE devuelve datos IDÉNTICOS (1.001.611 filas
+// comparadas byte a byte) y que también sirve websocket.
+//
+// Reparto: los cron efímeros van a PROD y se turnan con el candado; el worker de Ideas, que vive
+// SIEMPRE, va a STAGE. Sin esto habría que elegir entre el worker y los cuatro cron.
+const STAGE = process.env.THETA_ENV === "stage";
+// EL WORKER PERMANENTE NO COGE EL CANDADO. Es de otra sesión, así que no compite con nadie — y
+// si lo cogiera, lo retendría para siempre y los cuatro cron no correrían nunca más.
+const USA_CANDADO = !STAGE && process.env.THETA_SIN_CANDADO !== "1";
 
 const log = (m) => console.log(`[with-theta] ${m}`);
 
@@ -176,7 +187,7 @@ let _renovador = null;
 /** Renueva el candado mientras el trabajo siga vivo. Si deja de ser mío, aborto: seguir con un
  *  candado ajeno es peor que no tenerlo. */
 function empezarRenovacion() {
-  if (!_lockCli) return;
+  if (!USA_CANDADO || !_lockCli) return;
   _renovador = setInterval(async () => {
     try {
       const dueño = await _lockCli.get(LOCK_KEY);
@@ -209,7 +220,8 @@ async function soltarCandado() {
 (async () => {
   await ensureJar();
 
-  if (!(await cogerCandado())) {
+  if (!USA_CANDADO) log(`sin candado (${STAGE ? "sesión STAGE, no compite con los cron" : "desactivado a mano"}).`);
+  if (USA_CANDADO && !(await cogerCandado())) {
     await avisarNoCorrio(`NO CORRIÓ: la sesión de ThetaData seguía ocupada tras ${LOCK_ESPERA}s`);
     await soltarCandado(); process.exit(75);                                   // 75 = EX_TEMPFAIL
   }
@@ -260,7 +272,9 @@ async function soltarCandado() {
   // Un fichero también es legible por quien tenga acceso al disco, pero NO se cuela en la lista
   // de procesos, ni en capturas del administrador de tareas, ni en volcados de fallo.
   log("arrancando el Theta Terminal…");
-  term = spawn("java", ["-jar", JAR], {
+  const argsJar = ["-jar", JAR];
+  if (STAGE) argsJar.push("--config", process.env.THETA_CONFIG || "config-stage.toml");
+  term = spawn("java", argsJar, {
     stdio: ["ignore", "pipe", "pipe"],
     env: { ...process.env, JAVA_TOOL_OPTIONS: jto, THETA_API_KEY: KEY },
   });

@@ -1,0 +1,13 @@
+host = "0.0.0.0"
+port = 25503
+log_directory = "/tmp"
+[env]
+mdds_type = "STAGE"          # ← lo único que cambia respecto al de producción
+[auth]
+base_url = "https://nexus-api.thetadata.us/identity/terminal/auth_user"
+[mdds]
+enable = true
+[mdds_server]
+host = "mdds-01.thetadata.us"
+port = 443
+tls = true
