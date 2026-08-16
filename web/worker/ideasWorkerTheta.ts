@@ -162,10 +162,14 @@ if (isMain) {
   // de verdad hay que vigilar: conectado y suscrito pero con `trades 0` en plena sesión significa
   // que la tubería está rota, y eso NO se ve mirando si el proceso vive.
   const LATIDO_CADA = 5 * 60_000;
+  // EL PRIMERO, EN CUANTO ARRANCA. Con sólo el `setInterval`, un worker recién desplegado pasa
+  // cinco minutos indistinguible de uno muerto: nadie puede comprobar un despliegue sin esperar.
+  const latir = (estado) => escribirLatidoDirecto("ideas-worker",
+      `${estado} · ${suscritos} contratos · trades ${seen} · notables ${notable} · a Redis ${pushed} · quotes ${quotes}`)
+    .catch(() => { /* el latido nunca puede tumbar al worker */ });
+  setTimeout(() => latir("arrancado"), 20_000);   // 20s: lo justo para que subscribeAll termine
   setInterval(() => {
-    escribirLatidoDirecto("ideas-worker",
-      `vivo · ${suscritos} contratos · trades ${seen} · notables ${notable} · a Redis ${pushed} · quotes ${quotes}`)
-      .catch(() => { /* el latido nunca puede tumbar al worker */ });
+    latir("vivo");
   }, LATIDO_CADA);
 
   setInterval(() => log(`[salud] trades ${seen} · notables ${notable} · a Redis ${pushed} · quotes ${quotes} · buffer ${outBuffer.length}`), 30_000);
