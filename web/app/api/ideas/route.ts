@@ -11,7 +11,7 @@ import { classifyFlow, type FlowRow } from "@/lib/flow";
 import { loadMarketFlow, IdeasStoreError } from "@/lib/ideasStore";
 import { isTradeableIdea, passesQualityFilter, withinMoneyness, MONEYNESS_CAP } from "@/lib/risk";
 import { loadTrades, saveTrades } from "@/lib/store";
-import { fetchDailyBars } from "@/lib/massive";
+import { fetchDailyBars } from "@/lib/flowProvider";
 import { validationScore, type FlowLite } from "@/lib/validation";
 import type { Idea, IdeaHistory } from "@/app/ideas/types";
 

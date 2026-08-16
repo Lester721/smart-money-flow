@@ -10,6 +10,8 @@
 import * as massiveFlow from "./massiveFlow";
 import * as thetadata from "./thetadata";
 import { fetchDailyBars as massiveDailyBars, fetchBars as massiveBars } from "./massive";
+import type { WheelChainResult, WheelChainQuote } from "./massive";
+import type { DailyBar as DailyBarCanonica } from "./types";
 import type { FetchFlowOptions, FlowResult } from "./massiveFlow";
 
 export const DATA_PROVIDER = (process.env.DATA_PROVIDER || "massive").toLowerCase();
@@ -24,7 +26,15 @@ export function fetchFlow(ticker: string, opts: FetchFlowOptions = {}): Promise<
 // dan hoy: Massive de siempre, y ThetaData desde que se lee la cabecera entera del EOD. Quien los
 // use debe comprobar que existen — un `undefined` leído como número es el fallo silencioso de
 // siempre.
-export interface DailyBar { time: string; close: number; high?: number; low?: number }
+// EL MISMO SHAPE QUE EL RESTO DE LA WEB. Antes este interface tenia `high`/`low` opcionales y
+// NO tenia `open`: era un tipo mas flojo que el canonico, y por eso `/api/ideas`, `/api/prediction`
+// y `/api/validation` seguian importando de `./massive` a pelo - pasarlos al conmutador no
+// compilaba. Se arreglo el tipo en vez de forzar los `as`, que es lo que habria escondido el
+// problema. ThetaData da los cuatro precios (endpoint EOD), asi que no se inventa ninguno.
+//
+// `aproximada` es la parte honesta: cuando la sesion no traia maximo/minimo reales, `BarraDiaria`
+// usa el cierre para los tres y lo DICE. Quien mida toques de un umbral necesita saberlo.
+export interface DailyBar extends DailyBarCanonica { aproximada?: true }
 
 /** Barras diarias del subyacente del proveedor activo: {time, close, high, low}. */
 export async function fetchDailyBars(ticker: string, days = 800): Promise<DailyBar[]> {
@@ -37,7 +47,10 @@ export async function fetchDailyBars(ticker: string, days = 800): Promise<DailyB
   const ymd = (ms: number) => new Date(ms).toISOString().slice(0, 10).replace(/-/g, "");
   const end = Date.now();
   const barras = await thetadata.fetchBarrasDiarias(ticker, ymd(end - days * 86_400_000), ymd(end));
-  return barras.map((b) => ({ time: b.time, close: b.close, high: b.high, low: b.low }));
+  return barras.map((b) => ({
+    time: b.time, open: b.open, high: b.high, low: b.low, close: b.close,
+    ...(b.aproximada ? { aproximada: true as const } : {}),
+  }));
 }
 
 /** Barras INTRADÍA del proveedor activo. Mismo shape en los dos: {time(seg), open, high, low, close}. */
@@ -79,4 +92,65 @@ export async function fetchOptionChain(ticker: string, progress: { onPage?: (p: 
   }
   progress.onPage?.(1, r.contracts.length);
   return { contracts: r.contracts as never[], underlyingPrice: r.underlyingPrice, pages: 1, truncated: false };
+}
+
+/**
+ * Cadena de PUTS para la Wheel, del proveedor activo.
+ *
+ * POR QUE EXISTE. `/api/wheel` importaba `fetchWheelChain` de `./massive` a pelo, saltandose el
+ * conmutador: era una de las cinco dependencias de Massive que quedaban vivas despues de dar la
+ * migracion por terminada. Se vio el 2026-08-15 leyendo los imports uno a uno, no probando las
+ * rutas - porque probandolas NO se veia: sin clave, `fetchDailyBars` devolvia lista vacia y la
+ * ruta seguia respondiendo 200.
+ *
+ * DE DONDE SALE CADA COSA con ThetaData:
+ *   - bid/ask       -> reales, del cierre de la ultima sesion con cadena. Massive en este plan NO
+ *                      los daba, asi que aqui se gana precision, no se pierde.
+ *   - lastTrade     -> el cierre del contrato.
+ *   - openInterest  -> del mismo dia que la cadena, en una sola llamada.
+ *   - spot          -> el cierre del subyacente de ESA sesion, no el de ahora.
+ *
+ * OJO: es la ultima sesion CERRADA. Durante la sesion en curso esto va retrasado, igual que el
+ * resto de la web con este plan. No se disimula.
+ */
+export async function fetchWheelChain(
+  ticker: string,
+  opts: { dteMin: number; dteMax: number; now?: Date },
+): Promise<WheelChainResult> {
+  if (!usingTheta) {
+    const { fetchWheelChain: massiveWheel } = await import("./massive");
+    return massiveWheel(ticker, opts);
+  }
+
+  const cadena = await thetadata.cadenaOpciones(ticker);
+  // null = no hay ninguna sesion con cadena, que NO es lo mismo que "la cadena esta vacia".
+  // Se devuelve spot null y la ruta ya lo cuenta como "sin cadena" en vez de tragarselo.
+  if (!cadena) return { spot: null, quotes: [] };
+
+  // El dia se ancla en ET, no en UTC: pasadas las ~8 PM ET el dia UTC ya salto y todos los dte
+  // saldrian desfasados uno (la trampa de siempre, ver marketDateStr en lib/occ.ts).
+  const { marketDateStr } = await import("./occ");
+  const hoyMs = Date.parse(`${marketDateStr(opts.now ?? new Date())}T00:00:00Z`);
+
+  const quotes: WheelChainQuote[] = [];
+  for (const c of cadena.contracts) {
+    if (c.details.contract_type !== "put") continue;
+    const exp = c.details.expiration_date;
+    // Tolerante a los dos formatos: ThetaData sirve YYYYMMDD y la web usa YYYY-MM-DD. Sin esto,
+    // `Date.parse("20260821")` es NaN, el dte sale NaN, y NaN falla TODAS las comparaciones:
+    // la ventana de vencimientos se quedaria vacia sin un solo error.
+    const iso = exp.includes("-") ? exp : `${exp.slice(0, 4)}-${exp.slice(4, 6)}-${exp.slice(6, 8)}`;
+    const dte = Math.round((Date.parse(`${iso}T00:00:00Z`) - hoyMs) / 86_400_000);
+    if (!Number.isFinite(dte) || dte < opts.dteMin || dte > opts.dteMax) continue;
+    quotes.push({
+      strike: c.details.strike_price,
+      expiration: iso,
+      dte,
+      bid: c.bid ?? null,
+      ask: c.ask ?? null,
+      lastTrade: c.last_trade.price || null,
+      openInterest: c.open_interest,
+    });
+  }
+  return { spot: cadena.underlyingPrice, quotes };
 }
