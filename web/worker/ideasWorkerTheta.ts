@@ -21,6 +21,7 @@ import { sideFor } from "../lib/massiveFlow";
 import { tradeGreeks } from "../lib/greeks";
 import { isCanceledCondition, isMultiLegCondition } from "../lib/conditions";
 import type { RawTrade } from "../lib/flow";
+import { escribirLatidoDirecto } from "../lib/origenEjecucion";
 
 const HTTP = process.env.THETA_BASE || "http://127.0.0.1:25503";
 const WS_URL = process.env.THETA_WS || "ws://127.0.0.1:25520/v1/events";
@@ -147,6 +148,7 @@ const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 
 let outBuffer: RawTrade[] = [];
 let seen = 0, notable = 0, pushed = 0, quotes = 0;
+let suscritos = 0;   // cuantos contratos hay realmente en el stream (lo pone subscribeAll)
 
 if (isMain) {
   setInterval(() => {
@@ -154,6 +156,18 @@ if (isMain) {
     const batch = outBuffer; outBuffer = [];
     pushNotableTrades(batch).catch((e) => console.error("[redis] push falló:", e?.message ?? e));
   }, 2000);
+  // EL LATIDO DEL WORKER. Los cuatro cron dejan latido al terminar; este no tenía ninguno porque
+  // no "termina" nunca, así que desde fuera un worker muerto y un worker sano en un sábado se ven
+  // exactamente igual: silencio. Escribe cada 5 minutos con LOS CONTADORES DENTRO, que es lo que
+  // de verdad hay que vigilar: conectado y suscrito pero con `trades 0` en plena sesión significa
+  // que la tubería está rota, y eso NO se ve mirando si el proceso vive.
+  const LATIDO_CADA = 5 * 60_000;
+  setInterval(() => {
+    escribirLatidoDirecto("ideas-worker",
+      `vivo · ${suscritos} contratos · trades ${seen} · notables ${notable} · a Redis ${pushed} · quotes ${quotes}`)
+      .catch(() => { /* el latido nunca puede tumbar al worker */ });
+  }, LATIDO_CADA);
+
   setInterval(() => log(`[salud] trades ${seen} · notables ${notable} · a Redis ${pushed} · quotes ${quotes} · buffer ${outBuffer.length}`), 30_000);
 }
 
@@ -206,6 +220,7 @@ function subscribeAll(): void {
     socket?.send(JSON.stringify({ msg_type: "STREAM", sec_type: "OPTION", req_type: "TRADE", add: true, id: id++, contract }));
     oiByKey.set(key(p.root, p.expYmd, p.strike, p.right), p.oi);
   }
+  suscritos = picks.length;
   log(`suscritos ${picks.length} contratos (TRADE+QUOTE) · filtro premium ≥ $${MIN_PREMIUM.toLocaleString("en-US")}`);
 }
 

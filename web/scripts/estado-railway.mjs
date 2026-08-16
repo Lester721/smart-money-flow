@@ -28,8 +28,10 @@ async function desplegados() {
   // pueda comprobar que, SIN poder cruzar, el comprobador avisa en vez de callarse. Hace falta
   // una bandera explícita porque `--env-file` vuelve a poner el token aunque se borre del entorno.
   if (process.env.RAILWAY_API === "0") return null;
+  const PROYECTO = process.env.RAILWAY_PROYECTO || "thriving-creation";
   if (!process.env.RAILWAY_TOKEN) return null;
   const Q = `query { projects { edges { node { name services { edges { node { name
+    serviceInstances { edges { node { cronSchedule } } }
     deployments(first: 1) { edges { node { status createdAt meta } } } } } } } } } }`;
   try {
     const r = await fetch("https://backboard.railway.com/graphql/v2", {
@@ -39,17 +41,77 @@ async function desplegados() {
     });
     const j = await r.json();
     if (j.errors?.length) return null;
+    // SOLO NUESTRO PROYECTO. En la cuenta hay DOS servicios llamados `smart-money-flow` (uno
+    // muerto, en otro proyecto) y este mapa iba por nombre: el segundo pisaba al primero sin
+    // decir nada, así que "qué hay desplegado" podía contestar por el servicio equivocado según
+    // el orden en que Railway devolviera los proyectos. Nada visible, respuesta falsa.
     const m = new Map();
-    for (const { node: p } of j.data.projects.edges)
+    for (const { node: p } of j.data.projects.edges) {
+      if (p.name !== PROYECTO) continue;
       for (const { node: sv } of p.services.edges) {
         const d = sv.deployments.edges[0]?.node;
-        if (d) m.set(sv.name, { commit: d.meta?.commitHash || "", estado: d.status, cuando: d.createdAt });
+        const cron = sv.serviceInstances?.edges?.[0]?.node?.cronSchedule || null;
+        if (d) m.set(sv.name, { commit: d.meta?.commitHash || "", estado: d.status, cuando: d.createdAt, cron });
       }
+    }
+    if (!m.size) return null;   // ningún servicio del proyecto: mejor "no lo sé" que un verde falso
     return m;
   } catch { return null; }
 }
+// ── ¿LE HA TOCADO CORRER YA? ──────────────────────────────────────────
+//
+// "Sin latido" se estaba contando SIEMPRE como fallo del sistema, y el 2026-08-16 (domingo) eso
+// dio una alarma falsa: Ideas estaba recién desplegado y su cron es de lunes a viernes, o sea que
+// no había tenido ninguna cita a la que faltar. Un vigilante que grita el fin de semana entero
+// deja de leerse, y entonces no sirve el día que grita de verdad.
+//
+// La diferencia que hay que saber ver es:
+//   · desplegado DESPUÉS de su última cita  → no le ha tocado correr. Información, no fallo.
+//   · había una cita DESPUÉS del despliegue → debía correr, no dejó rastro. FALLO.
+//
+// Los cron de Railway van en UTC. Esto sólo entiende la forma "minuto hora * * días" que usamos;
+// cualquier otra cosa LANZA y el servicio se queda contado como fallo. Adivinar el horario de un
+// cron que no sé leer sería justo la manera de dejar pasar el fallo de verdad.
+function partesCron(expr) {
+  const p = String(expr).trim().split(/\s+/);
+  if (p.length !== 5) throw new Error(`cron con ${p.length} campos: "${expr}"`);
+  const [min, hora, dom, mes, dow] = p;
+  if (dom !== "*" || mes !== "*") throw new Error(`cron con día del mes o mes concretos: "${expr}"`);
+  if (!/^\d{1,2}$/.test(min) || !/^\d{1,2}$/.test(hora)) throw new Error(`minuto/hora no simples: "${expr}"`);
+  const dias = new Set();
+  if (dow === "*") { for (let i = 0; i < 7; i++) dias.add(i); }
+  else for (const trozo of dow.split(",")) {
+    const m = trozo.match(/^(\d)-(\d)$/);
+    if (m) { for (let i = +m[1]; i <= +m[2]; i++) dias.add(i % 7); }
+    else if (/^\d$/.test(trozo)) dias.add(+trozo % 7);
+    else throw new Error(`no sé leer el día "${trozo}" en "${expr}"`);
+  }
+  if (!dias.size) throw new Error(`cron sin ningún día: "${expr}"`);
+  return { min: +min, hora: +hora, dias };
+}
+/** La última vez que este cron DEBIÓ dispararse (UTC), o null si no la hay en 8 días. */
+function ultimaCita(expr, ahora = new Date()) {
+  const { min, hora, dias } = partesCron(expr);
+  for (let d = 0; d <= 8; d++) {
+    const c = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate() - d, hora, min, 0));
+    if (c <= ahora && dias.has(c.getUTCDay())) return c;
+  }
+  return null;
+}
+/** La próxima vez que se disparará (UTC). */
+function proximaCita(expr, ahora = new Date()) {
+  const { min, hora, dias } = partesCron(expr);
+  for (let d = 0; d <= 8; d++) {
+    const c = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate() + d, hora, min, 0));
+    if (c > ahora && dias.has(c.getUTCDay())) return c;
+  }
+  return null;
+}
+const enET = (d) => d.toLocaleString("sv-SE", { timeZone: "America/New_York" }).slice(0, 16);
+
 /** "gex-condor" ↔ "Forward · Cóndor 0DTE": el latido y Railway no usan el mismo nombre. */
-const ALIAS = { "gex-condor": "Cóndor", "credit-spread": "Credit Spread", wheel: "Wheel", ideas: "Ideas" };
+const ALIAS = { "gex-condor": "Cóndor", "credit-spread": "Credit Spread", wheel: "Wheel", ideas: "Ideas",
+                "ideas-worker": "smart-money-flow" };
 function buscarDespliegue(mapa, servicio) {
   if (!mapa) return null;
   const pista = (ALIAS[servicio] || servicio).toLowerCase();
@@ -60,6 +122,7 @@ function buscarDespliegue(mapa, servicio) {
 if (!process.env.REDIS_URL) { console.error("falta REDIS_URL en .env.local"); process.exit(1); }
 const r = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 3 });
 
+const MAX_HORAS_CONTINUO = 0.5;   // 30 min: el worker late cada 5
 const DESDE_ORIGEN = "2026-08-13";   // el día que se añadió el campo `origen`
 const hoyET = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
 const ahoraET = new Date().toLocaleString("sv-SE", { timeZone: "America/New_York" }).slice(0, 16);
@@ -94,7 +157,7 @@ console.log("\n── SERVICIOS ────────────────
 // servicio de mentira al que meterle latidos falsos, y antes usaba "ideas" —un servicio REAL—
 // dejando basura en producción cuando su limpieza no acertaba. Una herramienta de diagnóstico
 // no puede ensuciar lo que vigila.
-const ESPERADOS = (process.env.SERVICIOS_ESPERADOS || "gex-condor,credit-spread,wheel,ideas")
+const ESPERADOS = (process.env.SERVICIOS_ESPERADOS || "gex-condor,credit-spread,wheel,ideas,ideas-worker")
   .split(",").map((x) => x.trim()).filter(Boolean);
 const sueltos = (await r.keys("latido:*")).map((k) => k.replace("latido:", "")).filter((n) => !ESPERADOS.includes(n));
 if (sueltos.length) {
@@ -107,10 +170,30 @@ if (sueltos.length) {
     const crudoL = await r.get(`latido:${servicio}`);
     if (!crudoL) {
       const dep = buscarDespliegue(DESPLIEGUES, servicio);
-      console.log(`  ${servicio.padEnd(14)} ⚠ NINGÚN LATIDO` +
-                  (dep ? ` · desplegado ${corto(dep.commit)} (${dep.estado})` : ""));
-      console.log(`                 o nunca ha corrido con el código nuevo, o el servicio está caído`);
-      avisos++;
+      // ¿Había una cita a la que faltar? Si no sé responderlo (sin token, sin cron, o un cron que
+      // no sé leer), se queda como FALLO: el vigilante falla cerrado.
+      let pendienteDeSuHora = false, prox = null, ultima = null, porQueNoSé = null;
+      if (dep?.cron && dep?.cuando) {
+        try {
+          ultima = ultimaCita(dep.cron);
+          prox = proximaCita(dep.cron);
+          if (ultima && ultima < new Date(dep.cuando)) pendienteDeSuHora = true;
+        } catch (e) { porQueNoSé = e.message; }
+      } else porQueNoSé = dep ? "el servicio no tiene cron" : "no sé qué hay desplegado";
+
+      const cola = dep ? ` · desplegado ${corto(dep.commit)} (${dep.estado})` : "";
+      if (pendienteDeSuHora) {
+        console.log(`  ${servicio.padEnd(14)} ℹ sin latido todavía${cola}`);
+        console.log(`                 aún no le ha tocado correr desde que se desplegó` +
+                    (prox ? ` · próxima cita ${enET(prox)} ET` : ""));
+        notas++;
+      } else {
+        console.log(`  ${servicio.padEnd(14)} ⚠ NINGÚN LATIDO${cola}`);
+        console.log(`                 ` + (porQueNoSé
+          ? `y no puedo saber si le tocaba: ${porQueNoSé}`
+          : `debía correr el ${ultima ? enET(ultima) + " ET" : "(?)"} y no dejó rastro`));
+        avisos++;
+      }
       continue;
     }
     let L; try { L = JSON.parse(crudoL); } catch {
@@ -120,6 +203,19 @@ if (sueltos.length) {
     console.log(`  ${String(L.servicio).padEnd(14)} ${String(L.origen).padEnd(8)} commit ${corto(L.commit)}` +
                 `  ·  corrió ${L.cuandoET} (hace ${horas.toFixed(1)} h)`);
     console.log(`  ${" ".repeat(14)} ${L.resultado}`);
+    // UN SERVICIO EN CONTINUO NO TIENE "última corrida", TIENE PULSO. El worker de Ideas no
+    // termina nunca: su latido se reescribe cada 5 minutos, así que uno de hace horas significa
+    // que el proceso está muerto o colgado. Para los cron esto no aplica — entre cita y cita es
+    // normal que su latido sea viejo.
+    {
+      const depW = buscarDespliegue(DESPLIEGUES, servicio);
+      const enContinuo = depW && !depW.cron;
+      if (enContinuo && horas > MAX_HORAS_CONTINUO) {
+        console.log(`  ${" ".repeat(14)} ⚠ SIN PULSO: vive en continuo y su último latido es de hace ` +
+                    `${horas.toFixed(1)} h (debería reescribirlo cada 5 min) → muerto o colgado`);
+        avisos++;
+      }
+    }
     // EL LATIDO DE FALLO NO SIRVE DE NADA SI NADIE LO LEE. La primera versión imprimía el
     // resultado y seguía: un cron que petara todos los días salía "✓ al día con main" y el
     // comprobador remataba en verde. Se escribió el latido de fallo justamente para esto.
