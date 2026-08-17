@@ -244,6 +244,22 @@ for (const regla of ["azar", "mejor", "destaca"]) {
   console.log("");
 }
 
+// ── TODAS LAS OPERACIONES, UNA A UNA ────────────────────────────────────────
+// Un 69x en dos operaciones hay que poder mirarlo contrato a contrato. Si no se puede señalar cuál
+// fue, con su strike y su vencimiento, y comprobarlo a mano en la cadena, no es un resultado: es
+// un número. Lester, al ver el 2025: "¿me estás diciendo que con 2 operaciones hubiéramos hecho
+// $49k?" — y la respuesta honesta a eso es enseñar las dos operaciones, no repetir el total.
+console.log("\n── TODAS LAS OPERACIONES (regla A) ──");
+console.log("mes     ticker  compra    venc      strike    dte  otm%     ask   bid_venta  nCtr   invertido  recuperado    mult");
+for (const o of resultados.mejor ?? []) {
+  const bidSal = o.recuperado / o.nContratos / 100;
+  console.log(
+    `${o.mes}  ${o.ticker.padEnd(6)} ${o.dia}  ${o.exp}  ${String(o.K).padStart(7)} ${String(o.dte).padStart(4)} ` +
+    `${o.otm.toFixed(0).padStart(4)}  ${o.ask.toFixed(2).padStart(6)}  ${bidSal.toFixed(2).padStart(9)}  ` +
+    `${String(o.nContratos).padStart(4)}  ${eur(o.invertido).padStart(9)}  ${eur(o.recuperado).padStart(10)}  ` +
+    `${o.mult.toFixed(2).padStart(7)}x`);
+}
+
 // ── La curva, año a año ─────────────────────────────────────────────────────
 console.log("── CÓMO FUE AÑO A AÑO (regla A) ──");
 const porAño = new Map();
