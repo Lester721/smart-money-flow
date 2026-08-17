@@ -21,9 +21,17 @@ import { readFileSync } from "node:fs";
 import { pasarBarrera, potencia, informe, type FilaHallazgo } from "../lib/barreraHallazgos";
 import { radiografia } from "../lib/radiografia";
 
-const PRUEBAS = 14;   // 7 indicadores x 2 medidas del resultado (media y frecuencia)
+const PRUEBAS = 22;   // 7 indicadores x 2 medidas del resultado (media y frecuencia)
 const INDICADORES = [
   ["oiLejos", "% del OI en strikes >60% arriba"],
+  // LA MISMA IDEA PESADA POR DOLARES. Contar contratos ignora que mil contratos sobre un strike de
+  // $500 obligan a mover 25 veces mas dinero que mil sobre uno de $20. Si el mecanismo es la
+  // cobertura del creador de mercado, esto tiene que separar MAS que contar contratos.
+  ["nocLejos", "% del NOCIONAL en strikes >60% arriba"],
+  ["nocLejosD3", "cambio del nocional en 3 meses"],
+  // LOS DOS ULTIMOS ESCALONES. gamLejos ES el GEX aplicado a acciones y a plazo largo.
+  ["dolLejos", "% del DELTA-DOLAR en strikes >60% arriba"],
+  ["gamLejos", "% de la GAMMA-DOLAR en strikes >60% arriba"],
   ["oiLejosD3", "cambio de eso en 3 meses"],
   ["ratioCP", "OI de calls / OI de puts"],
   ["ratioCPD3", "cambio de eso en 3 meses"],
@@ -34,6 +42,7 @@ const INDICADORES = [
 
 interface Fila {
   ticker: string; mes: string; n: number; resultado: number;
+  nocLejos: number | null; nocLejosD3: number | null; dolLejos: number | null; gamLejos: number | null;
   oiLejos: number | null; oiLejosD3: number | null; ratioCP: number | null; ratioCPD3: number | null;
   skew: number | null; barata: number | null; momento3m: number | null;
 }

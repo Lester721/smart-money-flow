@@ -46,6 +46,12 @@
 // hace falta la descarga de 20 tickers más para convertirlo en algo defendible.
 
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
+// ⚠️ BLACK-SCHOLES AL REVÉS, NUNCA HACIA DELANTE.
+// `impliedVol` parte del precio REAL de mercado y extrae la volatilidad; `bsDelta`/`bsGamma` la
+// usan para pesar el indicador. NINGÚN precio de este script sale de un modelo — el que genera
+// precios está encerrado en lib/PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS.ts y aquí no se toca.
+// Un delta mal estimado empeora el predictor; no puede fabricar una ganancia.
+import { impliedVol, bsDelta, bsGamma } from "../lib/blackScholes";
 
 const CDIR = "scripts/cache-theta/cadenas";
 const ODIR = "scripts/cache-theta";
@@ -168,20 +174,57 @@ for (const [sym, dias] of porSim) {
     const F = factor(d);
 
     // 1-2. interés abierto lejos del dinero y ratio call/put
+    // CONTRATOS *Y* DÓLARES. Contar contratos ignora el tamaño de la apuesta: mil contratos sobre
+    // un strike de $500 obligan al creador de mercado a mover 25 veces más dinero que mil sobre uno
+    // de $20. Y el mecanismo que se sospecha —que el creador de mercado, corto de esas calls, tiene
+    // que ir comprando acciones según el precio sube— se mide en DÓLARES, no en contratos.
+    //
+    // `Notional = OI × 100 × strike` es además el cálculo que ya manda CLAUDE.md y que no se aplicó.
+    //
+    // PREDICCIÓN COMPROBABLE: si el mecanismo es ése, pesar por nocional debe separar MÁS que
+    // contar contratos. Si separa menos, la explicación está mal.
     let oiC = 0, oiP = 0, oiLejosC = 0;
+    let nocC = 0, nocLejosC = 0;
+    // LOS DOS ESCALONES QUE FALTAN DE LA ESCALERA.
+    //   delta en dólares = OI × 100 × delta × precio  → las acciones que el creador tiene que tener
+    //   gamma en dólares = OI × 100 × gamma × precio² → cuánto cambia esa cobertura si sube un 1%
+    // El último escalón ES el GEX. Si el mecanismo es la cobertura forzada, cada escalón debe
+    // separar más que el anterior. Contratos 3,29 → nocional 3,57 → ¿?
+    let dolC = 0, dolLejosC = 0, gamC = 0, gamLejosC = 0;
+    const cadDia = cargar(sym, d);
     // AHORA CON TODOS LOS VENCIMIENTOS Y TODOS LOS STRIKES.
     // `oiLejosC` es lo que mide la hipotesis de Lester: cuanto interes abierto hay acumulado en
     // calls muy por encima del precio, o sea gente con posiciones vivas apostando a una subida
     // grande. Con el fichero viejo esto era CERO por construccion.
     const oiDia = oiDelDia(sym, d);
     if (oiDia) {
-      for (const grupo of Object.values(oiDia)) {
-        for (const [clave, oi] of Object.entries(grupo)) {
+      for (const [expRaw, grupo] of Object.entries(oiDia)) {
+        for (const [claveRaw, oi] of Object.entries(grupo)) {
+          const clave = claveRaw;
           const K = Number(clave.slice(0, -2)) / F;
           const n = Number(oi) || 0;
           if (!(K > 0) || !(n > 0)) continue;
-          if (clave.slice(-1) === "C") { oiC += n; if (K > sp * 1.6) oiLejosC += n; }
-          else oiP += n;
+          if (clave.slice(-1) === "C") {
+            const noc = n * 100 * K;                       // dólares comprometidos en ese strike
+            oiC += n; nocC += noc;
+            const lejos = K > sp * 1.6;
+            if (lejos) { oiLejosC += n; nocLejosC += noc; }
+            // Delta y gamma, con la IV sacada del precio REAL de ese contrato ese día.
+            const ba = cadDia?.[expRaw]?.[claveRaw];
+            if (ba && ba[0] > 0 && ba[1] > 0) {
+              const T = (ms(expRaw) - ms(d)) / (365 * 86_400_000);
+              if (T > 0) {
+                const mid = ((ba[0] + ba[1]) / 2) * F;
+                const iv = impliedVol(mid, sp, K, T, "call");
+                if (iv > 0 && Number.isFinite(iv)) {
+                  const dl = Math.abs(bsDelta(sp, K, T, iv, "call")) * n * 100 * sp;
+                  const gm = bsGamma(sp, K, T, iv) * n * 100 * sp * sp;
+                  if (Number.isFinite(dl)) { dolC += dl; if (lejos) dolLejosC += dl; }
+                  if (Number.isFinite(gm)) { gamC += gm; if (lejos) gamLejosC += gm; }
+                }
+              }
+            }
+          } else oiP += n;
         }
       }
     }
@@ -224,6 +267,9 @@ for (const [sym, dias] of porSim) {
     pred.set(m, {
       spot: sp,
       oiLejos: oiC > 0 ? oiLejosC / oiC : null,
+      nocLejos: nocC > 0 ? nocLejosC / nocC : null,
+      dolLejos: dolC > 0 ? dolLejosC / dolC : null,
+      gamLejos: gamC > 0 ? gamLejosC / gamC : null,
       ratioCP: oiP > 0 ? oiC / oiP : null,
       skew,
       barata: nCubo ? primaCubo.reduce((a, b) => a + b, 0) / nCubo : null,
@@ -239,7 +285,9 @@ for (const [sym, dias] of porSim) {
     filas.push({
       ticker: sym, mes: m, n: res.length,
       resultado: res.reduce((a, b) => a + b, 0) / res.length,
-      oiLejos: p.oiLejos, ratioCP: p.ratioCP, skew: p.skew, barata: p.barata,
+      oiLejos: p.oiLejos, nocLejos: p.nocLejos, dolLejos: p.dolLejos, gamLejos: p.gamLejos,
+      ratioCP: p.ratioCP, skew: p.skew, barata: p.barata,
+      nocLejosD3: p3 && p.nocLejos != null && p3.nocLejos != null ? p.nocLejos - p3.nocLejos : null,
       oiLejosD3: p3 && p.oiLejos != null && p3.oiLejos != null ? p.oiLejos - p3.oiLejos : null,
       ratioCPD3: p3 && p.ratioCP != null && p3.ratioCP != null ? p.ratioCP - p3.ratioCP : null,
       momento3m: p3 && p3.spot ? p.spot / p3.spot - 1 : null,
