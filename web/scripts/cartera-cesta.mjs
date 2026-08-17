@@ -47,6 +47,10 @@ const N_TICKERS = Number(process.env.N_TICKERS || 3);
 const OTM_MIN = 60, DTE_MIN = 365;
 const ASK_MIN = 0.10, SPREAD_MAX = 0.40;
 const MODO = process.env.MODO || "fraccion";
+// EL CRITERIO DECLARADO ANTES DE CORRER (auditoría del 2026-08-16): si al quitar 2019 y 2025 la
+// ventaja sobre la MEDIANA del azar no sobrevive, se cierra. Se excluyen los meses de ENTRADA de
+// esos años, en el filtro Y en el control por igual.
+const EXCLUIR = (process.env.EXCLUIR || "").split(",").filter(Boolean);
 const ms = (y) => Date.parse(`${y.slice(0, 4)}-${y.slice(4, 6)}-${y.slice(6, 8)}T00:00:00Z`);
 
 const diasPorSim = new Map();
@@ -156,15 +160,33 @@ const ultimoDiaDelMes = (sym, mes) => {
   return d.length ? d[d.length - 1] : null;
 };
 
-let semilla = 42;
-const azar = () => { semilla = (semilla * 1103515245 + 12345) & 0x7fffffff; return semilla / 0x7fffffff; };
+// 🔴 GENERADOR ARREGLADO. El anterior era `semilla * 1103515245`, que desborda 2^53: el periodo
+// real medido por la auditoría era de 10.466 valores en vez de 2^31, y la distribución no era
+// uniforme. Se comprobó que NO torció la elección de tickers (chi2 = 27 con 27 gl), o sea que no
+// amañó nada — pero un control que se va a correr cientos de veces necesita un generador que valga.
+// mulberry32: aritmética de 32 bits sin desbordar el double.
+function generador(sem) {
+  let a = sem >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+let azar = generador(42);
 
-function correr(regla) {
-  const R = { desnuda: { inv: 0, rec: 0, n: 0, gan: 0 }, spread: { inv: 0, rec: 0, n: 0, gan: 0 } };
+function correr(regla, sem) {
+  if (regla === "azar") azar = generador(sem ?? 42);
+  // `comprometido` = los $500 por acción y mes que se APARTAN, se gasten o no. En modo enteros
+  // sólo se despliega el ~47% (el resto no da para otro contrato entero) y dividir por lo gastado
+  // infla el múltiplo. El dinero que se queda en caja también es dinero inmovilizado.
+  const R = { desnuda: { inv: 0, rec: 0, n: 0, gan: 0, comprometido: 0 }, spread: { inv: 0, rec: 0, n: 0, gan: 0, comprometido: 0 } };
   const porAño = new Map();
   let sinCesta = 0, mesesOperados = 0;
 
   for (const mes of meses) {
+    if (EXCLUIR.includes(mes.slice(0, 4))) continue;
     const delMes = porMes.get(mes);
     let elegidos;
     if (regla === "azar") {
@@ -180,6 +202,7 @@ function correr(regla) {
       const patas = cesta(e.ticker, dia);
       if (!patas) { sinCesta++; continue; }
       operoAlgo = true;
+      R.desnuda.comprometido += POR_TICKER; R.spread.comprometido += POR_TICKER;
       const año = mes.slice(0, 4);
       if (!porAño.has(año)) porAño.set(año, { inv: 0, rec: 0, n: 0 });
 
@@ -239,6 +262,25 @@ const eur = (x) => `$${Math.round(x).toLocaleString("es-ES")}`;
 console.log(`\n## CESTA · las ${N_TICKERS} mejores del mes · $${POR_TICKER} por acción · precios reales\n`);
 console.log(`${meses.length} meses (${meses[0]} → ${meses[meses.length - 1]})\n`);
 
+// ── EL CONTROL, CON MUCHAS SEMILLAS ─────────────────────────────────────────
+// Comparar contra UN sorteo fue lo que infló la ventaja: la auditoría midió que la semilla 42 caía
+// en el percentil 4,7 de su propia distribución. El azar mediano no era 5,24x, era ~8,8x. Un
+// control de una tirada no es un listón, es una anécdota.
+const N_SEMILLAS = Number(process.env.N_SEMILLAS || 200);
+{
+  const res = [];
+  for (let i = 0; i < N_SEMILLAS; i++) {
+    const { R } = correr("azar", 1000 + i * 7919);
+    if (R.desnuda.inv > 0) res.push(R.desnuda.rec / R.desnuda.comprometido);
+  }
+  res.sort((a, b) => a - b);
+  const p = (q) => res[Math.floor(res.length * q)];
+  console.log(`── CONTROL con ${res.length} semillas (sobre presupuesto COMPROMETIDO)`);
+  console.log(`   p05 ${p(0.05).toFixed(2)}x · mediana ${p(0.5).toFixed(2)}x · p95 ${p(0.95).toFixed(2)}x · máximo ${res[res.length - 1].toFixed(2)}x
+`);
+  globalThis.__control = res;
+}
+
 const guardado = {};
 for (const regla of ["azar", "filtro"]) {
   const { R, porAño, sinCesta, mesesOperados } = correr(regla);
@@ -248,8 +290,15 @@ for (const regla of ["azar", "filtro"]) {
   for (const v of ["desnuda", "spread"]) {
     const x = R[v];
     if (!x.n) { console.log(`   ${v}: sin operaciones`); continue; }
+    const sobreComp = x.rec / x.comprometido;
+    let pos = "";
+    if (regla === "filtro" && v === "desnuda" && globalThis.__control) {
+      const c = globalThis.__control;
+      const peores = c.filter((y) => y < sobreComp).length;
+      pos = `  ← percentil ${((peores / c.length) * 100).toFixed(1)} del azar`;
+    }
     console.log(`   ${v === "desnuda" ? "CALL DESNUDA " : "SPREAD DE CALLS"}  ${String(x.n).padStart(6)} patas · ganan ${((x.gan / x.n) * 100).toFixed(0).padStart(3)}% · ` +
-                `${eur(x.inv).padStart(10)} → ${eur(x.rec).padStart(11)}  =  ${(x.rec / x.inv).toFixed(2)}x`);
+                `desplegado ${(x.rec / x.inv).toFixed(2)}x · COMPROMETIDO ${sobreComp.toFixed(2)}x${pos}`);
   }
   console.log("");
 }

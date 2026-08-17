@@ -158,10 +158,16 @@ function comprasDe(patas, MODO) {
   return compras;
 }
 
+// ── LOS DOS GENERADORES ─────────────────────────────────────────────────────
+// roto  = el de cartera-cesta.mjs. semilla*1103515245 desborda 2^53 → los bits bajos se pierden
+//         en el redondeo del double. Periodo real ~10.466 y distribución NO uniforme.
+// bueno = mulberry32, aritmética entera de 32 bits con Math.imul, sin desbordamiento.
+const rngRoto = (s0) => { let s = s0; return () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; }; };
+const rngBueno = (s0) => { let a = (s0 + 0x6d2b79f5) | 0; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+
 /** selección: devuelve, por mes, el array de tickers elegidos */
-function seleccion(regla, semilla0) {
-  let semilla = semilla0;
-  const azar = () => { semilla = (semilla * 1103515245 + 12345) & 0x7fffffff; return semilla / 0x7fffffff; };
+function seleccion(regla, semilla0, gen = rngRoto) {
+  const azar = gen(semilla0);
   const out = [];
   for (const mes of meses) {
     const delMes = porMes.get(mes);
@@ -220,28 +226,47 @@ for (const M of MODOS) {
 }
 
 // -- 1. distribución del azar --------------------------------------------------
-console.log("\n── 1. DISTRIBUCIÓN DEL AZAR (¿es 5,24x típico?)");
-const dist = {};
-for (const M of MODOS) {
-  const xs = [];
-  for (const s of SEMILLAS) { const a = correr(seleccion("azar", s), M); xs.push(a.R.rec / a.R.inv); }
-  dist[M] = xs;
-  const f = correr(selFiltro, M);
-  const fx = f.R.rec / f.R.inv;
+console.log("\n── 1. DISTRIBUCIÓN DEL AZAR (¿es 5,24x típico?)  [RNG roto = el del test · RNG bueno = mulberry32]");
+const resumen = (xs) => {
   const or = [...xs].sort((p, q) => p - q);
   const q = (t) => or[Math.min(or.length - 1, Math.floor(t * or.length))];
   const media = xs.reduce((a, b) => a + b, 0) / xs.length;
   const sd = Math.sqrt(xs.reduce((a, b) => a + (b - media) ** 2, 0) / (xs.length - 1));
-  const peores = xs.filter((x) => x >= fx).length;
-  console.log(`\n   ${M.toUpperCase()}   filtro = ${fx.toFixed(2)}x`);
-  console.log(`     azar semilla 42 = ${xs[0].toFixed(2)}x   ·  percentil de la 42 dentro del azar = ` +
-    `${((or.filter((x) => x < xs[0]).length / or.length) * 100).toFixed(0)}%`);
-  console.log(`     azar: media ${media.toFixed(2)}x · mediana ${q(0.5).toFixed(2)}x · sd ${sd.toFixed(2)}`);
-  console.log(`     azar: min ${or[0].toFixed(2)}x · p05 ${q(0.05).toFixed(2)}x · p25 ${q(0.25).toFixed(2)}x · ` +
-    `p75 ${q(0.75).toFixed(2)}x · p95 ${q(0.95).toFixed(2)}x · max ${or[or.length - 1].toFixed(2)}x`);
-  console.log(`     ► semillas del azar que IGUALAN O SUPERAN al filtro: ${peores}/${xs.length}  (p = ${(peores / xs.length).toFixed(3)})`);
-  console.log(`     ► z del filtro sobre el azar: ${((fx - media) / sd).toFixed(2)}`);
+  return { or, q, media, sd };
+};
+for (const M of MODOS) {
+  const f = correr(selFiltro, M);
+  const fx = f.R.rec / f.R.inv;
+  console.log(`\n   ${M.toUpperCase()}   filtro = ${fx.toFixed(2)}x   ·  azar con la semilla 42 publicada = ` +
+    `${(correr(sel42, M).R.rec / correr(sel42, M).R.inv).toFixed(2)}x`);
+  for (const [nm, gen] of [["roto ", rngRoto], ["bueno", rngBueno]]) {
+    const xs = SEMILLAS.map((s) => { const a = correr(seleccion("azar", s, gen), M); return a.R.rec / a.R.inv; });
+    const { or, q, media, sd } = resumen(xs);
+    const s42 = correr(sel42, M).R.rec / correr(sel42, M).R.inv;
+    const peores = xs.filter((x) => x >= fx).length;
+    console.log(`     RNG ${nm}: media ${media.toFixed(2)}x · mediana ${q(0.5).toFixed(2)}x · sd ${sd.toFixed(2)} · ` +
+      `min ${or[0].toFixed(2)} p05 ${q(0.05).toFixed(2)} p25 ${q(0.25).toFixed(2)} p75 ${q(0.75).toFixed(2)} p95 ${q(0.95).toFixed(2)} max ${or[or.length - 1].toFixed(2)}`);
+    console.log(`                percentil de la semilla 42 (${s42.toFixed(2)}x) = ${((or.filter((x) => x < s42).length / or.length) * 100).toFixed(1)}%  ·  ` +
+      `p(azar >= filtro) = ${(peores / xs.length).toFixed(3)} (${peores}/${xs.length})  ·  z filtro = ${((fx - media) / sd).toFixed(2)}`);
+  }
 }
+
+// -- 1b. sesgo posicional del RNG roto ----------------------------------------
+console.log("\n── 1b. ¿EL RNG ROTO ELIGE UNIFORME? (frecuencia de elección por ticker, todas las semillas)");
+const frec = { roto: new Map(), bueno: new Map(), teorico: new Map() };
+for (const [nm, gen] of [["roto", rngRoto], ["bueno", rngBueno]])
+  for (const s of SEMILLAS) for (const [, el] of seleccion("azar", s, gen)) for (const e of el) frec[nm].set(e.ticker, (frec[nm].get(e.ticker) || 0) + 1);
+// esperanza exacta: en un mes con m tickers, cada uno entra con prob min(3,m)/m
+for (const mes of meses) { const d = porMes.get(mes); const p = Math.min(N_TICKERS, d.length) / d.length; for (const e of d) frec.teorico.set(e.ticker, (frec.teorico.get(e.ticker) || 0) + p * SEMILLAS.length); }
+const tks = [...frec.teorico.keys()].sort();
+console.log("   ticker  teórico   roto   (roto/teo)  |  bueno  (bueno/teo)");
+let chiRoto = 0, chiBueno = 0;
+for (const t of tks) {
+  const te = frec.teorico.get(t), ro = frec.roto.get(t) || 0, bu = frec.bueno.get(t) || 0;
+  chiRoto += (ro - te) ** 2 / te; chiBueno += (bu - te) ** 2 / te;
+  console.log(`   ${t.padEnd(6)} ${te.toFixed(0).padStart(7)} ${String(ro).padStart(6)}   ${(ro / te).toFixed(3).padStart(9)}  |  ${String(bu).padStart(5)}  ${(bu / te).toFixed(3).padStart(11)}`);
+}
+console.log(`   χ² frente al teórico:  RNG roto = ${chiRoto.toFixed(0)}   ·   RNG bueno = ${chiBueno.toFixed(0)}   (gl=${tks.length - 1}, χ²(0,001) ≈ ${(tks.length - 1) * 2.2 | 0})`);
 
 // -- 2. patas y dinero ---------------------------------------------------------
 console.log("\n── 2. ¿MÁS APUESTAS POR EL MISMO DINERO? (patas disponibles y compradas por (acción,mes))");
@@ -302,5 +327,115 @@ for (const [nm, sel] of [["filtro", selFiltro], ["azar42", sel42]]) {
   console.log(`   ${nm}: P&L total $${Math.round(T).toLocaleString("es-ES")} · top-5 aporta ` +
     `${((porTM.slice(0, 5).reduce((a, b) => a + b.pnl, 0) / T) * 100).toFixed(0)}% · top-1 ${((porTM[0].pnl / T) * 100).toFixed(0)}%`);
   console.log(`      top-5: ${porTM.slice(0, 5).map((x) => `${x.t}/${x.mes} $${Math.round(x.pnl).toLocaleString("es-ES")}`).join("  ")}`);
+}
+// -- 6. perfil de lo que compra cada brazo ------------------------------------
+console.log("\n── 6. PERFIL DE LAS PATAS COMPRADAS (modo enteros)");
+function perfil(sel) {
+  let n = 0, ask = 0, otm = 0, dte = 0, disp = 0, am = 0, askDisp = 0, nd = 0;
+  for (const [, el] of sel) for (const e of el) {
+    const patas = CESTAS.get(`${e.ticker}|${e.mes}`);
+    if (!patas || !patas.length) continue;
+    am++; disp += patas.length;
+    for (const p of patas) { askDisp += p.ask; nd++; }
+    for (const { p } of comprasDe(patas, "enteros")) { n++; ask += p.ask; otm += p.otm; dte += p.dte; }
+  }
+  return { n, am, dispAm: disp / am, askMed: ask / n, askMedDisp: askDisp / nd, otmMed: otm / n, dteMed: dte / n };
+}
+const pf = perfil(selFiltro);
+const pa = perfil(sel42);
+console.log("   brazo    patas disp/am  ask medio DISPONIBLE  ask medio COMPRADO  OTM% comprado  DTE comprado");
+for (const [nm, p] of [["filtro", pf], ["azar42", pa]])
+  console.log(`   ${nm.padEnd(8)} ${p.dispAm.toFixed(1).padStart(13)}  ${p.askMedDisp.toFixed(2).padStart(20)}  ${p.askMed.toFixed(2).padStart(18)}  ${p.otmMed.toFixed(0).padStart(13)}  ${p.dteMed.toFixed(0).padStart(12)}`);
+
+// -- 7. CONTROLES ALTERNATIVOS ------------------------------------------------
+// El azar plano mete KO, WMT, XOM, PFE, T — acciones que nunca suben un 60%. El filtro sólo
+// elige 12 nombres, todos de alta volatilidad. Estos controles quitan ese confusor.
+const universoFiltro = new Set([...cnt.keys()]);
+function selPersonalizada(fn, semilla0, gen = rngBueno) {
+  const azar = gen(semilla0);
+  return meses.map((mes) => [mes, fn(porMes.get(mes), azar, mes)]);
+}
+const nPatas = (e) => (CESTAS.get(`${e.ticker}|${e.mes}`) ?? []).length;
+const tomaAzar = (pool, azar, k) => { const c = [...pool], o = []; for (let i = 0; i < k && c.length; i++) o.push(c.splice(Math.floor(azar() * c.length), 1)[0]); return o; };
+
+const CONTROLES = {
+  "A · azar plano (el del test)": (d, az) => tomaAzar(d, az, N_TICKERS),
+  "B · azar dentro de los 12 que el filtro elige": (d, az) => { const p = d.filter((x) => universoFiltro.has(x.ticker)); return tomaAzar(p.length ? p : d, az, N_TICKERS); },
+  "C · azar entre los 6 de cadena más honda": (d, az) => { const p = [...d].sort((a, b) => nPatas(b) - nPatas(a)).slice(0, Math.min(6, d.length)); return tomaAzar(p, az, N_TICKERS); },
+  "D · SEÑAL = nº de contratos disponibles": (d) => [...d].sort((a, b) => nPatas(b) - nPatas(a)).slice(0, N_TICKERS),
+  "E · SEÑAL = contrato más barato de la cesta": (d) => [...d].sort((a, b) => { const A = CESTAS.get(`${a.ticker}|${a.mes}`) ?? [], B = CESTAS.get(`${b.ticker}|${b.mes}`) ?? []; const mn = (z) => z.length ? Math.min(...z.map((p) => p.ask)) : Infinity; return mn(A) - mn(B); }).slice(0, N_TICKERS),
+};
+console.log("\n── 7. CONTROLES ALTERNATIVOS (30 semillas los aleatorios · modo enteros, sobre DESPLEGADO y sobre COMPROMETIDO)");
+console.log("   control                                          despl.        compr.     patas disp/am");
+const semSub = SEMILLAS.slice(0, 30);
+for (const [nm, fn] of Object.entries(CONTROLES)) {
+  const det = nm.startsWith("D") || nm.startsWith("E");
+  const rs = (det ? [0] : semSub).map((s) => correr(selPersonalizada(fn, 1 + s), "enteros"));
+  const md = rs.reduce((a, x) => a + x.R.rec / x.R.inv, 0) / rs.length;
+  const mc = rs.reduce((a, x) => a + (x.R.rec + (x.presupuesto - x.R.inv)) / x.presupuesto, 0) / rs.length;
+  const dp = rs.reduce((a, x) => a + x.patasDisp / x.conCesta, 0) / rs.length;
+  console.log(`   ${nm.padEnd(46)} ${md.toFixed(2).padStart(7)}x ${mc.toFixed(2).padStart(12)}x ${dp.toFixed(1).padStart(15)}`);
+}
+const ff = correr(selFiltro, "enteros");
+console.log(`   ${"FILTRO gamLejos".padEnd(46)} ${(ff.R.rec / ff.R.inv).toFixed(2).padStart(7)}x ${((ff.R.rec + (ff.presupuesto - ff.R.inv)) / ff.presupuesto).toFixed(2).padStart(12)}x ${(ff.patasDisp / ff.conCesta).toFixed(1).padStart(15)}`);
+
+// -- 8. ¿es la señal o son los nombres? ---------------------------------------
+// Permutación: se barajan los gamLejos de CADA TICKER entre sus meses. Se conserva qué acciones
+// tienden a puntuar alto (TSLA sigue siendo TSLA) y se destruye el MOMENTO. Si el resultado
+// aguanta, lo que gana es tener calls de TSLA/NVDA/AMD, no la señal.
+const N_PERM = Number(process.env.N_PERM || 200);
+console.log(`\n── 8. PERMUTACIÓN POR TICKER (mismo reparto de nombres, momento destruido) · ${N_PERM} barajas`);
+const porTicker = new Map();
+for (const f of filas) { if (!porTicker.has(f.ticker)) porTicker.set(f.ticker, []); porTicker.get(f.ticker).push(f); }
+const permXs = [], permCs = [];
+for (let s = 0; s < N_PERM; s++) {
+  const az = rngBueno(1000 + s);
+  const mapa = new Map();
+  for (const [t, arr] of porTicker) {
+    const vals = arr.map((x) => x.gamLejos);
+    for (let i = vals.length - 1; i > 0; i--) { const j = Math.floor(az() * (i + 1)); [vals[i], vals[j]] = [vals[j], vals[i]]; }
+    arr.forEach((x, i) => mapa.set(`${x.ticker}|${x.mes}`, vals[i]));
+  }
+  const sel = meses.map((mes) => [mes, [...porMes.get(mes)].sort((a, b) => mapa.get(`${b.ticker}|${b.mes}`) - mapa.get(`${a.ticker}|${a.mes}`)).slice(0, N_TICKERS)]);
+  const r = correr(sel, "enteros");
+  permXs.push(r.R.rec / r.R.inv);
+  permCs.push((r.R.rec + (r.presupuesto - r.R.inv)) / r.presupuesto);
+}
+const fx8 = ff.R.rec / ff.R.inv;
+const fc8 = (ff.R.rec + (ff.presupuesto - ff.R.inv)) / ff.presupuesto;
+for (const [et, xs, obs] of [["DESPLEGADO ", permXs, fx8], ["COMPROMETIDO", permCs, fc8]]) {
+  const pm = xs.reduce((a, b) => a + b, 0) / xs.length;
+  const psd = Math.sqrt(xs.reduce((a, b) => a + (b - pm) ** 2, 0) / (xs.length - 1));
+  const sup = xs.filter((x) => x >= obs).length;
+  console.log(`   ${et}  permutado: media ${pm.toFixed(2)}x · sd ${psd.toFixed(2)} · min ${Math.min(...xs).toFixed(2)} · max ${Math.max(...xs).toFixed(2)}`);
+  console.log(`                 filtro real ${obs.toFixed(2)}x · lo igualan o superan ${sup}/${xs.length} (p=${((sup + 1) / (xs.length + 1)).toFixed(3)}) · z=${((obs - pm) / psd).toFixed(2)} · ventaja ${(obs / pm).toFixed(2)}x`);
+}
+
+// -- 9. ¿aguanta sin el ganador? ----------------------------------------------
+console.log("\n── 9. ROBUSTEZ (modo enteros, sobre desplegado)");
+function correrExcl(sel, excl) {
+  let inv = 0, rec = 0;
+  for (const [, el] of sel) for (const e of el) {
+    if (excl(e)) continue;
+    const patas = CESTAS.get(`${e.ticker}|${e.mes}`);
+    if (!patas || !patas.length) continue;
+    for (const { p, uD, gasto } of comprasDe(patas, "enteros")) { inv += gasto; rec += uD * p.val * 100; }
+  }
+  return rec / inv;
+}
+const pruebas = [
+  ["completo", () => false],
+  ["sin TSLA", (e) => e.ticker === "TSLA"],
+  ["sin TSLA/201905", (e) => e.ticker === "TSLA" && e.mes === "201905"],
+  ["sin 2019", (e) => e.mes.slice(0, 4) === "2019"],
+  ["sin 2025", (e) => e.mes.slice(0, 4) === "2025"],
+  ["sólo 2016-2020", (e) => e.mes >= "202101"],
+  ["sólo 2021-2025", (e) => e.mes < "202101"],
+];
+console.log("   prueba              filtro   azar(med 30 sem)");
+for (const [nm, ex] of pruebas) {
+  const f = correrExcl(selFiltro, ex);
+  const a = semSub.map((s) => correrExcl(seleccion("azar", s, rngBueno), ex));
+  console.log(`   ${nm.padEnd(18)} ${f.toFixed(2).padStart(6)}x ${(a.reduce((x, y) => x + y, 0) / a.length).toFixed(2).padStart(15)}x`);
 }
 console.log("");

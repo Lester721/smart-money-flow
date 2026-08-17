@@ -250,6 +250,14 @@ console.log(`   patas necesarias para el 50% de la ganancia: ${n50}`);
 console.log(`   patas necesarias para el 80%: ${n80} · para el 90%: ${n90}`);
 const ent50 = new Set(ganPata.slice(0, n50).map((x) => `${x.ticker}|${x.mes}`));
 console.log(`   esas ${n50} patas salen de ${ent50.size} entradas (ticker,mes) distintas: ${[...ent50].sort().join(", ")}`);
+// ¿son 38 apuestas o 38 rebanadas de la misma? Mismo ticker + mismo vencimiento = mismo precio final.
+const suc50 = new Map();
+for (const p of ganPata.slice(0, n50)) {
+  const k = `${p.ticker} venc.${p.exp}`;
+  suc50.set(k, (suc50.get(k) ?? 0) + 1);
+}
+console.log(`   …y esas ${n50} patas son sólo ${suc50.size} sucesos (ticker,vencimiento): ${[...suc50].map(([k, v]) => `${k} ×${v}`).join(" · ")}`);
+console.log(`   PATAS DEL MISMO (ticker,vencimiento) COBRAN DEL MISMO PRECIO FINAL: no son observaciones independientes.`);
 
 console.log("\n   las 15 patas más rentables:");
 console.log("   ticker  mes     venc      strike   coste     cobro       ganancia   % del total");
@@ -283,3 +291,102 @@ for (const [nom, P] of [["filtro", BASE], ["control", CTRL]]) {
   console.log(`   ${nom.padEnd(8)} n=${v.length} · p25 ${q(0.25).toFixed(2)}x · MEDIANA ${q(0.5).toFixed(2)}x · p75 ${q(0.75).toFixed(2)}x · p90 ${q(0.9).toFixed(2)}x · max ${q(1).toFixed(2)}x`);
   console.log(`            entradas que acaban en CERO exacto: ${v.filter((x) => x === 0).length} de ${v.length}`);
 }
+
+// ── 7. SUCESOS TERMINALES INDEPENDIENTES ────────────────────────────────────
+// Dos patas del MISMO ticker y el MISMO vencimiento cobran del MISMO precio final. No son dos
+// observaciones: son una, troceada en strikes. Contarlas como 854 patas infla la muestra.
+console.log("\n── 7. SUCESOS TERMINALES INDEPENDIENTES (ticker + vencimiento) ──");
+const porSuceso = agrupa(BASE, (x) => `${x.ticker} venc.${x.exp}`);
+console.log(`   sucesos (ticker,vencimiento) distintos: ${porSuceso.length}  ·  patas: ${BASE.length}`);
+let a7 = 0, s50 = 0, s90 = 0;
+for (let i = 0; i < porSuceso.length; i++) {
+  a7 += porSuceso[i].gan;
+  if (!s50 && a7 >= 0.5 * gTot) s50 = i + 1;
+  if (!s90 && a7 >= 0.9 * gTot) s90 = i + 1;
+}
+console.log(`   sucesos necesarios para el 50% de la ganancia: ${s50} · para el 90%: ${s90}`);
+console.log("   los 8 mayores:");
+for (const r of porSuceso.slice(0, 8))
+  console.log(`     ${r.k.padEnd(22)} ${String(r.n).padStart(4)} patas de ${String(r.entradas.size).padStart(2)} meses · ${eur(r.gan).padStart(12)}  ${pct(r.gan / gTot).padStart(7)}`);
+
+// ── 8. ¿ES UNA SEÑAL DE MOMENTO O UN SELECTOR DE NOMBRES? ────────────────────
+console.log("\n── 8. ¿QUÉ ELIGE gamLejos? ──");
+const vecesElegido = new Map();
+for (const mes of MESES) {
+  for (const e of [...porMes.get(mes)].sort((a, b) => b.gamLejos - a.gamLejos).slice(0, N_TICKERS))
+    vecesElegido.set(e.ticker, (vecesElegido.get(e.ticker) ?? 0) + 1);
+}
+const elegidos = [...vecesElegido].sort((a, b) => b[1] - a[1]);
+console.log(`   de 28 acciones, el filtro llega a elegir sólo ${elegidos.length} en ${MESES.length} meses`);
+console.log(`   ${elegidos.map(([t, n]) => `${t}:${n}`).join("  ")}`);
+const top4 = elegidos.slice(0, 4).reduce((a, x) => a + x[1], 0);
+console.log(`   los 4 nombres más elegidos se llevan ${pct(top4 / (MESES.length * N_TICKERS))} de todas las plazas`);
+
+// media de gamLejos por ticker: si la señal es casi constante por nombre, no está midiendo el mes
+const gPorTicker = new Map();
+for (const f of filas) {
+  if (!gPorTicker.has(f.ticker)) gPorTicker.set(f.ticker, []);
+  gPorTicker.get(f.ticker).push(f.gamLejos);
+}
+const medias = [...gPorTicker].map(([t, v]) => [t, v.reduce((a, b) => a + b, 0) / v.length]).sort((a, b) => b[1] - a[1]);
+const mediaGlobal = filas.reduce((a, f) => a + f.gamLejos, 0) / filas.length;
+let varEntre = 0, varDentro = 0;
+for (const [t, v] of gPorTicker) {
+  const m = v.reduce((a, b) => a + b, 0) / v.length;
+  varEntre += v.length * (m - mediaGlobal) ** 2;
+  for (const x of v) varDentro += (x - m) ** 2;
+}
+console.log(`   varianza de gamLejos ENTRE nombres: ${pct(varEntre / (varEntre + varDentro))} · DENTRO de cada nombre: ${pct(varDentro / (varEntre + varDentro))}`);
+console.log(`   media de gamLejos por ticker (top 8): ${medias.slice(0, 8).map(([t, m]) => `${t} ${m.toFixed(3)}`).join(" · ")}`);
+
+// ── 9. CESTA ESTÁTICA vs DINÁMICA — ¿el mes aporta algo? ────────────────────
+// Si comprar SIEMPRE los mismos 3 nombres (los de mayor gamLejos medio de toda la muestra, que es
+// mirar al futuro y por tanto GENEROSO con la señal) da lo mismo o más, la elección MENSUAL no
+// aporta nada: el resultado es la elección de nombres, no el momento.
+console.log("\n── 9. CESTA ESTÁTICA (mismos 3 nombres siempre) vs ELECCIÓN MENSUAL ──");
+function patasEstaticas(tks, excAños = new Set()) {
+  const out = [];
+  for (const mes of MESES) {
+    if (excAños.has(mes.slice(0, 4))) continue;
+    for (const t of tks) {
+      if (!porMes.get(mes).some((x) => x.ticker === t)) continue;
+      const compras = comprasDe(t, mes);
+      if (!compras) continue;
+      for (const c of compras) out.push({ ticker: t, mes, año: mes.slice(0, 4), ...c });
+    }
+  }
+  return out;
+}
+const est3 = medias.slice(0, 3).map((x) => x[0]);
+const EST = patasEstaticas(est3);
+console.log(`   estática con ${est3.join(", ")} (mayor gamLejos MEDIO, con look-ahead): ${EST.length} patas · ${eur(inv(EST))} → ${eur(rec(EST))} = ${mult(EST).toFixed(2)}x`);
+const frec3 = elegidos.slice(0, 3).map((x) => x[0]);
+const EST2 = patasEstaticas(frec3);
+console.log(`   estática con ${frec3.join(", ")} (los 3 más elegidos):                 ${EST2.length} patas · ${eur(inv(EST2))} → ${eur(rec(EST2))} = ${mult(EST2).toFixed(2)}x`);
+console.log(`   elección MENSUAL por gamLejos:                                    ${BASE.length} patas · ${eur(inv(BASE))} → ${eur(rec(BASE))} = ${mult(BASE).toFixed(2)}x`);
+console.log(`   → si la estática iguala o supera, el mérito es el NOMBRE, no el mes`);
+
+// ── 10. CONTROL JUSTO — azar dentro de los 12 nombres que el filtro llega a usar ─────
+console.log("\n── 10. CONTROL JUSTO: azar SÓLO entre los nombres que el filtro usa ──");
+const usados = new Set(BASE.map((x) => x.ticker));
+function azarEn(univ, semInit) {
+  let semilla = semInit;
+  const az = () => { semilla = (semilla * 1103515245 + 12345) & 0x7fffffff; return semilla / 0x7fffffff; };
+  const out = [];
+  for (const mes of MESES) {
+    const delMes = porMes.get(mes).filter((x) => univ.has(x.ticker));
+    const copia = [...delMes], el = [];
+    for (let i = 0; i < N_TICKERS && copia.length; i++) el.push(copia.splice(Math.floor(az() * copia.length), 1)[0]);
+    for (const e of el) {
+      const compras = comprasDe(e.ticker, mes);
+      if (!compras) continue;
+      for (const c of compras) out.push({ ticker: e.ticker, mes, año: mes.slice(0, 4), ...c });
+    }
+  }
+  return out;
+}
+const mults = [];
+for (let s = 0; s < 20; s++) { const P = azarEn(usados, 42 + s * 7919); mults.push(mult(P)); }
+mults.sort((a, b) => a - b);
+console.log(`   azar entre los ${usados.size} nombres usados, 20 semillas: min ${mults[0].toFixed(2)}x · mediana ${mults[10].toFixed(2)}x · max ${mults[19].toFixed(2)}x`);
+console.log(`   filtro: ${mult(BASE).toFixed(2)}x · semillas que igualan o superan al filtro: ${mults.filter((x) => x >= mult(BASE)).length} de 20`);

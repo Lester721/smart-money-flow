@@ -94,6 +94,7 @@ function oiDelDia(sym, dia) {
 
 const filas = [];
 const sinOI = new Set();
+let ivNulos = 0, ivBuenos = 0;   // ver bug 2
 
 for (const [sym, dias] of porSim) {
   if (!existsSync(`${OIDIR}/${sym}_d${dias[Math.floor(dias.length / 2)]}.json`)) sinOI.add(sym);
@@ -108,7 +109,21 @@ for (const [sym, dias] of porSim) {
       if (prev && maxK > 0 && prev / maxK >= 1.8) splits.push({ desde: d, ratio: prev / maxK });
       prev = maxK;
     } }
-  const factor = (d) => splits.reduce((f, s) => (s.desde > d ? f * s.ratio : f), 1);
+  // 🔴 BUG 1 CORREGIDO — MIRABA AL FUTURO.
+  //
+  // Esto era: `splits.reduce((f, s) => (s.desde > d ? f * s.ratio : f), 1)` — acumulaba los splits
+  // POSTERIORES a la fecha y los aplicaba hacia atrás. El 31 de mayo de 2019 el código ya "sabía"
+  // que TSLA se partiría en 2020 y en 2022.
+  //
+  // Y las acciones se parten DESPUÉS de subir mucho, así que la señal estaba señalando ganadoras
+  // ya conocidas. Medido por la auditoría: el 72,7% de las acciones elegidas tenían split futuro,
+  // contra una tasa base del 30,3%; y gamLejos valía 0,167 de media en ésas contra 0,022 en el resto.
+  //
+  // LA CORRECCIÓN ES F=1, no "usar sólo los splits pasados". `gamLejos` es un COCIENTE entre cosas
+  // del MISMO día (gamma lejana / gamma total): los strikes y los precios están en las mismas
+  // unidades a los dos lados de la división, así que normalizar no aporta nada y sólo puede
+  // estropear. Se deja la detección de splits para el resultado, que sí cruza fechas.
+  const factor = () => 1;
   const idxUltimo = (exp) => {
     if (exp > dias[dias.length - 1]) return -1;
     let lo = 0, hi = dias.length - 1, r = -1;
@@ -121,7 +136,7 @@ for (const [sym, dias] of porSim) {
   for (let i = 0; i < dias.length; i++) {
     const c = cargar(sym, dias[i]);
     if (!c) { spot.push(null); continue; }
-    const F = factor(dias[i]);
+    const F = factor();
     let mejorK = null, mejorDif = Infinity;
     for (const [exp, grupo] of Object.entries(c)) {
       for (const [clave, ba] of Object.entries(grupo)) {
@@ -171,7 +186,7 @@ for (const [sym, dias] of porSim) {
   for (const [m, d] of porMes) {
     const c = cargar(sym, d), sp = spot[dias.indexOf(d)];
     if (!c || !sp) continue;
-    const F = factor(d);
+    const F = factor();
 
     // 1-2. interés abierto lejos del dinero y ratio call/put
     // CONTRATOS *Y* DÓLARES. Contar contratos ignora el tamaño de la apuesta: mil contratos sobre
@@ -216,6 +231,13 @@ for (const [sym, dias] of porSim) {
               if (T > 0) {
                 const mid = ((ba[0] + ba[1]) / 2) * F;
                 const iv = impliedVol(mid, sp, K, T, "call");
+                // 🔴 BUG 2 CORREGIDO — ESTE `if` SE COMÍA CONTRATOS EN SILENCIO.
+                // `impliedVol` devuelve null cuando el precio es mayor que el subyacente, y con las
+                // unidades rotas del bug 1 eso pasaba en masa: sólo sobrevivían las calls muy
+                // baratas (las muy lejanas), o sea que el descarte actuaba como un filtro selectivo
+                // invisible. Ahora se cuentan, y si son demasiados la corrida lo dice.
+                if (!(iv > 0) || !Number.isFinite(iv)) ivNulos++;
+                else ivBuenos++;
                 if (iv > 0 && Number.isFinite(iv)) {
                   const dl = Math.abs(bsDelta(sp, K, T, iv, "call")) * n * 100 * sp;
                   const gm = bsGamma(sp, K, T, iv) * n * 100 * sp * sp;
@@ -281,7 +303,11 @@ for (const [sym, dias] of porSim) {
   for (let i = 0; i < meses.length; i++) {
     const m = meses[i], p = pred.get(m), p3 = i >= 3 ? pred.get(meses[i - 3]) : null;
     const res = resultado.get(m);
-    if (!res || res.length < 20) continue;          // menos de 20 compras ese mes: no se mide
+    // 🔴 BUG 3 CORREGIDO — EL UNIVERSO SE CONSTRUÍA CON EL FUTURO.
+    // Era `res.length < 20`, y `res` son contratos YA RESUELTOS: exigir veinte decidía qué
+    // (acción, mes) entraba en la muestra sabiendo el desenlace. Ahora basta con que haya UNO —
+    // que un contrato no haya vencido todavía es un límite de los datos, no un criterio.
+    if (!res || res.length < 1) continue;
     filas.push({
       ticker: sym, mes: m, n: res.length,
       resultado: res.reduce((a, b) => a + b, 0) / res.length,

@@ -106,6 +106,35 @@ for (const s of SPLITS)
     `   medK ${String(s.medAntes).padStart(7)} → ${String(s.medDespues).padStart(7)}` +
     `   ratioMax ${Math.abs(s.ratioMax).toFixed(2).padStart(6)}  ratioMed ${s.ratioMed ? s.ratioMed.toFixed(2) : "—"}`);
 
+// ── A1. ¿PERSISTE el cambio? Un split real no vuelve atrás; un fichero truncado sí.
+//    Se compara la MEDIANA de strikes de los 10 días hábiles previos contra los 10 posteriores.
+console.log("\n═══ A1. ¿Persiste el cambio 10 días después? (split real vs fichero roto) ═══\n");
+function medianaDia(sym, d) {
+  const c = cadena(sym, d); if (!c) return null;
+  const ks = [];
+  for (const g of Object.values(c)) for (const clave of Object.keys(g)) ks.push(Number(clave.slice(0, -2)));
+  if (!ks.length) return null;
+  ks.sort((a, b) => a - b);
+  return { med: ks[ks.length >> 1], max: ks[ks.length - 1], n: ks.length };
+}
+for (const s of SPLITS) {
+  const dias = diasPorSim.get(s.sym);
+  const i = dias.indexOf(s.desde);
+  const antes = [], despues = [];
+  for (let j = Math.max(0, i - 10); j < i; j++) { const m = medianaDia(s.sym, dias[j]); if (m) antes.push(m.med); }
+  for (let j = i; j < Math.min(dias.length, i + 10); j++) { const m = medianaDia(s.sym, dias[j]); if (m) despues.push(m.med); }
+  antes.sort((a, b) => a - b); despues.sort((a, b) => a - b);
+  const mA = antes[antes.length >> 1], mD = despues[despues.length >> 1];
+  const r = mA / mD;
+  s.persistente = Math.abs(Math.log(r)) >= Math.log(1.8);
+  s.ratioPersistente = r;
+  console.log(`  ${s.sym.padEnd(5)} ${s.desde}  mediana 10d antes ${String(mA).padStart(8)} → 10d después ${String(mD).padStart(8)}` +
+    `  ratio ${r.toFixed(3).padStart(8)}   ${s.persistente ? "★ SPLIT REAL" : "· artefacto (fichero parcial), NO es split"}`);
+}
+const REALES = SPLITS.filter((s) => s.persistente);
+console.log(`\n  → ${REALES.length} splits reales de ${SPLITS.length} detecciones: ` +
+  REALES.map((s) => `${s.sym} ${s.desde} (x${(s.ratioPersistente > 1 ? s.ratioPersistente : 1 / s.ratioPersistente).toFixed(1)} ${s.ratioPersistente > 1 ? "directo" : "INVERSO"})`).join(", "));
+
 // ── A2. ¿colisionan las claves? ¿existe el strike viejo el día después? ──────
 console.log("\n═══ A2. ¿El strike de antes EXISTE después del split (choque de instrumentos)? ═══\n");
 for (const s of SPLITS) {
@@ -127,16 +156,19 @@ if (process.env.FASE === "detectar") process.exit(0);
 // ═══════════════════════════════════════════════════════════════════════════
 // B. RÉPLICA EXACTA de cartera-cesta.mjs, marcando cada pata que CRUZA un split
 // ═══════════════════════════════════════════════════════════════════════════
-const splitsPorSym = new Map();
-for (const s of SPLITS) {
-  if (!splitsPorSym.has(s.sym)) splitsPorSym.set(s.sym, []);
-  splitsPorSym.get(s.sym).push(s);
+function indexar(lista) {
+  const m = new Map();
+  for (const s of lista) { if (!m.has(s.sym)) m.set(s.sym, []); m.get(s.sym).push(s); }
+  return m;
 }
+const idxReales = indexar(REALES), idxTodos = indexar(SPLITS);
 /** ¿hay algún split de `sym` con fecha en (dia, dSal]? */
-function cruzaSplit(sym, dia, dSal) {
-  for (const s of splitsPorSym.get(sym) ?? []) if (s.desde > dia && s.desde <= dSal) return s;
+function cruzaEn(idx, sym, dia, dSal) {
+  for (const s of idx.get(sym) ?? []) if (s.desde > dia && s.desde <= dSal) return s;
   return null;
 }
+const cruzaSplit = (sym, dia, dSal) => cruzaEn(idxReales, sym, dia, dSal);
+const cruzaAmplio = (sym, dia, dSal) => cruzaEn(idxTodos, sym, dia, dSal);
 
 function spotDe(c) {
   let k = null, dm = Infinity;
@@ -179,7 +211,8 @@ function cesta(sym, dia) {
       const salLarga = gSal[clave];
       const valorDesnuda = salLarga ? salLarga[0] : 0;
       patas.push({ sym, exp, K, sp, dte, otm, ask, bid, valorDesnuda, dSal, dia,
-                   presente: !!salLarga, split: cruzaSplit(sym, dia, dSal) });
+                   presente: !!salLarga, split: cruzaSplit(sym, dia, dSal),
+                   splitAmplio: cruzaAmplio(sym, dia, dSal) });
     }
   }
   return patas.length ? patas : null;
@@ -255,6 +288,8 @@ for (const MODO of ["fraccion", "enteros", "repartido"]) {
     console.log(`    ${linea("  · NO cruzan  ← limpio", L)}`);
     console.log(`    cruzan ${((C.n / T.n) * 100).toFixed(2)}% de las patas, ${((C.inv / T.inv) * 100).toFixed(2)}% del dinero invertido, ` +
       `${((C.rec / T.rec) * 100).toFixed(2)}% de lo recuperado`);
+    const limA = v.filter((p) => !p.splitAmplio), crA = v.filter((p) => p.splitAmplio);
+    console.log(`    ${linea("  · COTA SUPERIOR: fuera también los días de fichero parcial", tot(limA))}   (se quitan ${crA.length})`);
   }
 }
 
@@ -297,4 +332,169 @@ const recTotal = (guardar.filtro ?? []).reduce((a, x) => a + x.rec, 0);
 for (const [k, v] of [...porTk].sort((a, b) => tot(b[1]).rec - tot(a[1]).rec).slice(0, 12)) {
   const t = tot(v);
   console.log(`  ${k.padEnd(5)} ${String(t.n).padStart(5)} patas · ${eur(t.inv).padStart(9)} → ${eur(t.rec).padStart(11)} = ${t.x.toFixed(2)}x · ${((t.rec / recTotal) * 100).toFixed(1)}% de todo lo cobrado`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// F. LIQUIDACIÓN CORREGIDA POR SPLIT — ¿qué VALÍAN de verdad las patas que cruzan?
+//
+// Regla del OCC:
+//   · split directo r:1 (r entero)  → 1 contrato K pasa a r contratos de strike K/r.
+//     valor por contrato original = r × bid(K/r)
+//   · split INVERSO 1:r (GE 1:8)    → el strike NO cambia; el entregable pasa a 100/r acciones.
+//     El contrato deja de estar en la cadena estándar (pasa a raíz "GE1"), así que se
+//     liquida por su INTRÍNSECO al vencimiento: max(0, S/r − K)
+// ═══════════════════════════════════════════════════════════════════════════
+console.log("\n\n═══ F. LIQUIDACIÓN CORREGIDA POR SPLIT ═══\n");
+
+// factor exacto de cada split, medido con el SPOT por paridad (no con el strike máximo)
+function spotDia(sym, d) { const c = cadena(sym, d); return c ? spotDe(c) : null; }
+for (const s of REALES) {
+  const dias = diasPorSim.get(s.sym); const i = dias.indexOf(s.desde);
+  s.spotAntes = spotDia(s.sym, dias[i - 1]); s.spotDespues = spotDia(s.sym, dias[i]);
+  s.rBruto = s.spotAntes / s.spotDespues;
+  // El spot redondeado se equivoca cuando la acción se mueve el día del split (TSLA 2020: 4,43
+  // con un split 5:1). Se elige el entero r que hace que MÁS strikes K/r existan al día siguiente.
+  if (s.rBruto >= 1) {
+    const dias = diasPorSim.get(s.sym); const i = dias.indexOf(s.desde);
+    const a = cadena(s.sym, dias[i - 1]), b = cadena(s.sym, s.desde);
+    const exps = Object.keys(a).filter((e) => b[e]);
+    const puntua = [];
+    for (const r of [2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20]) {
+      let hit = 0, tot = 0;
+      for (const e of exps) for (const clave of Object.keys(a[e])) { tot++; if (b[e][`${Number(clave.slice(0, -2)) / r}|${clave.slice(-1)}`]) hit++; }
+      if (tot) puntua.push({ r, p: hit / tot });
+    }
+    puntua.sort((x, y) => y.p - x.p);
+    s.r = puntua[0].r;
+    s.acierto = puntua[0].p;
+    s.top3 = puntua.slice(0, 3).map((x) => `r=${x.r}:${(x.p * 100).toFixed(0)}%`).join("  ");
+  } else { s.r = 1 / Math.round(1 / s.rBruto); s.acierto = null; s.top3 = "(inverso: el contrato sale de la cadena estándar, se usa el spot)"; }
+  console.log(`  ${s.sym.padEnd(5)} ${s.desde}  spot ${String(s.spotAntes).padStart(8)} → ${String(s.spotDespues).padStart(8)}  ` +
+    `bruto ${s.rBruto.toFixed(3).padStart(7)}  →  r = ${(s.r >= 1 ? `${s.r}:1` : `1:${Math.round(1 / s.r)}`).padEnd(5)}  ` +
+    `${s.acierto != null ? `K/r aterriza en el ${(s.acierto * 100).toFixed(0)}% · ${s.top3}` : s.top3}`);
+}
+// META no es un split: son 7 meses con la cadena de OTRO subyacente. Se marca aparte.
+const CONTAM = REALES.filter((s) => s.sym === "META");
+const SPLITS_OK = REALES.filter((s) => s.sym !== "META");
+console.log(`\n  ⚠️  META 20210708→20220128 NO es un split: la cadena guardada es de otro subyacente` +
+  ` (spot ~$12-20 con Facebook a ~$350). Se trata aparte como CONTAMINACIÓN, no como split.`);
+
+const idxOK = indexar(SPLITS_OK), idxCont = indexar(CONTAM);
+function corregir(p) {
+  const cruces = (idxOK.get(p.sym) ?? []).filter((s) => s.desde > p.dia && s.desde <= p.dSal);
+  if (!cruces.length) return { valor: p.valorDesnuda, tipo: "sin split" };
+  const R = cruces.reduce((a, s) => a * s.r, 1);
+  const gSal = cadena(p.sym, p.dSal)?.[p.exp] ?? {};
+  if (R >= 1) {
+    const Kn = p.K / R;
+    const ba = gSal[`${Kn}|C`];
+    if (ba) return { valor: R * ba[0], tipo: `directo x${R} → K ${Kn}`, R, Kn };
+    // strike no listado: se liquida por intrínseco contra el spot de salida
+    const S = spotDia(p.sym, p.dSal);
+    return { valor: S != null ? Math.max(0, R * (S - Kn)) : 0, tipo: `directo x${R} → K ${Kn} NO listado, intrínseco`, R, Kn };
+  }
+  const r = R;                                        // r < 1 (inverso)
+  const S = spotDia(p.sym, p.dSal);
+  return { valor: S != null ? Math.max(0, r * S - p.K) : 0, tipo: `inverso 1:${Math.round(1 / r)}, intrínseco`, R: r };
+}
+
+for (const MODO of ["enteros", "fraccion", "repartido"]) {
+  console.log(`\n── MODO=${MODO} ───────────────────────────────────────────`);
+  for (const regla of ["azar", "filtro"]) {
+    const v = correr(regla, MODO);
+    let invT = 0, recT = 0, recC = 0, invLimpio = 0, recLimpio = 0, nCont = 0, invCont = 0;
+    for (const p of v) {
+      const u = p.gasto / (p.ask * 100);              // unidades compradas
+      const c = corregir(p);
+      invT += p.gasto; recT += p.rec; recC += u * c.valor * 100;
+      const contaminada = (idxCont.get(p.sym) ?? []).some((s) => s.desde > p.dia && s.desde <= p.dSal);
+      if (contaminada) { nCont++; invCont += p.gasto; }
+      else { invLimpio += p.gasto; recLimpio += u * c.valor * 100; }
+    }
+    console.log(`  ${regla.toUpperCase().padEnd(7)} publicado ${(recT / invT).toFixed(2).padStart(6)}x  ·  ` +
+      `CORREGIDO por split ${(recC / invT).toFixed(2).padStart(7)}x  ·  ` +
+      `corregido y sin META contaminada ${(recLimpio / invLimpio).toFixed(2).padStart(7)}x  (${nCont} patas de META fuera, ${eur(invCont)})`);
+  }
+}
+
+// detalle de las patas corregidas
+console.log("\n── Detalle: las patas que cruzan un split, valor publicado vs corregido (enteros, filtro) ──\n");
+const vF = correr("filtro", "enteros").filter((p) => (idxOK.get(p.sym) ?? []).some((s) => s.desde > p.dia && s.desde <= p.dSal));
+for (const p of vF.sort((a, b) => b.gasto - a.gasto)) {
+  const c = corregir(p);
+  console.log(`  ${p.sym.padEnd(5)} ent ${p.dia} K ${String(p.K).padStart(6)} exp ${p.exp} sal ${p.dSal} · gasto ${eur(p.gasto).padStart(6)} · ` +
+    `test ${eur(p.rec).padStart(9)} → correcto ${eur((p.gasto / (p.ask * 100)) * c.valor * 100).padStart(10)}   [${c.tipo}]`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// G. CONCENTRACIÓN — ¿el 24,58x (y el 76,72x corregido) es un resultado o un suceso?
+// ═══════════════════════════════════════════════════════════════════════════
+console.log("\n\n═══ G. CONCENTRACIÓN (modo ENTEROS) ═══\n");
+for (const regla of ["filtro", "azar"]) {
+  const v = correr(regla, "enteros");
+  for (const [et, val] of [["PUBLICADO", (p) => p.rec], ["CORREGIDO", (p) => (p.gasto / (p.ask * 100)) * corregir(p).valor * 100]]) {
+    const inv = v.reduce((a, p) => a + p.gasto, 0);
+    const rec = v.reduce((a, p) => a + val(p), 0);
+    const grp = new Map();
+    for (const p of v) { const k = `${p.sym} exp ${p.exp}`; grp.set(k, (grp.get(k) ?? 0) + val(p)); }
+    const top = [...grp].sort((a, b) => b[1] - a[1]);
+    const tk = new Map();
+    for (const p of v) tk.set(p.sym, (tk.get(p.sym) ?? 0) + val(p));
+    console.log(`  ${regla.toUpperCase().padEnd(7)} ${et.padEnd(10)} ${(rec / inv).toFixed(2).padStart(7)}x   ` +
+      `bloque nº1 = ${((top[0][1] / rec) * 100).toFixed(1)}% (${top[0][0]}) · top-3 bloques = ${(((top[0][1] + (top[1]?.[1] ?? 0) + (top[2]?.[1] ?? 0)) / rec) * 100).toFixed(1)}% · ` +
+      `bloques con cobro > 0: ${top.filter((x) => x[1] > 0).length}/${top.length}`);
+    // jackknife por ticker
+    const peor = [...tk].sort((a, b) => b[1] - a[1])[0];
+    const sinPeor = v.filter((p) => p.sym !== peor[0]);
+    const i2 = sinPeor.reduce((a, p) => a + p.gasto, 0), r2 = sinPeor.reduce((a, p) => a + val(p), 0);
+    console.log(`          ${" ".repeat(10)} sin ${peor[0]} entero: ${(r2 / i2).toFixed(2)}x`);
+  }
+}
+
+// ═══ H. La CONTAMINACIÓN de META: ¿afectó también a la SEÑAL? ═══════════════
+console.log("\n═══ H. META: 7 meses de cadena de otro subyacente — alcance ═══\n");
+const mesesMalos = [];
+for (const d of diasPorSim.get("META") ?? []) if (d >= "20210708" && d <= "20220128") mesesMalos.push(d.slice(0, 6));
+const setMalos = new Set(mesesMalos);
+console.log(`  días META con cadena ajena: ${mesesMalos.length} (${[...setMalos].sort().join(", ")})`);
+const filasMeta = filas.filter((f) => f.ticker === "META" && setMalos.has(f.mes));
+console.log(`  filas de señal calculadas sobre esa cadena falsa: ${filasMeta.length}`);
+for (const f of filasMeta) {
+  const delMes = porMes.get(f.mes) ?? [];
+  const rank = [...delMes].sort((a, b) => b.gamLejos - a.gamLejos).findIndex((x) => x.ticker === "META") + 1;
+  console.log(`    ${f.mes}  gamLejos ${f.gamLejos?.toFixed(4)}  n=${f.n}  puesto ${rank}/${delMes.length}${rank <= N_TICKERS ? "   ← ELEGIDA por el filtro" : ""}`);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// I. EL FLANCO CIEGO: los SPIN-OFF. No cambian el strike (cambia el ENTREGABLE),
+//    así que el detector por strike máximo NO los ve, y la clave `K|C` sí colisiona.
+//    Fechas conocidas dentro de los 28: T→WBD 2022-04-11, GE→GEHC 2023-01-04,
+//    GE→GEV 2024-04-02, PFE→VTRS 2020-11-16.
+// ═══════════════════════════════════════════════════════════════════════════
+console.log("\n═══ I. SPIN-OFFS (el detector por strike es ciego a ellos) ═══\n");
+const SPIN = [["T", "20220411"], ["GE", "20230104"], ["GE", "20240402"], ["PFE", "20201116"]];
+const spinReales = [];
+for (const [sym, fecha] of SPIN) {
+  const dias = diasPorSim.get(sym) ?? [];
+  let i = dias.findIndex((d) => d >= fecha);
+  if (i <= 0) { console.log(`  ${sym} ${fecha}: sin días en disco`); continue; }
+  const dA = dias[i - 1], dB = dias[i];
+  const sA = spotDia(sym, dA), sB = spotDia(sym, dB);
+  const a = cadena(sym, dA), b = cadena(sym, dB);
+  let mismo = 0, tot = 0;
+  for (const e of Object.keys(a).filter((x) => b[x])) for (const k of Object.keys(a[e])) { tot++; if (b[e][k]) mismo++; }
+  const salto = sA / sB;
+  console.log(`  ${sym} ${dA}→${dB}: spot ${sA} → ${sB} (x${salto.toFixed(3)}) · ` +
+    `${mismo}/${tot} claves del día anterior SIGUEN existiendo (${((mismo / tot) * 100).toFixed(0)}%) → colisión silenciosa`);
+  spinReales.push({ sym, desde: dB, salto });
+}
+const idxSpin = indexar(spinReales);
+for (const MODO of ["enteros", "fraccion"]) {
+  for (const regla of ["filtro", "azar"]) {
+    const v = correr(regla, MODO);
+    const cru = v.filter((p) => (idxSpin.get(p.sym) ?? []).some((s) => s.desde > p.dia && s.desde <= p.dSal));
+    const lim = v.filter((p) => !(idxSpin.get(p.sym) ?? []).some((s) => s.desde > p.dia && s.desde <= p.dSal));
+    const t = tot(v), c = tot(cru), l = tot(lim);
+    console.log(`  ${MODO.padEnd(9)} ${regla.padEnd(7)} total ${t.x.toFixed(2)}x · cruzan spin-off ${c.n} patas (${eur(c.inv)} → ${eur(c.rec)}) · sin ellas ${l.x.toFixed(2)}x`);
+  }
 }
