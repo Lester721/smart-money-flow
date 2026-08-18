@@ -16,7 +16,7 @@
 //       THETA_BOOT_TIMEOUT  segundos de espera a que arranque (default 180)
 
 import { spawn } from "node:child_process";
-import { existsSync, createWriteStream } from "node:fs";
+import { existsSync, createWriteStream, readdirSync } from "node:fs";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 
@@ -288,8 +288,16 @@ async function soltarCandado() {
     await new Promise((r) => setTimeout(r, 3000));
   }
   if (!(await ready())) {
-    log(`el Terminal no respondió en ${BOOT_TIMEOUT}s`);
-    await avisarNoCorrio(`NO CORRIÓ: el Theta Terminal no respondió en ${BOOT_TIMEOUT}s`);
+    // ¿POR QUÉ no arrancó? El arrancador necesita un jar con fecha en lib/; si no está y la
+    // descarga falla, muere. El mensaje genérico no distingue "ThetaData caído" de "la imagen
+    // viene incompleta", y esa confusión costó 47 horas de tres servicios el 2026-08-17.
+    const enLib = (() => { try { return readdirSync("lib").filter((f) => f.endsWith(".jar")); } catch { return []; } })();
+    const causa = enLib.length
+      ? `no respondió en ${BOOT_TIMEOUT}s (hay ${enLib.length} jar(s) en lib/, así que NO es la descarga)`
+      : `no respondió en ${BOOT_TIMEOUT}s y lib/ ESTÁ VACÍA — la imagen no trae el Terminal y la ` +
+        `descarga en runtime falló. Mirar el log del build: scripts/preparar-jar-theta.sh`;
+    log(`el Terminal ${causa}`);
+    await avisarNoCorrio(`NO CORRIÓ: el Theta Terminal ${causa}`);
     await cerrar(); process.exit(1);
   }
   empezarRenovacion();
