@@ -1,0 +1,222 @@
+[
+  {
+    "g": "G1",
+    "campo": "sigmaRatio",
+    "desc": "cuántas σ son los ±25 fijos (bajo = vendes casi en el dinero)",
+    "t": -0.37148379797660747,
+    "pasa": false,
+    "sep": -43.76497695852443,
+    "alto": 58.22082949308759,
+    "bajo": 101.98580645161202,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (−30880.6% · −11376.4% · +31953.4%) — el efecto no es estable en el tiempo",
+      "t = -0.37, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G1",
+    "campo": "movManana",
+    "desc": "% que ya se movió de la apertura a las 11:00",
+    "t": -0.006085254452344351,
+    "pasa": false,
+    "sep": -0.7004608294944461,
+    "alto": 71.51115207373185,
+    "bajo": 72.2116129032263,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (−4726.4% · +4272.2% · +3250.7%) — el efecto no es estable en el tiempo",
+      "t = -0.01, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G1",
+    "campo": "extremo",
+    "desc": "qué tan al borde del rango de la mañana cierra las 11:00",
+    "t": -0.3063106678612216,
+    "pasa": false,
+    "sep": -33.0368663594489,
+    "alto": 50.594101382487544,
+    "bajo": 83.63096774193644,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (+9286.1% · +10377.8% · −27393.2%) — el efecto no es estable en el tiempo",
+      "t = -0.31, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G1",
+    "campo": "hueco",
+    "desc": "% de hueco de apertura contra el cierre de ayer",
+    "t": -0.7107596581419455,
+    "pasa": false,
+    "sep": -79.82949308755836,
+    "alto": 48.32221198156604,
+    "bajo": 128.1517050691244,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (−13919.4% · +23504.2% · −27797.2%) — el efecto no es estable en el tiempo",
+      "t = -0.71, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G1",
+    "campo": "rangoAyer",
+    "desc": "% de rango que hizo ayer",
+    "t": 0.4617253817419784,
+    "pasa": false,
+    "sep": 52.69585253456114,
+    "alto": 62.9028571428564,
+    "bajo": 10.207004608295257,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (+14795.8% · −1162.5% · −10059.7%) — el efecto no es estable en el tiempo",
+      "t = 0.46, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G2",
+    "campo": "vix",
+    "desc": "VIX al cierre de AYER",
+    "t": 0.25042499200236296,
+    "pasa": false,
+    "sep": 28.138248847925876,
+    "alto": 59.640184331797165,
+    "bajo": 31.50193548387129,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (+19875.0% · +18129.2% · −38308.3%) — el efecto no es estable en el tiempo",
+      "t = 0.25, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G2",
+    "campo": "vixCambio",
+    "desc": "% que cambió el VIX ayer",
+    "t": -0.4213727753171613,
+    "pasa": false,
+    "sep": -44.935483870969506,
+    "alto": 128.87981566820173,
+    "bajo": 173.81529953917124,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (+11615.3% · +5601.4% · −21513.9%) — el efecto no es estable en el tiempo",
+      "t = -0.42, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G2",
+    "campo": "term9",
+    "desc": "VIX9D / VIX de ayer (>1 = estrés corto)",
+    "t": -0.1833713418380726,
+    "pasa": false,
+    "sep": -20.953917050692844,
+    "alto": 38.80147465437745,
+    "bajo": 59.755391705070295,
+    "motivos": [
+      "t = -0.18, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G2",
+    "campo": "term3m",
+    "desc": "VIX / VIX3M de ayer (>1 = curva invertida)",
+    "t": -1.038376998898268,
+    "pasa": false,
+    "sep": -115.9815668202776,
+    "alto": 4.336036866358981,
+    "bajo": 120.31760368663659,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (+1508.3% · +8131.9% · −20837.5%) — el efecto no es estable en el tiempo",
+      "t = -1.04, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G2",
+    "campo": "vvix",
+    "desc": "VVIX al cierre de AYER",
+    "t": 0.029208419682977712,
+    "pasa": false,
+    "sep": 3.3502304147464343,
+    "alto": 40.732350230415115,
+    "bajo": 37.38211981566868,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (+20888.9% · +2543.1% · −37248.6%) — el efecto no es estable en el tiempo",
+      "t = 0.03, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G4",
+    "campo": "ma200",
+    "desc": "% de distancia a la media de 200 sesiones",
+    "t": -0.042405026630309844,
+    "pasa": false,
+    "sep": -5.993377483444377,
+    "alto": 94.32953642384136,
+    "bajo": 100.32291390728574,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (−31352.0% · −23734.0% · +1528.0%) — el efecto no es estable en el tiempo",
+      "t = -0.04, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G4",
+    "campo": "distMax",
+    "desc": "% de distancia al máximo de 60 sesiones",
+    "t": 0.27663056743669656,
+    "pasa": false,
+    "sep": 34.64974619289402,
+    "alto": 76.14071065989876,
+    "bajo": 41.49096446700474,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (−8078.5% · −5792.3% · +35642.4%) — el efecto no es estable en el tiempo",
+      "t = 0.28, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G4",
+    "campo": "diasBajada",
+    "desc": "días seguidos de caída antes de hoy",
+    "t": -0.26629773104247034,
+    "pasa": false,
+    "sep": -29.37327188940202,
+    "alto": 94.63096774193477,
+    "bajo": 124.00423963133679,
+    "motivos": [
+      "el signo NO se repite en los tres tercios (+4945.8% · −25925.0% · −14276.7%) — el efecto no es estable en el tiempo",
+      "t = -0.27, por debajo del listón de 2.99 para 18 pruebas"
+    ]
+  },
+  {
+    "g": "G3",
+    "campo": "opex",
+    "desc": "vencimiento mensual (tercer viernes)",
+    "t": 0.6496171004413623,
+    "pasa": false,
+    "sep": 119.47828249337275,
+    "alto": 188.65655172414216,
+    "bajo": 69.17826923076942,
+    "motivos": [
+      "binaria: muestra corta o |t| por debajo del listón"
+    ]
+  },
+  {
+    "g": "G3",
+    "campo": "empleo",
+    "desc": "informe de empleo (primer viernes)",
+    "t": -0.009231907326659437,
+    "pasa": false,
+    "sep": -2.273596374888413,
+    "alto": 72.31172413793232,
+    "bajo": 74.58532051282073,
+    "motivos": [
+      "binaria: muestra corta o |t| por debajo del listón"
+    ]
+  },
+  {
+    "g": "G3",
+    "campo": "finMes",
+    "desc": "último día del mes",
+    "t": -2.3662065305805307,
+    "pasa": false,
+    "sep": -717.7078301127234,
+    "alto": -608.0525000000016,
+    "bajo": 109.65533011272176,
+    "motivos": [
+      "binaria: muestra corta o |t| por debajo del listón"
+    ]
+  }
+]
