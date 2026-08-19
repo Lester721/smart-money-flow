@@ -271,21 +271,54 @@ async function soltarCandado() {
   //
   // Un fichero también es legible por quien tenga acceso al disco, pero NO se cuela en la lista
   // de procesos, ni en capturas del administrador de tareas, ni en volcados de fallo.
-  log("arrancando el Theta Terminal…");
-  const argsJar = ["-jar", JAR];
-  if (STAGE) argsJar.push("--config", process.env.THETA_CONFIG || "config-stage.toml");
-  term = spawn("java", argsJar, {
-    stdio: ["ignore", "pipe", "pipe"],
-    env: { ...process.env, JAVA_TOOL_OPTIONS: jto, THETA_API_KEY: KEY },
-  });
-  term.stdout.on("data", (d) => process.stdout.write(`[theta] ${d}`));
-  term.stderr.on("data", (d) => process.stderr.write(`[theta] ${d}`));
-  term.on("exit", (c) => log(`Terminal terminó (código ${c})`));
-
+  // ── REINTENTOS ──────────────────────────────────────────────────────────────
+  //
+  // El arrancador no trae el Terminal: se lo descarga al ejecutarse y lo deja en `lib/`. Esa
+  // descarga devuelve 404 A RATOS. El 2026-08-17 tumbó tres servicios durante 47 horas:
+  //
+  //     WARN:  Failed to download JAR file. HTTP error code: 404
+  //     ERROR: and there are no JAR files in the library.
+  //
+  // Que es TRANSITORIO está probado: Credit Spread y Wheel volvieron solos al día siguiente,
+  // sin tocar nada. Así que un intento único convierte un tropiezo de ThetaData en un día
+  // entero de forward-test perdido, y eso no se recupera.
+  //
+  // El arreglo bueno sería traer el jar en el build (scripts/preparar-jar-theta.sh), pero el
+  // Build Command está puesto a mano en la interfaz de Railway y tiene prioridad sobre
+  // railway.json — o sea, ese arreglo no se aplica hasta que alguien lo cambie ahí. Esto sí
+  // depende sólo del repo.
+  //
+  // Tres intentos con 20s de espera. El coste de equivocarse por exceso es un minuto de
+  // contenedor; por defecto, un día de datos.
+  const INTENTOS = Number(process.env.THETA_INTENTOS || 3);
   const t0 = Date.now();
-  while (Date.now() - t0 < BOOT_TIMEOUT * 1000) {
+  for (let intento = 1; intento <= INTENTOS; intento++) {
+    log(`arrancando el Theta Terminal… (intento ${intento} de ${INTENTOS})`);
+    const argsJar = ["-jar", JAR];
+    if (STAGE) argsJar.push("--config", process.env.THETA_CONFIG || "config-stage.toml");
+    term = spawn("java", argsJar, {
+      stdio: ["ignore", "pipe", "pipe"],
+      env: { ...process.env, JAVA_TOOL_OPTIONS: jto, THETA_API_KEY: KEY },
+    });
+    term.stdout.on("data", (d) => process.stdout.write(`[theta] ${d}`));
+    term.stderr.on("data", (d) => process.stderr.write(`[theta] ${d}`));
+    term.on("exit", (c) => log(`Terminal terminó (código ${c})`));
+
+    const tIntento = Date.now();
+    while (Date.now() - tIntento < BOOT_TIMEOUT * 1000) {
+      if (await ready()) break;
+      // Si el proceso ya murió, no tiene sentido esperar los 180s enteros: al siguiente.
+      if (term.exitCode !== null) break;
+      await new Promise((r) => setTimeout(r, 3000));
+    }
     if (await ready()) break;
-    await new Promise((r) => setTimeout(r, 3000));
+
+    // No dejar un Java zombi antes de volver a intentarlo.
+    try { term.kill(); } catch { /* ya estaba muerto */ }
+    if (intento < INTENTOS) {
+      log(`no arrancó; reintentando en 20s (la descarga del jar de ThetaData falla a ratos)`);
+      await new Promise((r) => setTimeout(r, 20_000));
+    }
   }
   if (!(await ready())) {
     // ¿POR QUÉ no arrancó? El arrancador necesita un jar con fecha en lib/; si no está y la
