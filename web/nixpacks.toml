@@ -36,5 +36,20 @@
 # Esto vale para los TRES servicios que usan ThetaData —cóndor, Wheel y Credit Spread—, que se
 # construyen todos desde `web/` y compartían el mismo agujero.
 
+
+# ═══ 2026-08-19 · SE VUELVE A headless ═══════════════════════════════════════════════════════
+#
+# Lester BORRÓ la variable NIXPACKS_PKGS de Wheel y de Ideas, así que este fichero vuelve a ser
+# la ÚNICA fuente y ya no hay dos paquetes de Java chocando. Con jdk21 (no headless) la imagen
+# arrastraba gtk3, cairo, pango, cups, avahi y at-spi2 — casi un giga de librerías de escritorio,
+# impresión y audio para un Terminal que no tiene ni ventana.
+#
+# Eso acabó tumbando a Ideas: el build llegaba al final, construía la imagen, y se quedaba
+# 1 h 45 min repitiendo `image push` hasta morir. Ningún error de compilación — la imagen era
+# demasiado gorda para subirla. Y como Ideas no reconstruye al empujar, llevaba días así.
+#
+# ⚠️ SI ALGUIEN VUELVE A PONER NIXPACKS_PKGS=jdk21 EN UN SERVICIO, aquí hay que volver a poner
+# `jdk21` o ESE servicio dejará de construir. Los dos sitios, el mismo paquete.
+
 [phases.setup]
-nixPkgs = ["...", "jdk21"]
+nixPkgs = ["...", "jdk21_headless"]
