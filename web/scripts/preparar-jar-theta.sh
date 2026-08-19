@@ -53,22 +53,48 @@ elif [ -z "${THETADATA_API_KEY:-}" ]; then
 elif ! command -v java >/dev/null 2>&1; then
   echo "[preparar-jar]   ⚠ no hay java en el build — revisar nixpacks.toml [phases.setup]"
 else
-  # Se arranca en segundo plano y se vigila lib/. En cuanto aparezca el jar, se mata.
+  # Se arranca en segundo plano y se vigila lib/.
+  #
+  # ⚠ NO BASTA CON QUE EL FICHERO EXISTA. La primera versión mataba el arrancador en cuanto
+  # `ls lib/*.jar` daba algo — y un fichero existe desde su primer byte. Resultado: la imagen de
+  # Ideas se llevó un jar de 4,2 MB donde el del Cóndor pesaba 38,5 MB. Una descarga a medias.
+  # Y un jar truncado no falla diciendo "404": falla diciendo cualquier cosa, mañana, en el cron.
+  #
+  # Se espera a que el tamaño DEJE DE CRECER: tres lecturas seguidas iguales y distinto de cero.
   THETA_API_KEY="$THETADATA_API_KEY" java -jar "$JAR" > /tmp/preparar-jar.log 2>&1 &
   PID=$!
-  i=0
-  while [ $i -lt 90 ]; do
-    [ -n "$(ls lib/*.jar 2>/dev/null)" ] && break
+  i=0; ANTERIOR=-1; ESTABLE=0
+  while [ $i -lt 150 ]; do
+    TAM=$(cat lib/*.jar 2>/dev/null | wc -c 2>/dev/null || echo 0)
+    if [ "$TAM" -gt 0 ] && [ "$TAM" = "$ANTERIOR" ]; then
+      ESTABLE=$((ESTABLE + 1))
+      [ $ESTABLE -ge 3 ] && break
+    else
+      ESTABLE=0
+    fi
+    ANTERIOR="$TAM"
     kill -0 "$PID" 2>/dev/null || break        # se murió solo: no tiene sentido seguir esperando
     i=$((i + 1)); sleep 2
   done
   kill "$PID" 2>/dev/null || true
   wait "$PID" 2>/dev/null || true
+  echo "[preparar-jar]   tamaño estable tras $((i * 2))s: $(cat lib/*.jar 2>/dev/null | wc -c) bytes"
 fi
 
 echo "[preparar-jar] 3/3 · resultado"
 if [ -n "$(ls lib/*.jar 2>/dev/null)" ]; then
   ls -la lib/*.jar | sed 's/^/[preparar-jar]   /'
+  # EL GUARDIÁN FALLA CERRADO. Un jar a medias pasaría la comprobación de "existe" y reventaría
+  # mañana en el cron con un error que no señala aquí. El Terminal v3 ronda los 38-62 MB; por
+  # debajo de 30 MB no es una versión distinta, es una descarga rota.
+  TAM=$(cat lib/*.jar 2>/dev/null | wc -c)
+  if [ "$TAM" -lt 31457280 ]; then
+    echo "[preparar-jar] ❌ EL JAR ESTÁ INCOMPLETO: $TAM bytes (se esperan >30 MB)."
+    echo "[preparar-jar]    Se BORRA para no embarcar un jar roto — el contenedor se lo bajará en"
+    echo "[preparar-jar]    runtime, que es peor pero es honesto. Y with-theta reintenta 3 veces."
+    rm -f lib/*.jar
+    exit 0
+  fi
   echo "[preparar-jar] ✅ el Terminal viaja en la imagen: el contenedor ya no depende de la descarga"
 else
   echo "[preparar-jar] ⚠️  lib/ SIGUE VACÍA — el contenedor volverá a depender de la descarga en runtime,"
