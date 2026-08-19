@@ -18,7 +18,9 @@
     "odte-forward": "tsx scripts/odte-forward.ts",
     "odte-forward:theta": "node scripts/with-theta.mjs npm run odte-forward",
     "condor-forward": "node scripts/forward-gex-condor.mjs",
-    "condor-forward:theta": "node scripts/with-theta.mjs npm run condor-forward"
+    "condor-forward:theta": "node scripts/with-theta.mjs npm run condor-forward",
+    "condor-sinfiltro": "node scripts/forward-condor-sinfiltro.mjs",
+    "condor-sinfiltro:theta": "node scripts/with-theta.mjs npm run condor-sinfiltro"
   },
   "engines": {
     "node": ">=22"
