@@ -110,7 +110,7 @@ function proximaCita(expr, ahora = new Date()) {
 const enET = (d) => d.toLocaleString("sv-SE", { timeZone: "America/New_York" }).slice(0, 16);
 
 /** "gex-condor" ↔ "Forward · Cóndor 0DTE": el latido y Railway no usan el mismo nombre. */
-const ALIAS = { "gex-condor": "Cóndor", "credit-spread": "Credit Spread", wheel: "Wheel", ideas: "Ideas",
+const ALIAS = { "gex-condor": "Cóndor", "condor-sinfiltro": "Cóndor", "credit-spread": "Credit Spread", wheel: "Wheel", ideas: "Ideas",
                 "ideas-worker": "smart-money-flow" };
 function buscarDespliegue(mapa, servicio) {
   if (!mapa) return null;
@@ -157,7 +157,7 @@ console.log("\n── SERVICIOS ────────────────
 // servicio de mentira al que meterle latidos falsos, y antes usaba "ideas" —un servicio REAL—
 // dejando basura en producción cuando su limpieza no acertaba. Una herramienta de diagnóstico
 // no puede ensuciar lo que vigila.
-const ESPERADOS = (process.env.SERVICIOS_ESPERADOS || "gex-condor,credit-spread,wheel,ideas,ideas-worker")
+const ESPERADOS = (process.env.SERVICIOS_ESPERADOS || "gex-condor,condor-sinfiltro,credit-spread,wheel,ideas,ideas-worker")
   .split(",").map((x) => x.trim()).filter(Boolean);
 const sueltos = (await r.keys("latido:*")).map((k) => k.replace("latido:", "")).filter((n) => !ESPERADOS.includes(n));
 if (sueltos.length) {
