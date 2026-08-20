@@ -20,7 +20,9 @@
     "condor-forward": "node scripts/forward-gex-condor.mjs",
     "condor-forward:theta": "node scripts/with-theta.mjs npm run condor-forward",
     "condor-sinfiltro": "node scripts/forward-condor-sinfiltro.mjs",
-    "condor-sinfiltro:theta": "node scripts/with-theta.mjs npm run condor-sinfiltro"
+    "condor-sinfiltro:theta": "node scripts/with-theta.mjs npm run condor-sinfiltro",
+    "condor-tendencia": "node scripts/forward-condor-tendencia.mjs",
+    "condor-tendencia:theta": "node scripts/with-theta.mjs npm run condor-tendencia"
   },
   "engines": {
     "node": ">=22"

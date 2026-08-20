@@ -17,7 +17,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { dirname } from "node:path";
 import Redis from "ioredis";
-import { escribirLatido, escribirLatidoDirecto } from "../lib/origenEjecucion";
+import { etiquetaEjecucion, escribirLatido, escribirLatidoDirecto } from "../lib/origenEjecucion";
 import { loadMarketFlow, closeIdeasStore } from "../lib/ideasStore";
 import { classifyFlow, type FlowRow } from "../lib/flow";
 import { validationScore } from "../lib/validation";
@@ -85,6 +85,10 @@ const YR = 365 * 24 * 3600 * 1000;
 
 // ── Registro ─────────────────────────────────────────────────────────────────
 interface IdeaTrade {
+  /** railway:<servicio> o local. SIN ESTO EL LEDGER NO SE PUEDE AUDITAR: una prueba mía
+   *  desde este portátil se ve idéntica a una corrida de Railway, y así un servicio muerto
+   *  puede pasar días disfrazado de servicio vivo. Ver lib/origenEjecucion.ts. */
+  origen?: string;
   id: string;               // ticker|símbolo|fecha|vehículo
   ticker: string; symbol: string;
   entryDate: string; entryMs: number;
@@ -304,6 +308,8 @@ function hitBucket(t: IdeaTrade): string {
       premium: r.premium, unusualScore: r.scores?.total ?? 0, aggression: r.aggression ?? "unknown",
       hitRate: h.hitRate, hitResolved: h.resolved, spot: round(spot), rv: round(rv, 4),
       status: "open" as const,
+      origen: etiquetaEjecucion(),   // railway o local — se firma aquí porque los dos
+                                     // vehículos (copiar y spread) escriben con ...base
     };
 
     // (a) COPIAR el trade: comprar el mismo contrato.
