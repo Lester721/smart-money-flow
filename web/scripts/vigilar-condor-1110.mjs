@@ -44,7 +44,15 @@ function proximoDiaHabil() {
 
 const DIA = process.argv[2] || proximoDiaHabil();
 
-const r = new Redis(process.env.REDIS_URL, { maxRetriesPerRequest: 3 });
+const r = new Redis(process.env.REDIS_URL, {
+  maxRetriesPerRequest: 3,
+  // Reintenta con espera creciente en vez de martillear el DNS con el portátil dormido.
+  retryStrategy: (veces) => Math.min(veces * 2000, 30_000),
+});
+// SIN ESTO, cada reintento de DNS es un 'Unhandled error event' que el monitor convierte en una
+// notificación. Callarlos es correcto: filaDelDia() ya se traga los fallos de red, y quien decide
+// que algo va mal es la HORA LÍMITE, no la conexión.
+r.on('error', () => {});
 const filaDelDia = async (key) => {
   try {
     const crudo = await r.get(key);
