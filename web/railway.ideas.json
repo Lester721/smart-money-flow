@@ -5,7 +5,7 @@
     "buildCommand": "sh scripts/preparar-jar-theta.sh"
   },
   "deploy": {
-    "startCommand": "node scripts/with-theta.mjs npm run forward-ideas",
+    "startCommand": "sh -c \"node scripts/with-theta.mjs npm run forward-ideas; npm run ms-cadena\"",
     "restartPolicyType": "NEVER"
   }
 }

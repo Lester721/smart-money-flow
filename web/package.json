@@ -24,7 +24,8 @@
     "condor-tendencia": "node scripts/forward-condor-tendencia.mjs",
     "condor-tendencia:theta": "node scripts/with-theta.mjs npm run condor-tendencia",
     "tres-sies": "node scripts/forward-tres-sies.mjs",
-    "tres-sies:theta": "node scripts/with-theta.mjs npm run tres-sies"
+    "tres-sies:theta": "node scripts/with-theta.mjs npm run tres-sies",
+    "ms-cadena": "node scripts/marketsnack/cron-cadena-strike.mjs"
   },
   "engines": {
     "node": ">=22"
