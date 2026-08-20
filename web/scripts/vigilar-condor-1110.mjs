@@ -44,6 +44,11 @@ function proximoDiaHabil() {
 
 const DIA = process.argv[2] || proximoDiaHabil();
 
+// Y SI EL DÍA OBJETIVO YA ESCRIBIÓ, PASA AL SIGUIENTE. Sin esto, rearmarlo a las 11:14 —después
+// del cron pero antes de la hora límite— elige HOY, ve las filas ya puestas y dispara al
+// instante repitiendo el aviso de hace un minuto. Pasó el 2026-08-20.
+const siguienteHabil = (d) => { const x = new Date(d + 'T12:00:00Z'); do { x.setUTCDate(x.getUTCDate() + 1); } while (x.getUTCDay() === 0 || x.getUTCDay() === 6); return x.toISOString().slice(0, 10); };
+
 const r = new Redis(process.env.REDIS_URL, {
   maxRetriesPerRequest: 3,
   // Reintenta con espera creciente en vez de martillear el DNS con el portátil dormido.
@@ -57,7 +62,7 @@ const filaDelDia = async (key) => {
   try {
     const crudo = await r.get(key);
     if (!crudo) return null;
-    return (JSON.parse(crudo) ?? []).find((o) => o.dia === DIA) ?? null;
+    return (JSON.parse(crudo) ?? []).find((o) => o.dia === (globalThis.__dia || DIA)) ?? null;
   } catch { return null; }              // un fallo de red no puede matar la vigilancia
 };
 
@@ -69,23 +74,30 @@ const describir = (o) => {
   return `crédito $${Math.round(o.credito * 100)} · call ${o.callCorta}/${o.callLarga} · put ${o.putCorta}/${o.putLarga}`;
 };
 
+{
+  // ¿ya está escrito el día que íbamos a vigilar? entonces vigila el siguiente.
+  const yaEscrito = (await Promise.all(CUADERNOS.map((c) => filaDelDia(c.key)))).every(Boolean);
+  if (yaEscrito) { const otro = siguienteHabil(DIA); console.error('[vigilante] ' + DIA + ' ya escribió; paso a ' + otro); globalThis.__dia = otro; }
+}
+let OBJETIVO = globalThis.__dia || DIA;
+
 while (true) {
   // Todavía no ha llegado el día objetivo: dormir sin hacer ruido.
-  if (hoyET() < DIA) { await new Promise((s) => setTimeout(s, 600_000)); continue; }
+  if (hoyET() < OBJETIVO) { await new Promise((s) => setTimeout(s, 600_000)); continue; }
 
   const filas = [];
   for (const c of CUADERNOS) filas.push({ ...c, fila: await filaDelDia(c.key) });
   const escritos = filas.filter((f) => f.fila);
 
   if (escritos.length === CUADERNOS.length) {
-    console.log(`✅ ${reloj()} ET · LOS TRES CUADERNOS ESCRIBIERON (${DIA})`);
+    console.log(`✅ ${reloj()} ET · LOS TRES CUADERNOS ESCRIBIERON (${OBJETIVO})`);
     for (const f of filas) console.log(`   ${f.nombre.padEnd(24)} ${describir(f.fila)}`);
     break;
   }
 
-  if (hoyET() > DIA || (hoyET() === DIA && ahoraMin() >= LIMITE)) {
+  if (hoyET() > OBJETIVO || (hoyET() === OBJETIVO && ahoraMin() >= LIMITE)) {
     const faltan = filas.filter((f) => !f.fila);
-    console.log(`❌ ${reloj()} ET · pasada la hora y faltan ${faltan.length} de ${CUADERNOS.length} cuadernos (${DIA})`);
+    console.log(`❌ ${reloj()} ET · pasada la hora y faltan ${faltan.length} de ${CUADERNOS.length} cuadernos (${OBJETIVO})`);
     for (const f of filas) console.log(`   ${f.fila ? "✓" : "✗"} ${f.nombre.padEnd(24)} ${describir(f.fila)}`);
     console.log(`   → node --env-file=.env.local scripts/railway-api.mjs --logs "Forward · Cóndor 0DTE" --lineas 40`);
     break;
