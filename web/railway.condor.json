@@ -5,7 +5,7 @@
     "buildCommand": "sh scripts/preparar-jar-theta.sh"
   },
   "deploy": {
-    "startCommand": "node scripts/with-theta.mjs sh -c \"npm run condor-forward; npm run condor-sinfiltro; npm run condor-tendencia\"",
+    "startCommand": "node scripts/with-theta.mjs sh -c \"npm run condor-forward; npm run condor-sinfiltro; npm run condor-tendencia; npm run tres-sies\"",
     "restartPolicyType": "NEVER"
   }
 }
