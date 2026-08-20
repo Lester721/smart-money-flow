@@ -1,0 +1,1293 @@
+{
+  "pruebas": 111,
+  "liston": 3.51,
+  "mejor": {
+    "blanco": "pérdida > $2.000",
+    "campo": "acel",
+    "desc": "% movido entre 10:30 y 11:00",
+    "lado": "alto",
+    "o": 15,
+    "tasa": 0.23076923076923078,
+    "z": 5.582968944782768
+  },
+  "todo": [
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "movManana",
+      "desc": "% de la apertura a las 11:00 (con signo)",
+      "lado": "bajo",
+      "o": 7,
+      "tasa": 0.1076923076923077,
+      "z": 2.7987630754510024
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "movManana",
+      "desc": "% de la apertura a las 11:00 (con signo)",
+      "lado": "alto",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "movMananaAbs",
+      "desc": "lo mismo en valor absoluto",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "movMananaAbs",
+      "desc": "lo mismo en valor absoluto",
+      "lado": "alto",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": 0.8956819005782104
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rangoManana",
+      "desc": "% de rango de la mañana",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rangoManana",
+      "desc": "% de rango de la mañana",
+      "lado": "alto",
+      "o": 6,
+      "tasa": 0.09230769230769231,
+      "z": 2.1644026838267383
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rangoMananaPts",
+      "desc": "rango de la mañana en PUNTOS",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rangoMananaPts",
+      "desc": "rango de la mañana en PUNTOS",
+      "lado": "alto",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": 0.8956819005782104
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "posRango",
+      "desc": "dónde cierra las 11:00 dentro del rango",
+      "lado": "bajo",
+      "o": 3,
+      "tasa": 0.046153846153846156,
+      "z": 0.2613215089539465
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "posRango",
+      "desc": "dónde cierra las 11:00 dentro del rango",
+      "lado": "alto",
+      "o": 3,
+      "tasa": 0.046153846153846156,
+      "z": 0.2613215089539465
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "extremo",
+      "desc": "qué tan al borde del rango",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "extremo",
+      "desc": "qué tan al borde del rango",
+      "lado": "alto",
+      "o": 6,
+      "tasa": 0.09230769230769231,
+      "z": 2.1644026838267383
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "recorrido",
+      "desc": "% de camino recorrido",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "recorrido",
+      "desc": "% de camino recorrido",
+      "lado": "alto",
+      "o": 8,
+      "tasa": 0.12307692307692308,
+      "z": 3.433123467075266
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "recorridoPts",
+      "desc": "camino recorrido en puntos",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "recorridoPts",
+      "desc": "camino recorrido en puntos",
+      "lado": "alto",
+      "o": 7,
+      "tasa": 0.1076923076923077,
+      "z": 2.7987630754510024
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "eficiencia",
+      "desc": "neto / camino (1 = línea recta)",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "eficiencia",
+      "desc": "neto / camino (1 = línea recta)",
+      "lado": "alto",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": 0.8956819005782104
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "zigzag",
+      "desc": "nº de giros de la mañana",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "zigzag",
+      "desc": "nº de giros de la mañana",
+      "lado": "alto",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rvManana",
+      "desc": "volatilidad realizada de la mañana",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rvManana",
+      "desc": "volatilidad realizada de la mañana",
+      "lado": "alto",
+      "o": 8,
+      "tasa": 0.12307692307692308,
+      "z": 3.433123467075266
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "acel",
+      "desc": "% movido entre 10:30 y 11:00",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "acel",
+      "desc": "% movido entre 10:30 y 11:00",
+      "lado": "alto",
+      "o": 10,
+      "tasa": 0.15384615384615385,
+      "z": 4.701844250323794
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "ivAtm11",
+      "desc": "IV del dinero a las 11:00",
+      "lado": "bajo",
+      "o": 0,
+      "tasa": 0,
+      "z": -1.6417596659188451
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "ivAtm11",
+      "desc": "IV del dinero a las 11:00",
+      "lado": "alto",
+      "o": 6,
+      "tasa": 0.09230769230769231,
+      "z": 2.1644026838267383
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "ivCambio",
+      "desc": "% que cambió la IV en la mañana",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "ivCambio",
+      "desc": "% que cambió la IV en la mañana",
+      "lado": "alto",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": 0.8956819005782104
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "sigmaRatio",
+      "desc": "cuántas σ son los ±25 puntos",
+      "lado": "bajo",
+      "o": 8,
+      "tasa": 0.12307692307692308,
+      "z": 3.433123467075266
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "sigmaRatio",
+      "desc": "cuántas σ son los ±25 puntos",
+      "lado": "alto",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rvIv",
+      "desc": "realizada de la mañana / implícita",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rvIv",
+      "desc": "realizada de la mañana / implícita",
+      "lado": "alto",
+      "o": 3,
+      "tasa": 0.046153846153846156,
+      "z": 0.2613215089539465
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "hueco",
+      "desc": "% de hueco de apertura",
+      "lado": "bajo",
+      "o": 5,
+      "tasa": 0.07692307692307693,
+      "z": 1.5300422922024743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "hueco",
+      "desc": "% de hueco de apertura",
+      "lado": "alto",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": 0.8956819005782104
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "huecoAbs",
+      "desc": "hueco en valor absoluto",
+      "lado": "bajo",
+      "o": 0,
+      "tasa": 0,
+      "z": -1.6417596659188451
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "huecoAbs",
+      "desc": "hueco en valor absoluto",
+      "lado": "alto",
+      "o": 7,
+      "tasa": 0.1076923076923077,
+      "z": 2.7987630754510024
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rangoAyerReal",
+      "desc": "% de rango de AYER",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rangoAyerReal",
+      "desc": "% de rango de AYER",
+      "lado": "alto",
+      "o": 3,
+      "tasa": 0.046153846153846156,
+      "z": 0.2613215089539465
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rvAyer",
+      "desc": "volatilidad realizada de AYER",
+      "lado": "bajo",
+      "o": 0,
+      "tasa": 0,
+      "z": -1.6417596659188451
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "rvAyer",
+      "desc": "volatilidad realizada de AYER",
+      "lado": "alto",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "tardeAyerPts",
+      "desc": "puntos que se movió AYER de 11:00 al cierre",
+      "lado": "bajo",
+      "o": 5,
+      "tasa": 0.07692307692307693,
+      "z": 1.5300422922024743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "tardeAyerPts",
+      "desc": "puntos que se movió AYER de 11:00 al cierre",
+      "lado": "alto",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "retAyer",
+      "desc": "% que hizo AYER",
+      "lado": "bajo",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": 0.8956819005782104
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "retAyer",
+      "desc": "% que hizo AYER",
+      "lado": "alto",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "vix",
+      "desc": "VIX al cierre de AYER",
+      "lado": "bajo",
+      "o": 0,
+      "tasa": 0,
+      "z": -1.6417596659188451
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "vix",
+      "desc": "VIX al cierre de AYER",
+      "lado": "alto",
+      "o": 6,
+      "tasa": 0.09230769230769231,
+      "z": 2.1644026838267383
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "vixCambio",
+      "desc": "% que cambió el VIX AYER",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "vixCambio",
+      "desc": "% que cambió el VIX AYER",
+      "lado": "alto",
+      "o": 3,
+      "tasa": 0.046153846153846156,
+      "z": 0.2613215089539465
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "term9",
+      "desc": "VIX9D / VIX de ayer",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "term9",
+      "desc": "VIX9D / VIX de ayer",
+      "lado": "alto",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "term3m",
+      "desc": "VIX / VIX3M de ayer",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "term3m",
+      "desc": "VIX / VIX3M de ayer",
+      "lado": "alto",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": 0.8956819005782104
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "vvix",
+      "desc": "VVIX al cierre de AYER",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -0.37303888267031743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "vvix",
+      "desc": "VVIX al cierre de AYER",
+      "lado": "alto",
+      "o": 6,
+      "tasa": 0.09230769230769231,
+      "z": 2.1644026838267383
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "vvixVix",
+      "desc": "VVIX / VIX de ayer",
+      "lado": "bajo",
+      "o": 5,
+      "tasa": 0.07692307692307693,
+      "z": 1.5300422922024743
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "vvixVix",
+      "desc": "VVIX / VIX de ayer",
+      "lado": "alto",
+      "o": 0,
+      "tasa": 0,
+      "z": -1.6417596659188451
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "ivVsVix",
+      "desc": "IV del dinero / VIX de ayer",
+      "lado": "bajo",
+      "o": 0,
+      "tasa": 0,
+      "z": -1.6417596659188451
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "ivVsVix",
+      "desc": "IV del dinero / VIX de ayer",
+      "lado": "alto",
+      "o": 7,
+      "tasa": 0.1076923076923077,
+      "z": 2.7987630754510024
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "nivel",
+      "desc": "nivel del índice a las 11:00",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "nivel",
+      "desc": "nivel del índice a las 11:00",
+      "lado": "alto",
+      "o": 3,
+      "tasa": 0.046153846153846156,
+      "z": 0.2613215089539465
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "sepPct",
+      "desc": "qué % del índice son los 25 puntos",
+      "lado": "bajo",
+      "o": 3,
+      "tasa": 0.046153846153846156,
+      "z": 0.2613215089539465
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "sepPct",
+      "desc": "qué % del índice son los 25 puntos",
+      "lado": "alto",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "credito",
+      "desc": "crédito cobrado (se sabe al entrar)",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "credito",
+      "desc": "crédito cobrado (se sabe al entrar)",
+      "lado": "alto",
+      "o": 8,
+      "tasa": 0.12307692307692308,
+      "z": 3.433123467075266
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "sigma",
+      "desc": "movimiento esperado del resto de sesión",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.0073992742945812
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "sigma",
+      "desc": "movimiento esperado del resto de sesión",
+      "lado": "alto",
+      "o": 8,
+      "tasa": 0.12307692307692308,
+      "z": 3.433123467075266
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "opex",
+      "desc": "vencimiento mensual",
+      "lado": "marcado",
+      "o": 1,
+      "tasa": 0.034482758620689655,
+      "z": -0.14689328070134441
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "empleo",
+      "desc": "informe de empleo",
+      "lado": "marcado",
+      "o": 2,
+      "tasa": 0.06896551724137931,
+      "z": 0.8028226826449715
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "finMes",
+      "desc": "último día del mes",
+      "lado": "marcado",
+      "o": 6,
+      "tasa": 0.1935483870967742,
+      "z": 4.377622390266336
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "vispera",
+      "desc": "víspera del fin de mes",
+      "lado": "marcado",
+      "o": 2,
+      "tasa": 0.06451612903225806,
+      "z": 0.7033454997214551
+    },
+    {
+      "blanco": "pérdida > $3.000",
+      "campo": "primeroMes",
+      "desc": "primer día del mes",
+      "lado": "marcado",
+      "o": 1,
+      "tasa": 0.03125,
+      "z": -0.24783212313234848
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "movManana",
+      "desc": "% de la apertura a las 11:00 (con signo)",
+      "lado": "bajo",
+      "o": 10,
+      "tasa": 0.15384615384615385,
+      "z": 3.02639200162488
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "movManana",
+      "desc": "% de la apertura a las 11:00 (con signo)",
+      "lado": "alto",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -1.064131107427739
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "movMananaAbs",
+      "desc": "lo mismo en valor absoluto",
+      "lado": "bajo",
+      "o": 3,
+      "tasa": 0.046153846153846156,
+      "z": -0.5528157187961618
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "movMananaAbs",
+      "desc": "lo mismo en valor absoluto",
+      "lado": "alto",
+      "o": 5,
+      "tasa": 0.07692307692307693,
+      "z": 0.4698150584669931
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rangoManana",
+      "desc": "% de rango de la mañana",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.5754464960593166
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rangoManana",
+      "desc": "% de rango de la mañana",
+      "lado": "alto",
+      "o": 9,
+      "tasa": 0.13846153846153847,
+      "z": 2.515076612993303
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rangoMananaPts",
+      "desc": "rango de la mañana en PUNTOS",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.5754464960593166
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rangoMananaPts",
+      "desc": "rango de la mañana en PUNTOS",
+      "lado": "alto",
+      "o": 7,
+      "tasa": 0.1076923076923077,
+      "z": 1.492445835730148
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "posRango",
+      "desc": "dónde cierra las 11:00 dentro del rango",
+      "lado": "bajo",
+      "o": 6,
+      "tasa": 0.09230769230769231,
+      "z": 0.9811304470985706
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "posRango",
+      "desc": "dónde cierra las 11:00 dentro del rango",
+      "lado": "alto",
+      "o": 5,
+      "tasa": 0.07692307692307693,
+      "z": 0.4698150584669931
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "extremo",
+      "desc": "qué tan al borde del rango",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.5754464960593166
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "extremo",
+      "desc": "qué tan al borde del rango",
+      "lado": "alto",
+      "o": 9,
+      "tasa": 0.13846153846153847,
+      "z": 2.515076612993303
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "recorrido",
+      "desc": "% de camino recorrido",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -1.064131107427739
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "recorrido",
+      "desc": "% de camino recorrido",
+      "lado": "alto",
+      "o": 14,
+      "tasa": 0.2153846153846154,
+      "z": 5.07165355615119
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "recorridoPts",
+      "desc": "camino recorrido en puntos",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -1.064131107427739
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "recorridoPts",
+      "desc": "camino recorrido en puntos",
+      "lado": "alto",
+      "o": 13,
+      "tasa": 0.2,
+      "z": 4.560338167519613
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "eficiencia",
+      "desc": "neto / camino (1 = línea recta)",
+      "lado": "bajo",
+      "o": 3,
+      "tasa": 0.046153846153846156,
+      "z": -0.5528157187961618
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "eficiencia",
+      "desc": "neto / camino (1 = línea recta)",
+      "lado": "alto",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": -0.041500330164584306
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "zigzag",
+      "desc": "nº de giros de la mañana",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -1.064131107427739
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "zigzag",
+      "desc": "nº de giros de la mañana",
+      "lado": "alto",
+      "o": 5,
+      "tasa": 0.07692307692307693,
+      "z": 0.4698150584669931
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rvManana",
+      "desc": "volatilidad realizada de la mañana",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -1.064131107427739
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rvManana",
+      "desc": "volatilidad realizada de la mañana",
+      "lado": "alto",
+      "o": 14,
+      "tasa": 0.2153846153846154,
+      "z": 5.07165355615119
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "acel",
+      "desc": "% movido entre 10:30 y 11:00",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -1.064131107427739
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "acel",
+      "desc": "% movido entre 10:30 y 11:00",
+      "lado": "alto",
+      "o": 15,
+      "tasa": 0.23076923076923078,
+      "z": 5.582968944782768
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "ivAtm11",
+      "desc": "IV del dinero a las 11:00",
+      "lado": "bajo",
+      "o": 0,
+      "tasa": 0,
+      "z": -2.086761884690894
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "ivAtm11",
+      "desc": "IV del dinero a las 11:00",
+      "lado": "alto",
+      "o": 12,
+      "tasa": 0.18461538461538463,
+      "z": 4.049022778888035
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "ivCambio",
+      "desc": "% que cambió la IV en la mañana",
+      "lado": "bajo",
+      "o": 5,
+      "tasa": 0.07692307692307693,
+      "z": 0.4698150584669931
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "ivCambio",
+      "desc": "% que cambió la IV en la mañana",
+      "lado": "alto",
+      "o": 7,
+      "tasa": 0.1076923076923077,
+      "z": 1.492445835730148
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "sigmaRatio",
+      "desc": "cuántas σ son los ±25 puntos",
+      "lado": "bajo",
+      "o": 14,
+      "tasa": 0.2153846153846154,
+      "z": 5.07165355615119
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "sigmaRatio",
+      "desc": "cuántas σ son los ±25 puntos",
+      "lado": "alto",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.5754464960593166
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rvIv",
+      "desc": "realizada de la mañana / implícita",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.5754464960593166
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rvIv",
+      "desc": "realizada de la mañana / implícita",
+      "lado": "alto",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": -0.041500330164584306
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "hueco",
+      "desc": "% de hueco de apertura",
+      "lado": "bajo",
+      "o": 9,
+      "tasa": 0.13846153846153847,
+      "z": 2.515076612993303
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "hueco",
+      "desc": "% de hueco de apertura",
+      "lado": "alto",
+      "o": 8,
+      "tasa": 0.12307692307692308,
+      "z": 2.0037612243617255
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "huecoAbs",
+      "desc": "hueco en valor absoluto",
+      "lado": "bajo",
+      "o": 0,
+      "tasa": 0,
+      "z": -2.086761884690894
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "huecoAbs",
+      "desc": "hueco en valor absoluto",
+      "lado": "alto",
+      "o": 11,
+      "tasa": 0.16923076923076924,
+      "z": 3.537707390256458
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rangoAyerReal",
+      "desc": "% de rango de AYER",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.5754464960593166
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rangoAyerReal",
+      "desc": "% de rango de AYER",
+      "lado": "alto",
+      "o": 10,
+      "tasa": 0.15384615384615385,
+      "z": 3.02639200162488
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rvAyer",
+      "desc": "volatilidad realizada de AYER",
+      "lado": "bajo",
+      "o": 0,
+      "tasa": 0,
+      "z": -2.086761884690894
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "rvAyer",
+      "desc": "volatilidad realizada de AYER",
+      "lado": "alto",
+      "o": 9,
+      "tasa": 0.13846153846153847,
+      "z": 2.515076612993303
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "tardeAyerPts",
+      "desc": "puntos que se movió AYER de 11:00 al cierre",
+      "lado": "bajo",
+      "o": 5,
+      "tasa": 0.07692307692307693,
+      "z": 0.4698150584669931
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "tardeAyerPts",
+      "desc": "puntos que se movió AYER de 11:00 al cierre",
+      "lado": "alto",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": -0.041500330164584306
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "retAyer",
+      "desc": "% que hizo AYER",
+      "lado": "bajo",
+      "o": 9,
+      "tasa": 0.13846153846153847,
+      "z": 2.515076612993303
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "retAyer",
+      "desc": "% que hizo AYER",
+      "lado": "alto",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": -0.041500330164584306
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "vix",
+      "desc": "VIX al cierre de AYER",
+      "lado": "bajo",
+      "o": 0,
+      "tasa": 0,
+      "z": -2.086761884690894
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "vix",
+      "desc": "VIX al cierre de AYER",
+      "lado": "alto",
+      "o": 11,
+      "tasa": 0.16923076923076924,
+      "z": 3.537707390256458
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "vixCambio",
+      "desc": "% que cambió el VIX AYER",
+      "lado": "bajo",
+      "o": 4,
+      "tasa": 0.06153846153846154,
+      "z": -0.041500330164584306
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "vixCambio",
+      "desc": "% que cambió el VIX AYER",
+      "lado": "alto",
+      "o": 8,
+      "tasa": 0.12307692307692308,
+      "z": 2.0037612243617255
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "term9",
+      "desc": "VIX9D / VIX de ayer",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -1.064131107427739
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "term9",
+      "desc": "VIX9D / VIX de ayer",
+      "lado": "alto",
+      "o": 8,
+      "tasa": 0.12307692307692308,
+      "z": 2.0037612243617255
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "term3m",
+      "desc": "VIX / VIX3M de ayer",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.5754464960593166
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "term3m",
+      "desc": "VIX / VIX3M de ayer",
+      "lado": "alto",
+      "o": 9,
+      "tasa": 0.13846153846153847,
+      "z": 2.515076612993303
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "vvix",
+      "desc": "VVIX al cierre de AYER",
+      "lado": "bajo",
+      "o": 2,
+      "tasa": 0.03076923076923077,
+      "z": -1.064131107427739
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "vvix",
+      "desc": "VVIX al cierre de AYER",
+      "lado": "alto",
+      "o": 8,
+      "tasa": 0.12307692307692308,
+      "z": 2.0037612243617255
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "vvixVix",
+      "desc": "VVIX / VIX de ayer",
+      "lado": "bajo",
+      "o": 12,
+      "tasa": 0.18461538461538463,
+      "z": 4.049022778888035
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "vvixVix",
+      "desc": "VVIX / VIX de ayer",
+      "lado": "alto",
+      "o": 0,
+      "tasa": 0,
+      "z": -2.086761884690894
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "ivVsVix",
+      "desc": "IV del dinero / VIX de ayer",
+      "lado": "bajo",
+      "o": 0,
+      "tasa": 0,
+      "z": -2.086761884690894
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "ivVsVix",
+      "desc": "IV del dinero / VIX de ayer",
+      "lado": "alto",
+      "o": 12,
+      "tasa": 0.18461538461538463,
+      "z": 4.049022778888035
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "nivel",
+      "desc": "nivel del índice a las 11:00",
+      "lado": "bajo",
+      "o": 3,
+      "tasa": 0.046153846153846156,
+      "z": -0.5528157187961618
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "nivel",
+      "desc": "nivel del índice a las 11:00",
+      "lado": "alto",
+      "o": 5,
+      "tasa": 0.07692307692307693,
+      "z": 0.4698150584669931
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "sepPct",
+      "desc": "qué % del índice son los 25 puntos",
+      "lado": "bajo",
+      "o": 5,
+      "tasa": 0.07692307692307693,
+      "z": 0.4698150584669931
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "sepPct",
+      "desc": "qué % del índice son los 25 puntos",
+      "lado": "alto",
+      "o": 3,
+      "tasa": 0.046153846153846156,
+      "z": -0.5528157187961618
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "credito",
+      "desc": "crédito cobrado (se sabe al entrar)",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.5754464960593166
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "credito",
+      "desc": "crédito cobrado (se sabe al entrar)",
+      "lado": "alto",
+      "o": 14,
+      "tasa": 0.2153846153846154,
+      "z": 5.07165355615119
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "sigma",
+      "desc": "movimiento esperado del resto de sesión",
+      "lado": "bajo",
+      "o": 1,
+      "tasa": 0.015384615384615385,
+      "z": -1.5754464960593166
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "sigma",
+      "desc": "movimiento esperado del resto de sesión",
+      "lado": "alto",
+      "o": 14,
+      "tasa": 0.2153846153846154,
+      "z": 5.07165355615119
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "opex",
+      "desc": "vencimiento mensual",
+      "lado": "marcado",
+      "o": 1,
+      "tasa": 0.034482758620689655,
+      "z": -0.6283449822621368
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "empleo",
+      "desc": "informe de empleo",
+      "lado": "marcado",
+      "o": 3,
+      "tasa": 0.10344827586206896,
+      "z": 0.9026597692944877
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "finMes",
+      "desc": "último día del mes",
+      "lado": "marcado",
+      "o": 6,
+      "tasa": 0.1935483870967742,
+      "z": 3.001272680000379
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "vispera",
+      "desc": "víspera del fin de mes",
+      "lado": "marcado",
+      "o": 2,
+      "tasa": 0.06451612903225806,
+      "z": 0.03968437619947622
+    },
+    {
+      "blanco": "pérdida > $2.000",
+      "campo": "primeroMes",
+      "desc": "primer día del mes",
+      "lado": "marcado",
+      "o": 2,
+      "tasa": 0.0625,
+      "z": -0.006695894800069624
+    }
+  ]
+}

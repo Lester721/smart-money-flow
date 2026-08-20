@@ -1,0 +1,554 @@
+{
+ "generado": "2026-08-20T20:30:21.042Z",
+ "entrada": "scripts/gex-niveles.json",
+ "n": 1122,
+ "liston": 2.96,
+ "pruebasDeclaradas": 16,
+ "sorteos": 500,
+ "cuenta": 56389,
+ "nota": "'arriba del giro' es idéntico al signo de la gamma neta: el binario es el interruptor con otro nombre. La DISTANCIA sí es información nueva.",
+ "binario": {
+  "gam|TODO      2022-2026|rango crudo": {
+   "t": 7.755,
+   "nAb": 509,
+   "nAr": 606,
+   "medAb": 0.996,
+   "medAr": 0.767,
+   "cociente": 1.2986
+  },
+  "gam|TODO      2022-2026|rango / implícito": {
+   "t": -0.454,
+   "nAb": 509,
+   "nAr": 606,
+   "medAb": 1.5979,
+   "medAr": 1.5766,
+   "cociente": 1.0135
+  },
+  "gam|TODO      2022-2026||mov| crudo": {
+   "t": 2.681,
+   "nAb": 509,
+   "nAr": 606,
+   "medAb": 0.507,
+   "medAr": 0.406,
+   "cociente": 1.2488
+  },
+  "gam|TODO      2022-2026||mov| / implícito": {
+   "t": -1.245,
+   "nAb": 509,
+   "nAr": 606,
+   "medAb": 0.8144,
+   "medAr": 0.8206,
+   "cociente": 0.9925
+  },
+  "gam|A ELEGIR  2022-2023|rango crudo": {
+   "t": 3.1,
+   "nAb": 236,
+   "nAr": 230,
+   "medAb": 1.12,
+   "medAr": 1.022,
+   "cociente": 1.0959
+  },
+  "gam|A ELEGIR  2022-2023|rango / implícito": {
+   "t": -0.797,
+   "nAb": 236,
+   "nAr": 230,
+   "medAb": 1.5775,
+   "medAr": 1.6023,
+   "cociente": 0.9845
+  },
+  "gam|A ELEGIR  2022-2023||mov| crudo": {
+   "t": 0.576,
+   "nAb": 236,
+   "nAr": 230,
+   "medAb": 0.639,
+   "medAr": 0.553,
+   "cociente": 1.1555
+  },
+  "gam|A ELEGIR  2022-2023||mov| / implícito": {
+   "t": -1.254,
+   "nAb": 236,
+   "nAr": 230,
+   "medAb": 0.7845,
+   "medAr": 0.8533,
+   "cociente": 0.9194
+  },
+  "gam|B PROBAR  2024-2026|rango crudo": {
+   "t": 6.961,
+   "nAb": 273,
+   "nAr": 376,
+   "medAb": 0.888,
+   "medAr": 0.653,
+   "cociente": 1.3599
+  },
+  "gam|B PROBAR  2024-2026|rango / implícito": {
+   "t": 0.215,
+   "nAb": 273,
+   "nAr": 376,
+   "medAb": 1.6232,
+   "medAr": 1.5685,
+   "cociente": 1.0349
+  },
+  "gam|B PROBAR  2024-2026||mov| crudo": {
+   "t": 2.456,
+   "nAb": 273,
+   "nAr": 376,
+   "medAb": 0.44,
+   "medAr": 0.335,
+   "cociente": 1.3134
+  },
+  "gam|B PROBAR  2024-2026||mov| / implícito": {
+   "t": -0.673,
+   "nAb": 273,
+   "nAr": 376,
+   "medAb": 0.8687,
+   "medAr": 0.7942,
+   "cociente": 1.0938
+  },
+  "gamD|TODO      2022-2026|rango crudo": {
+   "t": 10.151,
+   "nAb": 492,
+   "nAr": 617,
+   "medAb": 1.043,
+   "medAr": 0.735,
+   "cociente": 1.419
+  },
+  "gamD|TODO      2022-2026|rango / implícito": {
+   "t": 0.796,
+   "nAb": 492,
+   "nAr": 617,
+   "medAb": 1.6156,
+   "medAr": 1.5628,
+   "cociente": 1.0337
+  },
+  "gamD|TODO      2022-2026||mov| crudo": {
+   "t": 3.974,
+   "nAb": 492,
+   "nAr": 617,
+   "medAb": 0.551,
+   "medAr": 0.388,
+   "cociente": 1.4201
+  },
+  "gamD|TODO      2022-2026||mov| / implícito": {
+   "t": -0.501,
+   "nAb": 492,
+   "nAr": 617,
+   "medAb": 0.8687,
+   "medAr": 0.8,
+   "cociente": 1.0859
+  },
+  "gamD|A ELEGIR  2022-2023|rango crudo": {
+   "t": 3.926,
+   "nAb": 252,
+   "nAr": 211,
+   "medAb": 1.139,
+   "medAr": 1.007,
+   "cociente": 1.1311
+  },
+  "gamD|A ELEGIR  2022-2023|rango / implícito": {
+   "t": -0.508,
+   "nAb": 252,
+   "nAr": 211,
+   "medAb": 1.5817,
+   "medAr": 1.5923,
+   "cociente": 0.9934
+  },
+  "gamD|A ELEGIR  2022-2023||mov| crudo": {
+   "t": 0.794,
+   "nAb": 252,
+   "nAr": 211,
+   "medAb": 0.652,
+   "medAr": 0.518,
+   "cociente": 1.2587
+  },
+  "gamD|A ELEGIR  2022-2023||mov| / implícito": {
+   "t": -1.343,
+   "nAb": 252,
+   "nAr": 211,
+   "medAb": 0.7855,
+   "medAr": 0.8468,
+   "cociente": 0.9276
+  },
+  "gamD|B PROBAR  2024-2026|rango crudo": {
+   "t": 8.486,
+   "nAb": 240,
+   "nAr": 406,
+   "medAb": 0.957,
+   "medAr": 0.648,
+   "cociente": 1.4769
+  },
+  "gamD|B PROBAR  2024-2026|rango / implícito": {
+   "t": 1.819,
+   "nAb": 240,
+   "nAr": 406,
+   "medAb": 1.6721,
+   "medAr": 1.5472,
+   "cociente": 1.0807
+  },
+  "gamD|B PROBAR  2024-2026||mov| crudo": {
+   "t": 3.381,
+   "nAb": 240,
+   "nAr": 406,
+   "medAb": 0.475,
+   "medAr": 0.331,
+   "cociente": 1.435
+  },
+  "gamD|B PROBAR  2024-2026||mov| / implícito": {
+   "t": 0.271,
+   "nAb": 240,
+   "nAr": 406,
+   "medAb": 0.9115,
+   "medAr": 0.7601,
+   "cociente": 1.1992
+  }
+ },
+ "azar": {
+  "gam|rango crudo": {
+   "tReal": 7.755,
+   "azarP50": 0.649,
+   "azarP95": 1.784,
+   "percentil": 100,
+   "percentilBaraja": 100
+  },
+  "gam|rango / implícito": {
+   "tReal": 0.454,
+   "azarP50": 0.621,
+   "azarP95": 1.761,
+   "percentil": 35.2,
+   "percentilBaraja": 31
+  },
+  "gam||mov| crudo": {
+   "tReal": 2.681,
+   "azarP50": 0.619,
+   "azarP95": 1.839,
+   "percentil": 99.4,
+   "percentilBaraja": 99.2
+  },
+  "gam||mov| / implícito": {
+   "tReal": 1.245,
+   "azarP50": 0.617,
+   "azarP95": 1.983,
+   "percentil": 81,
+   "percentilBaraja": 79.2
+  },
+  "gamD|rango crudo": {
+   "tReal": 10.151,
+   "azarP50": 0.726,
+   "azarP95": 2.098,
+   "percentil": 100,
+   "percentilBaraja": 100
+  },
+  "gamD|rango / implícito": {
+   "tReal": 0.796,
+   "azarP50": 0.713,
+   "azarP95": 1.932,
+   "percentil": 56.2,
+   "percentilBaraja": 57.8
+  },
+  "gamD||mov| crudo": {
+   "tReal": 3.974,
+   "azarP50": 0.686,
+   "azarP95": 1.897,
+   "percentil": 100,
+   "percentilBaraja": 100
+  },
+  "gamD||mov| / implícito": {
+   "tReal": 0.501,
+   "azarP50": 0.675,
+   "azarP95": 1.965,
+   "percentil": 38.6,
+   "percentilBaraja": 38
+  }
+ },
+ "distancia": {
+  "gam|TODO      2022-2026|rango crudo": {
+   "b": 0.219,
+   "t": 9.487,
+   "n": 1115
+  },
+  "gam|TODO      2022-2026|rango / implícito": {
+   "b": 0.0137,
+   "t": 0.828,
+   "n": 1115
+  },
+  "gam|TODO      2022-2026||mov| crudo": {
+   "b": 0.1915,
+   "t": 3.931,
+   "n": 1115
+  },
+  "gam|TODO      2022-2026||mov| / implícito": {
+   "b": -0.0138,
+   "t": -0.304,
+   "n": 1115
+  },
+  "gam|A ELEGIR  2022-2023|rango crudo": {
+   "b": 0.152,
+   "t": 4.97,
+   "n": 466
+  },
+  "gam|A ELEGIR  2022-2023|rango / implícito": {
+   "b": -0.0043,
+   "t": -0.206,
+   "n": 466
+  },
+  "gam|A ELEGIR  2022-2023||mov| crudo": {
+   "b": 0.081,
+   "t": 1.235,
+   "n": 466
+  },
+  "gam|A ELEGIR  2022-2023||mov| / implícito": {
+   "b": -0.0752,
+   "t": -1.253,
+   "n": 466
+  },
+  "gam|B PROBAR  2024-2026|rango crudo": {
+   "b": 0.2681,
+   "t": 8.105,
+   "n": 649
+  },
+  "gam|B PROBAR  2024-2026|rango / implícito": {
+   "b": 0.0425,
+   "t": 1.634,
+   "n": 649
+  },
+  "gam|B PROBAR  2024-2026||mov| crudo": {
+   "b": 0.2861,
+   "t": 3.975,
+   "n": 649
+  },
+  "gam|B PROBAR  2024-2026||mov| / implícito": {
+   "b": 0.0606,
+   "t": 0.871,
+   "n": 649
+  },
+  "gamD|TODO      2022-2026|rango crudo": {
+   "b": 0.2371,
+   "t": 11.025,
+   "n": 1109
+  },
+  "gamD|TODO      2022-2026|rango / implícito": {
+   "b": 0.012,
+   "t": 0.763,
+   "n": 1109
+  },
+  "gamD|TODO      2022-2026||mov| crudo": {
+   "b": 0.2191,
+   "t": 4.755,
+   "n": 1109
+  },
+  "gamD|TODO      2022-2026||mov| / implícito": {
+   "b": -0.0061,
+   "t": -0.142,
+   "n": 1109
+  },
+  "gamD|A ELEGIR  2022-2023|rango crudo": {
+   "b": 0.162,
+   "t": 5.552,
+   "n": 463
+  },
+  "gamD|A ELEGIR  2022-2023|rango / implícito": {
+   "b": -0.0064,
+   "t": -0.317,
+   "n": 463
+  },
+  "gamD|A ELEGIR  2022-2023||mov| crudo": {
+   "b": 0.0934,
+   "t": 1.478,
+   "n": 463
+  },
+  "gamD|A ELEGIR  2022-2023||mov| / implícito": {
+   "b": -0.075,
+   "t": -1.295,
+   "n": 463
+  },
+  "gamD|B PROBAR  2024-2026|rango crudo": {
+   "b": 0.2602,
+   "t": 8.253,
+   "n": 646
+  },
+  "gamD|B PROBAR  2024-2026|rango / implícito": {
+   "b": 0.0471,
+   "t": 1.878,
+   "n": 646
+  },
+  "gamD|B PROBAR  2024-2026||mov| crudo": {
+   "b": 0.2808,
+   "t": 4.06,
+   "n": 646
+  },
+  "gamD|B PROBAR  2024-2026||mov| / implícito": {
+   "b": 0.0677,
+   "t": 1.009,
+   "n": 646
+  }
+ },
+ "umbral": {
+  "gam|rango crudo": {
+   "elegidoEnA": {
+    "X": 10,
+    "t": 4.6,
+    "n": 316
+   },
+   "probadoEnB": {
+    "t": 8.92,
+    "n": 470
+   },
+   "elegidoEnB": {
+    "X": 15,
+    "t": 9.66,
+    "n": 387
+   },
+   "probadoEnA": {
+    "t": 4.37,
+    "n": 272
+   },
+   "sobrevive": true
+  },
+  "gam|rango / implícito": {
+   "elegidoEnA": {
+    "X": 0,
+    "t": -0.8,
+    "n": 466
+   },
+   "probadoEnB": {
+    "t": 0.21,
+    "n": 649
+   },
+   "elegidoEnB": {
+    "X": 15,
+    "t": 1.54,
+    "n": 387
+   },
+   "probadoEnA": {
+    "t": -0.55,
+    "n": 272
+   },
+   "sobrevive": false
+  },
+  "gam||mov| crudo": {
+   "elegidoEnA": {
+    "X": 20,
+    "t": 1.46,
+    "n": 221
+   },
+   "probadoEnB": {
+    "t": 4.3,
+    "n": 319
+   },
+   "elegidoEnB": {
+    "X": 20,
+    "t": 4.3,
+    "n": 319
+   },
+   "probadoEnA": {
+    "t": 1.46,
+    "n": 221
+   },
+   "sobrevive": false
+  },
+  "gam||mov| / implícito": {
+   "elegidoEnA": {
+    "X": 30,
+    "t": -1.69,
+    "n": 142
+   },
+   "probadoEnB": {
+    "t": 0.49,
+    "n": 189
+   },
+   "elegidoEnB": {
+    "X": 20,
+    "t": 0.75,
+    "n": 319
+   },
+   "probadoEnA": {
+    "t": -0.63,
+    "n": 221
+   },
+   "sobrevive": false
+  },
+  "gamD|rango crudo": {
+   "elegidoEnA": {
+    "X": 20,
+    "t": 4.51,
+    "n": 219
+   },
+   "probadoEnB": {
+    "t": 9.5,
+    "n": 365
+   },
+   "elegidoEnB": {
+    "X": 10,
+    "t": 10.28,
+    "n": 495
+   },
+   "probadoEnA": {
+    "t": 3.04,
+    "n": 333
+   },
+   "sobrevive": true
+  },
+  "gamD|rango / implícito": {
+   "elegidoEnA": {
+    "X": 10,
+    "t": -0.92,
+    "n": 333
+   },
+   "probadoEnB": {
+    "t": 1.88,
+    "n": 495
+   },
+   "elegidoEnB": {
+    "X": 5,
+    "t": 2.01,
+    "n": 565
+   },
+   "probadoEnA": {
+    "t": -0.42,
+    "n": 392
+   },
+   "sobrevive": false
+  },
+  "gamD||mov| crudo": {
+   "elegidoEnA": {
+    "X": 20,
+    "t": 1.8,
+    "n": 219
+   },
+   "probadoEnB": {
+    "t": 3.87,
+    "n": 365
+   },
+   "elegidoEnB": {
+    "X": 15,
+    "t": 4.4,
+    "n": 416
+   },
+   "probadoEnA": {
+    "t": 1.16,
+    "n": 270
+   },
+   "sobrevive": false
+  },
+  "gamD||mov| / implícito": {
+   "elegidoEnA": {
+    "X": 0,
+    "t": -1.34,
+    "n": 463
+   },
+   "probadoEnB": {
+    "t": 0.27,
+    "n": 646
+   },
+   "elegidoEnB": {
+    "X": 40,
+    "t": 1.15,
+    "n": 150
+   },
+   "probadoEnA": {
+    "t": -1.38,
+    "n": 112
+   },
+   "sobrevive": false
+  }
+ }
+}

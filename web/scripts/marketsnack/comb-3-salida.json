@@ -1,0 +1,23 @@
+{
+ "diasConFlujo": 83,
+ "diasCon20": 60,
+ "ventanas": 50,
+ "medianaSimb": 23,
+ "oiNuevaP50": 4,
+ "oiViejaP50": 1110,
+ "sizeNuevaP50": 25,
+ "sizeViejaP50": 23,
+ "fracNuevas": 0.07834928092984353,
+ "puente": {
+  "paresDia": 82,
+  "contratosDiaD": 700892,
+  "contratosComunes": 177646,
+  "cobertura": 0.2534570233359776,
+  "deltaNoCero": 0.9313803857109082
+ },
+ "necesarias": 312,
+ "faltan": 262,
+ "detectable": 0.0024426574164127515,
+ "bruto": 13901.962245667099,
+ "ee": 0.0012213287082063757
+}

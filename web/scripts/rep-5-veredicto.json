@@ -1,0 +1,391 @@
+{
+ "LISTON": 3.53,
+ "sospecha": [
+  {
+   "et": "dentro",
+   "n": 1671,
+   "puja": 0.9988031119090365,
+   "pujaGem": 0.998711093093441,
+   "dif": 0.00009201881559550706
+  },
+  {
+   "et": "0-5% fuera",
+   "n": 891,
+   "puja": 0.9921436588103255,
+   "pujaGem": 0.9914001337427809,
+   "dif": 0.0007435250675446037
+  },
+  {
+   "et": "5-10%",
+   "n": 391,
+   "puja": 1,
+   "pujaGem": 0.9990699837247151,
+   "dif": 0.000930016275284884
+  },
+  {
+   "et": "10-20%",
+   "n": 291,
+   "puja": 0.9896907216494846,
+   "pujaGem": 0.9885452462772049,
+   "dif": 0.001145475372279714
+  },
+  {
+   "et": ">=20%",
+   "n": 309,
+   "puja": 0.9870550161812298,
+   "pujaGem": 0.9858627150400273,
+   "dif": 0.0011923011412025009
+  }
+ ],
+ "P2": {
+  "crudo": [
+   {
+    "nombre": "AL ASK dentro del dinero — crudo",
+    "n": 1671,
+    "nEfectiva": 170,
+    "ventanas": 17,
+    "media": 0.0006053102879411963,
+    "t": 1.179793065937011,
+    "tercios": [
+     0.0011751730128677128,
+     0.0015117262123335207,
+     -0.0008709683613776436
+    ],
+    "mismoSigno": false,
+    "mayor": "SNDK",
+    "mayorPct": 0.20466786355475763,
+    "cruza": false,
+    "lo": -9,
+    "hi": 0
+   },
+   {
+    "nombre": "AL ASK 0-5% fuera — crudo",
+    "n": 891,
+    "nEfectiva": 124,
+    "ventanas": 17,
+    "media": 0.001087440258394032,
+    "t": 0.34537052403230195,
+    "tercios": [
+     0.0008611098061641437,
+     0.00242221654773713,
+     -0.00002100557871917743
+    ],
+    "mismoSigno": false,
+    "mayor": "SPY",
+    "mayorPct": 0.3052749719416386,
+    "cruza": false,
+    "lo": 0,
+    "hi": 0.05
+   },
+   {
+    "nombre": "AL ASK 5-10% fuera — crudo",
+    "n": 391,
+    "nEfectiva": 96,
+    "ventanas": 17,
+    "media": -0.0012586366762203226,
+    "t": -0.2578322557812788,
+    "tercios": [
+     0.0024223249218950343,
+     0.002669361146204769,
+     -0.008809512437061993
+    ],
+    "mismoSigno": false,
+    "mayor": "SPY",
+    "mayorPct": 0.2531969309462916,
+    "cruza": false,
+    "lo": 0.05,
+    "hi": 0.1
+   },
+   {
+    "nombre": "AL ASK 10-20% fuera — crudo",
+    "n": 291,
+    "nEfectiva": 82,
+    "ventanas": 17,
+    "media": 0.0019267892389553641,
+    "t": 1.241216451232669,
+    "tercios": [
+     0.0037398637239620795,
+     0.0016866933607504592,
+     0.00035381063215355566
+    ],
+    "mismoSigno": true,
+    "mayor": "SNDK",
+    "mayorPct": 0.3161512027491409,
+    "cruza": false,
+    "lo": 0.1,
+    "hi": 0.2
+   },
+   {
+    "nombre": "AL ASK >=20% fuera — crudo",
+    "n": 309,
+    "nEfectiva": 51,
+    "ventanas": 16,
+    "media": 0.00652707763694637,
+    "t": 3.309666538366404,
+    "tercios": [
+     0.0074782192348557775,
+     0.003939850074371478,
+     0.008163163601611848
+    ],
+    "mismoSigno": true,
+    "mayor": "SNDK",
+    "mayorPct": 0.6537216828478964,
+    "cruza": false,
+    "lo": 0.2,
+    "hi": 9
+   }
+  ],
+  "limpio": [
+   {
+    "nombre": "AL ASK dentro del dinero — sólo gemelos VIVOS",
+    "n": 1669,
+    "nEfectiva": 170,
+    "ventanas": 17,
+    "media": 0.0005662563948969269,
+    "t": 1.1554073815112083,
+    "tercios": [
+     0.0011629352555109968,
+     0.001396706571826897,
+     -0.0008583104720231549
+    ],
+    "mismoSigno": false,
+    "mayor": "SNDK",
+    "mayorPct": 0.2049131216297184,
+    "cruza": false,
+    "lo": -9,
+    "hi": 0
+   },
+   {
+    "nombre": "AL ASK 0-5% fuera — sólo gemelos VIVOS",
+    "n": 884,
+    "nEfectiva": 124,
+    "ventanas": 17,
+    "media": 0.0005001397355506278,
+    "t": 0.1740086180292127,
+    "tercios": [
+     0.0008429355120776548,
+     0.0008385371585412212,
+     -0.0001764508072134946
+    ],
+    "mismoSigno": false,
+    "mayor": "SPY",
+    "mayorPct": 0.2997737556561086,
+    "cruza": false,
+    "lo": 0,
+    "hi": 0.05
+   },
+   {
+    "nombre": "AL ASK 5-10% fuera — sólo gemelos VIVOS",
+    "n": 391,
+    "nEfectiva": 96,
+    "ventanas": 17,
+    "media": -0.0019862796115010985,
+    "t": -0.6038283980415174,
+    "tercios": [
+     0.0024223249218950343,
+     0.00048083508701412826,
+     -0.008809512437061993
+    ],
+    "mismoSigno": false,
+    "mayor": "SPY",
+    "mayorPct": 0.2531969309462916,
+    "cruza": false,
+    "lo": 0.05,
+    "hi": 0.1
+   },
+   {
+    "nombre": "AL ASK 10-20% fuera — sólo gemelos VIVOS",
+    "n": 288,
+    "nEfectiva": 81,
+    "ventanas": 17,
+    "media": 0.0019084328605064608,
+    "t": 1.2706450131719425,
+    "tercios": [
+     0.003647288819357759,
+     0.0018979111735525852,
+     0.00018009858860903918
+    ],
+    "mismoSigno": true,
+    "mayor": "SNDK",
+    "mayorPct": 0.3194444444444444,
+    "cruza": false,
+    "lo": 0.1,
+    "hi": 0.2
+   },
+   {
+    "nombre": "AL ASK >=20% fuera — sólo gemelos VIVOS",
+    "n": 305,
+    "nEfectiva": 51,
+    "ventanas": 16,
+    "media": 0.006577247283219112,
+    "t": 3.2980472525895075,
+    "tercios": [
+     0.0073721775350036245,
+     0.004064827253296173,
+     0.00826138774527718
+    ],
+    "mismoSigno": true,
+    "mayor": "SNDK",
+    "mayorPct": 0.6622950819672131,
+    "cruza": false,
+    "lo": 0.2,
+    "hi": 9
+   }
+  ],
+  "bid": [
+   {
+    "nombre": "AL BID dentro del dinero (placebo) — crudo",
+    "n": 1845,
+    "nEfectiva": 175,
+    "ventanas": 17,
+    "media": -0.000498358884156656,
+    "t": 0.11018565978247985,
+    "tercios": [
+     0.0007498070416487709,
+     0.002592612551918812,
+     -0.004837496246037562
+    ],
+    "mismoSigno": false,
+    "mayor": "SPY",
+    "mayorPct": 0.25203252032520324,
+    "cruza": false,
+    "lo": -9,
+    "hi": 0
+   },
+   {
+    "nombre": "AL BID 0-5% fuera (placebo) — crudo",
+    "n": 900,
+    "nEfectiva": 131,
+    "ventanas": 17,
+    "media": 0.0021156331431668135,
+    "t": 1.8933452661445767,
+    "tercios": [
+     0.0007402339090509862,
+     0.0024395928773176976,
+     0.003167072643131763
+    ],
+    "mismoSigno": true,
+    "mayor": "SPY",
+    "mayorPct": 0.2777777777777778,
+    "cruza": false,
+    "lo": 0,
+    "hi": 0.05
+   },
+   {
+    "nombre": "AL BID 5-10% fuera (placebo) — crudo",
+    "n": 396,
+    "nEfectiva": 104,
+    "ventanas": 17,
+    "media": -0.004582780715484981,
+    "t": -0.5591045590607048,
+    "tercios": [
+     0.00045771361189580204,
+     0.0015167814416940228,
+     -0.015722837200044783
+    ],
+    "mismoSigno": false,
+    "mayor": "QQQ",
+    "mayorPct": 0.25252525252525254,
+    "cruza": false,
+    "lo": 0.05,
+    "hi": 0.1
+   },
+   {
+    "nombre": "AL BID 10-20% fuera (placebo) — crudo",
+    "n": 264,
+    "nEfectiva": 82,
+    "ventanas": 17,
+    "media": 0.00020607679135766532,
+    "t": -0.786665941202,
+    "tercios": [
+     0.002866700388111578,
+     0.0023995731866844304,
+     -0.004648043200723013
+    ],
+    "mismoSigno": false,
+    "mayor": "SNDK",
+    "mayorPct": 0.3106060606060606,
+    "cruza": false,
+    "lo": 0.1,
+    "hi": 0.2
+   },
+   {
+    "nombre": "AL BID >=20% fuera (placebo) — crudo",
+    "n": 275,
+    "nEfectiva": 47,
+    "ventanas": 17,
+    "media": 0.00612857840047391,
+    "t": 2.1101679523713477,
+    "tercios": [
+     0.002929064430354245,
+     0.00426547182962144,
+     0.01108232538142516
+    ],
+    "mismoSigno": true,
+    "mayor": "SNDK",
+    "mayorPct": 0.6363636363636364,
+    "cruza": false,
+    "lo": 0.2,
+    "hi": 9
+   }
+  ]
+ },
+ "P1": [
+  {
+   "distancia": "cerca (<5%)",
+   "prima": "$1-2,5M",
+   "unDia": {
+    "n": 1219,
+    "media": 0.0015090722261901382
+   },
+   "variosDias": {
+    "n": 326,
+    "media": -0.001026466908799606
+   },
+   "dif": -0.002535539134989744,
+   "tWelch": -0.5003489205301859
+  },
+  {
+   "distancia": "cerca (<5%)",
+   "prima": ">=$2,5M",
+   "unDia": {
+    "n": 431,
+    "media": 0.0026559741555852844
+   },
+   "variosDias": {
+    "n": 586,
+    "media": -0.001142103978047011
+   },
+   "dif": -0.003798078133632295,
+   "tWelch": -1.1601040154124083
+  },
+  {
+   "distancia": "lejos (>=5%)",
+   "prima": "$1-2,5M",
+   "unDia": {
+    "n": 472,
+    "media": 0.0036646383406286334
+   },
+   "variosDias": {
+    "n": 129,
+    "media": 0.003784972696855626
+   },
+   "dif": 0.0001203343562269925,
+   "tWelch": 0.03405876184483185
+  },
+  {
+   "distancia": "lejos (>=5%)",
+   "prima": ">=$2,5M",
+   "unDia": {
+    "n": 164,
+    "media": -0.008564914941554353
+   },
+   "variosDias": {
+    "n": 226,
+    "media": 0.005628809706611133
+   },
+   "dif": 0.014193724648165486,
+   "tWelch": 1.3573297132859004
+  }
+ ]
+}

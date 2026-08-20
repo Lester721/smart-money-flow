@@ -1,0 +1,74 @@
+{
+ "generado": "2026-08-20T21:13:58.265Z",
+ "liston": 3.08,
+ "n": 516,
+ "estructuras": {
+  "ATM → 25 fuera   (la de la tarjeta)": {
+   "n": 515,
+   "debitoP50": 950,
+   "med": 68.62,
+   "t": 1.43,
+   "pctRiesgo": 7.26,
+   "alAno": 7937,
+   "A": 101.71,
+   "B": 40.18,
+   "gana": 44.9,
+   "ruina": 33.9,
+   "sinStrike": 1
+  },
+  "10 fuera → 35    ": {
+   "n": 516,
+   "debitoP50": 720,
+   "med": 28.54,
+   "t": 0.64,
+   "pctRiesgo": 3.96,
+   "alAno": 3307,
+   "A": 46.31,
+   "B": 13.2,
+   "gana": 36,
+   "ruina": 53.3,
+   "sinStrike": 0
+  },
+  "20 fuera → 45    ": {
+   "n": 514,
+   "debitoP50": 540,
+   "med": -3.35,
+   "t": -0.09,
+   "pctRiesgo": -0.63,
+   "alAno": -387,
+   "A": -20.13,
+   "B": 11,
+   "gana": 26.7,
+   "ruina": 79.2,
+   "sinStrike": 2
+  },
+  "ATM → 10 fuera   ": {
+   "n": 516,
+   "debitoP50": 470,
+   "med": 29.43,
+   "t": 1.39,
+   "pctRiesgo": 6.29,
+   "alAno": 3411,
+   "A": 41.16,
+   "B": 19.3,
+   "gana": 49.8,
+   "ruina": 5.3,
+   "sinStrike": 0
+  },
+  "ATM → 15 fuera   ": {
+   "n": 514,
+   "debitoP50": 650,
+   "med": 49.7,
+   "t": 1.61,
+   "pctRiesgo": 7.64,
+   "alAno": 5738,
+   "A": 69.71,
+   "B": 32.58,
+   "gana": 48.8,
+   "ruina": 13.2,
+   "sinStrike": 1
+  }
+ },
+ "mejorA": "ATM → 25 fuera   (la de la tarjeta)",
+ "mejorB": "ATM → 25 fuera   (la de la tarjeta)"
+}

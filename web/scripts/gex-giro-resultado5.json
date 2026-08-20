@@ -1,0 +1,244 @@
+{
+ "generado": "2026-08-20T20:42:13.015Z",
+ "liston": 3.32,
+ "n": 215,
+ "nGamD": 227,
+ "cuenta": 56389,
+ "tercio|gam|1": {
+  "desde": "2022-02-02",
+  "hasta": "2023-09-01",
+  "n": 71,
+  "porOp": 391.7,
+  "acierto": 50.7,
+  "t": 1.51,
+  "mediana": 85
+ },
+ "tercio|gam|2": {
+  "desde": "2023-09-18",
+  "hasta": "2024-12-23",
+  "n": 71,
+  "porOp": 635.4,
+  "acierto": 49.3,
+  "t": 1.97,
+  "mediana": -13
+ },
+ "tercio|gam|3": {
+  "desde": "2025-01-03",
+  "hasta": "2026-07-29",
+  "n": 73,
+  "porOp": 76.7,
+  "acierto": 35.6,
+  "t": 0.22,
+  "mediana": -462
+ },
+ "tercios3de3|gam": true,
+ "tercio|gamD|1": {
+  "desde": "2022-02-04",
+  "hasta": "2023-08-28",
+  "n": 75,
+  "porOp": 150.1,
+  "acierto": 42.7,
+  "t": 0.69,
+  "mediana": -286
+ },
+ "tercio|gamD|2": {
+  "desde": "2023-08-31",
+  "hasta": "2024-11-27",
+  "n": 75,
+  "porOp": 176.3,
+  "acierto": 42.7,
+  "t": 0.75,
+  "mediana": -286
+ },
+ "tercio|gamD|3": {
+  "desde": "2024-12-20",
+  "hasta": "2026-07-24",
+  "n": 77,
+  "porOp": -245.8,
+  "acierto": 28.6,
+  "t": -0.7,
+  "mediana": -852
+ },
+ "tercios3de3|gamD": false,
+ "ano|gam|2022": {
+  "n": 34,
+  "porOp": 539.5,
+  "total": 18344,
+  "acierto": 50,
+  "t": 1.18
+ },
+ "ano|gam|2023": {
+  "n": 54,
+  "porOp": 416.1,
+  "total": 22472,
+  "acierto": 53.7,
+  "t": 1.82
+ },
+ "ano|gam|2024": {
+  "n": 54,
+  "porOp": 594.6,
+  "total": 32106,
+  "acierto": 46.3,
+  "t": 1.47
+ },
+ "ano|gam|2025": {
+  "n": 50,
+  "porOp": 281,
+  "total": 14048,
+  "acierto": 40,
+  "t": 0.61
+ },
+ "ano|gam|2026": {
+  "n": 23,
+  "porOp": -367.3,
+  "total": -8447,
+  "acierto": 26.1,
+  "t": -0.73
+ },
+ "anosPositivos|gam": "4 de 5",
+ "ano|gamD|2022": {
+  "n": 40,
+  "porOp": -66.9,
+  "total": -2675,
+  "acierto": 35,
+  "t": -0.2
+ },
+ "ano|gamD|2023": {
+  "n": 53,
+  "porOp": 360.4,
+  "total": 19103,
+  "acierto": 49.1,
+  "t": 1.68
+ },
+ "ano|gamD|2024": {
+  "n": 59,
+  "porOp": 113.3,
+  "total": 6682,
+  "acierto": 40.7,
+  "t": 0.4
+ },
+ "ano|gamD|2025": {
+  "n": 49,
+  "porOp": 71.1,
+  "total": 3483,
+  "acierto": 34.7,
+  "t": 0.14
+ },
+ "ano|gamD|2026": {
+  "n": 26,
+  "porOp": -809.3,
+  "total": -21043,
+  "acierto": 19.2,
+  "t": -1.83
+ },
+ "anosPositivos|gamD": "3 de 5",
+ "sinMejores|gam|0": {
+  "n": 215,
+  "porOp": 365.2,
+  "alAno": 16960,
+  "t": 2.01
+ },
+ "sinMejores|gam|1": {
+  "n": 214,
+  "porOp": 288.9,
+  "alAno": 13351,
+  "t": 1.75
+ },
+ "sinMejores|gam|3": {
+  "n": 212,
+  "porOp": 183.7,
+  "alAno": 8411,
+  "t": 1.23
+ },
+ "sinMejores|gam|5": {
+  "n": 210,
+  "porOp": 100,
+  "alAno": 4537,
+  "t": 0.72
+ },
+ "sinMejores|gam|10": {
+  "n": 205,
+  "porOp": -48.9,
+  "alAno": -2166,
+  "t": -0.39
+ },
+ "concentracion|gam": {
+  "top5": 57518,
+  "total": 78523,
+  "pctDelTotal": 73.2
+ },
+ "sinMejores|gamD|0": {
+  "n": 227,
+  "porOp": 24.4,
+  "alAno": 1199,
+  "t": 0.15
+ },
+ "sinMejores|gamD|1": {
+  "n": 226,
+  "porOp": -33.2,
+  "alAno": -1622,
+  "t": -0.22
+ },
+ "sinMejores|gamD|3": {
+  "n": 224,
+  "porOp": -119.2,
+  "alAno": -5769,
+  "t": -0.86
+ },
+ "sinMejores|gamD|5": {
+  "n": 222,
+  "porOp": -191.3,
+  "alAno": -9175,
+  "t": -1.47
+ },
+ "sinMejores|gamD|10": {
+  "n": 217,
+  "porOp": -332.7,
+  "alAno": -15594,
+  "t": -2.86
+ },
+ "concentracion|gamD": {
+  "top5": 48029,
+  "total": 5550,
+  "pctDelTotal": 865.4
+ },
+ "forma|gam": {
+  "p05": -2337,
+  "p25": -1092,
+  "p50": -154,
+  "p75": 973,
+  "p95": 5136,
+  "media": 365
+ },
+ "forma|gamD": {
+  "p05": -2622,
+  "p25": -1355,
+  "p50": -470,
+  "p75": 854,
+  "p95": 4634,
+  "media": 24
+ },
+ "tamano|gam": {
+  "contratos": 3,
+  "costeMediano": 2090,
+  "alAno": 50879,
+  "pctAno": 90.2,
+  "peorDia": -18648,
+  "peorRacha": -54201,
+  "pctRacha": 96.1
+ },
+ "tamano|gamD": {
+  "contratos": 3,
+  "costeMediano": 2100,
+  "alAno": 3596,
+  "pctAno": 6.4,
+  "peorDia": -23013,
+  "peorRacha": -96222,
+  "pctRacha": 170.6
+ },
+ "veredicto": {
+  "tGam": 2.01,
+  "tGamD": 0.15,
+  "pasaListon": false
+ }
+}

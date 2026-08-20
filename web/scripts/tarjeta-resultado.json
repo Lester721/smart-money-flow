@@ -1,0 +1,220 @@
+{
+ "generado": "2026-08-20T21:12:14.246Z",
+ "n": 516,
+ "diasAno": 115.9,
+ "anos": 4.45,
+ "liston": 3.08,
+ "salida": "vencimiento",
+ "control": {
+  "moneda 50/50": {
+   "azar": -30.020007766990066,
+   "sd": 46.43446708428258,
+   "pctil": 98.2
+  },
+  "moneda SESGADA (37% alcista, la misma tasa del imán)": {
+   "azar": -26.510796116504586,
+   "sd": 45.987755086605596,
+   "pctil": 97.2
+  }
+ },
+ "tasaAlcista": 0.374031007751938,
+ "porOp": 64,
+ "t": 1.28,
+ "sd": 1137,
+ "filtroExtraSirve": false,
+ "filtroA": "imán a ≥ 82 pts (p67)",
+ "filtroB": "|gamma neta| ≥ 40 M$/pto (p33)",
+ "tercios": [
+  {
+   "desde": "2022-01-05",
+   "hasta": "2023-05-24",
+   "n": 172,
+   "med": 66.21,
+   "t": 0.94
+  },
+  {
+   "desde": "2023-06-01",
+   "hasta": "2024-12-31",
+   "n": 172,
+   "med": 54.57,
+   "t": 0.7
+  },
+  {
+   "desde": "2025-01-02",
+   "hasta": "2026-08-06",
+   "n": 172,
+   "med": 71.22,
+   "t": 0.67
+  }
+ ],
+ "anosPositivos": "5 de 5",
+ "concentracionTop5": 36.9,
+ "ruina": {
+  "1 contrato": {
+   "pctRuina": 41.1,
+   "finalP05": 157,
+   "finalP50": 41001,
+   "minP05": 94
+  },
+  "2 contratos": {
+   "pctRuina": 70,
+   "finalP05": 208,
+   "finalP50": 1607,
+   "minP05": 107
+  },
+  "3 contratos": {
+   "pctRuina": 80.1,
+   "finalP05": 255,
+   "finalP50": 2061,
+   "minP05": 137
+  }
+ },
+ "cajaNecesaria": [
+  {
+   "caja0": 7977,
+   "pctRuina": 41.1
+  },
+  {
+   "caja0": 10000,
+   "pctRuina": 30.4
+  },
+  {
+   "caja0": 12500,
+   "pctRuina": 19.6
+  },
+  {
+   "caja0": 15000,
+   "pctRuina": 12.8
+  },
+  {
+   "caja0": 20000,
+   "pctRuina": 4.8
+  },
+  {
+   "caja0": 25000,
+   "pctRuina": 1.3
+  },
+  {
+   "caja0": 30000,
+   "pctRuina": 0.3
+  },
+  {
+   "caja0": 40000,
+   "pctRuina": 0
+  }
+ ],
+ "cajaMinimaSegura": 20000,
+ "libros": {
+  "uno": {
+   "etiqueta": "A) 1 contrato siempre — el tamaño más pequeño que existe",
+   "ops": 516,
+   "saltados": 0,
+   "cajaFinal": 41001,
+   "total": 33024,
+   "alAno": 7418,
+   "pctCuenta": 13.2,
+   "minCaja": 4206,
+   "peorDia": -1600,
+   "peorFecha": "2026-06-24",
+   "peorRacha": 8,
+   "peorCaida": -14046,
+   "contratosMedio": 1
+  },
+  "dos": {
+   "etiqueta": "B) 2 contratos siempre",
+   "ops": 516,
+   "saltados": 0,
+   "cajaFinal": 74025,
+   "total": 66048,
+   "alAno": 14835,
+   "pctCuenta": 26.3,
+   "minCaja": 436,
+   "peorDia": -3200,
+   "peorFecha": "2026-06-24",
+   "peorRacha": 8,
+   "peorCaida": -28092,
+   "contratosMedio": 2
+  },
+  "riesgo2": {
+   "etiqueta": "C) riesgo fijo del 2% de la cuenta ($1.128) por operación",
+   "ops": 516,
+   "saltados": 0,
+   "cajaFinal": 40016,
+   "total": 32039,
+   "alAno": 7196,
+   "pctCuenta": 12.8,
+   "minCaja": 4206,
+   "peorDia": -1600,
+   "peorFecha": "2026-06-24",
+   "peorRacha": 8,
+   "peorCaida": -14046,
+   "contratosMedio": 1
+  },
+  "mitadCaja": {
+   "etiqueta": "D) la mitad de la caja disponible (nunca menos de 1 contrato)",
+   "ops": 27,
+   "saltados": 489,
+   "cajaFinal": 153,
+   "total": -7824,
+   "alAno": -1757,
+   "pctCuenta": -3.1,
+   "minCaja": 128,
+   "peorDia": -10341,
+   "peorFecha": "2022-01-21",
+   "peorRacha": 4,
+   "peorCaida": -20862,
+   "contratosMedio": 3.7
+  },
+  "todaCaja": {
+   "etiqueta": "E) TODA la caja cada día (lo que 'cabe': ~8 contratos)",
+   "ops": 2,
+   "saltados": 514,
+   "cajaFinal": 494,
+   "total": -7483,
+   "alAno": -1681,
+   "pctCuenta": -3,
+   "minCaja": 387,
+   "peorDia": -27392,
+   "peorFecha": "2022-01-07",
+   "peorRacha": 1,
+   "peorCaida": -27392,
+   "contratosMedio": 22
+  },
+  "tercioCaja": {
+   "etiqueta": "F) un TERCIO de la caja (nunca menos de 1 contrato)",
+   "ops": 37,
+   "saltados": 479,
+   "cajaFinal": 67,
+   "total": -7910,
+   "alAno": -1777,
+   "pctCuenta": -3.2,
+   "minCaja": 67,
+   "peorDia": -5640,
+   "peorFecha": "2022-01-21",
+   "peorRacha": 4,
+   "peorCaida": -18049,
+   "contratosMedio": 2.43
+  },
+  "por4000": {
+   "etiqueta": "G) 1 contrato por cada $4.000 de caja (nunca menos de 1)",
+   "ops": 265,
+   "saltados": 251,
+   "cajaFinal": 198,
+   "total": -7779,
+   "alAno": -1747,
+   "pctCuenta": -3.1,
+   "minCaja": 16,
+   "peorDia": -5390,
+   "peorFecha": "2023-10-30",
+   "peorRacha": 8,
+   "peorCaida": -28423,
+   "contratosMedio": 1.68
+  }
+ },
+ "puente": {
+  "opsNecesarias": 2993,
+  "anosNecesarios": 26,
+  "ventajaNecesariaPorOp": 154.13,
+  "faltaVeces": 2.4
+ }
+}

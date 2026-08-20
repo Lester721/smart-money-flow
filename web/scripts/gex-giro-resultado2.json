@@ -1,0 +1,356 @@
+{
+ "generado": "2026-08-20T20:30:32.178Z",
+ "n": 1121,
+ "liston": 3.17,
+ "pruebasDeclaradas": 32,
+ "sorteos": 500,
+ "cuenta": 56389,
+ "mecanismo|gam": {
+  "implAbajo": 0.632,
+  "implArriba": 0.447,
+  "t": 11,
+  "corr": 0.343
+ },
+ "mecanismo|gamD": {
+  "implAbajo": 0.649,
+  "implArriba": 0.439,
+  "t": 13.11,
+  "corr": 0.402
+ },
+ "reg|gam|rango|2022-2026": {
+  "n": 1114,
+  "elast": 0.972,
+  "abajo": -0.0042,
+  "t": -0.17
+ },
+ "reg|gam|rango|2022-2023": {
+  "n": 466,
+  "elast": 1.024,
+  "abajo": -0.0318,
+  "t": -0.9
+ },
+ "reg|gam|rango|2024-2026": {
+  "n": 648,
+  "elast": 0.945,
+  "abajo": 0.0195,
+  "t": 0.58
+ },
+ "reg|gam||mov||2022-2026": {
+  "n": 1114,
+  "elast": 1.091,
+  "abajo": -0.103,
+  "t": -1.55
+ },
+ "reg|gam||mov||2022-2023": {
+  "n": 466,
+  "elast": 1.217,
+  "abajo": -0.1623,
+  "t": -1.62
+ },
+ "reg|gam||mov||2024-2026": {
+  "n": 648,
+  "elast": 0.921,
+  "abajo": -0.0353,
+  "t": -0.39
+ },
+ "reg|gamD|rango|2022-2026": {
+  "n": 1108,
+  "elast": 0.959,
+  "abajo": 0.0293,
+  "t": 1.18
+ },
+ "reg|gamD|rango|2022-2023": {
+  "n": 463,
+  "elast": 1.026,
+  "abajo": -0.0234,
+  "t": -0.65
+ },
+ "reg|gamD|rango|2024-2026": {
+  "n": 645,
+  "elast": 0.915,
+  "abajo": 0.0776,
+  "t": 2.24
+ },
+ "reg|gamD||mov||2022-2026": {
+  "n": 1108,
+  "elast": 1.078,
+  "abajo": -0.0561,
+  "t": -0.82
+ },
+ "reg|gamD||mov||2022-2023": {
+  "n": 463,
+  "elast": 1.24,
+  "abajo": -0.1837,
+  "t": -1.8
+ },
+ "reg|gamD||mov||2024-2026": {
+  "n": 645,
+  "elast": 0.859,
+  "abajo": 0.0627,
+  "t": 0.68
+ },
+ "cubo|gam|calma": {
+  "nAb": 96,
+  "nAr": 276,
+  "mAb": 0.597,
+  "mAr": 0.566,
+  "t": 0.66
+ },
+ "cubo|gam|medio": {
+  "nAb": 170,
+  "nAr": 201,
+  "mAb": 0.857,
+  "mAr": 0.881,
+  "t": 0.09
+ },
+ "cubo|gam|nervioso": {
+  "nAb": 243,
+  "nAr": 128,
+  "mAb": 1.421,
+  "mAr": 1.338,
+  "t": 0.44
+ },
+ "cubo|gamD|calma": {
+  "nAb": 81,
+  "nAr": 289,
+  "mAb": 0.615,
+  "mAr": 0.566,
+  "t": 1.72
+ },
+ "cubo|gamD|medio": {
+  "nAb": 165,
+  "nAr": 204,
+  "mAb": 0.898,
+  "mAr": 0.841,
+  "t": 2.04
+ },
+ "cubo|gamD|nervioso": {
+  "nAb": 246,
+  "nAr": 123,
+  "mAb": 1.427,
+  "mAr": 1.286,
+  "t": 0.59
+ },
+ "efic|gam|2022-2026": {
+  "nAb": 509,
+  "nAr": 605,
+  "mAb": 0.5325,
+  "mAr": 0.542,
+  "t": -1.08
+ },
+ "efic|gam|2022-2023": {
+  "nAb": 236,
+  "nAr": 230,
+  "mAb": 0.5815,
+  "mAr": 0.5655,
+  "t": -1.31
+ },
+ "efic|gam|2024-2026": {
+  "nAb": 273,
+  "nAr": 375,
+  "mAb": 0.5099,
+  "mAr": 0.5261,
+  "t": -0.57
+ },
+ "efic|gamD|2022-2026": {
+  "nAb": 492,
+  "nAr": 616,
+  "mAb": 0.5448,
+  "mAr": 0.5405,
+  "t": -0.35
+ },
+ "efic|gamD|2022-2023": {
+  "nAb": 252,
+  "nAr": 211,
+  "mAb": 0.5819,
+  "mAr": 0.5622,
+  "t": -1.42
+ },
+ "efic|gamD|2024-2026": {
+  "nAb": 240,
+  "nAr": 405,
+  "mAb": 0.5191,
+  "mAr": 0.5213,
+  "t": 0.2
+ },
+ "dolares|gam|COMPRAR abajo del giro|2022-2026": {
+  "n": 509,
+  "porOp": -166.7,
+  "alAno": -18104,
+  "acierto": 40.5,
+  "t": -1.46,
+  "peor": -6133
+ },
+ "dolares|gam|COMPRAR abajo del giro|2022-2023": {
+  "n": 236,
+  "porOp": -100,
+  "alAno": -11795,
+  "acierto": 38.6,
+  "t": -0.62,
+  "peor": -4980
+ },
+ "dolares|gam|COMPRAR abajo del giro|2024-2026": {
+  "n": 273,
+  "porOp": -224.4,
+  "alAno": -23470,
+  "acierto": 42.1,
+  "t": -1.39,
+  "peor": -6133
+ },
+ "dolares|gam|VENDER arriba del giro|2022-2026": {
+  "n": 605,
+  "porOp": -114.4,
+  "alAno": -14774,
+  "acierto": 58.3,
+  "t": -1.17,
+  "peor": -17550
+ },
+ "dolares|gam|VENDER arriba del giro|2022-2023": {
+  "n": 230,
+  "porOp": -270.5,
+  "alAno": -31104,
+  "acierto": 55.2,
+  "t": -1.92,
+  "peor": -9531
+ },
+ "dolares|gam|VENDER arriba del giro|2024-2026": {
+  "n": 375,
+  "porOp": -18.8,
+  "alAno": -2695,
+  "acierto": 60.3,
+  "t": -0.14,
+  "peor": -17550
+ },
+ "dolares|gam|COMPRAR abajo + VENDER arriba|2022-2026": {
+  "n": 1114,
+  "porOp": -138.3,
+  "alAno": -32878,
+  "acierto": 50.2,
+  "t": -1.86,
+  "peor": -17550
+ },
+ "dolares|gam|COMPRAR abajo + VENDER arriba|2022-2023": {
+  "n": 466,
+  "porOp": -184.1,
+  "alAno": -42899,
+  "acierto": 46.8,
+  "t": -1.72,
+  "peor": -9531
+ },
+ "dolares|gam|COMPRAR abajo + VENDER arriba|2024-2026": {
+  "n": 648,
+  "porOp": -105.4,
+  "alAno": -26166,
+  "acierto": 52.6,
+  "t": -1.03,
+  "peor": -17550
+ },
+ "dolares|gamD|COMPRAR abajo del giro|2022-2026": {
+  "n": 492,
+  "porOp": -79.4,
+  "alAno": -8336,
+  "acierto": 42.3,
+  "t": -0.68,
+  "peor": -6133
+ },
+ "dolares|gamD|COMPRAR abajo del giro|2022-2023": {
+  "n": 252,
+  "porOp": -72.9,
+  "alAno": -9184,
+  "acierto": 40.5,
+  "t": -0.47,
+  "peor": -4980
+ },
+ "dolares|gamD|COMPRAR abajo del giro|2024-2026": {
+  "n": 240,
+  "porOp": -86.2,
+  "alAno": -7930,
+  "acierto": 44.2,
+  "t": -0.48,
+  "peor": -6133
+ },
+ "dolares|gamD|VENDER arriba del giro|2022-2026": {
+  "n": 616,
+  "porOp": -54.5,
+  "alAno": -7162,
+  "acierto": 59.6,
+  "t": -0.57,
+  "peor": -17550
+ },
+ "dolares|gamD|VENDER arriba del giro|2022-2023": {
+  "n": 211,
+  "porOp": -293,
+  "alAno": -30912,
+  "acierto": 56.4,
+  "t": -2.01,
+  "peor": -9531
+ },
+ "dolares|gamD|VENDER arriba del giro|2024-2026": {
+  "n": 405,
+  "porOp": 69.8,
+  "alAno": 10826,
+  "acierto": 61.2,
+  "t": 0.56,
+  "peor": -17550
+ },
+ "dolares|gamD|COMPRAR abajo + VENDER arriba|2022-2026": {
+  "n": 1108,
+  "porOp": -65.6,
+  "alAno": -15498,
+  "acierto": 51.9,
+  "t": -0.88,
+  "peor": -17550
+ },
+ "dolares|gamD|COMPRAR abajo + VENDER arriba|2022-2023": {
+  "n": 463,
+  "porOp": -173.2,
+  "alAno": -40096,
+  "acierto": 47.7,
+  "t": -1.61,
+  "peor": -9531
+ },
+ "dolares|gamD|COMPRAR abajo + VENDER arriba|2024-2026": {
+  "n": 645,
+  "porOp": 11.7,
+  "alAno": 2897,
+  "acierto": 54.9,
+  "t": 0.11,
+  "peor": -17550
+ },
+ "azar$|gam|COMPRAR abajo del giro": {
+  "real": -18104,
+  "p50": -4319,
+  "p95": 11264,
+  "percentil": 6.4
+ },
+ "azar$|gam|VENDER arriba del giro": {
+  "real": -14774,
+  "p50": -1906,
+  "p95": 14109,
+  "percentil": 7.6
+ },
+ "azar$|gam|COMPRAR abajo + VENDER arriba": {
+  "real": -32878,
+  "p50": -6122,
+  "p95": 25456,
+  "percentil": 7.2
+ },
+ "azar$|gamD|COMPRAR abajo del giro": {
+  "real": -8336,
+  "p50": -3237,
+  "p95": 12916,
+  "percentil": 26.6
+ },
+ "azar$|gamD|VENDER arriba del giro": {
+  "real": -7162,
+  "p50": -3011,
+  "p95": 12976,
+  "percentil": 30.6
+ },
+ "azar$|gamD|COMPRAR abajo + VENDER arriba": {
+  "real": -15498,
+  "p50": -6315,
+  "p95": 25779,
+  "percentil": 28.6
+ }
+}

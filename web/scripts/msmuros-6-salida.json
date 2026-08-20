@@ -1,0 +1,256 @@
+{
+ "generado": "2026-08-20T22:50:12.118Z",
+ "ancho": 25,
+ "theta": 0.1,
+ "cuenta": 56389,
+ "pruebas": 4,
+ "liston": 2.5,
+ "diasLeidos": 427,
+ "diasAno": 95.9,
+ "res": {
+  "gamD|call": {
+   "n": 79,
+   "nDecididas": 16,
+   "siguePct": 31.3,
+   "tSigueVs50": -1.5,
+   "porOp": 47.28,
+   "t": 0.51,
+   "riesgoMedio": 778,
+   "pctSobreRiesgo": 6.08,
+   "opsAno": 18,
+   "alAno": 839,
+   "tercios": [
+    -68,
+    225,
+    -13
+   ],
+   "mismoSigno": false,
+   "pctObjetivo": 6.3,
+   "pctStop": 13.9
+  },
+  "gamD|callAZAR": {
+   "n": 79,
+   "nDecididas": 20,
+   "siguePct": 85,
+   "tSigueVs50": 3.13,
+   "porOp": 374.75,
+   "t": 4.11,
+   "riesgoMedio": 749,
+   "pctSobreRiesgo": 50.02,
+   "opsAno": 18,
+   "alAno": 6649,
+   "tercios": [
+    402,
+    489,
+    239
+   ],
+   "mismoSigno": true,
+   "pctObjetivo": 21.5,
+   "pctStop": 3.8
+  },
+  "gamD|put": {
+   "n": 127,
+   "nDecididas": 26,
+   "siguePct": 73.1,
+   "tSigueVs50": 2.35,
+   "porOp": 2.01,
+   "t": 0.02,
+   "riesgoMedio": 1636,
+   "pctSobreRiesgo": 0.12,
+   "opsAno": 29,
+   "alAno": 57,
+   "tercios": [
+    24,
+    -6,
+    -11
+   ],
+   "mismoSigno": false,
+   "pctObjetivo": 15,
+   "pctStop": 5.5
+  },
+  "gamD|putAZAR": {
+   "n": 127,
+   "nDecididas": 16,
+   "siguePct": 75,
+   "tSigueVs50": 2,
+   "porOp": 138.54,
+   "t": 1.85,
+   "riesgoMedio": 1762,
+   "pctSobreRiesgo": 7.86,
+   "opsAno": 29,
+   "alAno": 3952,
+   "tercios": [
+    132,
+    179,
+    105
+   ],
+   "mismoSigno": true,
+   "pctObjetivo": 9.4,
+   "pctStop": 3.1
+  },
+  "gam|call": {
+   "n": 164,
+   "nDecididas": 82,
+   "siguePct": 58.5,
+   "tSigueVs50": 1.55,
+   "porOp": -36.22,
+   "t": -0.61,
+   "riesgoMedio": 844,
+   "pctSobreRiesgo": -4.29,
+   "opsAno": 37,
+   "alAno": -1334,
+   "tercios": [
+    -63,
+    -22,
+    -24
+   ],
+   "mismoSigno": true,
+   "pctObjetivo": 29.3,
+   "pctStop": 20.7
+  },
+  "gam|callAZAR": {
+   "n": 165,
+   "nDecididas": 63,
+   "siguePct": 52.4,
+   "tSigueVs50": 0.38,
+   "porOp": -78.91,
+   "t": -0.65,
+   "riesgoMedio": 763,
+   "pctSobreRiesgo": -10.35,
+   "opsAno": 37,
+   "alAno": -2924,
+   "tercios": [
+    19,
+    107,
+    -363
+   ],
+   "mismoSigno": false,
+   "pctObjetivo": 20,
+   "pctStop": 18.2
+  },
+  "gam|put": {
+   "n": 188,
+   "nDecididas": 73,
+   "siguePct": 58.9,
+   "tSigueVs50": 1.52,
+   "porOp": -38.94,
+   "t": -0.61,
+   "riesgoMedio": 1627,
+   "pctSobreRiesgo": -2.39,
+   "opsAno": 42,
+   "alAno": -1644,
+   "tercios": [
+    -149,
+    37,
+    -6
+   ],
+   "mismoSigno": false,
+   "pctObjetivo": 22.9,
+   "pctStop": 16
+  },
+  "gam|putAZAR": {
+   "n": 188,
+   "nDecididas": 61,
+   "siguePct": 62.3,
+   "tSigueVs50": 1.92,
+   "porOp": 154.26,
+   "t": 2.89,
+   "riesgoMedio": 1774,
+   "pctSobreRiesgo": 8.7,
+   "opsAno": 42,
+   "alAno": 6513,
+   "tercios": [
+    91,
+    91,
+    276
+   ],
+   "mismoSigno": true,
+   "pctObjetivo": 20.2,
+   "pctStop": 12.2
+  }
+ },
+ "juntos": {
+  "gam": {
+   "n": 352,
+   "nDecididas": 155,
+   "siguePct": 58.7,
+   "tSigueVs50": 2.17,
+   "porOp": -37.67,
+   "t": -0.86,
+   "riesgoMedio": 1262,
+   "pctSobreRiesgo": -2.98,
+   "opsAno": 79,
+   "alAno": -2978,
+   "pctDeLaCuenta": -5.3,
+   "azarPorOp": 45.27,
+   "azarSiguePct": 57.3,
+   "tercios": [
+    {
+     "desde": "2022-01-05",
+     "hasta": "2023-09-25",
+     "n": 117,
+     "porOp": -128,
+     "sigue": 49.1
+    },
+    {
+     "desde": "2023-09-28",
+     "hasta": "2025-01-23",
+     "n": 117,
+     "porOp": 39,
+     "sigue": 62.7
+    },
+    {
+     "desde": "2025-01-24",
+     "hasta": "2026-08-05",
+     "n": 118,
+     "porOp": -24,
+     "sigue": 66.7
+    }
+   ],
+   "mismoSigno": false,
+   "nDecididasNecesarias": 206,
+   "diasQueFaltan": 370
+  },
+  "gamD": {
+   "n": 206,
+   "nDecididas": 42,
+   "siguePct": 57.1,
+   "tSigueVs50": 0.93,
+   "porOp": 19.37,
+   "t": 0.31,
+   "riesgoMedio": 1307,
+   "pctSobreRiesgo": 1.48,
+   "opsAno": 46,
+   "alAno": 896,
+   "pctDeLaCuenta": 1.6,
+   "azarPorOp": 229.13,
+   "azarSiguePct": 80.6,
+   "tercios": [
+    {
+     "desde": "2022-01-05",
+     "hasta": "2023-09-27",
+     "n": 68,
+     "porOp": 34,
+     "sigue": 50
+    },
+    {
+     "desde": "2023-10-02",
+     "hasta": "2025-02-05",
+     "n": 68,
+     "porOp": 40,
+     "sigue": 57.9
+    },
+    {
+     "desde": "2025-02-13",
+     "hasta": "2026-07-28",
+     "n": 70,
+     "porOp": -16,
+     "sigue": 63.6
+    }
+   ],
+   "mismoSigno": false,
+   "nDecididasNecesarias": 307,
+   "diasQueFaltan": 7080
+  }
+ }
+}

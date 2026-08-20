@@ -1,0 +1,72 @@
+## FASE A · leyendo 653 días…
+   0/653 · 2024-01-02
+   100/653 · 2024-05-24
+   200/653 · 2024-10-17
+   300/653 · 2025-03-14
+   400/653 · 2025-08-07
+   500/653 · 2025-12-30
+   600/653 · 2026-05-26
+   guardado: 653 días
+
+── radiografía de "días del cóndor" · 653 filas ──
+  pl             n=   653 · nulos     0 · ceros     0 · min   -4.90e+3 · p50        265 · max    3.64e+3
+  credito        n=   653 · nulos     0 · ceros     0 · min       10.0 · p50        500 · max    3.64e+3
+  cierre         n=   653 · nulos     0 · ceros     0 · min    4.69e+3 · p50    6.01e+3 · max    7.76e+3
+  ap             n=   653 · nulos     0 · ceros     0 · min    4.70e+3 · p50    6.01e+3 · max    7.79e+3
+  sp11           n=   653 · nulos     0 · ceros     0 · min    4.71e+3 · p50    6.01e+3 · max    7.76e+3
+  sigma          n=   653 · nulos     0 · ceros     0 · min       15.8 · p50       62.3 · max        385
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════
+  LAS 18 PRUEBAS DE RÉGIMEN · listón de |t| = 2.99 (Bonferroni sobre 18)
+  653 días · resultado = P&L del cóndor de 1 contrato
+════════════════════════════════════════════════════════════════════════════════════════════════
+
+## CONTINUAS — tercio alto contra tercio bajo
+
+| grupo | señal | n | tercio ALTO | tercio BAJO | separación | t | signo por tercios | ¿pasa? |
+|---|---|---|---|---|---|---|---|---|
+| G1 | `sigmaRatio` | 653 | $58 | $102 | −$44 | **-0.37** | −−+ | no |
+| G1 | `movManana` | 653 | $72 | $72 | −$1 | **-0.01** | −++ | no |
+| G1 | `extremo` | 653 | $51 | $84 | −$33 | **-0.31** | ++− | no |
+| G1 | `hueco` | 652 | $48 | $128 | −$80 | **-0.71** | −+− | no |
+| G1 | `rangoAyer` | 652 | $63 | $10 | $53 | **0.46** | +−− | no |
+| G2 | `vix` | 652 | $60 | $32 | $28 | **0.25** | ++− | no |
+| G2 | `vixCambio` | 651 | $129 | $174 | −$45 | **-0.42** | ++− | no |
+| G2 | `term9` | 652 | $39 | $60 | −$21 | **-0.18** | +++ | no |
+| G2 | `term3m` | 652 | $4 | $120 | −$116 | **-1.04** | ++− | no |
+| G2 | `vvix` | 652 | $41 | $37 | $3 | **0.03** | ++− | no |
+| G4 | `ma200` | 453 | $94 | $100 | −$6 | **-0.04** | −−+ | no |
+| G4 | `distMax` | 593 | $76 | $41 | $35 | **0.28** | −−+ | no |
+| G4 | `diasBajada` | 653 | $95 | $124 | −$29 | **-0.27** | +−− | no |
+
+## BINARIAS — los días marcados contra el resto
+
+| grupo | señal | días | media MARCADOS | media resto | diferencia | t | ¿pasa? |
+|---|---|---|---|---|---|---|---|
+| G3 | `opex` | 29 | $189 | $69 | $119 | **0.65** | no |
+| G3 | `empleo` | 29 | $72 | $75 | −$2 | **-0.01** | no |
+| G3 | `finMes` | 32 | −$608 | $110 | −$718 | **-2.37** | no |
+
+## DÍA DE LA SEMANA
+
+| día | n | P&L medio |
+|---|---|---|
+| lunes | 125 | $106 |
+| martes | 136 | $168 |
+| miércoles | 133 | $3 |
+| jueves | 129 | −$49 |
+| viernes | 130 | $141 |
+
+════════════════════════════════════════════════════════════════════════════════════════════════
+  VEREDICTO: 0 de 16 pruebas corridas pasan el listón de 2.99
+  (2 declaradas y NO corridas: FOMC y dato de inflación — sin calendario verificado)
+════════════════════════════════════════════════════════════════════════════════════════════════
+
+  Ninguna. La más cercana: `finMes` con |t| 2.37 contra un listón de 2.99.
+  último día del mes
+  Le falta: binaria: muestra corta o |t| por debajo del listón
+
+  CONCLUSIÓN OPERATIVA: no hay "hoy no". Se entra todos los días.
+
+  detalle en scripts/regimen-18-resultado.json

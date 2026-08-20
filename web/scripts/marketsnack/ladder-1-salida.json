@@ -1,0 +1,19 @@
+{
+ "generado": "2026-08-20T01:32:45.202Z",
+ "gammaNulosPct": 0.06692762469223171,
+ "gammaCerosPct": 0.0027348990814867235,
+ "coberturaOI": 0.11477310250996135,
+ "discrepanciaOI": 0,
+ "validacion": {
+  "n": 697,
+  "callWall2pct": 0.35437589670014347,
+  "putWall2pct": 0.32568149210903874,
+  "mismoSigno": 0.6814921090387375
+ },
+ "spot": {
+  "conSpot": 2009,
+  "sinSpot": 0,
+  "conSpotPre": 354,
+  "sinSpotPre": 0
+ }
+}

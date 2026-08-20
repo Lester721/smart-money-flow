@@ -1,0 +1,1093 @@
+{
+ "generado": "2026-08-20T01:42:17.554Z",
+ "pruebas": 28,
+ "liston": 3.13,
+ "n": 683,
+ "tickers": 36,
+ "dias": 19,
+ "rejilla": [
+  {
+   "metrica": "distMagnet",
+   "entrada": "cierre D",
+   "horizonte": 1,
+   "n": 648,
+   "sepDiaria": 0.011893662134417657,
+   "tNW": 1.478846705623564,
+   "sepPooled": 0.01189366213441765,
+   "tPooled": 1.2982394203654861,
+   "pasa": false,
+   "motivos": [
+    "t = 1.30, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 216,
+     "sep": 0.0021850874459098104,
+     "t": 0.24691910992677643
+    },
+    {
+     "periodo": "2026-08-03→2026-08-10",
+     "n": 216,
+     "sep": 0.008095586266130982,
+     "t": 1.1981946490350213
+    },
+    {
+     "periodo": "2026-08-11→2026-08-18",
+     "n": 216,
+     "sep": 0.025400312691212186,
+     "t": 1.0081282758275643
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SNDK",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distMagnet",
+   "entrada": "cierre D",
+   "horizonte": 5,
+   "n": 504,
+   "sepDiaria": -0.007181339892190561,
+   "tNW": -0.5851435733111979,
+   "sepPooled": -0.007181339892190565,
+   "tPooled": -0.4784396718044746,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+0.2% · −0.0% · −2.7%) — el efecto no es estable en el tiempo",
+    "t = -0.48, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 168,
+     "sep": 0.002117883266421446,
+     "t": 0.10071127488632256
+    },
+    {
+     "periodo": "2026-07-30→2026-08-06",
+     "n": 168,
+     "sep": -0.00022322603916787205,
+     "t": -0.013587022496481471
+    },
+    {
+     "periodo": "2026-08-06→2026-08-12",
+     "n": 168,
+     "sep": -0.026813930998793756,
+     "t": -0.7287342645630318
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SNDK",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distMagnet",
+   "entrada": "cierre D+1",
+   "horizonte": 1,
+   "n": 612,
+   "sepDiaria": 0.0017456609138831792,
+   "tNW": 0.18751181011554366,
+   "sepPooled": 0.0017456609138831818,
+   "tPooled": 0.18215008720970735,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−1.0% · −0.2% · +1.8%) — el efecto no es estable en el tiempo",
+    "t = 0.18, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 204,
+     "sep": -0.009915171811785896,
+     "t": -1.1037811462746991
+    },
+    {
+     "periodo": "2026-07-31→2026-08-10",
+     "n": 204,
+     "sep": -0.0024331954702280787,
+     "t": -0.3133110352860773
+    },
+    {
+     "periodo": "2026-08-10→2026-08-17",
+     "n": 204,
+     "sep": 0.017984605860779553,
+     "t": 0.6822358750370722
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SNDK",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distMagnet",
+   "entrada": "cierre D+1",
+   "horizonte": 5,
+   "n": 468,
+   "sepDiaria": -0.021481261304230934,
+   "tNW": -1.6728040220600875,
+   "sepPooled": -0.02148126130423095,
+   "tPooled": -1.3728443462050282,
+   "pasa": false,
+   "motivos": [
+    "t = -1.37, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 156,
+     "sep": -0.012601724117235485,
+     "t": -0.5918277197162938
+    },
+    {
+     "periodo": "2026-07-30→2026-08-05",
+     "n": 156,
+     "sep": -0.016246846783365104,
+     "t": -1.0302178827012844
+    },
+    {
+     "periodo": "2026-08-05→2026-08-11",
+     "n": 156,
+     "sep": -0.0441196315974502,
+     "t": -1.1364402194106824
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SNDK",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distCallWall",
+   "entrada": "cierre D",
+   "horizonte": 1,
+   "n": 648,
+   "sepDiaria": -0.004011251113915894,
+   "tNW": -0.36047405272950095,
+   "sepPooled": -0.004011251113915888,
+   "tPooled": -0.43357707368049997,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−0.8% · +0.9% · −1.3%) — el efecto no es estable en el tiempo",
+    "t = -0.43, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 216,
+     "sep": -0.007826331167058973,
+     "t": -0.8473670654160427
+    },
+    {
+     "periodo": "2026-08-03→2026-08-10",
+     "n": 216,
+     "sep": 0.008610177438814537,
+     "t": 1.307286588853557
+    },
+    {
+     "periodo": "2026-08-11→2026-08-18",
+     "n": 216,
+     "sep": -0.01281759961350325,
+     "t": -0.5039267920854317
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "GLD",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distCallWall",
+   "entrada": "cierre D",
+   "horizonte": 5,
+   "n": 504,
+   "sepDiaria": 0.02501113113446789,
+   "tNW": 1.985388276588312,
+   "sepPooled": 0.02501113113446788,
+   "tPooled": 2.22703524869174,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+1.9% · −0.6% · +5.0%) — el efecto no es estable en el tiempo",
+    "t = 2.23, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 168,
+     "sep": 0.01944099069356185,
+     "t": 0.9484690757668224
+    },
+    {
+     "periodo": "2026-07-30→2026-08-06",
+     "n": 168,
+     "sep": -0.00618568778018309,
+     "t": -0.3725164544694292
+    },
+    {
+     "periodo": "2026-08-06→2026-08-12",
+     "n": 168,
+     "sep": 0.05005469734178848,
+     "t": 2.357290682075548
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "GLD",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distCallWall",
+   "entrada": "cierre D+1",
+   "horizonte": 1,
+   "n": 612,
+   "sepDiaria": 0.002197106578924898,
+   "tNW": 0.31913423906481,
+   "sepPooled": 0.002197106578924893,
+   "tPooled": 0.45730542515910216,
+   "pasa": false,
+   "motivos": [
+    "t = 0.46, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 204,
+     "sep": 0.0037384760698286196,
+     "t": 0.37301661425429866
+    },
+    {
+     "periodo": "2026-07-31→2026-08-10",
+     "n": 204,
+     "sep": 0.0013919777628746632,
+     "t": 0.23660293018728015
+    },
+    {
+     "periodo": "2026-08-10→2026-08-17",
+     "n": 204,
+     "sep": 0.004282377842986916,
+     "t": 0.5027477245369985
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "GLD",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distCallWall",
+   "entrada": "cierre D+1",
+   "horizonte": 5,
+   "n": 468,
+   "sepDiaria": 0.02220925232512168,
+   "tNW": 2.083610641423459,
+   "sepPooled": 0.022209252325121668,
+   "tPooled": 1.9151561368961199,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+3.6% · −1.5% · +4.5%) — el efecto no es estable en el tiempo",
+    "t = 1.92, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 156,
+     "sep": 0.035615545826177146,
+     "t": 1.7421309328909809
+    },
+    {
+     "periodo": "2026-07-30→2026-08-05",
+     "n": 156,
+     "sep": -0.014909500794069353,
+     "t": -0.8694561839963302
+    },
+    {
+     "periodo": "2026-08-05→2026-08-11",
+     "n": 156,
+     "sep": 0.044524221752611615,
+     "t": 1.9929302505606037
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "GLD",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distPutWall",
+   "entrada": "cierre D",
+   "horizonte": 1,
+   "n": 648,
+   "sepDiaria": -0.009037882562772473,
+   "tNW": -0.8616768811676209,
+   "sepPooled": -0.009037882562772465,
+   "tPooled": -0.9912029154591615,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+0.6% · +0.0% · −3.4%) — el efecto no es estable en el tiempo",
+    "t = -0.99, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 216,
+     "sep": 0.006490773088593677,
+     "t": 0.76602722461262
+    },
+    {
+     "periodo": "2026-08-03→2026-08-10",
+     "n": 216,
+     "sep": 0.0001363613934356972,
+     "t": 0.020357875896518673
+    },
+    {
+     "periodo": "2026-08-11→2026-08-18",
+     "n": 216,
+     "sep": -0.033740782170346796,
+     "t": -1.3428844317665554
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "EWY",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distPutWall",
+   "entrada": "cierre D",
+   "horizonte": 5,
+   "n": 504,
+   "sepDiaria": -0.030422643963708113,
+   "tNW": -1.812537099098265,
+   "sepPooled": -0.030422643963708113,
+   "tPooled": -2.0235005565930746,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+0.6% · −2.5% · −5.8%) — el efecto no es estable en el tiempo",
+    "t = -2.02, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 168,
+     "sep": 0.00643520924999451,
+     "t": 0.3178677269542185
+    },
+    {
+     "periodo": "2026-07-30→2026-08-06",
+     "n": 168,
+     "sep": -0.02516535007379973,
+     "t": -1.445481510661222
+    },
+    {
+     "periodo": "2026-08-06→2026-08-12",
+     "n": 168,
+     "sep": -0.05800750008312079,
+     "t": -1.5864778910672017
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "EWY",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distPutWall",
+   "entrada": "cierre D+1",
+   "horizonte": 1,
+   "n": 612,
+   "sepDiaria": -0.013062543885107709,
+   "tNW": -1.220805066914678,
+   "sepPooled": -0.013062543885107705,
+   "tPooled": -1.3553980942539452,
+   "pasa": false,
+   "motivos": [
+    "t = -1.36, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 204,
+     "sep": -0.00023649365428142846,
+     "t": -0.023407649658722402
+    },
+    {
+     "periodo": "2026-07-31→2026-08-10",
+     "n": 204,
+     "sep": -0.0014895095286332509,
+     "t": -0.19282357976586284
+    },
+    {
+     "periodo": "2026-08-10→2026-08-17",
+     "n": 204,
+     "sep": -0.030464268260536567,
+     "t": -1.1671649649947626
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "EWY",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distPutWall",
+   "entrada": "cierre D+1",
+   "horizonte": 5,
+   "n": 468,
+   "sepDiaria": -0.035104296183560306,
+   "tNW": -2.67994236422694,
+   "sepPooled": -0.03510429618356031,
+   "tPooled": -2.2298921183702904,
+   "pasa": false,
+   "motivos": [
+    "t = -2.23, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 156,
+     "sep": -0.014720815702179967,
+     "t": -0.7285756922375123
+    },
+    {
+     "periodo": "2026-07-30→2026-08-05",
+     "n": 156,
+     "sep": -0.026992207407677805,
+     "t": -1.574435279916784
+    },
+    {
+     "periodo": "2026-08-05→2026-08-11",
+     "n": 156,
+     "sep": -0.05608231734932259,
+     "t": -1.4378215103665615
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "EWY",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distMaxPain",
+   "entrada": "cierre D",
+   "horizonte": 1,
+   "n": 648,
+   "sepDiaria": 0.006624216379834362,
+   "tNW": 0.8580077493379265,
+   "sepPooled": 0.006624216379834355,
+   "tPooled": 1.449537412674771,
+   "pasa": false,
+   "motivos": [
+    "t = 1.45, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 216,
+     "sep": 0.005276320436728426,
+     "t": 0.5634842460851304
+    },
+    {
+     "periodo": "2026-08-03→2026-08-10",
+     "n": 216,
+     "sep": 0.009992822976814674,
+     "t": 1.8951525342599798
+    },
+    {
+     "periodo": "2026-08-11→2026-08-18",
+     "n": 216,
+     "sep": 0.004603505725959988,
+     "t": 0.5367864725606089
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SMCI",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distMaxPain",
+   "entrada": "cierre D",
+   "horizonte": 5,
+   "n": 504,
+   "sepDiaria": 0.02397290706601716,
+   "tNW": 1.1526323462698298,
+   "sepPooled": 0.02397290706601713,
+   "tPooled": 1.602387576494806,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+7.9% · −0.6% · +1.0%) — el efecto no es estable en el tiempo",
+    "t = 1.60, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 168,
+     "sep": 0.07893709374365926,
+     "t": 4.013854021488203
+    },
+    {
+     "periodo": "2026-07-30→2026-08-06",
+     "n": 168,
+     "sep": -0.005868058375341187,
+     "t": -0.3939716156510588
+    },
+    {
+     "periodo": "2026-08-06→2026-08-12",
+     "n": 168,
+     "sep": 0.009649742936573686,
+     "t": 0.25744639154619064
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SMCI",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distMaxPain",
+   "entrada": "cierre D+1",
+   "horizonte": 1,
+   "n": 612,
+   "sepDiaria": 0.006824647902445663,
+   "tNW": 0.9909717917063644,
+   "sepPooled": 0.006824647902445663,
+   "tPooled": 1.4942514831951519,
+   "pasa": false,
+   "motivos": [
+    "t = 1.49, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 204,
+     "sep": 0.006567459574365804,
+     "t": 0.679474110287652
+    },
+    {
+     "periodo": "2026-07-31→2026-08-10",
+     "n": 204,
+     "sep": 0.005998622747895657,
+     "t": 1.020939403494053
+    },
+    {
+     "periodo": "2026-08-10→2026-08-17",
+     "n": 204,
+     "sep": 0.004188692463550066,
+     "t": 0.5164151269062023
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SMCI",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distMaxPain",
+   "entrada": "cierre D+1",
+   "horizonte": 5,
+   "n": 468,
+   "sepDiaria": 0.00788116270942349,
+   "tNW": 0.3070267984808603,
+   "sepPooled": 0.007881162709423477,
+   "tPooled": 0.4936983795255181,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+7.3% · −3.5% · −1.3%) — el efecto no es estable en el tiempo",
+    "t = 0.49, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 156,
+     "sep": 0.0734630618216677,
+     "t": 3.6755993465405914
+    },
+    {
+     "periodo": "2026-07-30→2026-08-05",
+     "n": 156,
+     "sep": -0.034643311309294225,
+     "t": -2.074630710142189
+    },
+    {
+     "periodo": "2026-08-05→2026-08-11",
+     "n": 156,
+     "sep": -0.013032513514299585,
+     "t": -0.327648395529895
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SMCI",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "distFlip",
+   "entrada": "cierre D",
+   "horizonte": 1,
+   "n": 352,
+   "sepDiaria": -0.01344545762883524,
+   "tNW": -0.9736197187677882,
+   "sepPooled": -0.01806919580154299,
+   "tPooled": -1.1188919936461554,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−0.3% · +0.2% · −4.7%) — el efecto no es estable en el tiempo",
+    "t = -1.12, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 117,
+     "sep": -0.002936024040672698,
+     "t": -0.2621870112721948
+    },
+    {
+     "periodo": "2026-07-30→2026-08-11",
+     "n": 117,
+     "sep": 0.0016002153969171525,
+     "t": 0.15035321629786919
+    },
+    {
+     "periodo": "2026-08-11→2026-08-18",
+     "n": 118,
+     "sep": -0.04680958526648467,
+     "t": -1.0092494424103386
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "EWY",
+    "pct": 0.04261363636363636
+   }
+  },
+  {
+   "metrica": "distFlip",
+   "entrada": "cierre D",
+   "horizonte": 5,
+   "n": 275,
+   "sepDiaria": 0.01431717634930447,
+   "tNW": 0.47971286158924115,
+   "sepPooled": 0.014483507788430553,
+   "tPooled": 0.6157754608815945,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+7.5% · −1.9% · −1.2%) — el efecto no es estable en el tiempo",
+    "t = 0.62, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-29",
+     "n": 91,
+     "sep": 0.07536192498279524,
+     "t": 3.1033430159670212
+    },
+    {
+     "periodo": "2026-07-29→2026-08-05",
+     "n": 91,
+     "sep": -0.019249424860169964,
+     "t": -0.829442476936909
+    },
+    {
+     "periodo": "2026-08-05→2026-08-12",
+     "n": 93,
+     "sep": -0.012351996325975546,
+     "t": -0.20161177957704082
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "EWY",
+    "pct": 0.04363636363636364
+   }
+  },
+  {
+   "metrica": "distFlip",
+   "entrada": "cierre D+1",
+   "horizonte": 1,
+   "n": 322,
+   "sepDiaria": 0.009959676344523842,
+   "tNW": 1.1321893485966266,
+   "sepPooled": -0.006408482607653102,
+   "tPooled": -0.3771314345626238,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+2.2% · +1.1% · −4.9%) — el efecto no es estable en el tiempo",
+    "t = -0.38, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 107,
+     "sep": 0.022454481948178232,
+     "t": 1.8899203460580964
+    },
+    {
+     "periodo": "2026-07-30→2026-08-06",
+     "n": 107,
+     "sep": 0.010834054062008474,
+     "t": 1.5920957334584471
+    },
+    {
+     "periodo": "2026-08-06→2026-08-17",
+     "n": 108,
+     "sep": -0.048601048925219395,
+     "t": -0.9983029426858484
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "EWY",
+    "pct": 0.043478260869565216
+   }
+  },
+  {
+   "metrica": "distFlip",
+   "entrada": "cierre D+1",
+   "horizonte": 5,
+   "n": 259,
+   "sepDiaria": 0.022854559026609336,
+   "tNW": 1.2901755485952884,
+   "sepPooled": 0.01920095072775049,
+   "tPooled": 1.2884664974338573,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+6.6% · −1.9% · +1.2%) — el efecto no es estable en el tiempo",
+    "t = 1.29, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-29",
+     "n": 86,
+     "sep": 0.06642457779404513,
+     "t": 2.4502600882746415
+    },
+    {
+     "periodo": "2026-07-29→2026-08-05",
+     "n": 86,
+     "sep": -0.019132588029511607,
+     "t": -0.9443841767862581
+    },
+    {
+     "periodo": "2026-08-05→2026-08-11",
+     "n": 87,
+     "sep": 0.011701463324681385,
+     "t": 0.39135894359096357
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "EWY",
+    "pct": 0.04247104247104247
+   }
+  },
+  {
+   "metrica": "anchoMuros",
+   "entrada": "cierre D",
+   "horizonte": 1,
+   "n": 648,
+   "sepDiaria": 0.0028787132810692744,
+   "tNW": 0.36664331830046704,
+   "sepPooled": 0.002878713281069271,
+   "tPooled": 0.6277036346923911,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−0.0% · +0.5% · +0.4%) — el efecto no es estable en el tiempo",
+    "t = 0.63, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 216,
+     "sep": -0.0003062428298196289,
+     "t": -0.03448658942976338
+    },
+    {
+     "periodo": "2026-08-03→2026-08-10",
+     "n": 216,
+     "sep": 0.005177931778258468,
+     "t": 0.7879252828109252
+    },
+    {
+     "periodo": "2026-08-11→2026-08-18",
+     "n": 216,
+     "sep": 0.003764450894768982,
+     "t": 0.46025505636195485
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "GLD",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "anchoMuros",
+   "entrada": "cierre D",
+   "horizonte": 5,
+   "n": 504,
+   "sepDiaria": 0.03517127084785243,
+   "tNW": 2.4269226617690767,
+   "sepPooled": 0.035171270847852425,
+   "tPooled": 2.468410716395423,
+   "pasa": false,
+   "motivos": [
+    "t = 2.47, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 168,
+     "sep": 0.008598932609945648,
+     "t": 0.41877273818201244
+    },
+    {
+     "periodo": "2026-07-30→2026-08-06",
+     "n": 168,
+     "sep": 0.013322208898125635,
+     "t": 0.8845595464938397
+    },
+    {
+     "periodo": "2026-08-06→2026-08-12",
+     "n": 168,
+     "sep": 0.07219088124201004,
+     "t": 2.0731442739728796
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "GLD",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "anchoMuros",
+   "entrada": "cierre D+1",
+   "horizonte": 1,
+   "n": 612,
+   "sepDiaria": 0.01052987651425796,
+   "tNW": 1.0974357988559373,
+   "sepPooled": 0.01052987651425796,
+   "tPooled": 1.1013808004091694,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+0.9% · −0.8% · +3.3%) — el efecto no es estable en el tiempo",
+    "t = 1.10, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 204,
+     "sep": 0.00901146583732119,
+     "t": 0.9189488184935101
+    },
+    {
+     "periodo": "2026-07-31→2026-08-10",
+     "n": 204,
+     "sep": -0.0079266720343731,
+     "t": -1.5113043592305915
+    },
+    {
+     "periodo": "2026-08-10→2026-08-17",
+     "n": 204,
+     "sep": 0.033016583608793275,
+     "t": 1.2392783037354842
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "GLD",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "anchoMuros",
+   "entrada": "cierre D+1",
+   "horizonte": 5,
+   "n": 468,
+   "sepDiaria": 0.03713445420574741,
+   "tNW": 2.4885136055748815,
+   "sepPooled": 0.0371344542057474,
+   "tPooled": 2.447572945678629,
+   "pasa": false,
+   "motivos": [
+    "t = 2.45, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 156,
+     "sep": 0.03406848900564055,
+     "t": 1.6021184674541515
+    },
+    {
+     "periodo": "2026-07-30→2026-08-05",
+     "n": 156,
+     "sep": 0.0035322160528160913,
+     "t": 0.26458466359606464
+    },
+    {
+     "periodo": "2026-08-05→2026-08-11",
+     "n": 156,
+     "sep": 0.08226196757855193,
+     "t": 2.188422518580912
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "GLD",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "posEnBanda",
+   "entrada": "cierre D",
+   "horizonte": 1,
+   "n": 648,
+   "sepDiaria": 0.008120233096592714,
+   "tNW": 0.8967321681799051,
+   "sepPooled": 0.008120233096592705,
+   "tPooled": 0.9124693915250258,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+0.4% · −0.6% · +2.7%) — el efecto no es estable en el tiempo",
+    "t = 0.91, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 216,
+     "sep": 0.0037915258744623576,
+     "t": 0.42337008974796825
+    },
+    {
+     "periodo": "2026-08-03→2026-08-10",
+     "n": 216,
+     "sep": -0.006377841124878379,
+     "t": -1.3406035004320935
+    },
+    {
+     "periodo": "2026-08-11→2026-08-18",
+     "n": 216,
+     "sep": 0.026947014540194162,
+     "t": 1.0891257516643018
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "TSLA",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "posEnBanda",
+   "entrada": "cierre D",
+   "horizonte": 5,
+   "n": 504,
+   "sepDiaria": 0.013048672374648783,
+   "tNW": 1.6405439256432224,
+   "sepPooled": 0.013048672374648781,
+   "tPooled": 0.9183421713897301,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−1.4% · +3.3% · +0.9%) — el efecto no es estable en el tiempo",
+    "t = 0.92, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 168,
+     "sep": -0.013758936978783973,
+     "t": -0.670742195174879
+    },
+    {
+     "periodo": "2026-07-30→2026-08-06",
+     "n": 168,
+     "sep": 0.032755064591154674,
+     "t": 2.4185607753161293
+    },
+    {
+     "periodo": "2026-08-06→2026-08-12",
+     "n": 168,
+     "sep": 0.009327066587617451,
+     "t": 0.25508352102585097
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "TSLA",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "posEnBanda",
+   "entrada": "cierre D+1",
+   "horizonte": 1,
+   "n": 612,
+   "sepDiaria": 0.010078562868602085,
+   "tNW": 0.9948367093939632,
+   "sepPooled": 0.010078562868602078,
+   "tPooled": 1.0663487520829036,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−0.3% · +0.8% · +2.8%) — el efecto no es estable en el tiempo",
+    "t = 1.07, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-31",
+     "n": 204,
+     "sep": -0.002537937359279511,
+     "t": -0.27716906409980524
+    },
+    {
+     "periodo": "2026-07-31→2026-08-10",
+     "n": 204,
+     "sep": 0.007551241370719617,
+     "t": 1.170397567552188
+    },
+    {
+     "periodo": "2026-08-10→2026-08-17",
+     "n": 204,
+     "sep": 0.028440428683740963,
+     "t": 1.091936455996133
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "TSLA",
+    "pct": 0.027777777777777776
+   }
+  },
+  {
+   "metrica": "posEnBanda",
+   "entrada": "cierre D+1",
+   "horizonte": 5,
+   "n": 468,
+   "sepDiaria": 0.01685055503081698,
+   "tNW": 1.4650781095665588,
+   "sepPooled": 0.016850555030816977,
+   "tPooled": 1.0986577362410097,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−0.2% · +3.2% · +3.2%) — el efecto no es estable en el tiempo",
+    "t = 1.10, por debajo del listón de 3.13 para 28 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-07-24→2026-07-30",
+     "n": 156,
+     "sep": -0.0021267344128347195,
+     "t": -0.09565255675299315
+    },
+    {
+     "periodo": "2026-07-30→2026-08-05",
+     "n": 156,
+     "sep": 0.032398778036754144,
+     "t": 2.1973126476964633
+    },
+    {
+     "periodo": "2026-08-05→2026-08-11",
+     "n": 156,
+     "sep": 0.03194158669541493,
+     "t": 0.8212034962691555
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "TSLA",
+    "pct": 0.027777777777777776
+   }
+  }
+ ]
+}

@@ -1,0 +1,126 @@
+{
+ "generado": "2026-08-20T01:18:50.100Z",
+ "cuenta": 56389,
+ "informe": {
+  "nOps_h20": {
+   "dias": 58,
+   "sep": -0.010603423160037541,
+   "sdDiaria": 0.04277205056477578,
+   "ventanasIndependientes": 3,
+   "sepNoSolapada": 0.017470125327864638,
+   "tNoSolapada": 0.6503250491878462,
+   "pBootstrapBloques": 0.3097845107744613,
+   "persistenciaRangoDiaAdia": 0.7941626389732964,
+   "nombresFijosEnElTercioAlto": 10,
+   "top10Alto": [
+    "SNDK 100%",
+    "MU 100%",
+    "INTC 100%",
+    "NVDA 100%",
+    "QQQ 100%",
+    "AMD 100%",
+    "SPY 100%",
+    "MSFT 100%",
+    "META 100%",
+    "GOOGL 100%"
+   ],
+   "sinElMayor": {
+    "ticker": "SNDK",
+    "sep": -0.012312593282950963,
+    "t": -2.380428636794538
+   },
+   "primeraFecha": "2026-04-29",
+   "ultimaFecha": "2026-07-22"
+  },
+  "top3Share_h20": {
+   "dias": 58,
+   "sep": 0.010422544215756368,
+   "sdDiaria": 0.0442147703842401,
+   "ventanasIndependientes": 3,
+   "sepNoSolapada": -0.015337129736703793,
+   "tNoSolapada": -0.5932357301128811,
+   "pBootstrapBloques": 0.3870306484675766,
+   "persistenciaRangoDiaAdia": 0.456532982242995,
+   "nombresFijosEnElTercioAlto": 0,
+   "top10Alto": [
+    "TLT 57%",
+    "GDX 53%",
+    "CRM 52%",
+    "EEM 48%",
+    "EWY 45%",
+    "NOW 43%",
+    "IGV 43%",
+    "HYG 43%",
+    "GLW 41%",
+    "WULF 41%"
+   ],
+   "sinElMayor": {
+    "ticker": "TLT",
+    "sep": 0.009875957333251993,
+    "t": 1.7093698625150724
+   },
+   "primeraFecha": "2026-04-29",
+   "ultimaFecha": "2026-07-22"
+  },
+  "nOps_h5": {
+   "dias": 73,
+   "sep": 0.0014522087772244794,
+   "sdDiaria": 0.02999912428843926,
+   "ventanasIndependientes": 15,
+   "sepNoSolapada": -0.002752570910359075,
+   "tNoSolapada": -0.40820208972399963,
+   "pBootstrapBloques": 0.7488625568721564,
+   "persistenciaRangoDiaAdia": 0.7941626389732964,
+   "nombresFijosEnElTercioAlto": 10,
+   "top10Alto": [
+    "SNDK 100%",
+    "MU 100%",
+    "INTC 100%",
+    "NVDA 100%",
+    "QQQ 100%",
+    "AMD 100%",
+    "SPY 100%",
+    "MSFT 100%",
+    "META 100%",
+    "GOOGL 100%"
+   ],
+   "sinElMayor": {
+    "ticker": "SNDK",
+    "sep": 0.0008039725958011358,
+    "t": 0.24097823709932306
+   },
+   "primeraFecha": "2026-04-29",
+   "ultimaFecha": "2026-08-12"
+  },
+  "nOps_h1": {
+   "dias": 77,
+   "sep": -0.0019006531802495238,
+   "sdDiaria": 0.01382935291865279,
+   "ventanasIndependientes": 77,
+   "sepNoSolapada": -0.0019006531802495238,
+   "tNoSolapada": -1.2059974221192906,
+   "pBootstrapBloques": 0.19949002549872508,
+   "persistenciaRangoDiaAdia": 0.7941626389732964,
+   "nombresFijosEnElTercioAlto": 10,
+   "top10Alto": [
+    "SNDK 100%",
+    "MU 100%",
+    "INTC 100%",
+    "NVDA 100%",
+    "QQQ 100%",
+    "AMD 100%",
+    "SPY 100%",
+    "MSFT 100%",
+    "META 100%",
+    "GOOGL 100%"
+   ],
+   "sinElMayor": {
+    "ticker": "SNDK",
+    "sep": -0.0021361554703211625,
+    "t": -1.4450579290090761
+   },
+   "primeraFecha": "2026-04-29",
+   "ultimaFecha": "2026-08-18"
+  }
+ }
+}

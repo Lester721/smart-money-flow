@@ -1,0 +1,828 @@
+{
+ "generado": "2026-08-20T20:30:06.802Z",
+ "entrada": "scripts/gex-niveles.json",
+ "dias": 1122,
+ "liston": 3.08,
+ "pruebasDeclaradas": 24,
+ "sorteos": 500,
+ "cuenta": 56389,
+ "mitadA": 469,
+ "mitadB": 653,
+ "gammaPos": 606,
+ "gammaNeg": 516,
+ "geometria": {
+  "gam.imanBruto": {
+   "pegadoATMPct": 9.8,
+   "distP25": 5.7,
+   "distP50": 12.4,
+   "distP75": 23.7,
+   "distP95": 46.8,
+   "arribaPct": 57.6
+  },
+  "gam.imanNeto": {
+   "pegadoATMPct": 6.1,
+   "distP25": 9.3,
+   "distP50": 18.8,
+   "distP75": 32.4,
+   "distP95": 64.6,
+   "arribaPct": 59
+  },
+  "gamD.imanBruto": {
+   "pegadoATMPct": 5.4,
+   "distP25": 10.5,
+   "distP50": 26.3,
+   "distP75": 48,
+   "distP95": 100.9,
+   "arribaPct": 62.5
+  },
+  "gamD.imanNeto": {
+   "pegadoATMPct": 2.7,
+   "distP25": 22.6,
+   "distP50": 45.3,
+   "distP75": 79.8,
+   "distP95": 144.6,
+   "arribaPct": 64.4
+  },
+  "oi.imanBruto": {
+   "pegadoATMPct": 1.2,
+   "distP25": 47.2,
+   "distP50": 93.7,
+   "distP75": 154.2,
+   "distP95": 238.5,
+   "arribaPct": 53.9
+  },
+  "maxPain": {
+   "pegadoATMPct": 3.1,
+   "distP25": 16.6,
+   "distP50": 35.2,
+   "distP75": 59.9,
+   "distP95": 123.7,
+   "arribaPct": 39.5
+  }
+ },
+ "resultados": {
+  "gam.imanBruto": {
+   "total": {
+    "A": {
+     "n": 1122,
+     "acercReal": -17.73286987522282,
+     "acercAzar": -18.32934049910874,
+     "acercPercentil": 86.6,
+     "tAcerc": 1.1192124485302268,
+     "tAcercN": 0.2211473428556937,
+     "ventajaPts": 0.5936363636363782,
+     "toqueRealPct": 56.327985739750446,
+     "toqueEspPct": 58.60071301247772,
+     "toquePercentil": 3.4,
+     "tToque": -1.5455955943919992,
+     "dirRealPct": 49.46524064171123,
+     "dirAzarPct": 49.936898395721954,
+     "dirPercentil": 37.8,
+     "tDir": -0.35824886041592074
+    },
+    "B": {
+     "acercReal": -17.73286987522282,
+     "acercAzar": -19.10017515151516,
+     "acercPercentil": 99.4,
+     "toqueRealPct": 56.327985739750446,
+     "toqueAzarPct": 59.0816399286987,
+     "toquePercentil": 1.4,
+     "dirRealPct": 49.46524064171123,
+     "dirAzarPct": 50.51461675579324,
+     "dirPercentil": 23.4
+    },
+    "C": {
+     "acercReal": -17.73286987522282,
+     "acercAzar": -19.596168021390376,
+     "acercPercentil": 100,
+     "toqueRealPct": 56.327985739750446,
+     "toqueAzarPct": 57.58413547237077,
+     "toquePercentil": 10.6
+    }
+   },
+   "mitadA": {
+    "n": 469,
+    "acercReal": -17.921023454157766,
+    "acercAzar": -18.44650507462686,
+    "acercPercentil": 77.6,
+    "tAcerc": 0.7647208508635909,
+    "tAcercN": 0.2510719510060504,
+    "ventajaPts": 0.5788059701492645,
+    "toqueRealPct": 56.28997867803838,
+    "toqueEspPct": 57.67590618336887,
+    "toquePercentil": 18.8,
+    "tToque": -0.6074854600778093,
+    "dirRealPct": 48.827292110874204,
+    "dirAzarPct": 50.18763326226015,
+    "dirPercentil": 25.8,
+    "tDir": -0.507932806193572
+   },
+   "mitadB": {
+    "n": 653,
+    "acercReal": -17.597733537519154,
+    "acercAzar": -18.207110750382856,
+    "acercPercentil": 81.2,
+    "tAcerc": 0.8255768419016061,
+    "tAcercN": 0.07851715436884613,
+    "ventajaPts": 0.6042879019908289,
+    "toqueRealPct": 56.355283307810105,
+    "toqueEspPct": 59.26493108728943,
+    "toquePercentil": 2.2,
+    "tToque": -1.5132611785843664,
+    "dirRealPct": 49.92343032159265,
+    "dirAzarPct": 49.99356814701375,
+    "dirPercentil": 47.6,
+    "tDir": -0.03913302400974181
+   },
+   "mismoSigno": true,
+   "pasaCruce": false,
+   "regimen": {
+    "pos": {
+     "n": 606,
+     "acercReal": -16.84541254125414,
+     "acercAzar": -16.874067392739303,
+     "acercPercentil": 50.4,
+     "tAcerc": 0.06410661783517137,
+     "tAcercN": -0.27354841306251526,
+     "ventajaPts": 0.039207920792104334,
+     "toqueRealPct": 54.95049504950495,
+     "toqueEspPct": 57.508250825082506,
+     "toquePercentil": 3.2,
+     "tToque": -1.2737318316816728,
+     "dirRealPct": 48.679867986798676,
+     "dirAzarPct": 50.14290429042896,
+     "dirPercentil": 22.8,
+     "tDir": -0.6499555709619097
+    },
+    "neg": {
+     "n": 516,
+     "acercReal": -18.77511627906977,
+     "acercAzar": -20.014781317829453,
+     "acercPercentil": 92,
+     "tAcerc": 1.379714425882244,
+     "tAcercN": 0.6218412864804901,
+     "ventajaPts": 1.2447674418604673,
+     "toqueRealPct": 57.945736434108525,
+     "toqueEspPct": 59.883720930232556,
+     "toquePercentil": 11.6,
+     "tToque": -0.8981739157361801,
+     "dirRealPct": 50.3875968992248,
+     "dirAzarPct": 50.064341085271295,
+     "dirPercentil": 55.2,
+     "tDir": 0.17609018126512507
+    },
+    "contraste": -1.5672246518776236
+   },
+   "distancia": [
+    "cerca (<8pt): -0.37pt t=-1.66 dir=46%",
+    "medio: -0.28pt t=-0.47 dir=49%",
+    "lejos (≥19pt): +2.45pt t=1.67 dir=53%"
+   ],
+   "veredicto": {
+    "superaListon": false,
+    "superaAzarA": false,
+    "superaAzarB": true,
+    "superaAzarC": true,
+    "pasaCruce": false,
+    "ok": false
+   }
+  },
+  "gam.imanNeto": {
+   "total": {
+    "A": {
+     "n": 1122,
+     "acercReal": -13.687326203208572,
+     "acercAzar": -14.320812263814634,
+     "acercPercentil": 82.6,
+     "tAcerc": 0.939201914051581,
+     "tAcercN": 0.9890820769532211,
+     "ventajaPts": 0.6368983957219416,
+     "toqueRealPct": 47.771836007130126,
+     "toqueEspPct": 49.01960784313726,
+     "toquePercentil": 12.2,
+     "tToque": -0.8360747448769018,
+     "dirRealPct": 50.71301247771836,
+     "dirAzarPct": 49.955971479500874,
+     "dirPercentil": 69.4,
+     "tDir": 0.47766514722122266
+    },
+    "B": {
+     "acercReal": -13.687326203208572,
+     "acercAzar": -16.025408805704117,
+     "acercPercentil": 99.8,
+     "toqueRealPct": 47.771836007130126,
+     "toqueAzarPct": 49.796613190730845,
+     "toquePercentil": 7.4,
+     "dirRealPct": 50.71301247771836,
+     "dirAzarPct": 50.49073083778963,
+     "dirPercentil": 53
+    },
+    "C": {
+     "acercReal": -13.687326203208572,
+     "acercAzar": -15.993195579322665,
+     "acercPercentil": 100,
+     "toqueRealPct": 47.771836007130126,
+     "toqueAzarPct": 48.80623885918005,
+     "toquePercentil": 18.4
+    }
+   },
+   "mitadA": {
+    "n": 469,
+    "acercReal": -13.04511727078893,
+    "acercAzar": -13.994340469083154,
+    "acercPercentil": 80.4,
+    "tAcerc": 0.905043704095487,
+    "tAcercN": 1.4049688728719747,
+    "ventajaPts": 0.9263113006396599,
+    "toqueRealPct": 47.12153518123667,
+    "toqueEspPct": 46.16204690831557,
+    "toquePercentil": 68,
+    "tToque": 0.416811116814202,
+    "dirRealPct": 53.304904051172706,
+    "dirAzarPct": 50.01407249466951,
+    "dirPercentil": 90.6,
+    "tDir": 1.4314469992727914
+   },
+   "mitadB": {
+    "n": 653,
+    "acercReal": -14.148575803981634,
+    "acercAzar": -14.551808698315504,
+    "acercPercentil": 68,
+    "tAcerc": 0.47428368010687605,
+    "tAcercN": 0.06706498511553502,
+    "ventajaPts": 0.429035222052095,
+    "toqueRealPct": 48.23889739663093,
+    "toqueEspPct": 51.07197549770291,
+    "toquePercentil": 2,
+    "tToque": -1.4482547736444549,
+    "dirRealPct": 48.85145482388974,
+    "dirAzarPct": 50.096784073506896,
+    "dirPercentil": 25.2,
+    "tDir": -0.5869953601461243
+   },
+   "mismoSigno": true,
+   "pasaCruce": false,
+   "regimen": {
+    "pos": {
+     "n": 606,
+     "acercReal": -11.76016501650166,
+     "acercAzar": -13.505863234323474,
+     "acercPercentil": 99,
+     "tAcerc": 2.142629181032333,
+     "tAcercN": 1.9404881010169495,
+     "ventajaPts": 1.7146204620462293,
+     "toqueRealPct": 48.34983498349835,
+     "toqueEspPct": 49.33993399339934,
+     "toquePercentil": 23.6,
+     "tToque": -0.48750916036608827,
+     "dirRealPct": 52.64026402640264,
+     "dirAzarPct": 49.898679867986736,
+     "dirPercentil": 90,
+     "tDir": 1.2999111419238194
+    },
+    "neg": {
+     "n": 516,
+     "acercReal": -15.950620155038775,
+     "acercAzar": -15.308648449612415,
+     "acercPercentil": 28.2,
+     "tAcerc": -0.5542164140491778,
+     "tAcercN": -0.5672629817844814,
+     "ventajaPts": -0.6287984496123962,
+     "toqueRealPct": 47.093023255813954,
+     "toqueEspPct": 48.64341085271318,
+     "toquePercentil": 12,
+     "tToque": -0.7046201200955997,
+     "dirRealPct": 48.44961240310077,
+     "dirAzarPct": 50.07596899224808,
+     "dirPercentil": 19,
+     "tDir": -0.7043607250605003
+    },
+    "contraste": -0.551929132699303
+   },
+   "distancia": [
+    "cerca (<12pt): -0.14pt t=-0.40 dir=49%",
+    "medio: -0.36pt t=-0.43 dir=50%",
+    "lejos (≥27pt): +2.43pt t=1.32 dir=53%"
+   ],
+   "veredicto": {
+    "superaListon": false,
+    "superaAzarA": false,
+    "superaAzarB": true,
+    "superaAzarC": true,
+    "pasaCruce": false,
+    "ok": false
+   }
+  },
+  "gamD.imanBruto": {
+   "total": {
+    "A": {
+     "n": 1122,
+     "acercReal": -11.456702317290567,
+     "acercAzar": -11.848447058823538,
+     "acercPercentil": 68.8,
+     "tAcerc": 0.531505751460729,
+     "tAcercN": 0.013643263031820419,
+     "ventajaPts": 0.4181639928698824,
+     "toqueRealPct": 37.5222816399287,
+     "toqueEspPct": 40.01782531194296,
+     "toquePercentil": 0.8,
+     "tToque": -1.7061757192927391,
+     "dirRealPct": 49.73262032085562,
+     "dirAzarPct": 50.030659536541876,
+     "dirPercentil": 41.4,
+     "tDir": -0.17912443020796037
+    },
+    "B": {
+     "acercReal": -11.456702317290567,
+     "acercAzar": -13.371177896613196,
+     "acercPercentil": 99,
+     "toqueRealPct": 37.5222816399287,
+     "toqueAzarPct": 41.60516934046339,
+     "toquePercentil": 0.4,
+     "dirRealPct": 49.73262032085562,
+     "dirAzarPct": 50.55436720142603,
+     "dirPercentil": 26.6
+    },
+    "C": {
+     "acercReal": -11.456702317290567,
+     "acercAzar": -13.798080320855636,
+     "acercPercentil": 100,
+     "toqueRealPct": 37.5222816399287,
+     "toqueAzarPct": 40.49465240641712,
+     "toquePercentil": 0.6
+    }
+   },
+   "mitadA": {
+    "n": 469,
+    "acercReal": -11.671428571428581,
+    "acercAzar": -11.834761023454172,
+    "acercPercentil": 56.6,
+    "tAcerc": 0.12689651087239695,
+    "tAcercN": 0.13552717322731397,
+    "ventajaPts": 0.15136460554370276,
+    "toqueRealPct": 36.03411513859275,
+    "toqueEspPct": 39.23240938166311,
+    "toquePercentil": 2.8,
+    "tToque": -1.418555522764989,
+    "dirRealPct": 48.827292110874204,
+    "dirAzarPct": 49.893390191897645,
+    "dirPercentil": 30.4,
+    "tDir": -0.507932806193572
+   },
+   "mitadB": {
+    "n": 653,
+    "acercReal": -11.302480857580406,
+    "acercAzar": -11.942188851454846,
+    "acercPercentil": 73,
+    "tAcerc": 0.582750236010942,
+    "tAcercN": -0.09760225550467688,
+    "ventajaPts": 0.609785604900477,
+    "toqueRealPct": 38.59111791730475,
+    "toqueEspPct": 40.58192955589587,
+    "toquePercentil": 6.4,
+    "tToque": -1.0360033104994795,
+    "dirRealPct": 50.382848392036756,
+    "dirAzarPct": 49.92373660030631,
+    "dirPercentil": 54.4,
+    "tDir": 0.1956651200487062
+   },
+   "mismoSigno": true,
+   "pasaCruce": false,
+   "regimen": {
+    "pos": {
+     "n": 606,
+     "acercReal": -12.143795379537965,
+     "acercAzar": -11.02496072607264,
+     "acercPercentil": 12,
+     "tAcerc": -1.124811063503626,
+     "tAcercN": -1.4212396830298264,
+     "ventajaPts": -1.0631188118811723,
+     "toqueRealPct": 37.29372937293729,
+     "toqueEspPct": 41.336633663366335,
+     "toquePercentil": 0,
+     "tToque": -2.0210577757181882,
+     "dirRealPct": 46.53465346534654,
+     "dirAzarPct": 50.12376237623765,
+     "dirPercentil": 3.4,
+     "tDir": -1.7061333737750126
+    },
+    "neg": {
+     "n": 516,
+     "acercReal": -10.649767441860472,
+     "acercAzar": -12.913579767441869,
+     "acercPercentil": 96.6,
+     "tAcerc": 1.6616623854139696,
+     "tAcercN": 1.6355988959445618,
+     "ventajaPts": 2.1578100775193767,
+     "toqueRealPct": 37.7906976744186,
+     "toqueEspPct": 38.468992248062015,
+     "toquePercentil": 31,
+     "tToque": -0.316694685009019,
+     "dirRealPct": 53.48837209302326,
+     "dirAzarPct": 49.865116279069824,
+     "dirPercentil": 94.8,
+     "tDir": 1.5848116313861207
+    },
+    "contraste": -2.6268588999618436
+   },
+   "distancia": [
+    "cerca (<15pt): -0.93pt t=-2.55 dir=45%",
+    "medio: +2.29pt t=2.17 dir=53%",
+    "lejos (≥39pt): -0.16pt t=-0.08 dir=51%"
+   ],
+   "veredicto": {
+    "superaListon": false,
+    "superaAzarA": false,
+    "superaAzarB": true,
+    "superaAzarC": true,
+    "pasaCruce": false,
+    "ok": false
+   }
+  },
+  "gamD.imanNeto": {
+   "total": {
+    "A": {
+     "n": 1122,
+     "acercReal": -5.40429590017826,
+     "acercAzar": -6.641978716577558,
+     "acercPercentil": 88.4,
+     "tAcerc": 1.2348459410994415,
+     "tAcercN": 1.5137937211400465,
+     "ventajaPts": 1.2775757575757654,
+     "toqueRealPct": 23.529411764705884,
+     "toqueEspPct": 24.197860962566846,
+     "toquePercentil": 19.8,
+     "tToque": -0.5228000445481571,
+     "dirRealPct": 53.475935828877006,
+     "dirAzarPct": 50.099108734402826,
+     "dirPercentil": 99.2,
+     "tDir": 2.3286175927034773
+    },
+    "B": {
+     "acercReal": -5.40429590017826,
+     "acercAzar": -8.66512413547238,
+     "acercPercentil": 100,
+     "toqueRealPct": 23.529411764705884,
+     "toqueAzarPct": 27.1402852049911,
+     "toquePercentil": 0,
+     "dirRealPct": 53.475935828877006,
+     "dirAzarPct": 50.70481283422458,
+     "dirPercentil": 96.8
+    },
+    "C": {
+     "acercReal": -5.40429590017826,
+     "acercAzar": -7.812194153297708,
+     "acercPercentil": 100,
+     "toqueRealPct": 23.529411764705884,
+     "toqueAzarPct": 27.24759358288772,
+     "toquePercentil": 0.2
+    }
+   },
+   "mitadA": {
+    "n": 469,
+    "acercReal": -5.003113006396608,
+    "acercAzar": -6.604776460554385,
+    "acercPercentil": 85.4,
+    "tAcerc": 1.071886058293623,
+    "tAcercN": 1.4768087237287977,
+    "ventajaPts": 1.5917057569296322,
+    "toqueRealPct": 23.880597014925375,
+    "toqueEspPct": 24.733475479744136,
+    "toquePercentil": 22.4,
+    "tToque": -0.42808505407171776,
+    "dirRealPct": 54.58422174840085,
+    "dirAzarPct": 50.014498933901926,
+    "dirPercentil": 97.4,
+    "tDir": 1.9855555151203232
+   },
+   "mitadB": {
+    "n": 653,
+    "acercReal": -5.692434915773352,
+    "acercAzar": -6.646388790199096,
+    "acercPercentil": 73.6,
+    "tAcerc": 0.7392095382285457,
+    "tAcercN": 0.7201856370748815,
+    "ventajaPts": 1.0519601837672454,
+    "toqueRealPct": 23.27718223583461,
+    "toqueEspPct": 23.813169984686063,
+    "toquePercentil": 26.8,
+    "tToque": -0.3215606484415046,
+    "dirRealPct": 52.67993874425727,
+    "dirAzarPct": 50.073813169984746,
+    "dirPercentil": 91.4,
+    "tDir": 1.3696558403409547
+   },
+   "mismoSigno": true,
+   "pasaCruce": false,
+   "regimen": {
+    "pos": {
+     "n": 606,
+     "acercReal": -5.532112211221126,
+     "acercAzar": -6.555653927392766,
+     "acercPercentil": 82,
+     "tAcerc": 0.8361515128867204,
+     "tAcercN": 0.597656434113686,
+     "ventajaPts": 1.0088943894389617,
+     "toqueRealPct": 25.742574257425744,
+     "toqueEspPct": 26.567656765676567,
+     "toquePercentil": 23.8,
+     "tToque": -0.45984701628529495,
+     "dirRealPct": 51.81518151815182,
+     "dirAzarPct": 49.955115511551156,
+     "dirPercentil": 81.6,
+     "tDir": 0.8936889100726289
+    },
+    "neg": {
+     "n": 516,
+     "acercReal": -5.254186046511639,
+     "acercAzar": -6.880842480620172,
+     "acercPercentil": 80.4,
+     "tAcerc": 0.911124097820746,
+     "tAcercN": 1.6012388928172014,
+     "ventajaPts": 1.5931201550387557,
+     "toqueRealPct": 20.930232558139537,
+     "toqueEspPct": 21.414728682170544,
+     "toquePercentil": 32.2,
+     "tToque": -0.2682799960050145,
+     "dirRealPct": 55.42635658914729,
+     "dirAzarPct": 49.922480620155,
+     "dirPercentil": 98.8,
+     "tDir": 2.465262537711746
+    },
+    "contraste": -1.6565234663677797
+   },
+   "distancia": [
+    "cerca (<30pt): +1.28pt t=1.81 dir=53%",
+    "medio: +1.62pt t=1.11 dir=55%",
+    "lejos (≥66pt): +0.92pt t=0.35 dir=53%"
+   ],
+   "veredicto": {
+    "superaListon": false,
+    "superaAzarA": false,
+    "superaAzarB": true,
+    "superaAzarC": true,
+    "pasaCruce": false,
+    "ok": false
+   }
+  },
+  "oi.imanBruto": {
+   "total": {
+    "A": {
+     "n": 1122,
+     "acercReal": -3.480249554367191,
+     "acercAzar": -3.8636627094474196,
+     "acercPercentil": 64.4,
+     "tAcerc": 0.3087389366502111,
+     "tAcercN": -0.34941060034557836,
+     "ventajaPts": 0.3430035650624039,
+     "toqueRealPct": 12.29946524064171,
+     "toqueEspPct": 11.853832442067736,
+     "toquePercentil": 75.2,
+     "tToque": 0.46178781215740855,
+     "dirRealPct": 52.04991087344028,
+     "dirAzarPct": 49.98306595365417,
+     "dirPercentil": 92.2,
+     "tDir": 1.3732872982610245
+    },
+    "B": {
+     "acercReal": -3.480249554367191,
+     "acercAzar": -4.725125026737974,
+     "acercPercentil": 86.4,
+     "toqueRealPct": 12.29946524064171,
+     "toqueAzarPct": 13.888948306595365,
+     "toquePercentil": 5,
+     "dirRealPct": 52.04991087344028,
+     "dirAzarPct": 50.21818181818184,
+     "dirPercentil": 88.2
+    },
+    "C": {
+     "acercReal": -3.480249554367191,
+     "acercAzar": -4.029222067736174,
+     "acercPercentil": 85,
+     "toqueRealPct": 12.29946524064171,
+     "toqueAzarPct": 14.05614973262033,
+     "toquePercentil": 2
+    }
+   },
+   "mitadA": {
+    "n": 469,
+    "acercReal": -5.753859275053288,
+    "acercAzar": -4.354411257995727,
+    "acercPercentil": 19.2,
+    "tAcerc": -0.8079264566218359,
+    "tAcercN": -0.7941293426511494,
+    "ventajaPts": -1.3039019189765326,
+    "toqueRealPct": 14.285714285714286,
+    "toqueEspPct": 13.859275053304904,
+    "toquePercentil": 61.4,
+    "tToque": 0.2672815961443498,
+    "dirRealPct": 49.89339019189765,
+    "dirAzarPct": 50.10831556503204,
+    "dirPercentil": 45,
+    "tDir": -0.04617570965396218
+   },
+   "mitadB": {
+    "n": 653,
+    "acercReal": -1.847289433384374,
+    "acercAzar": -3.42732784073508,
+    "acercPercentil": 84.2,
+    "tAcerc": 1.0064687154611687,
+    "tAcercN": 0.19917568353793533,
+    "ventajaPts": 1.5258499234303384,
+    "toqueRealPct": 10.872894333843798,
+    "toqueEspPct": 10.413476263399694,
+    "toquePercentil": 68.8,
+    "tToque": 0.3843664352685932,
+    "dirRealPct": 53.59877488514548,
+    "dirAzarPct": 50.00091883614092,
+    "dirPercentil": 97.4,
+    "tDir": 1.8392521284578565
+   },
+   "mismoSigno": false,
+   "pasaCruce": false,
+   "regimen": {
+    "pos": {
+     "n": 606,
+     "acercReal": -4.462310231023086,
+     "acercAzar": -3.4485972277227788,
+     "acercPercentil": 23.4,
+     "tAcerc": -0.6600637917140045,
+     "tAcercN": -0.692508172706691,
+     "ventajaPts": -0.903630363036284,
+     "toqueRealPct": 13.036303630363037,
+     "toqueEspPct": 13.036303630363037,
+     "toquePercentil": 43.2,
+     "tToque": 0,
+     "dirRealPct": 51.320132013201324,
+     "dirAzarPct": 50.24158415841588,
+     "dirPercentil": 68.8,
+     "tDir": 0.6499555709619124
+    },
+    "neg": {
+     "n": 516,
+     "acercReal": -2.3268992248061977,
+     "acercAzar": -4.122365426356598,
+     "acercPercentil": 83.2,
+     "tAcerc": 1.0026150691011262,
+     "tAcercN": 0.27065365360291654,
+     "ventajaPts": 1.807073643410863,
+     "toqueRealPct": 11.434108527131784,
+     "toqueEspPct": 10.465116279069768,
+     "toquePercentil": 87.8,
+     "tToque": 0.7190796319431637,
+     "dirRealPct": 52.906976744186046,
+     "dirAzarPct": 49.98294573643414,
+     "dirPercentil": 89.6,
+     "tDir": 1.320676359488438
+    },
+    "contraste": -1.2059871810059961
+   },
+   "distancia": [
+    "cerca (<62pt): +2.76pt t=2.34 dir=56%",
+    "medio: -3.22pt t=-1.76 dir=49%",
+    "lejos (≥132pt): +1.59pt t=0.63 dir=51%"
+   ],
+   "veredicto": {
+    "superaListon": false,
+    "superaAzarA": false,
+    "superaAzarB": false,
+    "superaAzarC": false,
+    "pasaCruce": false,
+    "ok": false
+   }
+  },
+  "maxPain": {
+   "total": {
+    "A": {
+     "n": 1122,
+     "acercReal": -10.337896613190727,
+     "acercAzar": -10.290337468805694,
+     "acercPercentil": 49.2,
+     "tAcerc": -0.08867345293183704,
+     "tAcercN": -1.0190029964551022,
+     "ventajaPts": -0.07800356506239141,
+     "toqueRealPct": 32.62032085561497,
+     "toqueEspPct": 32.040998217468804,
+     "toquePercentil": 71,
+     "tToque": 0.4158535504547203,
+     "dirRealPct": 49.19786096256684,
+     "dirAzarPct": 49.951693404634526,
+     "dirPercentil": 30,
+     "tDir": -0.5373732906238774
+    },
+    "B": {
+     "acercReal": -10.337896613190727,
+     "acercAzar": -11.536924955436719,
+     "acercPercentil": 92.2,
+     "toqueRealPct": 32.62032085561497,
+     "toqueAzarPct": 34.08680926916221,
+     "toquePercentil": 14.4,
+     "dirRealPct": 49.19786096256684,
+     "dirAzarPct": 49.41033868092696,
+     "dirPercentil": 44.4
+    },
+    "C": {
+     "acercReal": -10.337896613190727,
+     "acercAzar": -11.388694010695195,
+     "acercPercentil": 97.2,
+     "toqueRealPct": 32.62032085561497,
+     "toqueAzarPct": 35.11301247771833,
+     "toquePercentil": 1.4
+    }
+   },
+   "mitadA": {
+    "n": 469,
+    "acercReal": -11.529339019189765,
+    "acercAzar": -10.451301663112991,
+    "acercPercentil": 21.2,
+    "tAcerc": -0.8066944595659632,
+    "tAcercN": -0.9944217572945181,
+    "ventajaPts": -1.0035607675906224,
+    "toqueRealPct": 30.063965884861407,
+    "toqueEspPct": 31.982942430703623,
+    "toquePercentil": 10.8,
+    "tToque": -0.8910210408838865,
+    "dirRealPct": 48.827292110874204,
+    "dirAzarPct": 50.16460554371001,
+    "dirPercentil": 30,
+    "tDir": -0.507932806193572
+   },
+   "mitadB": {
+    "n": 653,
+    "acercReal": -9.482174578866784,
+    "acercAzar": -10.065661316998476,
+    "acercPercentil": 68.4,
+    "tAcerc": 0.48124716831468445,
+    "tAcercN": -0.4927712676413374,
+    "ventajaPts": 0.5867534456355263,
+    "toqueRealPct": 34.45635528330781,
+    "toqueEspPct": 32.08269525267994,
+    "toquePercentil": 96.8,
+    "tToque": 1.2994197491371258,
+    "dirRealPct": 49.464012251148546,
+    "dirAzarPct": 49.97947932618684,
+    "dirPercentil": 37.8,
+    "tDir": -0.2739311680681927
+   },
+   "mismoSigno": false,
+   "pasaCruce": false,
+   "regimen": {
+    "pos": {
+     "n": 606,
+     "acercReal": -10.95825082508252,
+     "acercAzar": -9.602089372937302,
+     "acercPercentil": 7.4,
+     "tAcerc": -1.502302733948334,
+     "tAcercN": -1.3772455116272329,
+     "ventajaPts": -1.4232013201320102,
+     "toqueRealPct": 27.722772277227723,
+     "toqueEspPct": 26.73267326732673,
+     "toquePercentil": 80,
+     "tToque": 0.5507297915523581,
+     "dirRealPct": 48.51485148514851,
+     "dirAzarPct": 49.93564356435642,
+     "dirPercentil": 22.4,
+     "tDir": -0.7312000173321493
+    },
+    "neg": {
+     "n": 516,
+     "acercReal": -9.609341085271323,
+     "acercAzar": -11.152297829457359,
+     "acercPercentil": 85,
+     "tAcerc": 0.9663304589921986,
+     "tAcercN": 0.08764499086970393,
+     "ventajaPts": 1.501821705426347,
+     "toqueRealPct": 38.372093023255815,
+     "toqueEspPct": 38.275193798449614,
+     "toquePercentil": 54,
+     "tToque": 0.045285230938663226,
+     "dirRealPct": 50,
+     "dirAzarPct": 50.031007751937985,
+     "dirPercentil": 46.2,
+     "tDir": 0
+    },
+    "contraste": -0.3955931943607061
+   },
+   "distancia": [
+    "cerca (<22pt): -0.45pt t=-0.80 dir=50%",
+    "medio: -0.42pt t=-0.35 dir=49%",
+    "lejos (≥49pt): +0.65pt t=0.28 dir=48%"
+   ],
+   "veredicto": {
+    "superaListon": false,
+    "superaAzarA": false,
+    "superaAzarB": false,
+    "superaAzarC": false,
+    "pasaCruce": false,
+    "ok": false
+   }
+  }
+ },
+ "ganadores": [],
+ "peaje": {
+  "callP50": 1.52,
+  "callP95": 2.82,
+  "putP50": 1.57,
+  "straddleP50Pts": 28
+ }
+}

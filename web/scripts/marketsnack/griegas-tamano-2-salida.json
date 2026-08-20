@@ -1,0 +1,2780 @@
+{
+ "generado": "2026-08-20T17:34:10.792Z",
+ "parametros": {
+  "RUPTURA": "2026-07-16",
+  "HORIZONTES": [
+   1,
+   5,
+   20
+  ],
+  "MIN_SIMBOLOS_DIA": 15,
+  "PRUEBAS": 36,
+  "LISTON": 3.2
+ },
+ "diasUsables": 82,
+ "filasPanel": 8927,
+ "potencias": {
+  "1": {
+   "nDias": 81,
+   "nEf": 81,
+   "sd": 0.20839131369298983,
+   "detectable": 0.06483285314893017
+  },
+  "5": {
+   "nDias": 77,
+   "nEf": 15,
+   "sd": 0.24003129048151625,
+   "detectable": 0.1735322755793363
+  },
+  "20": {
+   "nDias": 62,
+   "nEf": 3,
+   "sd": 0.24785693226756442,
+   "detectable": null
+  }
+ },
+ "resultados": [
+  {
+   "metrica": "iGamma",
+   "nom": "gamma$ · intensidad (neto/bruto del día)",
+   "objetivo": "mx",
+   "h": 1,
+   "cuenta": true,
+   "n": 8276,
+   "sep": -0.004804911294828133,
+   "t": -0.2493872331295706,
+   "tDias": -0.11906582999621908,
+   "tDiasSolapado": -0.11906582999621908,
+   "nDias": 81,
+   "nEfDias": 81,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+1.5% · −2.9% · +0.4%) — el efecto no es estable en el tiempo",
+    "t = -0.25, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-08",
+     "n": 2758,
+     "sep": 0.015280775432929997,
+     "t": 0.43726242531060794
+    },
+    {
+     "periodo": "2026-06-08→2026-07-15",
+     "n": 2758,
+     "sep": -0.029330230047146952,
+     "t": -1.0180800208469645
+    },
+    {
+     "periodo": "2026-07-15→2026-08-17",
+     "n": 2760,
+     "sep": 0.0036350985197242014,
+     "t": 0.10107037970854153
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009666505558240696
+   }
+  },
+  {
+   "metrica": "iGamma",
+   "nom": "gamma$ · intensidad (neto/bruto del día)",
+   "objetivo": "mx",
+   "h": 5,
+   "cuenta": true,
+   "n": 7734,
+   "sep": -0.006064846966722125,
+   "t": -0.3151796302003953,
+   "tDias": -0.4540425373079867,
+   "tDiasSolapado": -0.942777256542632,
+   "nDias": 77,
+   "nEfDias": 15,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−3.9% · −0.3% · +2.4%) — el efecto no es estable en el tiempo",
+    "t = -0.32, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-04",
+     "n": 2578,
+     "sep": -0.03912512207024051,
+     "t": -1.0492115056833076
+    },
+    {
+     "periodo": "2026-06-04→2026-07-10",
+     "n": 2578,
+     "sep": -0.0031638143317585027,
+     "t": -0.11082211853044083
+    },
+    {
+     "periodo": "2026-07-10→2026-08-11",
+     "n": 2578,
+     "sep": 0.024093131944757956,
+     "t": 0.7158114234600617
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.00982673907421774
+   }
+  },
+  {
+   "metrica": "iGamma",
+   "nom": "gamma$ · intensidad (neto/bruto del día)",
+   "objetivo": "mx",
+   "h": 20,
+   "cuenta": true,
+   "n": 5870,
+   "sep": -0.021085274705694674,
+   "t": -1.0586682838989,
+   "tDias": null,
+   "tDiasSolapado": -0.9548485389563126,
+   "nDias": 62,
+   "nEfDias": 3,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−5.1% · +0.3% · −1.4%) — el efecto no es estable en el tiempo",
+    "t = -1.06, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-05-29",
+     "n": 1956,
+     "sep": -0.0507688285628704,
+     "t": -1.1332456353590505
+    },
+    {
+     "periodo": "2026-05-29→2026-06-24",
+     "n": 1956,
+     "sep": 0.002915887156536477,
+     "t": 0.10502274629451083
+    },
+    {
+     "periodo": "2026-06-24→2026-07-21",
+     "n": 1958,
+     "sep": -0.013772469835263628,
+     "t": -0.48295192294962797
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.010391822827938671
+   }
+  },
+  {
+   "metrica": "zGamma",
+   "nom": "gamma$ · z contra sus 20 días anteriores",
+   "objetivo": "mx",
+   "h": 1,
+   "cuenta": true,
+   "n": 5775,
+   "sep": 0.007961530667454655,
+   "t": 0.35189486609024734,
+   "tDias": 0.6795775902953546,
+   "tDiasSolapado": 0.6795775902953546,
+   "nDias": 70,
+   "nEfDias": 70,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "t = 0.35, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-18",
+     "n": 1925,
+     "sep": 0.001200517952381434,
+     "t": 0.03151076813733542
+    },
+    {
+     "periodo": "2026-06-18→2026-07-21",
+     "n": 1925,
+     "sep": 0.005380770892632847,
+     "t": 0.1536112547072595
+    },
+    {
+     "periodo": "2026-07-21→2026-08-17",
+     "n": 1925,
+     "sep": 0.02365268557761496,
+     "t": 0.5390314203728666
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.011948051948051949
+   }
+  },
+  {
+   "metrica": "zGamma",
+   "nom": "gamma$ · z contra sus 20 días anteriores",
+   "objetivo": "mx",
+   "h": 5,
+   "cuenta": true,
+   "n": 5320,
+   "sep": -0.015971902718552936,
+   "t": -0.72878542361875,
+   "tDias": -0.3294666226288592,
+   "tDiasSolapado": -0.681818084192011,
+   "nDias": 66,
+   "nEfDias": 13,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−6.6% · −1.2% · +3.2%) — el efecto no es estable en el tiempo",
+    "t = -0.73, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-17",
+     "n": 1773,
+     "sep": -0.06573960722479932,
+     "t": -1.625353917506694
+    },
+    {
+     "periodo": "2026-06-17→2026-07-16",
+     "n": 1773,
+     "sep": -0.012152042039412947,
+     "t": -0.42360271009522027
+    },
+    {
+     "periodo": "2026-07-16→2026-08-11",
+     "n": 1774,
+     "sep": 0.0315454203928277,
+     "t": 0.7300658745732268
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.012218045112781954
+   }
+  },
+  {
+   "metrica": "zGamma",
+   "nom": "gamma$ · z contra sus 20 días anteriores",
+   "objetivo": "mx",
+   "h": 20,
+   "cuenta": true,
+   "n": 3741,
+   "sep": -0.01725414046929573,
+   "t": -0.8385206330464497,
+   "tDias": null,
+   "tDiasSolapado": -0.0891182514145657,
+   "nDias": 51,
+   "nEfDias": 2,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "t = -0.84, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-09",
+     "n": 1247,
+     "sep": -0.003573387859211404,
+     "t": -0.0867898492845903
+    },
+    {
+     "periodo": "2026-06-09→2026-07-01",
+     "n": 1247,
+     "sep": -0.04300648558349466,
+     "t": -1.4216221702278153
+    },
+    {
+     "periodo": "2026-07-01→2026-07-21",
+     "n": 1247,
+     "sep": -0.006638418584799001,
+     "t": -0.1907991452573387
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.013365410318096765
+   }
+  },
+  {
+   "metrica": "iVega",
+   "nom": "vega$  · intensidad (neto/bruto del día)",
+   "objetivo": "mx",
+   "h": 1,
+   "cuenta": true,
+   "n": 8276,
+   "sep": 0.012148676329930982,
+   "t": 0.6266925077059344,
+   "tDias": 0.3112843042618428,
+   "tDiasSolapado": 0.3112843042618428,
+   "nDias": 81,
+   "nEfDias": 81,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+3.8% · −1.6% · +1.5%) — el efecto no es estable en el tiempo",
+    "t = 0.63, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-08",
+     "n": 2758,
+     "sep": 0.03783968343560064,
+     "t": 1.0359394584403554
+    },
+    {
+     "periodo": "2026-06-08→2026-07-15",
+     "n": 2758,
+     "sep": -0.01633502098312326,
+     "t": -0.5653421340194195
+    },
+    {
+     "periodo": "2026-07-15→2026-08-17",
+     "n": 2760,
+     "sep": 0.014610517964336982,
+     "t": 0.41864872866028674
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009666505558240696
+   }
+  },
+  {
+   "metrica": "iVega",
+   "nom": "vega$  · intensidad (neto/bruto del día)",
+   "objetivo": "mx",
+   "h": 5,
+   "cuenta": true,
+   "n": 7734,
+   "sep": -0.019509380619979387,
+   "t": -1.0452472615289048,
+   "tDias": -0.5002926873351107,
+   "tDiasSolapado": -1.2540934602256915,
+   "nDias": 77,
+   "nEfDias": 15,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−4.6% · −2.3% · +0.7%) — el efecto no es estable en el tiempo",
+    "t = -1.05, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-04",
+     "n": 2578,
+     "sep": -0.04568172624199214,
+     "t": -1.235064943147369
+    },
+    {
+     "periodo": "2026-06-04→2026-07-10",
+     "n": 2578,
+     "sep": -0.023388487506932298,
+     "t": -0.8213301139414689
+    },
+    {
+     "periodo": "2026-07-10→2026-08-11",
+     "n": 2578,
+     "sep": 0.006737440109014331,
+     "t": 0.21694023606999152
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.00982673907421774
+   }
+  },
+  {
+   "metrica": "iVega",
+   "nom": "vega$  · intensidad (neto/bruto del día)",
+   "objetivo": "mx",
+   "h": 20,
+   "cuenta": true,
+   "n": 5870,
+   "sep": -0.01709069214666976,
+   "t": -0.8488657293728508,
+   "tDias": null,
+   "tDiasSolapado": -1.0653121772662772,
+   "nDias": 62,
+   "nEfDias": 3,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−8.0% · +1.8% · +0.4%) — el efecto no es estable en el tiempo",
+    "t = -0.85, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-05-29",
+     "n": 1956,
+     "sep": -0.08022417337699839,
+     "t": -1.7675354996238293
+    },
+    {
+     "periodo": "2026-05-29→2026-06-24",
+     "n": 1956,
+     "sep": 0.017619439175026404,
+     "t": 0.6415571060654276
+    },
+    {
+     "periodo": "2026-06-24→2026-07-21",
+     "n": 1958,
+     "sep": 0.003607144997871249,
+     "t": 0.12486640769812499
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.010391822827938671
+   }
+  },
+  {
+   "metrica": "zVega",
+   "nom": "vega$  · z contra sus 20 días anteriores",
+   "objetivo": "mx",
+   "h": 1,
+   "cuenta": true,
+   "n": 5775,
+   "sep": 0.0045462055123593505,
+   "t": 0.20727571452989849,
+   "tDias": 0.5315862676622939,
+   "tDiasSolapado": 0.5315862676622939,
+   "nDias": 70,
+   "nEfDias": 70,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−5.0% · +0.5% · +6.5%) — el efecto no es estable en el tiempo",
+    "t = 0.21, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-18",
+     "n": 1925,
+     "sep": -0.0504090641113351,
+     "t": -1.316600153858739
+    },
+    {
+     "periodo": "2026-06-18→2026-07-21",
+     "n": 1925,
+     "sep": 0.005098746929226664,
+     "t": 0.14655487401367065
+    },
+    {
+     "periodo": "2026-07-21→2026-08-17",
+     "n": 1925,
+     "sep": 0.06483106317717235,
+     "t": 1.5913116487687224
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.011948051948051949
+   }
+  },
+  {
+   "metrica": "zVega",
+   "nom": "vega$  · z contra sus 20 días anteriores",
+   "objetivo": "mx",
+   "h": 5,
+   "cuenta": true,
+   "n": 5320,
+   "sep": -0.03409692633951403,
+   "t": -1.5681652587414303,
+   "tDias": -0.6173049520668231,
+   "tDiasSolapado": -1.4507229181379255,
+   "nDias": 66,
+   "nEfDias": 13,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−8.7% · −3.0% · +2.0%) — el efecto no es estable en el tiempo",
+    "t = -1.57, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-17",
+     "n": 1773,
+     "sep": -0.08738874827778634,
+     "t": -2.18123350180144
+    },
+    {
+     "periodo": "2026-06-17→2026-07-16",
+     "n": 1773,
+     "sep": -0.029631281799616244,
+     "t": -0.9893381126624594
+    },
+    {
+     "periodo": "2026-07-16→2026-08-11",
+     "n": 1774,
+     "sep": 0.020156064647470384,
+     "t": 0.48129633234264235
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.012218045112781954
+   }
+  },
+  {
+   "metrica": "zVega",
+   "nom": "vega$  · z contra sus 20 días anteriores",
+   "objetivo": "mx",
+   "h": 20,
+   "cuenta": true,
+   "n": 3741,
+   "sep": -0.03435947962481904,
+   "t": -1.677480368244481,
+   "tDias": null,
+   "tDiasSolapado": -0.6973313369933057,
+   "nDias": 51,
+   "nEfDias": 2,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "t = -1.68, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-09",
+     "n": 1247,
+     "sep": -0.022005187934818246,
+     "t": -0.5449292247383462
+    },
+    {
+     "periodo": "2026-06-09→2026-07-01",
+     "n": 1247,
+     "sep": -0.05874251966642768,
+     "t": -1.9127726298332774
+    },
+    {
+     "periodo": "2026-07-01→2026-07-21",
+     "n": 1247,
+     "sep": -0.015863270085875188,
+     "t": -0.4528740602551987
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.013365410318096765
+   }
+  },
+  {
+   "metrica": "ivRel",
+   "nom": "IV pagada − IV vendida (puntos de vol)",
+   "objetivo": "mx",
+   "h": 1,
+   "cuenta": true,
+   "n": 8141,
+   "sep": 0.023120544378076757,
+   "t": 1.1849498516598664,
+   "tDias": 0.6846060184809044,
+   "tDiasSolapado": 0.6846060184809044,
+   "nDias": 80,
+   "nEfDias": 80,
+   "esperado": 1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−1.3% · +1.0% · +7.4%) — el efecto no es estable en el tiempo",
+    "t = 1.18, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-08",
+     "n": 2713,
+     "sep": -0.013072460181793418,
+     "t": -0.35978275380812647
+    },
+    {
+     "periodo": "2026-06-08→2026-07-15",
+     "n": 2713,
+     "sep": 0.010450891935989491,
+     "t": 0.36519551208787776
+    },
+    {
+     "periodo": "2026-07-15→2026-08-17",
+     "n": 2715,
+     "sep": 0.07372110691247129,
+     "t": 2.055722541965866
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.00982680260410269
+   }
+  },
+  {
+   "metrica": "ivRel",
+   "nom": "IV pagada − IV vendida (puntos de vol)",
+   "objetivo": "mx",
+   "h": 5,
+   "cuenta": true,
+   "n": 7607,
+   "sep": -0.011536060999845405,
+   "t": -0.6086090380768987,
+   "tDias": -0.6870241417947561,
+   "tDiasSolapado": -0.84985053161993,
+   "nDias": 76,
+   "nEfDias": 15,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−4.3% · +0.5% · −0.6%) — el efecto no es estable en el tiempo",
+    "t = -0.61, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-04",
+     "n": 2535,
+     "sep": -0.04297502536486976,
+     "t": -1.152008100510198
+    },
+    {
+     "periodo": "2026-06-04→2026-07-10",
+     "n": 2535,
+     "sep": 0.004732044931132592,
+     "t": 0.16777830162095425
+    },
+    {
+     "periodo": "2026-07-10→2026-08-11",
+     "n": 2537,
+     "sep": -0.0057683956869577085,
+     "t": -0.17798253323762803
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009990797949257262
+   }
+  },
+  {
+   "metrica": "ivRel",
+   "nom": "IV pagada − IV vendida (puntos de vol)",
+   "objetivo": "mx",
+   "h": 20,
+   "cuenta": true,
+   "n": 5764,
+   "sep": 0.039652751437611676,
+   "t": 1.9800387489345619,
+   "tDias": null,
+   "tDiasSolapado": 1.802456875234973,
+   "nDias": 61,
+   "nEfDias": 3,
+   "esperado": 1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "t = 1.98, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-05-29",
+     "n": 1921,
+     "sep": 0.07627616499645279,
+     "t": 1.6933231903405028
+    },
+    {
+     "periodo": "2026-05-29→2026-06-24",
+     "n": 1921,
+     "sep": 0.005434299910031033,
+     "t": 0.20148691792366277
+    },
+    {
+     "periodo": "2026-06-24→2026-07-21",
+     "n": 1922,
+     "sep": 0.03804500835510149,
+     "t": 1.3000679321080681
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.01058292852185982
+   }
+  },
+  {
+   "metrica": "zIvRel",
+   "nom": "IV pagada−vendida · z de sus 20 días",
+   "objetivo": "mx",
+   "h": 1,
+   "cuenta": true,
+   "n": 5693,
+   "sep": 0.01124167888071037,
+   "t": 0.5073571820785685,
+   "tDias": 0.34982281104259333,
+   "tDiasSolapado": 0.34982281104259333,
+   "nDias": 70,
+   "nEfDias": 70,
+   "esperado": 1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−4.0% · +3.9% · +3.2%) — el efecto no es estable en el tiempo",
+    "t = 0.51, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-18",
+     "n": 1897,
+     "sep": -0.039922704513812385,
+     "t": -1.0382038895715962
+    },
+    {
+     "periodo": "2026-06-18→2026-07-21",
+     "n": 1897,
+     "sep": 0.03872971792316085,
+     "t": 1.1185030675697298
+    },
+    {
+     "periodo": "2026-07-21→2026-08-17",
+     "n": 1899,
+     "sep": 0.03158983742536059,
+     "t": 0.7581241792156387
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.012120147549622344
+   }
+  },
+  {
+   "metrica": "zIvRel",
+   "nom": "IV pagada−vendida · z de sus 20 días",
+   "objetivo": "mx",
+   "h": 5,
+   "cuenta": true,
+   "n": 5244,
+   "sep": 0.026911406017793134,
+   "t": 1.2511925423021502,
+   "tDias": 0.5140348243531631,
+   "tDiasSolapado": 1.1051468519257213,
+   "nDias": 66,
+   "nEfDias": 13,
+   "esperado": 1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "t = 1.25, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-17",
+     "n": 1748,
+     "sep": 0.01990482682032824,
+     "t": 0.5020840050623797
+    },
+    {
+     "periodo": "2026-06-17→2026-07-16",
+     "n": 1748,
+     "sep": 0.022044928744469575,
+     "t": 0.7424082560832665
+    },
+    {
+     "periodo": "2026-07-16→2026-08-11",
+     "n": 1748,
+     "sep": 0.04199998758470593,
+     "t": 1.013801015308797
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.012395118230358505
+   }
+  },
+  {
+   "metrica": "zIvRel",
+   "nom": "IV pagada−vendida · z de sus 20 días",
+   "objetivo": "mx",
+   "h": 20,
+   "cuenta": true,
+   "n": 3685,
+   "sep": 0.0026807752438561053,
+   "t": 0.12824283005197498,
+   "tDias": null,
+   "tDiasSolapado": 0.31737712828824416,
+   "nDias": 51,
+   "nEfDias": 2,
+   "esperado": 1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+1.2% · +0.5% · −0.7%) — el efecto no es estable en el tiempo",
+    "t = 0.13, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-09",
+     "n": 1228,
+     "sep": 0.012380521560843936,
+     "t": 0.2987934804189819
+    },
+    {
+     "periodo": "2026-06-09→2026-07-01",
+     "n": 1228,
+     "sep": 0.005265633669798049,
+     "t": 0.167174015959811
+    },
+    {
+     "periodo": "2026-07-01→2026-07-21",
+     "n": 1229,
+     "sep": -0.007308063403292051,
+     "t": -0.2075830567293532
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.013568521031207599
+   }
+  },
+  {
+   "metrica": "iGamma",
+   "nom": "gamma$ · intensidad (neto/bruto del día)",
+   "objetivo": "ax",
+   "h": 1,
+   "cuenta": true,
+   "n": 8770,
+   "sep": -0.07939590875589203,
+   "t": -0.9053747153377881,
+   "tDias": -1.0193906656670189,
+   "tDiasSolapado": -1.0193906656670189,
+   "nDias": 81,
+   "nEfDias": 81,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−12.0% · −16.9% · +3.5%) — el efecto no es estable en el tiempo",
+    "t = -0.91, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-05",
+     "n": 2923,
+     "sep": -0.12025092317406758,
+     "t": -0.7682960439775474
+    },
+    {
+     "periodo": "2026-06-05→2026-07-14",
+     "n": 2923,
+     "sep": -0.16931570551578737,
+     "t": -1.1572234042792895
+    },
+    {
+     "periodo": "2026-07-14→2026-08-17",
+     "n": 2924,
+     "sep": 0.03455614327815204,
+     "t": 0.225771978684271
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009122006841505131
+   }
+  },
+  {
+   "metrica": "iGamma",
+   "nom": "gamma$ · intensidad (neto/bruto del día)",
+   "objetivo": "ax",
+   "h": 5,
+   "cuenta": true,
+   "n": 8156,
+   "sep": -0.018677386599319445,
+   "t": -0.10157071370190421,
+   "tDias": -0.3312341615161172,
+   "tDiasSolapado": -0.7798511127318678,
+   "nDias": 77,
+   "nEfDias": 15,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−42.3% · −32.0% · +61.2%) — el efecto no es estable en el tiempo",
+    "t = -0.10, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-04",
+     "n": 2718,
+     "sep": -0.42302277058420074,
+     "t": -1.2321502977516816
+    },
+    {
+     "periodo": "2026-06-04→2026-07-09",
+     "n": 2718,
+     "sep": -0.31965479993793355,
+     "t": -1.0963146786240714
+    },
+    {
+     "periodo": "2026-07-09→2026-08-11",
+     "n": 2720,
+     "sep": 0.6118160316947755,
+     "t": 1.9333667213506354
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009318293281020108
+   }
+  },
+  {
+   "metrica": "iGamma",
+   "nom": "gamma$ · intensidad (neto/bruto del día)",
+   "objetivo": "ax",
+   "h": 20,
+   "cuenta": true,
+   "n": 6164,
+   "sep": -0.809144148832768,
+   "t": -2.141760582817624,
+   "tDias": null,
+   "tDiasSolapado": -2.0941449042670626,
+   "nDias": 62,
+   "nEfDias": 3,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "t = -2.14, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-05-28",
+     "n": 2054,
+     "sep": -0.8300847247279306,
+     "t": -1.003651379306676
+    },
+    {
+     "periodo": "2026-05-28→2026-06-24",
+     "n": 2054,
+     "sep": -0.8764228906879575,
+     "t": -1.543027313388735
+    },
+    {
+     "periodo": "2026-06-24→2026-07-21",
+     "n": 2056,
+     "sep": -0.7091857865283958,
+     "t": -1.3405461422280895
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009896171317326412
+   }
+  },
+  {
+   "metrica": "zGamma",
+   "nom": "gamma$ · z contra sus 20 días anteriores",
+   "objetivo": "ax",
+   "h": 1,
+   "cuenta": true,
+   "n": 6063,
+   "sep": 0.029900336323821983,
+   "t": 0.27929660722804817,
+   "tDias": 0.2363074973929881,
+   "tDiasSolapado": 0.2363074973929881,
+   "nDias": 70,
+   "nEfDias": 70,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−2.1% · +6.8% · +4.9%) — el efecto no es estable en el tiempo",
+    "t = 0.28, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-18",
+     "n": 2021,
+     "sep": -0.021049570385405458,
+     "t": -0.11576322672629895
+    },
+    {
+     "periodo": "2026-06-18→2026-07-21",
+     "n": 2021,
+     "sep": 0.0675924188843603,
+     "t": 0.37636428232682745
+    },
+    {
+     "periodo": "2026-07-21→2026-08-17",
+     "n": 2021,
+     "sep": 0.04885812331932465,
+     "t": 0.25042034990841094
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.011380504700643246
+   }
+  },
+  {
+   "metrica": "zGamma",
+   "nom": "gamma$ · z contra sus 20 días anteriores",
+   "objetivo": "ax",
+   "h": 5,
+   "cuenta": true,
+   "n": 5556,
+   "sep": -0.18157388241374953,
+   "t": -0.848884992796454,
+   "tDias": -0.5834940690289923,
+   "tDiasSolapado": -1.2622121053050939,
+   "nDias": 66,
+   "nEfDias": 13,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−73.0% · +8.3% · +4.5%) — el efecto no es estable en el tiempo",
+    "t = -0.85, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-17",
+     "n": 1852,
+     "sep": -0.7302433920279984,
+     "t": -1.9291208728139333
+    },
+    {
+     "periodo": "2026-06-17→2026-07-16",
+     "n": 1852,
+     "sep": 0.08342083440763318,
+     "t": 0.2546995666651356
+    },
+    {
+     "periodo": "2026-07-16→2026-08-11",
+     "n": 1852,
+     "sep": 0.04545748532017163,
+     "t": 0.11338709283149417
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.01169906407487401
+   }
+  },
+  {
+   "metrica": "zGamma",
+   "nom": "gamma$ · z contra sus 20 días anteriores",
+   "objetivo": "ax",
+   "h": 20,
+   "cuenta": true,
+   "n": 3885,
+   "sep": -0.48524007556399196,
+   "t": -1.1796438789010106,
+   "tDias": null,
+   "tDiasSolapado": -0.2266342535084604,
+   "nDias": 51,
+   "nEfDias": 2,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−2.4% · −146.7% · +13.4%) — el efecto no es estable en el tiempo",
+    "t = -1.18, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-09",
+     "n": 1295,
+     "sep": -0.023819911336387833,
+     "t": -0.03094727192543266
+    },
+    {
+     "periodo": "2026-06-09→2026-06-30",
+     "n": 1295,
+     "sep": -1.4670054256391443,
+     "t": -1.9248336515798452
+    },
+    {
+     "periodo": "2026-06-30→2026-07-21",
+     "n": 1295,
+     "sep": 0.13408510519755956,
+     "t": 0.22973517440780541
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.01287001287001287
+   }
+  },
+  {
+   "metrica": "iVega",
+   "nom": "vega$  · intensidad (neto/bruto del día)",
+   "objetivo": "ax",
+   "h": 1,
+   "cuenta": true,
+   "n": 8770,
+   "sep": 0.022632411375102506,
+   "t": 0.2560615232570125,
+   "tDias": -0.011318663142957723,
+   "tDiasSolapado": -0.011318663142957723,
+   "nDias": 81,
+   "nEfDias": 81,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−7.7% · +1.3% · +12.2%) — el efecto no es estable en el tiempo",
+    "t = 0.26, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-05",
+     "n": 2923,
+     "sep": -0.07686014426993722,
+     "t": -0.48288671804219613
+    },
+    {
+     "periodo": "2026-06-05→2026-07-14",
+     "n": 2923,
+     "sep": 0.0131215845909122,
+     "t": 0.08839084829417826
+    },
+    {
+     "periodo": "2026-07-14→2026-08-17",
+     "n": 2924,
+     "sep": 0.12161468902031594,
+     "t": 0.7975955911116172
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009122006841505131
+   }
+  },
+  {
+   "metrica": "iVega",
+   "nom": "vega$  · intensidad (neto/bruto del día)",
+   "objetivo": "ax",
+   "h": 5,
+   "cuenta": true,
+   "n": 8156,
+   "sep": -0.07411655499997198,
+   "t": -0.4065897688486801,
+   "tDias": -0.31708075774904965,
+   "tDiasSolapado": -0.7316923818346331,
+   "nDias": 77,
+   "nEfDias": 15,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−49.8% · −30.8% · +63.8%) — el efecto no es estable en el tiempo",
+    "t = -0.41, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-04",
+     "n": 2718,
+     "sep": -0.4978207825307879,
+     "t": -1.4673734088626855
+    },
+    {
+     "periodo": "2026-06-04→2026-07-09",
+     "n": 2718,
+     "sep": -0.30834823944590833,
+     "t": -1.0401469569951345
+    },
+    {
+     "periodo": "2026-07-09→2026-08-11",
+     "n": 2720,
+     "sep": 0.6382048095819903,
+     "t": 2.064690552365369
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009318293281020108
+   }
+  },
+  {
+   "metrica": "iVega",
+   "nom": "vega$  · intensidad (neto/bruto del día)",
+   "objetivo": "ax",
+   "h": 20,
+   "cuenta": true,
+   "n": 6164,
+   "sep": -0.5651039980460372,
+   "t": -1.497491164029464,
+   "tDias": null,
+   "tDiasSolapado": -1.801472346027051,
+   "nDias": 62,
+   "nEfDias": 3,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−149.6% · −69.4% · +58.0%) — el efecto no es estable en el tiempo",
+    "t = -1.50, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-05-28",
+     "n": 2054,
+     "sep": -1.4960906264286256,
+     "t": -1.8217828420629703
+    },
+    {
+     "periodo": "2026-05-28→2026-06-24",
+     "n": 2054,
+     "sep": -0.6943333585478111,
+     "t": -1.2238139103151147
+    },
+    {
+     "periodo": "2026-06-24→2026-07-21",
+     "n": 2056,
+     "sep": 0.5795650019372229,
+     "t": 1.0866761075896363
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009896171317326412
+   }
+  },
+  {
+   "metrica": "zVega",
+   "nom": "vega$  · z contra sus 20 días anteriores",
+   "objetivo": "ax",
+   "h": 1,
+   "cuenta": true,
+   "n": 6063,
+   "sep": 0.020965647503004545,
+   "t": 0.19500009694737339,
+   "tDias": 0.23494976078516835,
+   "tDiasSolapado": 0.23494976078516835,
+   "nDias": 70,
+   "nEfDias": 70,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−7.1% · +13.8% · +4.7%) — el efecto no es estable en el tiempo",
+    "t = 0.20, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-18",
+     "n": 2021,
+     "sep": -0.07132339680627653,
+     "t": -0.3926269056478768
+    },
+    {
+     "periodo": "2026-06-18→2026-07-21",
+     "n": 2021,
+     "sep": 0.13776272266463424,
+     "t": 0.7412049606503274
+    },
+    {
+     "periodo": "2026-07-21→2026-08-17",
+     "n": 2021,
+     "sep": 0.047011481592824825,
+     "t": 0.24411739310949443
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.011380504700643246
+   }
+  },
+  {
+   "metrica": "zVega",
+   "nom": "vega$  · z contra sus 20 días anteriores",
+   "objetivo": "ax",
+   "h": 5,
+   "cuenta": true,
+   "n": 5556,
+   "sep": -0.28389848586441474,
+   "t": -1.3155902774733892,
+   "tDias": -0.5926845140716435,
+   "tDiasSolapado": -1.6847208105025946,
+   "nDias": 66,
+   "nEfDias": 13,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−66.9% · −24.5% · +7.0%) — el efecto no es estable en el tiempo",
+    "t = -1.32, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-17",
+     "n": 1852,
+     "sep": -0.6690091844845314,
+     "t": -1.7865625231826243
+    },
+    {
+     "periodo": "2026-06-17→2026-07-16",
+     "n": 1852,
+     "sep": -0.24534377133278684,
+     "t": -0.7214411209189594
+    },
+    {
+     "periodo": "2026-07-16→2026-08-11",
+     "n": 1852,
+     "sep": 0.07040652106158396,
+     "t": 0.1747362035717057
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.01169906407487401
+   }
+  },
+  {
+   "metrica": "zVega",
+   "nom": "vega$  · z contra sus 20 días anteriores",
+   "objetivo": "ax",
+   "h": 20,
+   "cuenta": true,
+   "n": 3885,
+   "sep": -0.782807248512449,
+   "t": -1.901146080264269,
+   "tDias": null,
+   "tDiasSolapado": -1.1892409861488933,
+   "nDias": 51,
+   "nEfDias": 2,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−22.8% · −237.0% · +46.5%) — el efecto no es estable en el tiempo",
+    "t = -1.90, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-09",
+     "n": 1295,
+     "sep": -0.22765966558999937,
+     "t": -0.3027132381068302
+    },
+    {
+     "periodo": "2026-06-09→2026-06-30",
+     "n": 1295,
+     "sep": -2.3704432590127986,
+     "t": -3.0618637560617863
+    },
+    {
+     "periodo": "2026-06-30→2026-07-21",
+     "n": 1295,
+     "sep": 0.46484645732689034,
+     "t": 0.7702826809483858
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.01287001287001287
+   }
+  },
+  {
+   "metrica": "ivRel",
+   "nom": "IV pagada − IV vendida (puntos de vol)",
+   "objetivo": "ax",
+   "h": 1,
+   "cuenta": true,
+   "n": 8627,
+   "sep": -0.36736003038846965,
+   "t": -4.00634014169267,
+   "tDias": -3.288126993941624,
+   "tDiasSolapado": -3.288126993941624,
+   "nDias": 81,
+   "nEfDias": 81,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": true,
+   "pasa": false,
+   "motivos": [],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-05",
+     "n": 2875,
+     "sep": -0.402864168267675,
+     "t": -2.469740516854229
+    },
+    {
+     "periodo": "2026-06-05→2026-07-14",
+     "n": 2875,
+     "sep": -0.6044442046914249,
+     "t": -3.948307779429608
+    },
+    {
+     "periodo": "2026-07-14→2026-08-17",
+     "n": 2877,
+     "sep": -0.09840178460564414,
+     "t": -0.6152161625971625
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009273212008809551
+   }
+  },
+  {
+   "metrica": "ivRel",
+   "nom": "IV pagada − IV vendida (puntos de vol)",
+   "objetivo": "ax",
+   "h": 5,
+   "cuenta": true,
+   "n": 8021,
+   "sep": -0.9501613773978157,
+   "t": -5.0558182330184405,
+   "tDias": -1.8007396987338278,
+   "tDiasSolapado": -3.6422381590979813,
+   "nDias": 77,
+   "nEfDias": 15,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": true,
+   "pasa": false,
+   "motivos": [],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-04",
+     "n": 2673,
+     "sep": -1.179139164663732,
+     "t": -3.3894373125848802
+    },
+    {
+     "periodo": "2026-06-04→2026-07-09",
+     "n": 2673,
+     "sep": -1.1279865038293306,
+     "t": -3.720369863936322
+    },
+    {
+     "periodo": "2026-07-09→2026-08-11",
+     "n": 2675,
+     "sep": -0.645462045664117,
+     "t": -1.997403756333025
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009475127789552425
+   }
+  },
+  {
+   "metrica": "ivRel",
+   "nom": "IV pagada − IV vendida (puntos de vol)",
+   "objetivo": "ax",
+   "h": 20,
+   "cuenta": true,
+   "n": 6052,
+   "sep": -0.7807230411636541,
+   "t": -2.0112632783283257,
+   "tDias": null,
+   "tDiasSolapado": -1.8048717642655416,
+   "nDias": 62,
+   "nEfDias": 3,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+27.8% · −138.4% · −117.2%) — el efecto no es estable en el tiempo",
+    "t = -2.01, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-05-28",
+     "n": 2017,
+     "sep": 0.2777126210749954,
+     "t": 0.3317361551157435
+    },
+    {
+     "periodo": "2026-05-28→2026-06-24",
+     "n": 2017,
+     "sep": -1.3839111145752216,
+     "t": -2.3790082868021267
+    },
+    {
+     "periodo": "2026-06-24→2026-07-21",
+     "n": 2018,
+     "sep": -1.1722692850646979,
+     "t": -2.0730961834205974
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.010079312623925975
+   }
+  },
+  {
+   "metrica": "zIvRel",
+   "nom": "IV pagada−vendida · z de sus 20 días",
+   "objetivo": "ax",
+   "h": 1,
+   "cuenta": true,
+   "n": 5978,
+   "sep": -0.07631411794178523,
+   "t": -0.7125433454472438,
+   "tDias": -0.6025233946998966,
+   "tDiasSolapado": -0.6025233946998966,
+   "nDias": 70,
+   "nEfDias": 70,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−15.9% · +2.2% · −8.4%) — el efecto no es estable en el tiempo",
+    "t = -0.71, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-18",
+     "n": 1992,
+     "sep": -0.15903556489884038,
+     "t": -0.8555260658027698
+    },
+    {
+     "periodo": "2026-06-18→2026-07-21",
+     "n": 1992,
+     "sep": 0.021508861118478106,
+     "t": 0.11591006032046709
+    },
+    {
+     "periodo": "2026-07-21→2026-08-17",
+     "n": 1994,
+     "sep": -0.08400101674005302,
+     "t": -0.4541459664994619
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.011542321846771496
+   }
+  },
+  {
+   "metrica": "zIvRel",
+   "nom": "IV pagada−vendida · z de sus 20 días",
+   "objetivo": "ax",
+   "h": 5,
+   "cuenta": true,
+   "n": 5477,
+   "sep": -0.04068752434781342,
+   "t": -0.1896871165048849,
+   "tDias": 0.08366938110187475,
+   "tDiasSolapado": 0.13894768946182456,
+   "nDias": 66,
+   "nEfDias": 13,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+13.1% · −41.8% · +21.6%) — el efecto no es estable en el tiempo",
+    "t = -0.19, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-17",
+     "n": 1825,
+     "sep": 0.13145353675719712,
+     "t": 0.3619278639055447
+    },
+    {
+     "periodo": "2026-06-17→2026-07-16",
+     "n": 1825,
+     "sep": -0.4181132896608494,
+     "t": -1.2520259377664686
+    },
+    {
+     "periodo": "2026-07-16→2026-08-11",
+     "n": 1827,
+     "sep": 0.21567236563566117,
+     "t": 0.5224764459257578
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.011867810845353296
+   }
+  },
+  {
+   "metrica": "zIvRel",
+   "nom": "IV pagada−vendida · z de sus 20 días",
+   "objetivo": "ax",
+   "h": 20,
+   "cuenta": true,
+   "n": 3828,
+   "sep": -0.39914365197312396,
+   "t": -0.9478692699092108,
+   "tDias": null,
+   "tDiasSolapado": -1.0031849002040594,
+   "nDias": 51,
+   "nEfDias": 2,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−56.5% · −102.1% · +36.5%) — el efecto no es estable en el tiempo",
+    "t = -0.95, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-09",
+     "n": 1276,
+     "sep": -0.5646761853729064,
+     "t": -0.7369071482196459
+    },
+    {
+     "periodo": "2026-06-09→2026-06-30",
+     "n": 1276,
+     "sep": -1.0214462484352647,
+     "t": -1.3043930751999016
+    },
+    {
+     "periodo": "2026-06-30→2026-07-21",
+     "n": 1276,
+     "sep": 0.3647447948346012,
+     "t": 0.5812251242752418
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.013061650992685475
+   }
+  },
+  {
+   "metrica": "iGamma",
+   "nom": "gamma$ · intensidad (neto/bruto del día)",
+   "objetivo": "x",
+   "h": 1,
+   "cuenta": false,
+   "n": 8770,
+   "sep": -0.16512583120122315,
+   "t": -1.478529074494797,
+   "tDias": -1.4369202355216775,
+   "tDiasSolapado": -1.4369202355216775,
+   "nDias": 81,
+   "nEfDias": 81,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−21.7% · −30.6% · +2.9%) — el efecto no es estable en el tiempo",
+    "t = -1.48, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-05",
+     "n": 2923,
+     "sep": -0.2166985572520964,
+     "t": -1.0836122333718265
+    },
+    {
+     "periodo": "2026-06-05→2026-07-14",
+     "n": 2923,
+     "sep": -0.3064666214780113,
+     "t": -1.627352942386752
+    },
+    {
+     "periodo": "2026-07-14→2026-08-17",
+     "n": 2924,
+     "sep": 0.028990805945078038,
+     "t": 0.15057813333159828
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009122006841505131
+   }
+  },
+  {
+   "metrica": "iGamma",
+   "nom": "gamma$ · intensidad (neto/bruto del día)",
+   "objetivo": "x",
+   "h": 5,
+   "cuenta": false,
+   "n": 8156,
+   "sep": 0.1637493477155263,
+   "t": 0.683572444460312,
+   "tDias": -0.2868686149458064,
+   "tDiasSolapado": 0.013063847999855398,
+   "nDias": 77,
+   "nEfDias": 15,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−61.2% · +7.8% · +103.4%) — el efecto no es estable en el tiempo",
+    "t = 0.68, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-04",
+     "n": 2718,
+     "sep": -0.6122484902716353,
+     "t": -1.378823654552057
+    },
+    {
+     "periodo": "2026-06-04→2026-07-09",
+     "n": 2718,
+     "sep": 0.07769266852002459,
+     "t": 0.19436768823183623
+    },
+    {
+     "periodo": "2026-07-09→2026-08-11",
+     "n": 2720,
+     "sep": 1.0337244778100931,
+     "t": 2.6038619808095094
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009318293281020108
+   }
+  },
+  {
+   "metrica": "iGamma",
+   "nom": "gamma$ · intensidad (neto/bruto del día)",
+   "objetivo": "x",
+   "h": 20,
+   "cuenta": false,
+   "n": 6164,
+   "sep": 0.37594013566316464,
+   "t": 0.744938794214366,
+   "tDias": null,
+   "tDiasSolapado": 0.14800078187580573,
+   "nDias": 62,
+   "nEfDias": 3,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−176.2% · +145.6% · +144.8%) — el efecto no es estable en el tiempo",
+    "t = 0.74, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-05-28",
+     "n": 2054,
+     "sep": -1.7615227008416812,
+     "t": -1.6896334201436594
+    },
+    {
+     "periodo": "2026-05-28→2026-06-24",
+     "n": 2054,
+     "sep": 1.455894316851209,
+     "t": 1.7804065714308728
+    },
+    {
+     "periodo": "2026-06-24→2026-07-21",
+     "n": 2056,
+     "sep": 1.4480986070722852,
+     "t": 1.9761183443618913
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009896171317326412
+   }
+  },
+  {
+   "metrica": "zGamma",
+   "nom": "gamma$ · z contra sus 20 días anteriores",
+   "objetivo": "x",
+   "h": 1,
+   "cuenta": false,
+   "n": 6063,
+   "sep": -0.06798314005817654,
+   "t": -0.5051378761505154,
+   "tDias": -0.3671531839882746,
+   "tDiasSolapado": -0.3671531839882746,
+   "nDias": 70,
+   "nEfDias": 70,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−35.9% · −11.0% · +28.9%) — el efecto no es estable en el tiempo",
+    "t = -0.51, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-18",
+     "n": 2021,
+     "sep": -0.3587875234951826,
+     "t": -1.552267370051857
+    },
+    {
+     "periodo": "2026-06-18→2026-07-21",
+     "n": 2021,
+     "sep": -0.1103464666219739,
+     "t": -0.4868832759817758
+    },
+    {
+     "periodo": "2026-07-21→2026-08-17",
+     "n": 2021,
+     "sep": 0.2889591290976471,
+     "t": 1.1943857436799183
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.011380504700643246
+   }
+  },
+  {
+   "metrica": "zGamma",
+   "nom": "gamma$ · z contra sus 20 días anteriores",
+   "objetivo": "x",
+   "h": 5,
+   "cuenta": false,
+   "n": 5556,
+   "sep": 0.6448617870956461,
+   "t": 2.3111555145987253,
+   "tDias": 0.7200248385309803,
+   "tDiasSolapado": 1.3958426164319848,
+   "nDias": 66,
+   "nEfDias": 13,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−5.3% · +86.3% · +111.4%) — el efecto no es estable en el tiempo",
+    "t = 2.31, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-17",
+     "n": 1852,
+     "sep": -0.052718405029424126,
+     "t": -0.10658426400030623
+    },
+    {
+     "periodo": "2026-06-17→2026-07-16",
+     "n": 1852,
+     "sep": 0.8634677116989349,
+     "t": 1.8819501857148764
+    },
+    {
+     "periodo": "2026-07-16→2026-08-11",
+     "n": 1852,
+     "sep": 1.1135335448501844,
+     "t": 2.2608715804156017
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.01169906407487401
+   }
+  },
+  {
+   "metrica": "zGamma",
+   "nom": "gamma$ · z contra sus 20 días anteriores",
+   "objetivo": "x",
+   "h": 20,
+   "cuenta": false,
+   "n": 3885,
+   "sep": 1.2144307265255723,
+   "t": 2.0867116172457445,
+   "tDias": null,
+   "tDiasSolapado": 1.7987555120063003,
+   "nDias": 51,
+   "nEfDias": 2,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+114.8% · +229.2% · −1.9%) — el efecto no es estable en el tiempo",
+    "t = 2.09, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-09",
+     "n": 1295,
+     "sep": 1.1475804606899196,
+     "t": 1.0022029569475104
+    },
+    {
+     "periodo": "2026-06-09→2026-06-30",
+     "n": 1295,
+     "sep": 2.291847540324627,
+     "t": 2.245461336457968
+    },
+    {
+     "periodo": "2026-06-30→2026-07-21",
+     "n": 1295,
+     "sep": -0.01850673723143932,
+     "t": -0.022360106319246276
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.01287001287001287
+   }
+  },
+  {
+   "metrica": "iVega",
+   "nom": "vega$  · intensidad (neto/bruto del día)",
+   "objetivo": "x",
+   "h": 1,
+   "cuenta": false,
+   "n": 8770,
+   "sep": -0.16341879695098022,
+   "t": -1.4491524396355018,
+   "tDias": -1.3725496810867255,
+   "tDiasSolapado": -1.3725496810867255,
+   "nDias": 81,
+   "nEfDias": 81,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "t = -1.45, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-05",
+     "n": 2923,
+     "sep": -0.18040914242312767,
+     "t": -0.8914603516533419
+    },
+    {
+     "periodo": "2026-06-05→2026-07-14",
+     "n": 2923,
+     "sep": -0.21568869701242793,
+     "t": -1.129263659980018
+    },
+    {
+     "periodo": "2026-07-14→2026-08-17",
+     "n": 2924,
+     "sep": -0.08527804913723444,
+     "t": -0.44035285771679455
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009122006841505131
+   }
+  },
+  {
+   "metrica": "iVega",
+   "nom": "vega$  · intensidad (neto/bruto del día)",
+   "objetivo": "x",
+   "h": 5,
+   "cuenta": false,
+   "n": 8156,
+   "sep": 0.23843867832010182,
+   "t": 0.997926350629234,
+   "tDias": -0.23471389918226385,
+   "tDiasSolapado": -0.004598202156039814,
+   "nDias": 77,
+   "nEfDias": 15,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−25.2% · −27.5% · +120.5%) — el efecto no es estable en el tiempo",
+    "t = 1.00, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-04",
+     "n": 2718,
+     "sep": -0.2519560294938644,
+     "t": -0.5710592976453702
+    },
+    {
+     "periodo": "2026-06-04→2026-07-09",
+     "n": 2718,
+     "sep": -0.2751244117038798,
+     "t": -0.6751541427320354
+    },
+    {
+     "periodo": "2026-07-09→2026-08-11",
+     "n": 2720,
+     "sep": 1.2048373842668587,
+     "t": 3.0875146211099054
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009318293281020108
+   }
+  },
+  {
+   "metrica": "iVega",
+   "nom": "vega$  · intensidad (neto/bruto del día)",
+   "objetivo": "x",
+   "h": 20,
+   "cuenta": false,
+   "n": 6164,
+   "sep": -0.0077891493283626795,
+   "t": -0.015489938110495496,
+   "tDias": null,
+   "tDiasSolapado": -0.15903138397602598,
+   "nDias": 62,
+   "nEfDias": 3,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−217.3% · +144.7% · +77.7%) — el efecto no es estable en el tiempo",
+    "t = -0.02, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-05-28",
+     "n": 2054,
+     "sep": -2.1731377402821304,
+     "t": -2.09610949659041
+    },
+    {
+     "periodo": "2026-05-28→2026-06-24",
+     "n": 2054,
+     "sep": 1.4472624568320551,
+     "t": 1.802858260546976
+    },
+    {
+     "periodo": "2026-06-24→2026-07-21",
+     "n": 2056,
+     "sep": 0.776537145253467,
+     "t": 1.0464407243753509
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009896171317326412
+   }
+  },
+  {
+   "metrica": "zVega",
+   "nom": "vega$  · z contra sus 20 días anteriores",
+   "objetivo": "x",
+   "h": 1,
+   "cuenta": false,
+   "n": 6063,
+   "sep": -0.13783683009348438,
+   "t": -1.0192977791033278,
+   "tDias": -0.6526613440647969,
+   "tDiasSolapado": -0.6526613440647969,
+   "nDias": 70,
+   "nEfDias": 70,
+   "esperado": -1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−37.7% · +18.1% · −25.4%) — el efecto no es estable en el tiempo",
+    "t = -1.02, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-18",
+     "n": 2021,
+     "sep": -0.3770028630243259,
+     "t": -1.6414725701754167
+    },
+    {
+     "periodo": "2026-06-18→2026-07-21",
+     "n": 2021,
+     "sep": 0.18057609632584903,
+     "t": 0.7706853741667308
+    },
+    {
+     "periodo": "2026-07-21→2026-08-17",
+     "n": 2021,
+     "sep": -0.2541739638539162,
+     "t": -1.0584949339456504
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.011380504700643246
+   }
+  },
+  {
+   "metrica": "zVega",
+   "nom": "vega$  · z contra sus 20 días anteriores",
+   "objetivo": "x",
+   "h": 5,
+   "cuenta": false,
+   "n": 5556,
+   "sep": 0.5859259854240411,
+   "t": 2.086601066056736,
+   "tDias": 0.599951194188777,
+   "tDiasSolapado": 1.4137321188710807,
+   "nDias": 66,
+   "nEfDias": 13,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−18.6% · +123.8% · +65.4%) — el efecto no es estable en el tiempo",
+    "t = 2.09, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-17",
+     "n": 1852,
+     "sep": -0.18624324742580517,
+     "t": -0.3815602618278707
+    },
+    {
+     "periodo": "2026-06-17→2026-07-16",
+     "n": 1852,
+     "sep": 1.2375837743577236,
+     "t": 2.6253374656014317
+    },
+    {
+     "periodo": "2026-07-16→2026-08-11",
+     "n": 1852,
+     "sep": 0.6538571033368668,
+     "t": 1.3134002472187027
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.01169906407487401
+   }
+  },
+  {
+   "metrica": "zVega",
+   "nom": "vega$  · z contra sus 20 días anteriores",
+   "objetivo": "x",
+   "h": 20,
+   "cuenta": false,
+   "n": 3885,
+   "sep": 1.0942722056371994,
+   "t": 1.8853902701618825,
+   "tDias": null,
+   "tDiasSolapado": 1.3356947489916193,
+   "nDias": 51,
+   "nEfDias": 2,
+   "esperado": -1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (+53.3% · +293.5% · −19.3%) — el efecto no es estable en el tiempo",
+    "t = 1.89, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-09",
+     "n": 1295,
+     "sep": 0.5325128580890832,
+     "t": 0.47598643711843086
+    },
+    {
+     "periodo": "2026-06-09→2026-06-30",
+     "n": 1295,
+     "sep": 2.935423963324004,
+     "t": 2.830895365074472
+    },
+    {
+     "periodo": "2026-06-30→2026-07-21",
+     "n": 1295,
+     "sep": -0.1933541027444435,
+     "t": -0.2296771216686278
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.01287001287001287
+   }
+  },
+  {
+   "metrica": "ivRel",
+   "nom": "IV pagada − IV vendida (puntos de vol)",
+   "objetivo": "x",
+   "h": 1,
+   "cuenta": false,
+   "n": 8627,
+   "sep": -0.11754596571391496,
+   "t": -1.0095966474711406,
+   "tDias": -1.2679000387698365,
+   "tDiasSolapado": -1.2679000387698365,
+   "nDias": 81,
+   "nEfDias": 81,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−44.8% · +20.5% · −11.9%) — el efecto no es estable en el tiempo",
+    "t = -1.01, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-05",
+     "n": 2875,
+     "sep": -0.44778292568268596,
+     "t": -2.169656987420823
+    },
+    {
+     "periodo": "2026-06-05→2026-07-14",
+     "n": 2875,
+     "sep": 0.2047959463965915,
+     "t": 1.037567941715193
+    },
+    {
+     "periodo": "2026-07-14→2026-08-17",
+     "n": 2877,
+     "sep": -0.1188230815347111,
+     "t": -0.5914914808336909
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009273212008809551
+   }
+  },
+  {
+   "metrica": "ivRel",
+   "nom": "IV pagada − IV vendida (puntos de vol)",
+   "objetivo": "x",
+   "h": 5,
+   "cuenta": false,
+   "n": 8021,
+   "sep": -0.1909141034401602,
+   "t": -0.7797796758647503,
+   "tDias": -0.5988255655094783,
+   "tDiasSolapado": -1.127792163073997,
+   "nDias": 77,
+   "nEfDias": 15,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−47.6% · +13.8% · −20.6%) — el efecto no es estable en el tiempo",
+    "t = -0.78, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-06-04",
+     "n": 2673,
+     "sep": -0.475597168618909,
+     "t": -1.0705898471899207
+    },
+    {
+     "periodo": "2026-06-04→2026-07-09",
+     "n": 2673,
+     "sep": 0.1376314437703491,
+     "t": 0.32900901368505864
+    },
+    {
+     "periodo": "2026-07-09→2026-08-11",
+     "n": 2675,
+     "sep": -0.2059620774004612,
+     "t": -0.5045420637115912
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.009475127789552425
+   }
+  },
+  {
+   "metrica": "ivRel",
+   "nom": "IV pagada − IV vendida (puntos de vol)",
+   "objetivo": "x",
+   "h": 20,
+   "cuenta": false,
+   "n": 6052,
+   "sep": 1.5368424257902478,
+   "t": 2.9915392631199653,
+   "tDias": null,
+   "tDiasSolapado": 2.486396388497189,
+   "nDias": 62,
+   "nEfDias": 3,
+   "esperado": 1,
+   "signoOk": true,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "t = 2.99, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-04-22→2026-05-28",
+     "n": 2017,
+     "sep": 0.9679069969294943,
+     "t": 0.9223938223740078
+    },
+    {
+     "periodo": "2026-05-28→2026-06-24",
+     "n": 2017,
+     "sep": 0.9456384174235316,
+     "t": 1.1508483395836249
+    },
+    {
+     "periodo": "2026-06-24→2026-07-21",
+     "n": 2018,
+     "sep": 2.748233483875417,
+     "t": 3.5269812927212536
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "SPY",
+    "pct": 0.010079312623925975
+   }
+  },
+  {
+   "metrica": "zIvRel",
+   "nom": "IV pagada−vendida · z de sus 20 días",
+   "objetivo": "x",
+   "h": 1,
+   "cuenta": false,
+   "n": 5978,
+   "sep": -0.15953483346194264,
+   "t": -1.1904525038124896,
+   "tDias": -1.1865330499473583,
+   "tDiasSolapado": -1.1865330499473583,
+   "nDias": 70,
+   "nEfDias": 70,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−23.8% · +19.7% · −41.0%) — el efecto no es estable en el tiempo",
+    "t = -1.19, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-18",
+     "n": 1992,
+     "sep": -0.238221134886903,
+     "t": -1.0343754422477538
+    },
+    {
+     "periodo": "2026-06-18→2026-07-21",
+     "n": 1992,
+     "sep": 0.1967755327814984,
+     "t": 0.8405063638093858
+    },
+    {
+     "periodo": "2026-07-21→2026-08-17",
+     "n": 1994,
+     "sep": -0.4097663800277345,
+     "t": -1.7637728924899623
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.011542321846771496
+   }
+  },
+  {
+   "metrica": "zIvRel",
+   "nom": "IV pagada−vendida · z de sus 20 días",
+   "objetivo": "x",
+   "h": 5,
+   "cuenta": false,
+   "n": 5477,
+   "sep": -0.3371499682612882,
+   "t": -1.189433332114104,
+   "tDias": -0.6243655387100644,
+   "tDiasSolapado": -1.1237325442910087,
+   "nDias": 66,
+   "nEfDias": 13,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−81.5% · +77.7% · −92.7%) — el efecto no es estable en el tiempo",
+    "t = -1.19, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-17",
+     "n": 1825,
+     "sep": -0.8146469173024306,
+     "t": -1.6908087348512795
+    },
+    {
+     "periodo": "2026-06-17→2026-07-16",
+     "n": 1825,
+     "sep": 0.777227520340712,
+     "t": 1.6349380492064014
+    },
+    {
+     "periodo": "2026-07-16→2026-08-11",
+     "n": 1827,
+     "sep": -0.9272126036396603,
+     "t": -1.8006019380361127
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.011867810845353296
+   }
+  },
+  {
+   "metrica": "zIvRel",
+   "nom": "IV pagada−vendida · z de sus 20 días",
+   "objetivo": "x",
+   "h": 20,
+   "cuenta": false,
+   "n": 3828,
+   "sep": -0.02280453013400785,
+   "t": -0.03824177361394141,
+   "tDias": null,
+   "tDiasSolapado": -0.9633028110794811,
+   "nDias": 51,
+   "nEfDias": 2,
+   "esperado": 1,
+   "signoOk": false,
+   "pasaBarrera": false,
+   "pasa": false,
+   "motivos": [
+    "el signo NO se repite en los tres tercios (−187.1% · +197.3% · −14.7%) — el efecto no es estable en el tiempo",
+    "t = -0.04, por debajo del listón de 3.2 para 36 pruebas"
+   ],
+   "tercios": [
+    {
+     "periodo": "2026-05-06→2026-06-09",
+     "n": 1276,
+     "sep": -1.8707890902674604,
+     "t": -1.6576014259775518
+    },
+    {
+     "periodo": "2026-06-09→2026-06-30",
+     "n": 1276,
+     "sep": 1.972784314048306,
+     "t": 1.830831315718051
+    },
+    {
+     "periodo": "2026-06-30→2026-07-21",
+     "n": 1276,
+     "sep": -0.1474855294976148,
+     "t": -0.16906909809386325
+    }
+   ],
+   "tickerMayor": {
+    "ticker": "NVDA",
+    "pct": 0.013061650992685475
+   }
+  }
+ ],
+ "tramos": [
+  {
+   "metrica": "iGamma",
+   "h": 1,
+   "antes": {
+    "n": 5604,
+    "sep": -0.0082689804549177,
+    "t": -0.3683353129990312
+   },
+   "despues": {
+    "n": 2672,
+    "sep": 0.002300995697751681,
+    "t": 0.06272152006930962
+   },
+   "mismoSigno": false
+  },
+  {
+   "metrica": "iGamma",
+   "h": 5,
+   "antes": {
+    "n": 5567,
+    "sep": -0.022875700968291342,
+    "t": -1.036555955061668
+   },
+   "despues": {
+    "n": 2167,
+    "sep": 0.03793779261202498,
+    "t": 0.9783641260750334
+   },
+   "mismoSigno": false
+  },
+  {
+   "metrica": "iGamma",
+   "h": 20,
+   "antes": {
+    "n": 5425,
+    "sep": -0.021525578126422244,
+    "t": -1.037330417499472
+   },
+   "despues": {
+    "n": 445,
+    "sep": -0.017805333627273438,
+    "t": -0.251377816607681
+   },
+   "mismoSigno": true
+  },
+  {
+   "metrica": "zGamma",
+   "h": 1,
+   "antes": {
+    "n": 3476,
+    "sep": 0.004944715261001438,
+    "t": 0.17858592519684516
+   },
+   "despues": {
+    "n": 2299,
+    "sep": 0.017273342203787383,
+    "t": 0.45059106654578235
+   },
+   "mismoSigno": true
+  },
+  {
+   "metrica": "zGamma",
+   "h": 5,
+   "antes": {
+    "n": 3452,
+    "sep": -0.03913017325873293,
+    "t": -1.5555740256431425
+   },
+   "despues": {
+    "n": 1868,
+    "sep": 0.02749034676663424,
+    "t": 0.6576897916447166
+   },
+   "mismoSigno": false
+  },
+  {
+   "metrica": "zGamma",
+   "h": 20,
+   "antes": {
+    "n": 3358,
+    "sep": -0.01762968182727845,
+    "t": -0.8141764414349552
+   },
+   "despues": {
+    "n": 383,
+    "sep": -0.009475004964948595,
+    "t": -0.1429230064997901
+   },
+   "mismoSigno": true
+  },
+  {
+   "metrica": "iVega",
+   "h": 1,
+   "antes": {
+    "n": 5604,
+    "sep": 0.010328218256259021,
+    "t": 0.44775024751344755
+   },
+   "despues": {
+    "n": 2672,
+    "sep": 0.015429798963525546,
+    "t": 0.4336123921385394
+   },
+   "mismoSigno": true
+  },
+  {
+   "metrica": "iVega",
+   "h": 5,
+   "antes": {
+    "n": 5567,
+    "sep": -0.03887807860950585,
+    "t": -1.7710608910969938
+   },
+   "despues": {
+    "n": 2167,
+    "sep": 0.033910099855032697,
+    "t": 0.95603519696802
+   },
+   "mismoSigno": false
+  },
+  {
+   "metrica": "iVega",
+   "h": 20,
+   "antes": {
+    "n": 5425,
+    "sep": -0.015189421183686118,
+    "t": -0.7222156758418191
+   },
+   "despues": {
+    "n": 445,
+    "sep": -0.040186419586479026,
+    "t": -0.5785156841401371
+   },
+   "mismoSigno": true
+  },
+  {
+   "metrica": "zVega",
+   "h": 1,
+   "antes": {
+    "n": 3476,
+    "sep": -0.0238458402759085,
+    "t": -0.8601325694264104
+   },
+   "despues": {
+    "n": 2299,
+    "sep": 0.0547955552862856,
+    "t": 1.5240140261860453
+   },
+   "mismoSigno": false
+  },
+  {
+   "metrica": "zVega",
+   "h": 5,
+   "antes": {
+    "n": 3452,
+    "sep": -0.05545433138927231,
+    "t": -2.19220322428534
+   },
+   "despues": {
+    "n": 1868,
+    "sep": 0.009782918784762116,
+    "t": 0.24140284669702688
+   },
+   "mismoSigno": false
+  },
+  {
+   "metrica": "zVega",
+   "h": 20,
+   "antes": {
+    "n": 3358,
+    "sep": -0.03823300528824106,
+    "t": -1.771751466695457
+   },
+   "despues": {
+    "n": 383,
+    "sep": 0.002749538957029063,
+    "t": 0.04204638785226792
+   },
+   "mismoSigno": false
+  },
+  {
+   "metrica": "ivRel",
+   "h": 1,
+   "antes": {
+    "n": 5503,
+    "sep": -0.003909448772532274,
+    "t": -0.17043581431514593
+   },
+   "despues": {
+    "n": 2638,
+    "sep": 0.082883271101797,
+    "t": 2.2682514769191355
+   },
+   "mismoSigno": false
+  },
+  {
+   "metrica": "ivRel",
+   "h": 5,
+   "antes": {
+    "n": 5467,
+    "sep": -0.02319900377967545,
+    "t": -1.053921358146124
+   },
+   "despues": {
+    "n": 2140,
+    "sep": 0.008963801226821316,
+    "t": 0.24142905280118257
+   },
+   "mismoSigno": false
+  },
+  {
+   "metrica": "ivRel",
+   "h": 20,
+   "antes": {
+    "n": 5326,
+    "sep": 0.03602638258905285,
+    "t": 1.7225778120740551
+   },
+   "despues": {
+    "n": 438,
+    "sep": 0.08772214520843406,
+    "t": 1.2429179341354237
+   },
+   "mismoSigno": true
+  },
+  {
+   "metrica": "zIvRel",
+   "h": 1,
+   "antes": {
+    "n": 3427,
+    "sep": -0.005358649979393311,
+    "t": -0.19231954788157243
+   },
+   "despues": {
+    "n": 2266,
+    "sep": 0.03971773579478295,
+    "t": 1.0921423241184083
+   },
+   "mismoSigno": false
+  },
+  {
+   "metrica": "zIvRel",
+   "h": 5,
+   "antes": {
+    "n": 3403,
+    "sep": 0.019739508460639134,
+    "t": 0.7865775590217894
+   },
+   "despues": {
+    "n": 1841,
+    "sep": 0.038268063564499466,
+    "t": 0.9547798978565076
+   },
+   "mismoSigno": true
+  },
+  {
+   "metrica": "zIvRel",
+   "h": 20,
+   "antes": {
+    "n": 3309,
+    "sep": 0.003508396879054616,
+    "t": 0.1591726422847312
+   },
+   "despues": {
+    "n": 376,
+    "sep": -0.004503949645250246,
+    "t": -0.06826369343437648
+   },
+   "mismoSigno": false
+  }
+ ]
+}

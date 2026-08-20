@@ -1,0 +1,42 @@
+{
+  "n": 1114,
+  "liston": 3.83,
+  "pruebas": 388,
+  "geometriaPorRiesgo": {
+    "M1": "3× straddle · alas 30",
+    "M2": "3× straddle · alas 30"
+  },
+  "geometriaPorDinero": {
+    "M1": "2.6× straddle · alas 30",
+    "M2": "±25 pts FIJO · alas 50"
+  },
+  "bandaRiesgo": {
+    "M1": [
+      0.9,
+      99
+    ],
+    "M2": [
+      0.9,
+      99
+    ]
+  },
+  "bandaDinero": {
+    "M1": [
+      0.9,
+      1.3
+    ],
+    "M2": [
+      0.8,
+      99
+    ]
+  },
+  "consenso": [
+    0.9,
+    99
+  ],
+  "supervivientesRiesgo": [
+    "riesgo",
+    "dinero"
+  ],
+  "dineroDobles": 0
+}

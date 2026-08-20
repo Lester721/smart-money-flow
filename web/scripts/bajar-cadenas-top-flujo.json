@@ -1,0 +1,62 @@
+{
+ "MU": {
+  "dias": 83,
+  "cierres": 83,
+  "expDia": 15,
+  "kExp": 432
+ },
+ "SNDK": {
+  "dias": 83,
+  "cierres": 83,
+  "expDia": 15,
+  "kExp": 535
+ },
+ "NDX": {
+  "dias": 83,
+  "cierres": 0,
+  "expDia": 12,
+  "kExp": 224
+ },
+ "GOOGL": {
+  "dias": 83,
+  "cierres": 83,
+  "expDia": 19,
+  "kExp": 170
+ },
+ "AMZN": {
+  "dias": 83,
+  "cierres": 83,
+  "expDia": 20,
+  "kExp": 102
+ },
+ "AVGO": {
+  "dias": 83,
+  "cierres": 83,
+  "expDia": 19,
+  "kExp": 138
+ },
+ "NBIS": {
+  "dias": 83,
+  "cierres": 83,
+  "expDia": 14,
+  "kExp": 116
+ },
+ "MRVL": {
+  "dias": 83,
+  "cierres": 83,
+  "expDia": 14,
+  "kExp": 120
+ },
+ "PLTR": {
+  "dias": 83,
+  "cierres": 83,
+  "expDia": 15,
+  "kExp": 132
+ },
+ "TSM": {
+  "dias": 83,
+  "cierres": 83,
+  "expDia": 15,
+  "kExp": 130
+ }
+}

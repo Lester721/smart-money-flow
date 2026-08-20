@@ -1,0 +1,204 @@
+{
+ "generado": "2026-08-20T22:39:55.842Z",
+ "diasMS": 19,
+ "diasNuestros": 1122,
+ "diasSolape": 12,
+ "rangoSolape": [
+  "2026-07-24",
+  "2026-08-10"
+ ],
+ "horaFotoMS": "CIERRE (16:00)",
+ "errorVs0935": 43.77,
+ "errorVs1600": 0.72,
+ "igualSPXW": true,
+ "cotejo": {
+  "call_wall|gam.muroCall": {
+   "n": 12,
+   "mediaAbsPts": 37.92,
+   "medianaAbsPts": 35,
+   "sesgoPts": -5.42,
+   "exactoPct": 16.7,
+   "dentro5Pct": 25,
+   "dentro25Pct": 50,
+   "mediaAbsPctIndice": 0.042
+  },
+  "call_wall|gamD.muroCall": {
+   "n": 12,
+   "mediaAbsPts": 59.17,
+   "medianaAbsPts": 70,
+   "sesgoPts": 32.5,
+   "exactoPct": 8.3,
+   "dentro5Pct": 8.3,
+   "dentro25Pct": 25,
+   "mediaAbsPctIndice": 0.065
+  },
+  "call_wall|oi.muroCall": {
+   "n": 12,
+   "mediaAbsPts": 125.42,
+   "medianaAbsPts": 135,
+   "sesgoPts": 107.92,
+   "exactoPct": 0,
+   "dentro5Pct": 0,
+   "dentro25Pct": 8.3,
+   "mediaAbsPctIndice": 0.138
+  },
+  "put_wall|gam.muroPut": {
+   "n": 12,
+   "mediaAbsPts": 41.25,
+   "medianaAbsPts": 25,
+   "sesgoPts": 13.75,
+   "exactoPct": 33.3,
+   "dentro5Pct": 41.7,
+   "dentro25Pct": 58.3,
+   "mediaAbsPctIndice": 0.045
+  },
+  "put_wall|gamD.muroPut": {
+   "n": 12,
+   "mediaAbsPts": 27.92,
+   "medianaAbsPts": 10,
+   "sesgoPts": -19.58,
+   "exactoPct": 50,
+   "dentro5Pct": 50,
+   "dentro25Pct": 75,
+   "mediaAbsPctIndice": 0.031
+  },
+  "put_wall|oi.muroPut": {
+   "n": 12,
+   "mediaAbsPts": 205.42,
+   "medianaAbsPts": 225,
+   "sesgoPts": -205.42,
+   "exactoPct": 0,
+   "dentro5Pct": 0,
+   "dentro25Pct": 8.3,
+   "mediaAbsPctIndice": 0.226
+  },
+  "magnet|gam.imanBruto": {
+   "n": 12,
+   "mediaAbsPts": 45,
+   "medianaAbsPts": 40,
+   "sesgoPts": 5.83,
+   "exactoPct": 16.7,
+   "dentro5Pct": 25,
+   "dentro25Pct": 41.7,
+   "mediaAbsPctIndice": 0.05
+  },
+  "magnet|gamD.imanBruto": {
+   "n": 12,
+   "mediaAbsPts": 55,
+   "medianaAbsPts": 40,
+   "sesgoPts": 27.5,
+   "exactoPct": 0,
+   "dentro5Pct": 8.3,
+   "dentro25Pct": 50,
+   "mediaAbsPctIndice": 0.061
+  },
+  "magnet|oi.imanBruto": {
+   "n": 12,
+   "mediaAbsPts": 152.92,
+   "medianaAbsPts": 135,
+   "sesgoPts": -15.42,
+   "exactoPct": 0,
+   "dentro5Pct": 0,
+   "dentro25Pct": 8.3,
+   "mediaAbsPctIndice": 0.168
+  },
+  "magnet|gam.imanNeto": {
+   "n": 12,
+   "mediaAbsPts": 57.92,
+   "medianaAbsPts": 70,
+   "sesgoPts": 4.58,
+   "exactoPct": 16.7,
+   "dentro5Pct": 16.7,
+   "dentro25Pct": 50,
+   "mediaAbsPctIndice": 0.064
+  },
+  "magnet|gamD.imanNeto": {
+   "n": 12,
+   "mediaAbsPts": 85,
+   "medianaAbsPts": 80,
+   "sesgoPts": 28.33,
+   "exactoPct": 0,
+   "dentro5Pct": 0,
+   "dentro25Pct": 16.7,
+   "mediaAbsPctIndice": 0.094
+  },
+  "gamma_flip|gam.flip": {
+   "n": 1,
+   "mediaAbsPts": 18.34,
+   "medianaAbsPts": 18.34,
+   "sesgoPts": 18.34,
+   "exactoPct": 0,
+   "dentro5Pct": 0,
+   "dentro25Pct": 100,
+   "mediaAbsPctIndice": 0.248
+  },
+  "gamma_flip|gamD.flip": {
+   "n": 1,
+   "mediaAbsPts": 17.06,
+   "medianaAbsPts": 17.06,
+   "sesgoPts": 17.06,
+   "exactoPct": 0,
+   "dentro5Pct": 0,
+   "dentro25Pct": 100,
+   "mediaAbsPctIndice": 0.23
+  }
+ },
+ "maxPain": {
+  "n": 12,
+  "exacto": 12,
+  "difMedia": 0
+ },
+ "signoGex": {
+  "n": 12,
+  "coincGam": 6,
+  "coincGamD": 6
+ },
+ "formas": {
+  "MS": {
+   "anchoMed": 10,
+   "dCallMed": 3.1,
+   "dPutMed": 5.8,
+   "saltoMed": 30
+  },
+  "gam": {
+   "anchoMed": 50,
+   "dCallMed": 13.8,
+   "dPutMed": 23.9,
+   "saltoMed": 50
+  },
+  "gamD": {
+   "anchoMed": 100,
+   "dCallMed": 58.3,
+   "dPutMed": 44.3,
+   "saltoMed": 90
+  },
+  "oi": {
+   "anchoMed": 415,
+   "dCallMed": 133,
+   "dPutMed": 227.9,
+   "saltoMed": 50
+  }
+ },
+ "formaTodo": {
+  "anchoMed": 25,
+  "dCallMed": 13.8,
+  "dPutMed": 12.1,
+  "saltoMed": 30
+ },
+ "colapso": {
+  "gam": 27.8,
+  "gamD": 12.7,
+  "oi": 2.3
+ },
+ "colapsoMS": 0,
+ "granMS": {
+  "5": 12,
+  "10": 18,
+  "25": 18
+ },
+ "granN": {
+  "5": 2,
+  "10": 11,
+  "25": 95
+ }
+}

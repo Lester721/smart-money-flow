@@ -1,0 +1,681 @@
+[
+ {
+  "corte": "11:00",
+  "m": "netoPut",
+  "h": 20,
+  "n": 3742,
+  "sep": -0.017141259784109172,
+  "t": -2.530839805847103,
+  "pasa": false,
+  "tercios": [
+   -0.023651407955642082,
+   -0.0006899213613867335,
+   -0.02722829627274344
+  ],
+  "motivos": [
+   "t = -2.53, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.01952198366105013
+ },
+ {
+  "corte": "12:00",
+  "m": "direccion",
+  "h": 1,
+  "n": 6239,
+  "sep": 0.003616385504726429,
+  "t": 2.5116866834890073,
+  "pasa": false,
+  "tercios": [
+   0.005565129888270197,
+   0.006149292407602671,
+   -0.0005878618000778259
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.6% · +0.6% · −0.1%) — el efecto no es estable en el tiempo",
+   "t = 2.51, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.0039012084457451636
+ },
+ {
+  "corte": "11:00",
+  "m": "direccion",
+  "h": 20,
+  "n": 3742,
+  "sep": 0.014394978633384365,
+  "t": 2.0648983992730527,
+  "pasa": false,
+  "tercios": [
+   0.03915174955346917,
+   -0.015359565221389367,
+   0.018578590184887986
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+3.9% · −1.5% · +1.9%) — el efecto no es estable en el tiempo",
+   "t = 2.06, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.01952198366105013
+ },
+ {
+  "corte": "12:00",
+  "m": "netoCall",
+  "h": 1,
+  "n": 6239,
+  "sep": 0.0028779512090969656,
+  "t": 2.0027479477168515,
+  "pasa": false,
+  "tercios": [
+   0.0024691997681580797,
+   0.005853778578127192,
+   0.0006046512723406857
+  ],
+  "motivos": [
+   "t = 2.00, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.0039012084457451636
+ },
+ {
+  "corte": "11:00",
+  "m": "netoCall",
+  "h": 1,
+  "n": 5019,
+  "sep": 0.0029552963873510944,
+  "t": 1.9300008589385158,
+  "pasa": false,
+  "tercios": [
+   0.0035381887386058152,
+   0.004927985075259805,
+   -0.000544980129247403
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.4% · +0.5% · −0.1%) — el efecto no es estable en el tiempo",
+   "t = 1.93, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.004314168462311471
+ },
+ {
+  "corte": "11:00",
+  "m": "deltaNeto",
+  "h": 1,
+  "n": 4981,
+  "sep": 0.002994983840216619,
+  "t": 1.9124824863753942,
+  "pasa": false,
+  "tercios": [
+   0.005209089338891368,
+   0.004973673397388648,
+   -0.0014646996227750295
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.5% · +0.5% · −0.1%) — el efecto no es estable en el tiempo",
+   "t = 1.91, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.004332143461302823
+ },
+ {
+  "corte": "12:00",
+  "m": "deltaNeto",
+  "h": 1,
+  "n": 6219,
+  "sep": 0.002761327258393793,
+  "t": 1.911644061659496,
+  "pasa": false,
+  "tercios": [
+   0.003604616295922354,
+   0.004840007018750984,
+   -0.00035438286069777096
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.4% · +0.5% · −0.0%) — el efecto no es estable en el tiempo",
+   "t = 1.91, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.0039067787969527
+ },
+ {
+  "corte": "11:00",
+  "m": "direccion",
+  "h": 1,
+  "n": 5019,
+  "sep": 0.0028961120475137388,
+  "t": 1.844164627943636,
+  "pasa": false,
+  "tercios": [
+   0.005743477060795178,
+   0.004488102111268458,
+   -0.0015632860185169314
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.6% · +0.4% · −0.2%) — el efecto no es estable en el tiempo",
+   "t = 1.84, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.004314168462311471
+ },
+ {
+  "corte": "12:00",
+  "m": "netoCall",
+  "h": 5,
+  "n": 5894,
+  "sep": -0.005368969777044156,
+  "t": -1.7409361999985458,
+  "pasa": false,
+  "tercios": [
+   -0.001662402976287106,
+   0.0008016737125904241,
+   -0.015210447207357774
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (−0.2% · +0.1% · −1.5%) — el efecto no es estable en el tiempo",
+   "t = -1.74, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.0084558704906408
+ },
+ {
+  "corte": "14:00",
+  "m": "deltaNeto",
+  "h": 5,
+  "n": 7337,
+  "sep": -0.00477579131559874,
+  "t": -1.703719090654684,
+  "pasa": false,
+  "tercios": [
+   -0.006453033621234334,
+   0.000766517861204355,
+   -0.008535837750963556
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (−0.6% · +0.1% · −0.9%) — el efecto no es estable en el tiempo",
+   "t = -1.70, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.007677724546549995
+ },
+ {
+  "corte": "14:00",
+  "m": "netoCall",
+  "h": 1,
+  "n": 7779,
+  "sep": 0.0021707558474047643,
+  "t": 1.667984771748683,
+  "pasa": false,
+  "tercios": [
+   0.003149288620022681,
+   0.003353999120022563,
+   0.000049521043487765264
+  ],
+  "motivos": [
+   "t = 1.67, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.003550464636751294
+ },
+ {
+  "corte": "14:00",
+  "m": "deltaNeto",
+  "h": 20,
+  "n": 5819,
+  "sep": -0.009137768828090633,
+  "t": -1.5569753053430517,
+  "pasa": false,
+  "tercios": [
+   0.005250474713221137,
+   -0.03158021808243747,
+   -0.001028648398635933
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.5% · −3.2% · −0.1%) — el efecto no es estable en el tiempo",
+   "t = -1.56, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.016161921580224593
+ },
+ {
+  "corte": "14:00",
+  "m": "netoCall",
+  "h": 20,
+  "n": 5828,
+  "sep": -0.00889533321750261,
+  "t": -1.5073965470141206,
+  "pasa": false,
+  "tercios": [
+   0.011465537658499227,
+   -0.028709482813795397,
+   -0.009259820763380815
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+1.1% · −2.9% · −0.9%) — el efecto no es estable en el tiempo",
+   "t = -1.51, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.016147750773166346
+ },
+ {
+  "corte": "14:00",
+  "m": "netoCall",
+  "h": 5,
+  "n": 7346,
+  "sep": -0.004212308719587073,
+  "t": -1.4874510683083435,
+  "pasa": false,
+  "tercios": [
+   -0.00012857625469092269,
+   -0.0007336864537312261,
+   -0.011734184491039159
+  ],
+  "motivos": [
+   "t = -1.49, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.00767399113159416
+ },
+ {
+  "corte": "12:00",
+  "m": "netoCall",
+  "h": 20,
+  "n": 4660,
+  "sep": -0.008074786104157496,
+  "t": -1.262485857267087,
+  "pasa": false,
+  "tercios": [
+   -0.002001162791557891,
+   -0.02506548006525098,
+   0.0015767616029621898
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (−0.2% · −2.5% · +0.2%) — el efecto no es estable en el tiempo",
+   "t = -1.26, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.017664858712130214
+ },
+ {
+  "corte": "11:00",
+  "m": "netoPut",
+  "h": 5,
+  "n": 4750,
+  "sep": -0.004042493059834995,
+  "t": -1.2497105340652723,
+  "pasa": false,
+  "tercios": [
+   -0.003865794498455711,
+   -0.003942737348761471,
+   -0.004478801301064799
+  ],
+  "motivos": [
+   "t = -1.25, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.009345321908273863
+ },
+ {
+  "corte": "11:00",
+  "m": "deltaNeto",
+  "h": 20,
+  "n": 3704,
+  "sep": 0.008495718054604652,
+  "t": 1.2300477195185944,
+  "pasa": false,
+  "tercios": [
+   0.024304190496035653,
+   -0.022317656138984523,
+   0.021784913724997038
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+2.4% · −2.2% · +2.2%) — el efecto no es estable en el tiempo",
+   "t = 1.23, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.01949101809327755
+ },
+ {
+  "corte": "14:00",
+  "m": "direccion",
+  "h": 20,
+  "n": 5828,
+  "sep": -0.007060715029931968,
+  "t": -1.2184535919301864,
+  "pasa": false,
+  "tercios": [
+   0.0065091650793083,
+   -0.022357298267027287,
+   -0.005413607530373537
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.7% · −2.2% · −0.5%) — el efecto no es estable en el tiempo",
+   "t = -1.22, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.016147750773166346
+ },
+ {
+  "corte": "14:00",
+  "m": "direccion",
+  "h": 1,
+  "n": 7779,
+  "sep": 0.0015464354598755353,
+  "t": 1.1745820851654025,
+  "pasa": false,
+  "tercios": [
+   0.002683451191194364,
+   0.003605446557803373,
+   -0.0015156280692406989
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.3% · +0.4% · −0.2%) — el efecto no es estable en el tiempo",
+   "t = 1.17, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.003550464636751294
+ },
+ {
+  "corte": "12:00",
+  "m": "netoPut",
+  "h": 5,
+  "n": 5894,
+  "sep": -0.0028601079634853386,
+  "t": -0.9646188245451677,
+  "pasa": false,
+  "tercios": [
+   -0.00513000892641822,
+   0.004137640178269125,
+   -0.00720390866735911
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (−0.5% · +0.4% · −0.7%) — el efecto no es estable en el tiempo",
+   "t = -0.96, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.0084558704906408
+ },
+ {
+  "corte": "14:00",
+  "m": "netoPut",
+  "h": 1,
+  "n": 7779,
+  "sep": 0.0011321743054640314,
+  "t": 0.9078234565404151,
+  "pasa": false,
+  "tercios": [
+   -0.000026774999621063792,
+   0.002029860308255623,
+   0.001267529760559646
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (−0.0% · +0.2% · +0.1%) — el efecto no es estable en el tiempo",
+   "t = 0.91, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.003550464636751294
+ },
+ {
+  "corte": "11:00",
+  "m": "netoCall",
+  "h": 5,
+  "n": 4750,
+  "sep": -0.002894436324302488,
+  "t": -0.859366247402489,
+  "pasa": false,
+  "tercios": [
+   -0.0054786904912461866,
+   0.008098669740565424,
+   -0.011005105639272587
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (−0.5% · +0.8% · −1.1%) — el efecto no es estable en el tiempo",
+   "t = -0.86, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.009345321908273863
+ },
+ {
+  "corte": "14:00",
+  "m": "deltaNeto",
+  "h": 1,
+  "n": 7770,
+  "sep": 0.0010892893172261165,
+  "t": 0.8400215139791135,
+  "pasa": false,
+  "tercios": [
+   0.00035316062612292373,
+   0.003189916538140526,
+   -0.0002941990938143509
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.0% · +0.3% · −0.0%) — el efecto no es estable en el tiempo",
+   "t = 0.84, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.0035519094606998947
+ },
+ {
+  "corte": "12:00",
+  "m": "netoPut",
+  "h": 20,
+  "n": 4660,
+  "sep": -0.0051827261151581785,
+  "t": -0.8374871528818887,
+  "pasa": false,
+  "tercios": [
+   -0.010658976298608343,
+   0.008816451093312336,
+   -0.013815506799736855
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (−1.1% · +0.9% · −1.4%) — el efecto no es estable en el tiempo",
+   "t = -0.84, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.017664858712130214
+ },
+ {
+  "corte": "12:00",
+  "m": "netoPut",
+  "h": 1,
+  "n": 6239,
+  "sep": 0.0009392068579343841,
+  "t": 0.6844094139695778,
+  "pasa": false,
+  "tercios": [
+   -0.003099233144420732,
+   0.0015115937720056444,
+   0.004236680719046417
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (−0.3% · +0.2% · +0.4%) — el efecto no es estable en el tiempo",
+   "t = 0.68, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.0039012084457451636
+ },
+ {
+  "corte": "12:00",
+  "m": "direccion",
+  "h": 20,
+  "n": 4660,
+  "sep": 0.0024916479480560348,
+  "t": 0.39052025097626464,
+  "pasa": false,
+  "tercios": [
+   0.012463046408738028,
+   -0.015576330750824059,
+   0.010748401642920036
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+1.2% · −1.6% · +1.1%) — el efecto no es estable en el tiempo",
+   "t = 0.39, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.017664858712130214
+ },
+ {
+  "corte": "12:00",
+  "m": "deltaNeto",
+  "h": 5,
+  "n": 5874,
+  "sep": -0.001100939398711641,
+  "t": -0.3579327229377074,
+  "pasa": false,
+  "tercios": [
+   0.0003719822749295264,
+   0.0030025460165423734,
+   -0.0066598229135659374
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.0% · +0.3% · −0.7%) — el efecto no es estable en el tiempo",
+   "t = -0.36, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.008453045179312463
+ },
+ {
+  "corte": "14:00",
+  "m": "direccion",
+  "h": 5,
+  "n": 7346,
+  "sep": -0.0009771849676937564,
+  "t": -0.35071149870149937,
+  "pasa": false,
+  "tercios": [
+   -0.0022526022657581224,
+   0.0036478559851493538,
+   -0.004504880549438175
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (−0.2% · +0.4% · −0.5%) — el efecto no es estable en el tiempo",
+   "t = -0.35, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.00767399113159416
+ },
+ {
+  "corte": "11:00",
+  "m": "deltaNeto",
+  "h": 5,
+  "n": 4712,
+  "sep": -0.0010073346566402536,
+  "t": -0.2971873043916156,
+  "pasa": false,
+  "tercios": [
+   0.000053306838949817746,
+   0.007387092217700564,
+   -0.010839576574350064
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.0% · +0.7% · −1.1%) — el efecto no es estable en el tiempo",
+   "t = -0.30, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.009340239477729426
+ },
+ {
+  "corte": "12:00",
+  "m": "direccion",
+  "h": 5,
+  "n": 5894,
+  "sep": 0.0008723679058823243,
+  "t": 0.282521948503556,
+  "pasa": false,
+  "tercios": [
+   0.0037636803703453964,
+   0.007384540125762916,
+   -0.008241734995297987
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.4% · +0.7% · −0.8%) — el efecto no es estable en el tiempo",
+   "t = 0.28, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.0084558704906408
+ },
+ {
+  "corte": "11:00",
+  "m": "direccion",
+  "h": 5,
+  "n": 4750,
+  "sep": 0.0007651954272303338,
+  "t": 0.22654413497709633,
+  "pasa": false,
+  "tercios": [
+   0.005490846866693913,
+   0.010093862728410967,
+   -0.013434780473070928
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.5% · +1.0% · −1.3%) — el efecto no es estable en el tiempo",
+   "t = 0.23, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.009345321908273863
+ },
+ {
+  "corte": "14:00",
+  "m": "netoPut",
+  "h": 20,
+  "n": 5828,
+  "sep": 0.001115812619755924,
+  "t": 0.19839021084108385,
+  "pasa": false,
+  "tercios": [
+   0.013303509331873596,
+   -0.003284442098344902,
+   -0.007529515985411859
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+1.3% · −0.3% · −0.8%) — el efecto no es estable en el tiempo",
+   "t = 0.20, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.016147750773166346
+ },
+ {
+  "corte": "11:00",
+  "m": "netoPut",
+  "h": 1,
+  "n": 5019,
+  "sep": 0.00027625717541574857,
+  "t": 0.1830536672599575,
+  "pasa": false,
+  "tercios": [
+   -0.0011797625846150911,
+   0.0002747008895178191,
+   0.001413978310373113
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (−0.1% · +0.0% · +0.1%) — el efecto no es estable en el tiempo",
+   "t = 0.18, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.004314168462311471
+ },
+ {
+  "corte": "12:00",
+  "m": "deltaNeto",
+  "h": 20,
+  "n": 4640,
+  "sep": 0.0007452198591889482,
+  "t": 0.11718452756922075,
+  "pasa": false,
+  "tercios": [
+   0.006733613974931383,
+   -0.022557121617943716,
+   0.015252955976784624
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.7% · −2.3% · +1.5%) — el efecto no es estable en el tiempo",
+   "t = 0.12, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.017658132096893524
+ },
+ {
+  "corte": "14:00",
+  "m": "netoPut",
+  "h": 5,
+  "n": 7346,
+  "sep": 0.00014574746324615096,
+  "t": 0.05339590746282298,
+  "pasa": false,
+  "tercios": [
+   0.007898795400401233,
+   0.0017496286643461033,
+   -0.008923073523921604
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+0.8% · +0.2% · −0.9%) — el efecto no es estable en el tiempo",
+   "t = 0.05, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.00767399113159416
+ },
+ {
+  "corte": "11:00",
+  "m": "netoCall",
+  "h": 20,
+  "n": 3742,
+  "sep": 0.00001809683404276497,
+  "t": 0.0025831121910273843,
+  "pasa": false,
+  "tercios": [
+   0.012682229266367764,
+   -0.02411250996831981,
+   0.01170398020487126
+  ],
+  "motivos": [
+   "el signo NO se repite en los tres tercios (+1.3% · −2.4% · +1.2%) — el efecto no es estable en el tiempo",
+   "t = 0.00, por debajo del listón de 3.2 para 36 pruebas"
+  ],
+  "det": 0.01952198366105013
+ }
+]

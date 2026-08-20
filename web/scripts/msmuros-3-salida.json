@@ -1,0 +1,113 @@
+{
+ "generado": "2026-08-20T22:43:10.230Z",
+ "filas": [
+  {
+   "fecha": "2026-07-24",
+   "puestoC": 77,
+   "puestoP": 58,
+   "oiCw": 492,
+   "oiPw": 2508,
+   "nC": 281,
+   "nP": 280
+  },
+  {
+   "fecha": "2026-07-27",
+   "puestoC": 74,
+   "puestoP": 82,
+   "oiCw": 356,
+   "oiPw": 960,
+   "nC": 173,
+   "nP": 215
+  },
+  {
+   "fecha": "2026-07-28",
+   "puestoC": 21,
+   "puestoP": 63,
+   "oiCw": 2271,
+   "oiPw": 994,
+   "nC": 171,
+   "nP": 208
+  },
+  {
+   "fecha": "2026-07-29",
+   "puestoC": 26,
+   "puestoP": 3,
+   "oiCw": 2157,
+   "oiPw": 7575,
+   "nC": 171,
+   "nP": 213
+  },
+  {
+   "fecha": "2026-07-30",
+   "puestoC": 39,
+   "puestoP": 116,
+   "oiCw": 1203,
+   "oiPw": 462,
+   "nC": 174,
+   "nP": 214
+  },
+  {
+   "fecha": "2026-07-31",
+   "puestoC": 12,
+   "puestoP": 177,
+   "oiCw": 13620,
+   "oiPw": 826,
+   "nC": 365,
+   "nP": 448
+  },
+  {
+   "fecha": "2026-08-03",
+   "puestoC": 14,
+   "puestoP": 5,
+   "oiCw": 3195,
+   "oiPw": 5858,
+   "nC": 199,
+   "nP": 231
+  },
+  {
+   "fecha": "2026-08-04",
+   "puestoC": 63,
+   "puestoP": 4,
+   "oiCw": 380,
+   "oiPw": 4056,
+   "nC": 171,
+   "nP": 228
+  },
+  {
+   "fecha": "2026-08-05",
+   "puestoC": 49,
+   "puestoP": 24,
+   "oiCw": 1413,
+   "oiPw": 2369,
+   "nC": 216,
+   "nP": 257
+  },
+  {
+   "fecha": "2026-08-06",
+   "puestoC": 81,
+   "puestoP": 4,
+   "oiCw": 615,
+   "oiPw": 8092,
+   "nC": 198,
+   "nP": 243
+  },
+  {
+   "fecha": "2026-08-07",
+   "puestoC": 25,
+   "puestoP": 19,
+   "oiCw": 2844,
+   "oiPw": 5794,
+   "nC": 289,
+   "nP": 319
+  },
+  {
+   "fecha": "2026-08-10",
+   "puestoC": 29,
+   "puestoP": 24,
+   "oiCw": 1149,
+   "oiPw": 2674,
+   "nC": 201,
+   "nP": 244
+  }
+ ]
+}

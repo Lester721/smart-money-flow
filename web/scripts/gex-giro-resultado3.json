@@ -1,0 +1,508 @@
+{
+ "generado": "2026-08-20T20:43:35.550Z",
+ "entrada": [
+  "scripts/gex-niveles.json",
+  "scripts/gex-giro-camino.json"
+ ],
+ "nDias": 1122,
+ "liston": 3.28,
+ "pruebasDeclaradas": 48,
+ "sorteos": 500,
+ "ventanaMin": 60,
+ "cuenta": 56389,
+ "sucesos": {
+  "gam": {
+   "n": 215,
+   "abajo": 111
+  },
+  "gamD": {
+   "n": 227,
+   "abajo": 117
+  }
+ },
+ "tDif|gam|2022-2026": {
+  "t": 1.71,
+  "nAb": 111,
+  "nAr": 104
+ },
+ "coc|gam|ABAJO|2022-2026": {
+  "n": 111,
+  "antes": 0.729,
+  "despues": 0.652,
+  "coc": 0.898,
+  "t": -0.91
+ },
+ "coc|gam|ARRIBA|2022-2026": {
+  "n": 104,
+  "antes": 0.792,
+  "despues": 0.703,
+  "coc": 0.882,
+  "t": -3.55
+ },
+ "tDif|gam|2022-2023": {
+  "t": -0.03,
+  "nAb": 47,
+  "nAr": 41
+ },
+ "coc|gam|ABAJO|2022-2023": {
+  "n": 47,
+  "antes": 0.877,
+  "despues": 0.715,
+  "coc": 0.883,
+  "t": -1.31
+ },
+ "coc|gam|ARRIBA|2022-2023": {
+  "n": 41,
+  "antes": 0.879,
+  "despues": 0.802,
+  "coc": 0.911,
+  "t": -1.21
+ },
+ "tDif|gam|2024-2026": {
+  "t": 2.16,
+  "nAb": 64,
+  "nAr": 63
+ },
+ "coc|gam|ABAJO|2024-2026": {
+  "n": 64,
+  "antes": 0.616,
+  "despues": 0.62,
+  "coc": 0.91,
+  "t": -0.17
+ },
+ "coc|gam|ARRIBA|2024-2026": {
+  "n": 63,
+  "antes": 0.735,
+  "despues": 0.588,
+  "coc": 0.821,
+  "t": -3.61
+ },
+ "tDif|gamD|2022-2026": {
+  "t": 1.38,
+  "nAb": 117,
+  "nAr": 110
+ },
+ "coc|gamD|ABAJO|2022-2026": {
+  "n": 117,
+  "antes": 0.708,
+  "despues": 0.691,
+  "coc": 0.89,
+  "t": -1.08
+ },
+ "coc|gamD|ARRIBA|2022-2026": {
+  "n": 110,
+  "antes": 0.774,
+  "despues": 0.674,
+  "coc": 0.83,
+  "t": -2.64
+ },
+ "tDif|gamD|2022-2023": {
+  "t": 0.27,
+  "nAb": 41,
+  "nAr": 52
+ },
+ "coc|gamD|ABAJO|2022-2023": {
+  "n": 41,
+  "antes": 0.765,
+  "despues": 0.729,
+  "coc": 0.848,
+  "t": -1.06
+ },
+ "coc|gamD|ARRIBA|2022-2023": {
+  "n": 52,
+  "antes": 0.926,
+  "despues": 0.771,
+  "coc": 0.83,
+  "t": -1.29
+ },
+ "tDif|gamD|2024-2026": {
+  "t": 1.63,
+  "nAb": 76,
+  "nAr": 58
+ },
+ "coc|gamD|ABAJO|2024-2026": {
+  "n": 76,
+  "antes": 0.67,
+  "despues": 0.674,
+  "coc": 0.911,
+  "t": -0.55
+ },
+ "coc|gamD|ARRIBA|2024-2026": {
+  "n": 58,
+  "antes": 0.733,
+  "despues": 0.588,
+  "coc": 0.856,
+  "t": -2.5
+ },
+ "cont|gam|ABAJO|2022-2026": {
+  "n": 111,
+  "m60": 0.061,
+  "t": 1.72,
+  "mCie": 0.0515,
+  "tCie": 0.74
+ },
+ "cont|gam|ARRIBA|2022-2026": {
+  "n": 104,
+  "m60": 0.0096,
+  "t": 0.29,
+  "mCie": -0.0726,
+  "tCie": -0.89
+ },
+ "cont|gam|ABAJO|2022-2023": {
+  "n": 47,
+  "m60": 0.0636,
+  "t": 1.21,
+  "mCie": -0.0074,
+  "tCie": -0.07
+ },
+ "cont|gam|ARRIBA|2022-2023": {
+  "n": 41,
+  "m60": 0.0345,
+  "t": 0.6,
+  "mCie": 0.0151,
+  "tCie": 0.1
+ },
+ "cont|gam|ABAJO|2024-2026": {
+  "n": 64,
+  "m60": 0.059,
+  "t": 1.22,
+  "mCie": 0.0948,
+  "tCie": 1.05
+ },
+ "cont|gam|ARRIBA|2024-2026": {
+  "n": 63,
+  "m60": -0.0067,
+  "t": -0.17,
+  "mCie": -0.1297,
+  "tCie": -1.49
+ },
+ "cont|gamD|ABAJO|2022-2026": {
+  "n": 117,
+  "m60": 0.0827,
+  "t": 2.45,
+  "mCie": 0.103,
+  "tCie": 1.66
+ },
+ "cont|gamD|ARRIBA|2022-2026": {
+  "n": 110,
+  "m60": 0.0219,
+  "t": 0.69,
+  "mCie": 0.015,
+  "tCie": 0.23
+ },
+ "cont|gamD|ABAJO|2022-2023": {
+  "n": 41,
+  "m60": 0.1074,
+  "t": 2.25,
+  "mCie": 0.1018,
+  "tCie": 1.09
+ },
+ "cont|gamD|ARRIBA|2022-2023": {
+  "n": 52,
+  "m60": 0.0652,
+  "t": 1.35,
+  "mCie": 0.0839,
+  "tCie": 0.72
+ },
+ "cont|gamD|ABAJO|2024-2026": {
+  "n": 76,
+  "m60": 0.0693,
+  "t": 1.53,
+  "mCie": 0.1037,
+  "tCie": 1.27
+ },
+ "cont|gamD|ARRIBA|2024-2026": {
+  "n": 58,
+  "m60": -0.0169,
+  "t": -0.41,
+  "mCie": -0.0467,
+  "tCie": -0.68
+ },
+ "azar|gam|coc": {
+  "real": 1.715,
+  "espejo": 0.261,
+  "p50": 1.987,
+  "p95": 3.526,
+  "percentil": 39.6
+ },
+ "azar|gam|cont": {
+  "real": 1.067,
+  "espejo": -0.657,
+  "p50": 0.629,
+  "p95": 1.863,
+  "percentil": 77.2
+ },
+ "azar|gamD|coc": {
+  "real": 1.379,
+  "espejo": null,
+  "p50": 1.86,
+  "p95": 3.518,
+  "percentil": 29.9
+ },
+ "azar|gamD|cont": {
+  "real": 1.314,
+  "espejo": -1.045,
+  "p50": 0.613,
+  "p95": 1.826,
+  "percentil": 82.8
+ },
+ "azarLado|gam|coc": {
+  "real": 1.715,
+  "p50": 0.934,
+  "p95": 2.119,
+  "percentil": 86.4
+ },
+ "azarLado|gam|cont": {
+  "real": 1.067,
+  "p50": 0.516,
+  "p95": 1.529,
+  "percentil": 83.6
+ },
+ "azarLado|gamD|coc": {
+  "real": 1.379,
+  "p50": 1.636,
+  "p95": 2.9,
+  "percentil": 37.8
+ },
+ "azarLado|gamD|cont": {
+  "real": 1.314,
+  "p50": 0.497,
+  "p95": 1.405,
+  "percentil": 93.4
+ },
+ "$|gam|COMPRAR straddle al romper ABAJO|2022-2026": {
+  "n": 111,
+  "porOp": 285,
+  "alAno": 6832,
+  "acierto": 42.3,
+  "t": 1.17,
+  "peor": -6216
+ },
+ "$|gam|COMPRAR straddle al romper ABAJO|2022-2023": {
+  "n": 47,
+  "porOp": 296.6,
+  "alAno": 6971,
+  "acierto": 48.9,
+  "t": 0.97,
+  "peor": -6216
+ },
+ "$|gam|COMPRAR straddle al romper ABAJO|2024-2026": {
+  "n": 64,
+  "porOp": 276.4,
+  "alAno": 6726,
+  "acierto": 37.5,
+  "t": 0.77,
+  "peor": -3134
+ },
+ "$|gam|COMPRAR straddle al romper ARRIBA|2022-2026": {
+  "n": 104,
+  "porOp": 450.9,
+  "alAno": 10128,
+  "acierto": 48.1,
+  "t": 1.66,
+  "peor": -4911
+ },
+ "$|gam|COMPRAR straddle al romper ARRIBA|2022-2023": {
+  "n": 41,
+  "porOp": 655.5,
+  "alAno": 13437,
+  "acierto": 56.1,
+  "t": 1.98,
+  "peor": -2248
+ },
+ "$|gam|COMPRAR straddle al romper ARRIBA|2024-2026": {
+  "n": 63,
+  "porOp": 317.7,
+  "alAno": 7611,
+  "acierto": 42.9,
+  "t": 0.8,
+  "peor": -4911
+ },
+ "$|gam|VENDER straddle al romper ARRIBA|2022-2026": {
+  "n": 104,
+  "porOp": -488.6,
+  "alAno": -10975,
+  "acierto": 49,
+  "t": -1.8,
+  "peor": -16728
+ },
+ "$|gam|VENDER straddle al romper ARRIBA|2022-2023": {
+  "n": 41,
+  "porOp": -700.3,
+  "alAno": -14357,
+  "acierto": 39,
+  "t": -2.11,
+  "peor": -6652
+ },
+ "$|gam|VENDER straddle al romper ARRIBA|2024-2026": {
+  "n": 63,
+  "porOp": -350.8,
+  "alAno": -8402,
+  "acierto": 55.6,
+  "t": -0.89,
+  "peor": -16728
+ },
+ "$|gam|COMPRAR abajo + VENDER arriba|2022-2026": {
+  "n": 215,
+  "porOp": -89.2,
+  "alAno": -4143,
+  "acierto": 45.6,
+  "t": -0.49,
+  "peor": -16728
+ },
+ "$|gam|COMPRAR abajo + VENDER arriba|2022-2023": {
+  "n": 88,
+  "porOp": -167.9,
+  "alAno": -7386,
+  "acierto": 44.3,
+  "t": -0.73,
+  "peor": -6652
+ },
+ "$|gam|COMPRAR abajo + VENDER arriba|2024-2026": {
+  "n": 127,
+  "porOp": -34.7,
+  "alAno": -1676,
+  "acierto": 46.5,
+  "t": -0.13,
+  "peor": -16728
+ },
+ "$|gamD|COMPRAR straddle al romper ABAJO|2022-2026": {
+  "n": 117,
+  "porOp": -94.2,
+  "alAno": -2382,
+  "acierto": 33.3,
+  "t": -0.37,
+  "peor": -7671
+ },
+ "$|gamD|COMPRAR straddle al romper ABAJO|2022-2023": {
+  "n": 41,
+  "porOp": -46.4,
+  "alAno": -951,
+  "acierto": 39,
+  "t": -0.17,
+  "peor": -4106
+ },
+ "$|gamD|COMPRAR straddle al romper ABAJO|2024-2026": {
+  "n": 76,
+  "porOp": -120.1,
+  "alAno": -3469,
+  "acierto": 30.3,
+  "t": -0.33,
+  "peor": -7671
+ },
+ "$|gamD|COMPRAR straddle al romper ARRIBA|2022-2026": {
+  "n": 110,
+  "porOp": 150.7,
+  "alAno": 3580,
+  "acierto": 42.7,
+  "t": 0.81,
+  "peor": -3577
+ },
+ "$|gamD|COMPRAR straddle al romper ARRIBA|2022-2023": {
+  "n": 52,
+  "porOp": 352.5,
+  "alAno": 9166,
+  "acierto": 46.2,
+  "t": 1.41,
+  "peor": -3243
+ },
+ "$|gamD|COMPRAR straddle al romper ARRIBA|2024-2026": {
+  "n": 58,
+  "porOp": -30.2,
+  "alAno": -667,
+  "acierto": 39.7,
+  "t": -0.11,
+  "peor": -3577
+ },
+ "$|gamD|VENDER straddle al romper ARRIBA|2022-2026": {
+  "n": 110,
+  "porOp": -194,
+  "alAno": -4608,
+  "acierto": 54.5,
+  "t": -1.03,
+  "peor": -7891
+ },
+ "$|gamD|VENDER straddle al romper ARRIBA|2022-2023": {
+  "n": 52,
+  "porOp": -404.3,
+  "alAno": -10511,
+  "acierto": 50,
+  "t": -1.6,
+  "peor": -6182
+ },
+ "$|gamD|VENDER straddle al romper ARRIBA|2024-2026": {
+  "n": 58,
+  "porOp": -5.4,
+  "alAno": -120,
+  "acierto": 58.6,
+  "t": -0.02,
+  "peor": -7891
+ },
+ "$|gamD|COMPRAR abajo + VENDER arriba|2022-2026": {
+  "n": 227,
+  "porOp": -142.6,
+  "alAno": -6990,
+  "acierto": 43.6,
+  "t": -0.89,
+  "peor": -7891
+ },
+ "$|gamD|COMPRAR abajo + VENDER arriba|2022-2023": {
+  "n": 93,
+  "porOp": -246.5,
+  "alAno": -11462,
+  "acierto": 45.2,
+  "t": -1.31,
+  "peor": -6182
+ },
+ "$|gamD|COMPRAR abajo + VENDER arriba|2024-2026": {
+  "n": 134,
+  "porOp": -70.4,
+  "alAno": -3589,
+  "acierto": 42.5,
+  "t": -0.3,
+  "peor": -7891
+ },
+ "peaje": {
+  "horquillaP25": 1.38,
+  "horquillaP50": 1.79,
+  "horquillaP75": 2.35,
+  "costeMediano": 2090
+ },
+ "hueco|gam": {
+  "difObservada": 0.0948,
+  "difNecesaria": 0.1813,
+  "cocObservado": 1.099,
+  "cocNecesario": 1.199,
+  "nActual": 215,
+  "nNecesaria": 787,
+  "tasaCruce": 0.192,
+  "anosNecesarios": 16
+ },
+ "hueco|gamD": {
+  "difObservada": 0.0845,
+  "difNecesaria": 0.2009,
+  "cocObservado": 1.088,
+  "cocNecesario": 1.223,
+  "nActual": 227,
+  "nNecesaria": 1284,
+  "tasaCruce": 0.202,
+  "anosNecesarios": 25
+ },
+ "veredicto": {
+  "pasanListon": [
+   "coc|gam|ARRIBA|2022-2026 t=-3.55",
+   "coc|gam|ARRIBA|2024-2026 t=-3.61"
+  ],
+  "gananAlAzar": [],
+  "dolaresPositivos": [
+   "$|gam|COMPRAR straddle al romper ABAJO|2022-2026 $6832/año t=1.17",
+   "$|gam|COMPRAR straddle al romper ABAJO|2022-2023 $6971/año t=0.97",
+   "$|gam|COMPRAR straddle al romper ABAJO|2024-2026 $6726/año t=0.77",
+   "$|gam|COMPRAR straddle al romper ARRIBA|2022-2026 $10.128/año t=1.66",
+   "$|gam|COMPRAR straddle al romper ARRIBA|2022-2023 $13.437/año t=1.98",
+   "$|gam|COMPRAR straddle al romper ARRIBA|2024-2026 $7611/año t=0.8",
+   "$|gamD|COMPRAR straddle al romper ARRIBA|2022-2026 $3580/año t=0.81",
+   "$|gamD|COMPRAR straddle al romper ARRIBA|2022-2023 $9166/año t=1.41"
+  ]
+ }
+}

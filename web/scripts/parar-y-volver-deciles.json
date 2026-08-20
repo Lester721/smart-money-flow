@@ -1,0 +1,2088 @@
+{
+  "base": {
+    "alAno": 18770.055987748936,
+    "dd": -15176.239999999882,
+    "peor": -4900.24,
+    "cvar5": -3507.552500000004
+  },
+  "pruebas": 248,
+  "liston": 3.72,
+  "alpha": 0.00020161290322580645,
+  "K": 65,
+  "sorteos": 20000,
+  "res": [
+    {
+      "campo": "movManana",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 9478.318162327574,
+        "dd": -16109.440000000217,
+        "peor": -4900.24,
+        "cvar5": -3564.446896551728,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7517006802721088
+      },
+      "ddElim": -933.2000000003354,
+      "coste": null,
+      "t": 2.236070803259364,
+      "signos": "+++",
+      "p": {
+        "dd": 0.7355132243387831,
+        "alAno": 0.9926003699815009,
+        "peor": 1,
+        "cvar5": 0.8929553522323884,
+        "coste": null
+      },
+      "mediaSaltados": 370.42153846153974,
+      "falla": [
+        "sólo quita −$933 de racha",
+        "retiene 50% del ingreso",
+        "p(racha)=0.7355 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+++)",
+        "|t|=2.24 < 3.72"
+      ]
+    },
+    {
+      "campo": "movManana",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 16085.117549770308,
+        "dd": -14888.64000000008,
+        "peor": -4900.24,
+        "cvar5": -3307.9641379310433,
+        "p5op": -2091.2400000000034,
+        "acierto": 0.7636054421768708
+      },
+      "ddElim": 287.5999999998021,
+      "coste": 9.335669116761041,
+      "t": 0.16989039855129906,
+      "signos": "−++",
+      "p": {
+        "dd": 0.4017299135043248,
+        "alAno": 0.584470776461177,
+        "peor": 1,
+        "cvar5": 0.007249637518124094,
+        "coste": 0.41577921103944804
+      },
+      "mediaSaltados": 107.03692307692387,
+      "falla": [
+        "sólo quita $288 de racha",
+        "retiene 86% del ingreso",
+        "p(racha)=0.4017 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−++)",
+        "|t|=0.17 < 3.72"
+      ]
+    },
+    {
+      "campo": "movMananaAbs",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 7135.451393568029,
+        "dd": -20156.07999999998,
+        "peor": -4900.24,
+        "cvar5": -3466.343448275868,
+        "p5op": -2555.24,
+        "acierto": 0.7568027210884354
+      },
+      "ddElim": -4979.840000000098,
+      "coste": null,
+      "t": 2.3070775995545114,
+      "signos": "+++",
+      "p": {
+        "dd": 0.9958502074896255,
+        "alAno": 0.9994500274986251,
+        "peor": 1,
+        "cvar5": 0.2634368281585921,
+        "coste": null
+      },
+      "mediaSaltados": 463.8215384615412,
+      "falla": [
+        "sólo quita −$4980 de racha",
+        "retiene 38% del ingreso",
+        "p(racha)=0.9959 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+++)",
+        "|t|=2.31 < 3.72"
+      ]
+    },
+    {
+      "campo": "movMananaAbs",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 17650.759203675392,
+        "dd": -16458.44000000009,
+        "peor": -4900.24,
+        "cvar5": -3544.998620689656,
+        "p5op": -2712.2400000000075,
+        "acierto": 0.7551020408163265
+      },
+      "ddElim": -1282.200000000208,
+      "coste": null,
+      "t": -0.2622024005319113,
+      "signos": "−+−",
+      "p": {
+        "dd": 0.8058597070146493,
+        "alAno": 0.3982800859957002,
+        "peor": 1,
+        "cvar5": 0.7642617869106545,
+        "coste": null
+      },
+      "mediaSaltados": 44.62153846153941,
+      "falla": [
+        "sólo quita −$1282 de racha",
+        "p(racha)=0.8059 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−+−)",
+        "|t|=0.26 < 3.72"
+      ]
+    },
+    {
+      "campo": "rangoManana",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 12275.788300153,
+        "dd": -16068.920000000162,
+        "peor": -4900.24,
+        "cvar5": -3409.998620689662,
+        "p5op": -2192.2400000000252,
+        "acierto": 0.7670068027210885
+      },
+      "ddElim": -892.6800000002804,
+      "coste": null,
+      "t": 0.9249817011347701,
+      "signos": "+++",
+      "p": {
+        "dd": 0.728013599320034,
+        "alAno": 0.9272036398180091,
+        "peor": 1,
+        "cvar5": 0.08529573521323934,
+        "coste": null
+      },
+      "mediaSaltados": 258.8984615384627,
+      "falla": [
+        "sólo quita −$893 de racha",
+        "retiene 65% del ingreso",
+        "p(racha)=0.7280 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+++)",
+        "|t|=0.92 < 3.72"
+      ]
+    },
+    {
+      "campo": "rangoManana",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 16697.944502297112,
+        "dd": -15416.51999999992,
+        "peor": -4605.24,
+        "cvar5": -3513.7572413793137,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7414965986394558
+      },
+      "ddElim": -240.28000000003885,
+      "coste": null,
+      "t": 0.08029789143764093,
+      "signos": "−++",
+      "p": {
+        "dd": 0.5558722063896805,
+        "alAno": 0.5106744662766861,
+        "peor": 0.09854507274636268,
+        "cvar5": 0.5497225138743063,
+        "coste": null
+      },
+      "mediaSaltados": 82.60615384615502,
+      "falla": [
+        "sólo quita −$240 de racha",
+        "retiene 89% del ingreso",
+        "p(racha)=0.5559 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−++)",
+        "|t|=0.08 < 3.72"
+      ]
+    },
+    {
+      "campo": "rangoMananaPts",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 8987.439142419442,
+        "dd": -17438.920000000162,
+        "peor": -4900.24,
+        "cvar5": -3474.99862068966,
+        "p5op": -2522.2400000000252,
+        "acierto": 0.7636054421768708
+      },
+      "ddElim": -2262.6800000002804,
+      "coste": null,
+      "t": 1.7130556754751776,
+      "signos": "+++",
+      "p": {
+        "dd": 0.9271036448177591,
+        "alAno": 0.9954002299885005,
+        "peor": 1,
+        "cvar5": 0.3063346832658367,
+        "coste": null
+      },
+      "mediaSaltados": 389.9907692307705,
+      "falla": [
+        "sólo quita −$2263 de racha",
+        "retiene 48% del ingreso",
+        "p(racha)=0.9271 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+++)",
+        "|t|=1.71 < 3.72"
+      ]
+    },
+    {
+      "campo": "rangoMananaPts",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 16775.898560490077,
+        "dd": -15216.759999999915,
+        "peor": -4605.24,
+        "cvar5": -3513.7572413793137,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7414965986394558
+      },
+      "ddElim": -40.52000000003318,
+      "coste": null,
+      "t": 0.0500199803407376,
+      "signos": "−++",
+      "p": {
+        "dd": 0.5132743362831859,
+        "alAno": 0.5003749812509375,
+        "peor": 0.09854507274636268,
+        "cvar5": 0.5497225138743063,
+        "coste": null
+      },
+      "mediaSaltados": 79.49846153846286,
+      "falla": [
+        "sólo quita −$41 de racha",
+        "retiene 89% del ingreso",
+        "p(racha)=0.5133 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−++)",
+        "|t|=0.05 < 3.72"
+      ]
+    },
+    {
+      "campo": "posRango",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 19867.43301684545,
+        "dd": -13427.999999999915,
+        "peor": -4900.24,
+        "cvar5": -3493.2400000000016,
+        "p5op": -2579.240000000033,
+        "acierto": 0.7585034013605442
+      },
+      "ddElim": 1748.239999999967,
+      "coste": -0.6277038788132839,
+      "t": -0.8451859097634815,
+      "signos": "+−−",
+      "p": {
+        "dd": 0.16139193040347982,
+        "alAno": 0.18099095045247737,
+        "peor": 1,
+        "cvar5": 0.4146792660366982,
+        "coste": 0.12709364531773412
+      },
+      "mediaSaltados": -43.74769230769296,
+      "falla": [
+        "sólo quita $1748 de racha",
+        "p(racha)=0.1614 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−−)",
+        "|t|=0.85 < 3.72"
+      ]
+    },
+    {
+      "campo": "posRango",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 16662.440673813315,
+        "dd": -14547.759999999871,
+        "peor": -4900.24,
+        "cvar5": -3470.4813793103494,
+        "p5op": -2555.24,
+        "acierto": 0.7534013605442177
+      },
+      "ddElim": 628.4800000000105,
+      "coste": 3.3535121466643107,
+      "t": 0.06449076249244985,
+      "signos": "++−",
+      "p": {
+        "dd": 0.3498325083745813,
+        "alAno": 0.5144742762861857,
+        "peor": 1,
+        "cvar5": 0.28338583070846457,
+        "coste": 0.3538323083845808
+      },
+      "mediaSaltados": 84.02153846153534,
+      "falla": [
+        "sólo quita $628 de racha",
+        "retiene 89% del ingreso",
+        "p(racha)=0.3498 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (++−)",
+        "|t|=0.06 < 3.72"
+      ]
+    },
+    {
+      "campo": "extremo",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 23817.23393568155,
+        "dd": -15176.239999999882,
+        "peor": -4900.24,
+        "cvar5": -3376.4124137931094,
+        "p5op": -2091.2400000000034,
+        "acierto": 0.7602040816326531
+      },
+      "ddElim": 0,
+      "coste": null,
+      "t": -1.7023128740756825,
+      "signos": "·+−",
+      "p": {
+        "dd": 0.48897555122243885,
+        "alAno": 0.023748812559372032,
+        "peor": 1,
+        "cvar5": 0.039998000099995,
+        "coste": null
+      },
+      "mediaSaltados": -201.2092307692317,
+      "falla": [
+        "sólo quita $0 de racha",
+        "p(racha)=0.4890 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (·+−)",
+        "|t|=1.70 < 3.72"
+      ]
+    },
+    {
+      "campo": "extremo",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 16181.595344563671,
+        "dd": -15216.759999999917,
+        "peor": -4900.24,
+        "cvar5": -3577.3089655172435,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7568027210884354
+      },
+      "ddElim": -40.520000000035,
+      "coste": null,
+      "t": 0.3129005943953925,
+      "signos": "+−+",
+      "p": {
+        "dd": 0.5133743312834358,
+        "alAno": 0.5723713814309285,
+        "peor": 1,
+        "cvar5": 0.936253187340633,
+        "coste": null
+      },
+      "mediaSaltados": 103.19076923076776,
+      "falla": [
+        "sólo quita −$41 de racha",
+        "retiene 86% del ingreso",
+        "p(racha)=0.5134 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−+)",
+        "|t|=0.31 < 3.72"
+      ]
+    },
+    {
+      "campo": "recorrido",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 19091.365635528407,
+        "dd": -14060.11999999998,
+        "peor": -4900.24,
+        "cvar5": -3267.6882758620764,
+        "p5op": -1835.2400000000002,
+        "acierto": 0.7704081632653061
+      },
+      "ddElim": 1116.1199999999008,
+      "coste": -0.2878809158329751,
+      "t": -0.3955338880913629,
+      "signos": "+−−",
+      "p": {
+        "dd": 0.25398730063496827,
+        "alAno": 0.24363781810909454,
+        "peor": 1,
+        "cvar5": 0.0026998650067496625,
+        "coste": 0.15374231288435578
+      },
+      "mediaSaltados": -12.809230769229154,
+      "falla": [
+        "sólo quita $1116 de racha",
+        "p(racha)=0.2540 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−−)",
+        "|t|=0.40 < 3.72"
+      ]
+    },
+    {
+      "campo": "recorrido",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 19707.665788667717,
+        "dd": -15216.759999999927,
+        "peor": -4605.24,
+        "cvar5": -3465.3089655172453,
+        "p5op": -2712.2400000000075,
+        "acierto": 0.7465986394557823
+      },
+      "ddElim": -40.52000000004591,
+      "coste": null,
+      "t": -1.002794834434347,
+      "signos": "−−−",
+      "p": {
+        "dd": 0.5135243237838109,
+        "alAno": 0.19254037298135093,
+        "peor": 0.09854507274636268,
+        "cvar5": 0.2595370231488426,
+        "coste": null
+      },
+      "mediaSaltados": -37.37846153845968,
+      "falla": [
+        "sólo quita −$41 de racha",
+        "p(racha)=0.5135 > 2.0e-4",
+        "|t|=1.00 < 3.72"
+      ]
+    },
+    {
+      "campo": "recorridoPts",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 18642.93684532939,
+        "dd": -13775.199999999983,
+        "peor": -4900.24,
+        "cvar5": -3333.136551724144,
+        "p5op": -1875.24,
+        "acierto": 0.7721088435374149
+      },
+      "ddElim": 1401.039999999899,
+      "coste": 0.09073198653825372,
+      "t": -0.3280750411478339,
+      "signos": "+−+",
+      "p": {
+        "dd": 0.21083945802709864,
+        "alAno": 0.2888355582220889,
+        "peor": 1,
+        "cvar5": 0.014249287535623219,
+        "coste": 0.18564071796410178
+      },
+      "mediaSaltados": 5.067692307691752,
+      "falla": [
+        "sólo quita $1401 de racha",
+        "p(racha)=0.2108 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−+)",
+        "|t|=0.33 < 3.72"
+      ]
+    },
+    {
+      "campo": "recorridoPts",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 19898.69182235843,
+        "dd": -15216.75999999993,
+        "peor": -4605.24,
+        "cvar5": -3465.3089655172453,
+        "p5op": -2712.2400000000075,
+        "acierto": 0.75
+      },
+      "ddElim": -40.52000000004773,
+      "coste": null,
+      "t": -1.0471034297102355,
+      "signos": "−−·",
+      "p": {
+        "dd": 0.5135243237838109,
+        "alAno": 0.17769111544422778,
+        "peor": 0.09854507274636268,
+        "cvar5": 0.2595370231488426,
+        "coste": null
+      },
+      "mediaSaltados": -44.993846153845986,
+      "falla": [
+        "sólo quita −$41 de racha",
+        "p(racha)=0.5135 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−−·)",
+        "|t|=1.05 < 3.72"
+      ]
+    },
+    {
+      "campo": "eficiencia",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 16190.857212863677,
+        "dd": -15176.239999999887,
+        "peor": -4900.24,
+        "cvar5": -3446.6882758620745,
+        "p5op": -2555.24,
+        "acierto": 0.75
+      },
+      "ddElim": -5.4569682106375694e-12,
+      "coste": null,
+      "t": 0.20347260846917095,
+      "signos": "−+−",
+      "p": {
+        "dd": 0.5028248587570622,
+        "alAno": 0.5712214389280535,
+        "peor": 1,
+        "cvar5": 0.18354082295885205,
+        "coste": null
+      },
+      "mediaSaltados": 102.8215384615388,
+      "falla": [
+        "sólo quita −$0 de racha",
+        "retiene 86% del ingreso",
+        "p(racha)=0.5028 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−+−)",
+        "|t|=0.20 < 3.72"
+      ]
+    },
+    {
+      "campo": "eficiencia",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 18465.03179173053,
+        "dd": -14654.200000000092,
+        "peor": -4900.24,
+        "cvar5": -3544.998620689656,
+        "p5op": -2712.2400000000075,
+        "acierto": 0.7602040816326531
+      },
+      "ddElim": 522.0399999997899,
+      "coste": 0.5842927668732845,
+      "t": -0.49815718575856677,
+      "signos": "−+−",
+      "p": {
+        "dd": 0.36433178341082945,
+        "alAno": 0.3065846707664617,
+        "peor": 1,
+        "cvar5": 0.7642617869106545,
+        "coste": 0.22828858557072146
+      },
+      "mediaSaltados": 12.160000000000935,
+      "falla": [
+        "sólo quita $522 de racha",
+        "p(racha)=0.3643 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−+−)",
+        "|t|=0.50 < 3.72"
+      ]
+    },
+    {
+      "campo": "zigzag",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 17471.696416539042,
+        "dd": -14804.11999999993,
+        "peor": -4900.24,
+        "cvar5": -3528.4124137931053,
+        "p5op": -2579.240000000033,
+        "acierto": 0.7568027210884354
+      },
+      "ddElim": 372.1199999999517,
+      "coste": 3.4890883887188613,
+      "t": -0.1680030558438154,
+      "signos": "++−",
+      "p": {
+        "dd": 0.3896305184740763,
+        "alAno": 0.42022898855057245,
+        "peor": 1,
+        "cvar5": 0.6445677716114194,
+        "coste": 0.35658217089145544
+      },
+      "mediaSaltados": 51.76000000000146,
+      "falla": [
+        "sólo quita $372 de racha",
+        "p(racha)=0.3896 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (++−)",
+        "|t|=0.17 < 3.72"
+      ]
+    },
+    {
+      "campo": "zigzag",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 16927.17574272606,
+        "dd": -16459.04000000003,
+        "peor": -4900.24,
+        "cvar5": -3516.3434482758657,
+        "p5op": -2712.2400000000075,
+        "acierto": 0.7602040816326531
+      },
+      "ddElim": -1282.8000000001484,
+      "coste": null,
+      "t": -0.007873881150545197,
+      "signos": "−−+",
+      "p": {
+        "dd": 0.8059597020148993,
+        "alAno": 0.4842257887105645,
+        "peor": 1,
+        "cvar5": 0.5646717664116794,
+        "coste": null
+      },
+      "mediaSaltados": 73.46769230768874,
+      "falla": [
+        "sólo quita −$1283 de racha",
+        "p(racha)=0.8060 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−−+)",
+        "|t|=0.01 < 3.72"
+      ]
+    },
+    {
+      "campo": "rvManana",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 19106.416171516168,
+        "dd": -14398.440000000053,
+        "peor": -4900.24,
+        "cvar5": -3244.584827586214,
+        "p5op": -1835.2400000000002,
+        "acierto": 0.7687074829931972
+      },
+      "ddElim": 777.7999999998283,
+      "coste": -0.43245073767974607,
+      "t": -0.3989002585838054,
+      "signos": "+−−",
+      "p": {
+        "dd": 0.3076846157692115,
+        "alAno": 0.24193790310484475,
+        "peor": 1,
+        "cvar5": 0.0014999250037498126,
+        "coste": 0.1414929253537323
+      },
+      "mediaSaltados": -13.409230769229351,
+      "falla": [
+        "sólo quita $778 de racha",
+        "p(racha)=0.3077 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−−)",
+        "|t|=0.40 < 3.72"
+      ]
+    },
+    {
+      "campo": "rvManana",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 19965.454456355328,
+        "dd": -15496.519999999928,
+        "peor": -4605.24,
+        "cvar5": -3465.3089655172453,
+        "p5op": -2712.2400000000075,
+        "acierto": 0.7482993197278912
+      },
+      "ddElim": -320.28000000004613,
+      "coste": null,
+      "t": -1.0954581462909916,
+      "signos": "−−−",
+      "p": {
+        "dd": 0.5798710064496775,
+        "alAno": 0.17264136793160342,
+        "peor": 0.09854507274636268,
+        "cvar5": 0.2595370231488426,
+        "coste": null
+      },
+      "mediaSaltados": -47.655384615383205,
+      "falla": [
+        "sólo quita −$320 de racha",
+        "p(racha)=0.5799 > 2.0e-4",
+        "|t|=1.10 < 3.72"
+      ]
+    },
+    {
+      "campo": "acel",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 26617.019540582038,
+        "dd": -11951.160000000153,
+        "peor": -4900.24,
+        "cvar5": -3159.6537931034554,
+        "p5op": -1816.2400000000216,
+        "acierto": 0.7789115646258503
+      },
+      "ddElim": 3225.079999999729,
+      "coste": -2.433106636993117,
+      "t": -1.8027404241288305,
+      "signos": "−+−",
+      "p": {
+        "dd": 0.030598470076496177,
+        "alAno": 0.0030998450077496125,
+        "peor": 1,
+        "cvar5": 0.0000999950002499875,
+        "coste": 0.050197490125493724
+      },
+      "mediaSaltados": -312.82461538461797,
+      "falla": [
+        "p(racha)=0.0306 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−+−)",
+        "|t|=1.80 < 3.72"
+      ]
+    },
+    {
+      "campo": "acel",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 16603.396263399733,
+        "dd": -15633.680000000088,
+        "peor": -4900.24,
+        "cvar5": -3552.8606896551746,
+        "p5op": -2712.2400000000075,
+        "acierto": 0.7517006802721088
+      },
+      "ddElim": -457.44000000020606,
+      "coste": null,
+      "t": 0.11807398944723377,
+      "signos": "+−−",
+      "p": {
+        "dd": 0.6230188490575471,
+        "alAno": 0.5218739063046848,
+        "peor": 1,
+        "cvar5": 0.8050597470126494,
+        "coste": null
+      },
+      "mediaSaltados": 86.37538461538495,
+      "falla": [
+        "sólo quita −$457 de racha",
+        "retiene 88% del ingreso",
+        "p(racha)=0.6230 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−−)",
+        "|t|=0.12 < 3.72"
+      ]
+    },
+    {
+      "campo": "ivAtm11",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 11330.305911179052,
+        "dd": -16563.519999999975,
+        "peor": -4900.24,
+        "cvar5": -3393.0675862069033,
+        "p5op": -1961.24000000004,
+        "acierto": 0.7704081632653061
+      },
+      "ddElim": -1387.2800000000934,
+      "coste": null,
+      "t": 1.035164103037077,
+      "signos": "+++",
+      "p": {
+        "dd": 0.8281085945702715,
+        "alAno": 0.9615019249037549,
+        "peor": 1,
+        "cvar5": 0.060446977651117444,
+        "coste": null
+      },
+      "mediaSaltados": 296.59076923077,
+      "falla": [
+        "sólo quita −$1387 de racha",
+        "retiene 60% del ingreso",
+        "p(racha)=0.8281 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+++)",
+        "|t|=1.04 < 3.72"
+      ]
+    },
+    {
+      "campo": "ivAtm11",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 17419.212496171574,
+        "dd": -15176.239999999885,
+        "peor": -4900.24,
+        "cvar5": -3587.171034482764,
+        "p5op": -2771.239999999967,
+        "acierto": 0.7414965986394558
+      },
+      "ddElim": -3.637978807091713e-12,
+      "coste": null,
+      "t": -0.37515053996486564,
+      "signos": "−−+",
+      "p": {
+        "dd": 0.49957502124893755,
+        "alAno": 0.4258287085645718,
+        "peor": 1,
+        "cvar5": 1,
+        "coste": null
+      },
+      "mediaSaltados": 53.852307692308024,
+      "falla": [
+        "sólo quita −$0 de racha",
+        "p(racha)=0.4996 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−−+)",
+        "|t|=0.38 < 3.72"
+      ]
+    },
+    {
+      "campo": "ivCambio",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 18015.059356814832,
+        "dd": -15598.75999999991,
+        "peor": -4900.24,
+        "cvar5": -3462.343448275867,
+        "p5op": -2448.2400000000284,
+        "acierto": 0.7636054421768708
+      },
+      "ddElim": -422.5200000000277,
+      "coste": null,
+      "t": -0.29308335766611543,
+      "signos": "+−−",
+      "p": {
+        "dd": 0.6119694015299235,
+        "alAno": 0.3567821608919554,
+        "peor": 1,
+        "cvar5": 0.24618769061546922,
+        "coste": null
+      },
+      "mediaSaltados": 30.09846153845944,
+      "falla": [
+        "sólo quita −$423 de racha",
+        "p(racha)=0.6120 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−−)",
+        "|t|=0.29 < 3.72"
+      ]
+    },
+    {
+      "campo": "ivCambio",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 18787.267626340075,
+        "dd": -12739.879999999941,
+        "peor": -4900.24,
+        "cvar5": -3496.1710344827607,
+        "p5op": -2579.240000000033,
+        "acierto": 0.75
+      },
+      "ddElim": 2436.3599999999406,
+      "coste": -0.00706448907022768,
+      "t": -0.5643433749396296,
+      "signos": "+−+",
+      "p": {
+        "dd": 0.09024548772561372,
+        "alAno": 0.27303634818259087,
+        "peor": 1,
+        "cvar5": 0.4328783560821959,
+        "coste": 0.17669116544172792
+      },
+      "mediaSaltados": -0.6861538461543043,
+      "falla": [
+        "sólo quita $2436 de racha",
+        "p(racha)=0.0902 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−+)",
+        "|t|=0.56 < 3.72"
+      ]
+    },
+    {
+      "campo": "sigmaRatio",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 20537.76073506899,
+        "dd": -15176.239999999889,
+        "peor": -4605.24,
+        "cvar5": -3513.7572413793137,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7431972789115646
+      },
+      "ddElim": -7.275957614183426e-12,
+      "coste": null,
+      "t": -1.6217065048397448,
+      "signos": "−−+",
+      "p": {
+        "dd": 0.503324833758312,
+        "alAno": 0.1342432878356082,
+        "peor": 0.09854507274636268,
+        "cvar5": 0.5497225138743063,
+        "coste": null
+      },
+      "mediaSaltados": -70.47076923076906,
+      "falla": [
+        "sólo quita −$0 de racha",
+        "p(racha)=0.5033 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−−+)",
+        "|t|=1.62 < 3.72"
+      ]
+    },
+    {
+      "campo": "sigmaRatio",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 16836.100704440993,
+        "dd": -13174.279999999828,
+        "peor": -4900.24,
+        "cvar5": -3304.1365517241466,
+        "p5op": -1835.2400000000002,
+        "acierto": 0.7772108843537415
+      },
+      "ddElim": 2001.9600000000537,
+      "coste": 0.9660309313412313,
+      "t": 0.011443144854711863,
+      "signos": "+−−",
+      "p": {
+        "dd": 0.1328933553322334,
+        "alAno": 0.4938753062346883,
+        "peor": 1,
+        "cvar5": 0.006549672516374182,
+        "coste": 0.2551372431378431
+      },
+      "mediaSaltados": 77.09846153846321,
+      "falla": [
+        "sólo quita $2002 de racha",
+        "retiene 90% del ingreso",
+        "p(racha)=0.1329 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−−)",
+        "|t|=0.01 < 3.72"
+      ]
+    },
+    {
+      "campo": "rvIv",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 11432.18646248079,
+        "dd": -17547.51999999986,
+        "peor": -4900.24,
+        "cvar5": -3468.4124137931058,
+        "p5op": -2579.240000000033,
+        "acierto": 0.75
+      },
+      "ddElim": -2371.279999999977,
+      "coste": null,
+      "t": 1.526067812561566,
+      "signos": "+++",
+      "p": {
+        "dd": 0.9349032548372581,
+        "alAno": 0.9585020748962552,
+        "peor": 1,
+        "cvar5": 0.27333633318334083,
+        "coste": null
+      },
+      "mediaSaltados": 292.52923076923133,
+      "falla": [
+        "sólo quita −$2371 de racha",
+        "retiene 61% del ingreso",
+        "p(racha)=0.9349 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+++)",
+        "|t|=1.53 < 3.72"
+      ]
+    },
+    {
+      "campo": "rvIv",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 10790.03026033682,
+        "dd": -15216.759999999891,
+        "peor": -4900.24,
+        "cvar5": -3540.136551724141,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7482993197278912
+      },
+      "ddElim": -40.52000000000953,
+      "coste": null,
+      "t": 2.1685294627745217,
+      "signos": "+++",
+      "p": {
+        "dd": 0.512674366281686,
+        "alAno": 0.9734013299335034,
+        "peor": 1,
+        "cvar5": 0.7339133043347833,
+        "coste": null
+      },
+      "mediaSaltados": 318.1292307692298,
+      "falla": [
+        "sólo quita −$41 de racha",
+        "retiene 57% del ingreso",
+        "p(racha)=0.5127 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+++)",
+        "|t|=2.17 < 3.72"
+      ]
+    },
+    {
+      "campo": "hueco",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 23382.312036753505,
+        "dd": -15176.239999999883,
+        "peor": -4605.24,
+        "cvar5": -3395.1365517241425,
+        "p5op": -2192.2400000000252,
+        "acierto": 0.7670068027210885
+      },
+      "ddElim": -1.8189894035458565e-12,
+      "coste": null,
+      "t": -1.552285510405723,
+      "signos": "−−−",
+      "p": {
+        "dd": 0.4966751662416879,
+        "alAno": 0.02984850757462127,
+        "peor": 0.09854507274636268,
+        "cvar5": 0.063946802659867,
+        "coste": null
+      },
+      "mediaSaltados": -183.8707692307683,
+      "falla": [
+        "sólo quita −$0 de racha",
+        "p(racha)=0.4967 > 2.0e-4",
+        "|t|=1.55 < 3.72"
+      ]
+    },
+    {
+      "campo": "hueco",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 10844.829647779385,
+        "dd": -16757.279999999788,
+        "peor": -4900.24,
+        "cvar5": -3466.722758620694,
+        "p5op": -2210.24,
+        "acierto": 0.7534013605442177
+      },
+      "ddElim": -1581.0399999999063,
+      "coste": null,
+      "t": 1.3174828159680871,
+      "signos": "+++",
+      "p": {
+        "dd": 0.856407179641018,
+        "alAno": 0.9722013899305034,
+        "peor": 1,
+        "cvar5": 0.26533673316334183,
+        "coste": null
+      },
+      "mediaSaltados": 315.9446153846155,
+      "falla": [
+        "sólo quita −$1581 de racha",
+        "retiene 58% del ingreso",
+        "p(racha)=0.8564 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+++)",
+        "|t|=1.32 < 3.72"
+      ]
+    },
+    {
+      "campo": "huecoAbs",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 17471.696416539064,
+        "dd": -16252.519999999804,
+        "peor": -4900.24,
+        "cvar5": -3340.8262068965573,
+        "p5op": -2048.2400000000284,
+        "acierto": 0.7636054421768708
+      },
+      "ddElim": -1076.2799999999224,
+      "coste": null,
+      "t": -0.1136683162707832,
+      "signos": "++−",
+      "p": {
+        "dd": 0.7655617219139043,
+        "alAno": 0.42022898855057245,
+        "peor": 1,
+        "cvar5": 0.017099145042747864,
+        "coste": null
+      },
+      "mediaSaltados": 51.759999999999586,
+      "falla": [
+        "sólo quita −$1076 de racha",
+        "p(racha)=0.7656 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (++−)",
+        "|t|=0.11 < 3.72"
+      ]
+    },
+    {
+      "campo": "huecoAbs",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 11060.939908116212,
+        "dd": -15016.999999999889,
+        "peor": -4900.24,
+        "cvar5": -3587.171034482764,
+        "p5op": -2771.239999999967,
+        "acierto": 0.7414965986394558
+      },
+      "ddElim": 159.2399999999925,
+      "coste": 48.41193217554061,
+      "t": 3.254355848768977,
+      "signos": "+++",
+      "p": {
+        "dd": 0.43142842857857105,
+        "alAno": 0.9681015949202539,
+        "peor": 1,
+        "cvar5": 1,
+        "coste": 0.45642717864106797
+      },
+      "mediaSaltados": 307.3292307692331,
+      "falla": [
+        "sólo quita $159 de racha",
+        "retiene 59% del ingreso",
+        "p(racha)=0.4314 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+++)",
+        "|t|=3.25 < 3.72"
+      ]
+    },
+    {
+      "campo": "rangoAyerReal",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 19179.35338437982,
+        "dd": -14389.879999999983,
+        "peor": -4900.24,
+        "cvar5": -3477.9641379310387,
+        "p5op": -2091.2400000000034,
+        "acierto": 0.7755102040816326
+      },
+      "ddElim": 786.3599999998987,
+      "coste": -0.5204962061027242,
+      "t": -0.47002891449408657,
+      "signos": "+−−",
+      "p": {
+        "dd": 0.30683465826708667,
+        "alAno": 0.23493825308734564,
+        "peor": 1,
+        "cvar5": 0.32278386080695964,
+        "coste": 0.13504324783760813
+      },
+      "mediaSaltados": -16.316923076920467,
+      "falla": [
+        "sólo quita $786 de racha",
+        "p(racha)=0.3068 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−−)",
+        "|t|=0.47 < 3.72"
+      ]
+    },
+    {
+      "campo": "rangoAyerReal",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 17881.53408882095,
+        "dd": -16160.519999999875,
+        "peor": -4900.24,
+        "cvar5": -3540.136551724141,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7448979591836735
+      },
+      "ddElim": -984.2799999999934,
+      "coste": null,
+      "t": -0.43742046678562296,
+      "signos": "−−+",
+      "p": {
+        "dd": 0.743962801859907,
+        "alAno": 0.3712314384280786,
+        "peor": 1,
+        "cvar5": 0.7339133043347833,
+        "coste": null
+      },
+      "mediaSaltados": 35.42153846153722,
+      "falla": [
+        "sólo quita −$984 de racha",
+        "p(racha)=0.7440 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−−+)",
+        "|t|=0.44 < 3.72"
+      ]
+    },
+    {
+      "campo": "rvAyer",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 14554.593813169868,
+        "dd": -14389.879999999994,
+        "peor": -4900.24,
+        "cvar5": -3520.653793103452,
+        "p5op": -2448.2400000000284,
+        "acierto": 0.7704081632653061
+      },
+      "ddElim": 786.3599999998878,
+      "coste": 5.360728132890368,
+      "t": 0.4972410745429587,
+      "signos": "+−+",
+      "p": {
+        "dd": 0.30693465326733665,
+        "alAno": 0.75991200439978,
+        "peor": 1,
+        "cvar5": 0.5910704464776761,
+        "coste": 0.38718064096795163
+      },
+      "mediaSaltados": 168.05230769231085,
+      "falla": [
+        "sólo quita $786 de racha",
+        "retiene 78% del ingreso",
+        "p(racha)=0.3069 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−+)",
+        "|t|=0.50 < 3.72"
+      ]
+    },
+    {
+      "campo": "rvAyer",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 15177.84036753449,
+        "dd": -15455.99999999988,
+        "peor": -4900.24,
+        "cvar5": -3587.171034482764,
+        "p5op": -2771.239999999967,
+        "acierto": 0.7431972789115646
+      },
+      "ddElim": -279.7599999999984,
+      "coste": null,
+      "t": 1.037365221775075,
+      "signos": "−++",
+      "p": {
+        "dd": 0.5667216639168041,
+        "alAno": 0.6895655217239138,
+        "peor": 1,
+        "cvar5": 1,
+        "coste": null
+      },
+      "mediaSaltados": 143.20615384615385,
+      "falla": [
+        "sólo quita −$280 de racha",
+        "retiene 81% del ingreso",
+        "p(racha)=0.5667 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−++)",
+        "|t|=1.04 < 3.72"
+      ]
+    },
+    {
+      "campo": "tardeAyerPts",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 12038.838836140698,
+        "dd": -16116.120000000059,
+        "peor": -4900.24,
+        "cvar5": -3534.860689655176,
+        "p5op": -2579.240000000033,
+        "acierto": 0.7670068027210885
+      },
+      "ddElim": -939.8800000001775,
+      "coste": null,
+      "t": 1.1671172046532685,
+      "signos": "++−",
+      "p": {
+        "dd": 0.7367131643417829,
+        "alAno": 0.9373531323433828,
+        "peor": 1,
+        "cvar5": 0.6974651267436628,
+        "coste": null
+      },
+      "mediaSaltados": 268.3446153846187,
+      "falla": [
+        "sólo quita −$940 de racha",
+        "retiene 64% del ingreso",
+        "p(racha)=0.7367 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (++−)",
+        "|t|=1.17 < 3.72"
+      ]
+    },
+    {
+      "campo": "tardeAyerPts",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 21361.2951914244,
+        "dd": -15455.999999999878,
+        "peor": -4900.24,
+        "cvar5": -3380.274482758624,
+        "p5op": -2522.2400000000252,
+        "acierto": 0.7534013605442177
+      },
+      "ddElim": -279.7599999999966,
+      "coste": null,
+      "t": -1.2314645292581285,
+      "signos": "−−−",
+      "p": {
+        "dd": 0.5662216889155542,
+        "alAno": 0.09384530773461328,
+        "peor": 1,
+        "cvar5": 0.0439978001099945,
+        "coste": null
+      },
+      "mediaSaltados": -103.30153846154303,
+      "falla": [
+        "sólo quita −$280 de racha",
+        "p(racha)=0.5662 > 2.0e-4",
+        "|t|=1.23 < 3.72"
+      ]
+    },
+    {
+      "campo": "retAyer",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 16640.829647779567,
+        "dd": -15662.920000000024,
+        "peor": -4900.24,
+        "cvar5": -3559.7917241379346,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7636054421768708
+      },
+      "ddElim": -486.6800000001422,
+      "coste": null,
+      "t": 0.0808645421495703,
+      "signos": "+−−",
+      "p": {
+        "dd": 0.6271186440677966,
+        "alAno": 0.5174741262936853,
+        "peor": 1,
+        "cvar5": 0.8640567971601419,
+        "coste": null
+      },
+      "mediaSaltados": 84.88307692307613,
+      "falla": [
+        "sólo quita −$487 de racha",
+        "retiene 89% del ingreso",
+        "p(racha)=0.6271 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−−)",
+        "|t|=0.08 < 3.72"
+      ]
+    },
+    {
+      "campo": "retAyer",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 21672.725513016918,
+        "dd": -13716.039999999932,
+        "peor": -4900.24,
+        "cvar5": -3470.136551724142,
+        "p5op": -2210.24,
+        "acierto": 0.7755102040816326
+      },
+      "ddElim": 1460.1999999999498,
+      "coste": -1.9878575025805245,
+      "t": -1.0403722024592035,
+      "signos": "−+−",
+      "p": {
+        "dd": 0.20453977301134943,
+        "alAno": 0.07879606019699015,
+        "peor": 1,
+        "cvar5": 0.2813359332033398,
+        "coste": 0.06004699765011749
+      },
+      "mediaSaltados": -115.7169230769247,
+      "falla": [
+        "sólo quita $1460 de racha",
+        "p(racha)=0.2045 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−+−)",
+        "|t|=1.04 < 3.72"
+      ]
+    },
+    {
+      "campo": "vix",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 16978.11601837661,
+        "dd": -13876.400000000012,
+        "peor": -4900.24,
+        "cvar5": -3391.7917241379378,
+        "p5op": -2048.2400000000284,
+        "acierto": 0.7738095238095238
+      },
+      "ddElim": 1299.8399999998692,
+      "coste": 1.3785850330598417,
+      "t": -0.014831025250266111,
+      "signos": "++−",
+      "p": {
+        "dd": 0.22428878556072196,
+        "alAno": 0.47862606869656515,
+        "peor": 1,
+        "cvar5": 0.05859707014649267,
+        "coste": 0.28028598570071495
+      },
+      "mediaSaltados": 71.43692307692794,
+      "falla": [
+        "sólo quita $1300 de racha",
+        "p(racha)=0.2243 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (++−)",
+        "|t|=0.01 < 3.72"
+      ]
+    },
+    {
+      "campo": "vix",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 17109.32581929562,
+        "dd": -15176.239999999874,
+        "peor": -4900.24,
+        "cvar5": -3587.171034482764,
+        "p5op": -2771.239999999967,
+        "acierto": 0.7465986394557823
+      },
+      "ddElim": 7.275957614183426e-12,
+      "coste": 228249016351602,
+      "t": -0.12098448052911519,
+      "signos": "−··",
+      "p": {
+        "dd": 0.47687615619219037,
+        "alAno": 0.46282685865706713,
+        "peor": 1,
+        "cvar5": 1,
+        "coste": 0.4735263236838158
+      },
+      "mediaSaltados": 66.2061538461547,
+      "falla": [
+        "sólo quita $0 de racha",
+        "p(racha)=0.4769 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−··)",
+        "|t|=0.12 < 3.72"
+      ]
+    },
+    {
+      "campo": "vixCambio",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 18182.54480857579,
+        "dd": -16055.039999999915,
+        "peor": -4900.24,
+        "cvar5": -3489.7227586206914,
+        "p5op": -2210.24,
+        "acierto": 0.7670068027210885
+      },
+      "ddElim": -878.8000000000338,
+      "coste": null,
+      "t": -0.2898985688877513,
+      "signos": "++−",
+      "p": {
+        "dd": 0.7253137343132844,
+        "alAno": 0.33763311834408277,
+        "peor": 1,
+        "cvar5": 0.39258037098145093,
+        "coste": null
+      },
+      "mediaSaltados": 23.42153846153899,
+      "falla": [
+        "sólo quita −$879 de racha",
+        "p(racha)=0.7253 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (++−)",
+        "|t|=0.29 < 3.72"
+      ]
+    },
+    {
+      "campo": "vixCambio",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 10560.799019908034,
+        "dd": -17878.200000000168,
+        "peor": -4900.24,
+        "cvar5": -3555.4813793103485,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7465986394557823
+      },
+      "ddElim": -2701.9600000002865,
+      "coste": null,
+      "t": 2.0405416810385772,
+      "signos": "+++",
+      "p": {
+        "dd": 0.9535523223838808,
+        "alAno": 0.9784510774461277,
+        "peor": 1,
+        "cvar5": 0.8268086595670217,
+        "coste": null
+      },
+      "mediaSaltados": 327.26769230769133,
+      "falla": [
+        "sólo quita −$2702 de racha",
+        "retiene 56% del ingreso",
+        "p(racha)=0.9536 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+++)",
+        "|t|=2.04 < 3.72"
+      ]
+    },
+    {
+      "campo": "term9",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 15334.906217457834,
+        "dd": -15251.080000000013,
+        "peor": -4900.24,
+        "cvar5": -3525.3089655172453,
+        "p5op": -2522.2400000000252,
+        "acierto": 0.7704081632653061
+      },
+      "ddElim": -74.84000000013111,
+      "coste": null,
+      "t": 0.35758566539154085,
+      "signos": "+−−",
+      "p": {
+        "dd": 0.5175741212939353,
+        "alAno": 0.671616419179041,
+        "peor": 1,
+        "cvar5": 0.6246687665616719,
+        "coste": null
+      },
+      "mediaSaltados": 136.9446153846165,
+      "falla": [
+        "sólo quita −$75 de racha",
+        "retiene 82% del ingreso",
+        "p(racha)=0.5176 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−−)",
+        "|t|=0.36 < 3.72"
+      ]
+    },
+    {
+      "campo": "term9",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 15467.659663093355,
+        "dd": -15680.759999999866,
+        "peor": -4900.24,
+        "cvar5": -3558.826206896555,
+        "p5op": -2712.2400000000075,
+        "acierto": 0.7380952380952381
+      },
+      "ddElim": -504.51999999998407,
+      "coste": null,
+      "t": 0.6763119991454534,
+      "signos": "++−",
+      "p": {
+        "dd": 0.6312184390780461,
+        "alAno": 0.6577171141442928,
+        "peor": 1,
+        "cvar5": 0.8552572371381431,
+        "coste": null
+      },
+      "mediaSaltados": 131.65230769230973,
+      "falla": [
+        "sólo quita −$505 de racha",
+        "retiene 82% del ingreso",
+        "p(racha)=0.6312 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (++−)",
+        "|t|=0.68 < 3.72"
+      ]
+    },
+    {
+      "campo": "term3m",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 16325.926125574175,
+        "dd": -14928.399999999927,
+        "peor": -4900.24,
+        "cvar5": -3473.4124137931076,
+        "p5op": -2448.2400000000284,
+        "acierto": 0.7721088435374149
+      },
+      "ddElim": 247.83999999995467,
+      "coste": 9.861724750545546,
+      "t": 0.12014941604332238,
+      "signos": "++−",
+      "p": {
+        "dd": 0.4121793910304485,
+        "alAno": 0.5561221938903055,
+        "peor": 1,
+        "cvar5": 0.2983350832458377,
+        "coste": 0.41897905104744765
+      },
+      "mediaSaltados": 97.43692307692679,
+      "falla": [
+        "sólo quita $248 de racha",
+        "retiene 87% del ingreso",
+        "p(racha)=0.4122 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (++−)",
+        "|t|=0.12 < 3.72"
+      ]
+    },
+    {
+      "campo": "term3m",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 14548.805145482309,
+        "dd": -15176.23999999988,
+        "peor": -4900.24,
+        "cvar5": -3537.2055172413825,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7414965986394558
+      },
+      "ddElim": 1.8189894035458565e-12,
+      "coste": 2320657192415695,
+      "t": 1.079405709465251,
+      "signos": "·++",
+      "p": {
+        "dd": 0.4857757112144393,
+        "alAno": 0.7602619869006549,
+        "peor": 1,
+        "cvar5": 0.7150642467876606,
+        "coste": 0.4847757612119394
+      },
+      "mediaSaltados": 168.28307692307925,
+      "falla": [
+        "sólo quita $0 de racha",
+        "retiene 78% del ingreso",
+        "p(racha)=0.4858 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (·++)",
+        "|t|=1.08 < 3.72"
+      ]
+    },
+    {
+      "campo": "vvix",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 14746.777580398046,
+        "dd": -18178.27999999996,
+        "peor": -4900.24,
+        "cvar5": -3428.998620689659,
+        "p5op": -2448.2400000000284,
+        "acierto": 0.7670068027210885
+      },
+      "ddElim": -3002.0400000000773,
+      "coste": null,
+      "t": 0.44652098524882916,
+      "signos": "++−",
+      "p": {
+        "dd": 0.9658017099145043,
+        "alAno": 0.7391130443477826,
+        "peor": 1,
+        "cvar5": 0.12709364531773412,
+        "coste": null
+      },
+      "mediaSaltados": 160.3907692307729,
+      "falla": [
+        "sólo quita −$3002 de racha",
+        "retiene 79% del ingreso",
+        "p(racha)=0.9658 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (++−)",
+        "|t|=0.45 < 3.72"
+      ]
+    },
+    {
+      "campo": "vvix",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 19411.671914242037,
+        "dd": -15176.239999999887,
+        "peor": -4605.24,
+        "cvar5": -3481.4468965517262,
+        "p5op": -2712.2400000000075,
+        "acierto": 0.7448979591836735
+      },
+      "ddElim": -5.4569682106375694e-12,
+      "coste": null,
+      "t": -0.9396484582702509,
+      "signos": "−··",
+      "p": {
+        "dd": 0.5028248587570622,
+        "alAno": 0.21573921303934804,
+        "peor": 0.09854507274636268,
+        "cvar5": 0.3431828408579571,
+        "coste": null
+      },
+      "mediaSaltados": -25.57846153846101,
+      "falla": [
+        "sólo quita −$0 de racha",
+        "p(racha)=0.5028 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−··)",
+        "|t|=0.94 < 3.72"
+      ]
+    },
+    {
+      "campo": "vvixVix",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 15162.789831546776,
+        "dd": -14911.999999999896,
+        "peor": -4900.24,
+        "cvar5": -3587.171034482764,
+        "p5op": -2771.239999999967,
+        "acierto": 0.7414965986394558
+      },
+      "ddElim": 264.23999999998523,
+      "coste": 13.651476522110059,
+      "t": 1.0137559846662738,
+      "signos": "++·",
+      "p": {
+        "dd": 0.4062796860156992,
+        "alAno": 0.6917654117294135,
+        "peor": 1,
+        "cvar5": 1,
+        "coste": 0.4314784260786961
+      },
+      "mediaSaltados": 143.80615384615245,
+      "falla": [
+        "sólo quita $264 de racha",
+        "retiene 81% del ingreso",
+        "p(racha)=0.4063 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (++·)",
+        "|t|=1.01 < 3.72"
+      ]
+    },
+    {
+      "campo": "vvixVix",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 17894.655068912663,
+        "dd": -17861.63999999984,
+        "peor": -4900.24,
+        "cvar5": -3427.6882758620745,
+        "p5op": -1961.24000000004,
+        "acierto": 0.7704081632653061
+      },
+      "ddElim": -2685.399999999958,
+      "coste": null,
+      "t": -0.20207513778038283,
+      "signos": "·+−",
+      "p": {
+        "dd": 0.9528523573821309,
+        "alAno": 0.37013149342532875,
+        "peor": 1,
+        "cvar5": 0.12409379531023448,
+        "coste": null
+      },
+      "mediaSaltados": 34.89846153846161,
+      "falla": [
+        "sólo quita −$2685 de racha",
+        "p(racha)=0.9529 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (·+−)",
+        "|t|=0.20 < 3.72"
+      ]
+    },
+    {
+      "campo": "ivVsVix",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 17634.936845329295,
+        "dd": -12410.359999999982,
+        "peor": -4900.24,
+        "cvar5": -3322.102068965524,
+        "p5op": -1961.24000000004,
+        "acierto": 0.7704081632653061
+      },
+      "ddElim": 2765.879999999899,
+      "coste": 0.4104007196334193,
+      "t": -0.1378326241904299,
+      "signos": "+−−",
+      "p": {
+        "dd": 0.06474676266186691,
+        "alAno": 0.40037998100094996,
+        "peor": 1,
+        "cvar5": 0.011099445027748612,
+        "coste": 0.21303934803259836
+      },
+      "mediaSaltados": 45.252307692305976,
+      "falla": [
+        "sólo quita $2766 de racha",
+        "p(racha)=0.0647 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−−)",
+        "|t|=0.14 < 3.72"
+      ]
+    },
+    {
+      "campo": "ivVsVix",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 17034.844961715222,
+        "dd": -15176.23999999988,
+        "peor": -4900.24,
+        "cvar5": -3587.171034482764,
+        "p5op": -2771.239999999967,
+        "acierto": 0.7414965986394558
+      },
+      "ddElim": 1.8189894035458565e-12,
+      "coste": 953942349884596,
+      "t": -0.08844595412698064,
+      "signos": "+−+",
+      "p": {
+        "dd": 0.4857757112144393,
+        "alAno": 0.47172641367931606,
+        "peor": 1,
+        "cvar5": 1,
+        "coste": 0.4823758812059397
+      },
+      "mediaSaltados": 69.17538461538483,
+      "falla": [
+        "sólo quita $0 de racha",
+        "p(racha)=0.4858 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−+)",
+        "|t|=0.09 < 3.72"
+      ]
+    },
+    {
+      "campo": "nivel",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 16140.302848392066,
+        "dd": -15176.239999999882,
+        "peor": -4900.24,
+        "cvar5": -3505.65379310345,
+        "p5op": -2555.24,
+        "acierto": 0.7619047619047619
+      },
+      "ddElim": 0,
+      "coste": null,
+      "t": 0.2142347419312462,
+      "signos": "··+",
+      "p": {
+        "dd": 0.48897555122243885,
+        "alAno": 0.5773711314434278,
+        "peor": 1,
+        "cvar5": 0.4934253287335633,
+        "coste": null
+      },
+      "mediaSaltados": 104.836923076924,
+      "falla": [
+        "sólo quita $0 de racha",
+        "retiene 86% del ingreso",
+        "p(racha)=0.4890 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (··+)",
+        "|t|=0.21 < 3.72"
+      ]
+    },
+    {
+      "campo": "nivel",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 17316.946033690812,
+        "dd": -15176.239999999883,
+        "peor": -4900.24,
+        "cvar5": -3548.998620689657,
+        "p5op": -2712.2400000000075,
+        "acierto": 0.7465986394557823
+      },
+      "ddElim": -1.8189894035458565e-12,
+      "coste": null,
+      "t": -0.13988217828944205,
+      "signos": "−··",
+      "p": {
+        "dd": 0.4966751662416879,
+        "alAno": 0.43792810359482026,
+        "peor": 1,
+        "cvar5": 0.7833108344582771,
+        "coste": null
+      },
+      "mediaSaltados": 57.929230769227196,
+      "falla": [
+        "sólo quita −$0 de racha",
+        "p(racha)=0.4967 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−··)",
+        "|t|=0.14 < 3.72"
+      ]
+    },
+    {
+      "campo": "sepPct",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 17316.946033690812,
+        "dd": -15176.239999999883,
+        "peor": -4900.24,
+        "cvar5": -3548.998620689657,
+        "p5op": -2712.2400000000075,
+        "acierto": 0.7465986394557823
+      },
+      "ddElim": -1.8189894035458565e-12,
+      "coste": null,
+      "t": -0.13988217828944205,
+      "signos": "−··",
+      "p": {
+        "dd": 0.4966751662416879,
+        "alAno": 0.43792810359482026,
+        "peor": 1,
+        "cvar5": 0.7833108344582771,
+        "coste": null
+      },
+      "mediaSaltados": 57.929230769227196,
+      "falla": [
+        "sólo quita −$0 de racha",
+        "p(racha)=0.4967 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−··)",
+        "|t|=0.14 < 3.72"
+      ]
+    },
+    {
+      "campo": "sepPct",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 16140.302848392066,
+        "dd": -15176.239999999882,
+        "peor": -4900.24,
+        "cvar5": -3505.65379310345,
+        "p5op": -2555.24,
+        "acierto": 0.7619047619047619
+      },
+      "ddElim": 0,
+      "coste": null,
+      "t": 0.2142347419312462,
+      "signos": "··+",
+      "p": {
+        "dd": 0.48897555122243885,
+        "alAno": 0.5773711314434278,
+        "peor": 1,
+        "cvar5": 0.4934253287335633,
+        "coste": null
+      },
+      "mediaSaltados": 104.836923076924,
+      "falla": [
+        "sólo quita $0 de racha",
+        "retiene 86% del ingreso",
+        "p(racha)=0.4890 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (··+)",
+        "|t|=0.21 < 3.72"
+      ]
+    },
+    {
+      "campo": "credito",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 15894.477427258747,
+        "dd": -13174.279999999828,
+        "peor": -4900.24,
+        "cvar5": -3304.1365517241466,
+        "p5op": -1835.2400000000002,
+        "acierto": 0.7755102040816326
+      },
+      "ddElim": 2001.9600000000537,
+      "coste": 1.4363816262513294,
+      "t": 0.1766481978408963,
+      "signos": "++−",
+      "p": {
+        "dd": 0.1328933553322334,
+        "alAno": 0.6064196790160492,
+        "peor": 1,
+        "cvar5": 0.006549672516374182,
+        "coste": 0.2840357982100895
+      },
+      "mediaSaltados": 114.63692307692442,
+      "falla": [
+        "sólo quita $2002 de racha",
+        "retiene 85% del ingreso",
+        "p(racha)=0.1329 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (++−)",
+        "|t|=0.18 < 3.72"
+      ]
+    },
+    {
+      "campo": "credito",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 20907.84955589594,
+        "dd": -15176.239999999894,
+        "peor": -4605.24,
+        "cvar5": -3513.7572413793137,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7414965986394558
+      },
+      "ddElim": -1.2732925824820995e-11,
+      "coste": null,
+      "t": -1.7521859665511414,
+      "signos": "−−+",
+      "p": {
+        "dd": 0.504274786260687,
+        "alAno": 0.11414429278536073,
+        "peor": 0.09854507274636268,
+        "cvar5": 0.5497225138743063,
+        "coste": null
+      },
+      "mediaSaltados": -85.22461538461519,
+      "falla": [
+        "sólo quita −$0 de racha",
+        "p(racha)=0.5043 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−−+)",
+        "|t|=1.75 < 3.72"
+      ]
+    },
+    {
+      "campo": "sigma",
+      "lado": "alto",
+      "m": {
+        "n": 588,
+        "alAno": 16836.100704440993,
+        "dd": -13174.279999999828,
+        "peor": -4900.24,
+        "cvar5": -3304.1365517241466,
+        "p5op": -1835.2400000000002,
+        "acierto": 0.7772108843537415
+      },
+      "ddElim": 2001.9600000000537,
+      "coste": 0.9660309313412313,
+      "t": 0.011443144854711863,
+      "signos": "+−−",
+      "p": {
+        "dd": 0.1328933553322334,
+        "alAno": 0.4938753062346883,
+        "peor": 1,
+        "cvar5": 0.006549672516374182,
+        "coste": 0.2551372431378431
+      },
+      "mediaSaltados": 77.09846153846321,
+      "falla": [
+        "sólo quita $2002 de racha",
+        "retiene 90% del ingreso",
+        "p(racha)=0.1329 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (+−−)",
+        "|t|=0.01 < 3.72"
+      ]
+    },
+    {
+      "campo": "sigma",
+      "lado": "bajo",
+      "m": {
+        "n": 588,
+        "alAno": 20537.76073506899,
+        "dd": -15176.239999999889,
+        "peor": -4605.24,
+        "cvar5": -3513.7572413793137,
+        "p5op": -2730.2399999999993,
+        "acierto": 0.7431972789115646
+      },
+      "ddElim": -7.275957614183426e-12,
+      "coste": null,
+      "t": -1.6217065048397448,
+      "signos": "−−+",
+      "p": {
+        "dd": 0.503324833758312,
+        "alAno": 0.1342432878356082,
+        "peor": 0.09854507274636268,
+        "cvar5": 0.5497225138743063,
+        "coste": null
+      },
+      "mediaSaltados": -70.47076923076906,
+      "falla": [
+        "sólo quita −$0 de racha",
+        "p(racha)=0.5033 > 2.0e-4",
+        "los días saltados no son peores en los tres tercios (−−+)",
+        "|t|=1.62 < 3.72"
+      ]
+    }
+  ]
+}

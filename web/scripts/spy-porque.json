@@ -1,0 +1,163 @@
+{
+ "generado": "2026-08-20T21:09:05.358Z",
+ "forma": {
+  "gam|iman": {
+   "n": 704,
+   "acierto": 61.9,
+   "ganaMedia": 127,
+   "pierdeMedia": -237,
+   "razon": 0.53,
+   "llegaAlObjetivo": 44,
+   "minutosEnMercado": 180
+  },
+  "gam|apertura": {
+   "n": 704,
+   "acierto": 60.9,
+   "ganaMedia": 145,
+   "pierdeMedia": -251,
+   "razon": 0.58,
+   "llegaAlObjetivo": 48.4,
+   "minutosEnMercado": 170
+  },
+  "gamD|iman": {
+   "n": 434,
+   "acierto": 57.6,
+   "ganaMedia": 137,
+   "pierdeMedia": -230,
+   "razon": 0.6,
+   "llegaAlObjetivo": 37.3,
+   "minutosEnMercado": 167
+  },
+  "gamD|apertura": {
+   "n": 434,
+   "acierto": 56.7,
+   "ganaMedia": 150,
+   "pierdeMedia": -234,
+   "razon": 0.64,
+   "llegaAlObjetivo": 35.9,
+   "minutosEnMercado": 166
+  }
+ },
+ "fisica": {
+  "gam": {
+   "n": 764,
+   "pasoP50": 1.85,
+   "pasoP75": 3.353,
+   "pasoAzarP50": 1.909,
+   "vuelve": 49.1,
+   "vuelveAzar": 55.7
+  },
+  "gamD": {
+   "n": 447,
+   "pasoP50": 1.668,
+   "pasoP75": 3.302,
+   "pasoAzarP50": 1.84,
+   "vuelve": 36.7,
+   "vuelveAzar": 45.1
+  }
+ },
+ "potencia": {
+  "rebote|gam|iman": {
+   "n": 704,
+   "sdOp": 277,
+   "necesitaOp": 29,
+   "necesitaAno": 4877,
+   "pctDelRangoDiario": 5.71,
+   "observado": -12
+  },
+  "rotura|gamD|cierre": {
+   "n": 434,
+   "sdOp": 389,
+   "necesitaOp": 52,
+   "necesitaAno": 5374,
+   "pctDelRangoDiario": 10.15,
+   "observado": 8
+  }
+ },
+ "peajes": {
+  "rebote|gam|iman": {
+   "conPeaje": -1988,
+   "sinPeaje": -1539,
+   "costeAno": 448,
+   "peajeMedioOp": 2.66
+  },
+  "rotura|gamD|cierre": {
+   "conPeaje": 863,
+   "sinPeaje": 1141,
+   "costeAno": 277,
+   "peajeMedioOp": 2.67
+  }
+ },
+ "puente": {
+  "vive": false,
+  "mejorEnA": "rotura|gam|d>=0.75%",
+  "aEnB": {
+   "n": 28,
+   "anual": 843,
+   "t": 0.61,
+   "acierto": 46.4,
+   "mediaOp": 77.8
+  },
+  "mejorEnB": "rotura|gam|d>=0.10%",
+  "bEnA": {
+   "n": 212,
+   "anual": -561,
+   "t": -0.13,
+   "acierto": 54.7,
+   "mediaOp": -4.2
+  },
+  "liston": 3.21,
+  "top5": [
+   {
+    "id": "rotura|gam|d>=0.50%",
+    "n": 151,
+    "anual": 1217,
+    "t": 0.87,
+    "acierto": 51,
+    "mediaOp": 33.6,
+    "A": 950,
+    "B": 1382
+   },
+   {
+    "id": "rotura|gam|d>=0.75%",
+    "n": 60,
+    "anual": 1140,
+    "t": 1.07,
+    "acierto": 51.7,
+    "mediaOp": 79.3,
+    "A": 1621,
+    "B": 843
+   },
+   {
+    "id": "rotura|gam|d>=0.10%",
+    "n": 548,
+    "anual": 1093,
+    "t": 0.5,
+    "acierto": 52.4,
+    "mediaOp": 8.3,
+    "A": -561,
+    "B": 2111
+   },
+   {
+    "id": "rotura|gamD|d>=0.10%",
+    "n": 366,
+    "anual": 1082,
+    "t": 0.63,
+    "acierto": 54.6,
+    "mediaOp": 12.3,
+    "A": 86,
+    "B": 1696
+   },
+   {
+    "id": "rotura|gamD|d>=0.00%",
+    "n": 434,
+    "anual": 863,
+    "t": 0.45,
+    "acierto": 53,
+    "mediaOp": 8.3,
+    "A": -27,
+    "B": 1412
+   }
+  ]
+ }
+}

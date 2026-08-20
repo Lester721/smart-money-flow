@@ -1,0 +1,106 @@
+{
+ "nPrints": 2022492,
+ "nMulti": 1108912,
+ "nBasura": 32150,
+ "nAccOpc": 51000,
+ "nSingle": 830430,
+ "totRacimos": 422526,
+ "tabla": [
+  {
+   "N": 2,
+   "X": 1000000,
+   "n": 34465,
+   "conCadena": 23142,
+   "tickers": 38,
+   "dias": 83
+  },
+  {
+   "N": 2,
+   "X": 2500000,
+   "n": 10964,
+   "conCadena": 7173,
+   "tickers": 34,
+   "dias": 83
+  },
+  {
+   "N": 2,
+   "X": 5000000,
+   "n": 4216,
+   "conCadena": 2733,
+   "tickers": 30,
+   "dias": 83
+  },
+  {
+   "N": 2,
+   "X": 10000000,
+   "n": 1432,
+   "conCadena": 892,
+   "tickers": 23,
+   "dias": 82
+  },
+  {
+   "N": 3,
+   "X": 1000000,
+   "n": 27846,
+   "conCadena": 19019,
+   "tickers": 38,
+   "dias": 83
+  },
+  {
+   "N": 3,
+   "X": 2500000,
+   "n": 9428,
+   "conCadena": 6371,
+   "tickers": 32,
+   "dias": 83
+  },
+  {
+   "N": 3,
+   "X": 5000000,
+   "n": 3636,
+   "conCadena": 2471,
+   "tickers": 27,
+   "dias": 83
+  },
+  {
+   "N": 3,
+   "X": 10000000,
+   "n": 1211,
+   "conCadena": 806,
+   "tickers": 22,
+   "dias": 82
+  },
+  {
+   "N": 5,
+   "X": 1000000,
+   "n": 18978,
+   "conCadena": 12904,
+   "tickers": 36,
+   "dias": 83
+  },
+  {
+   "N": 5,
+   "X": 2500000,
+   "n": 7775,
+   "conCadena": 5277,
+   "tickers": 32,
+   "dias": 83
+  },
+  {
+   "N": 5,
+   "X": 5000000,
+   "n": 3189,
+   "conCadena": 2177,
+   "tickers": 27,
+   "dias": 83
+  },
+  {
+   "N": 5,
+   "X": 10000000,
+   "n": 1089,
+   "conCadena": 734,
+   "tickers": 22,
+   "dias": 82
+  }
+ ]
+}

@@ -1,0 +1,60 @@
+{
+ "dias": 56,
+ "n": 2603,
+ "R": {
+  "feedTodo": {
+   "n": 2603,
+   "costeMedio": 2106.388398002302,
+   "ret": -0.09496330616106793,
+   "señalesAlAno": 11713.5,
+   "ops": 104,
+   "capital": 19993.972412783754,
+   "dolaresAlAno": -20803.079058695857
+  },
+  "feedSueltaAsk": {
+   "n": 839,
+   "costeMedio": 2114.591179976163,
+   "ret": -0.10744824847912761,
+   "señalesAlAno": 3775.5,
+   "ops": 104,
+   "capital": 20071.8337400912,
+   "dolaresAlAno": -23629.748327936442
+  },
+  "feedSueltaAsk1M": {
+   "n": 50,
+   "costeMedio": 2220.1000000000004,
+   "ret": -0.009020253417572632,
+   "señalesAlAno": 225,
+   "ops": 104,
+   "capital": 21073.33015873016,
+   "dolaresAlAno": -2082.689919684712
+  },
+  "feedSueltaNoAsk1M": {
+   "n": 42,
+   "costeMedio": 1775.547619047619,
+   "ret": 0.09000293182697809,
+   "señalesAlAno": 189,
+   "ops": 104,
+   "capital": 16853.610733182162,
+   "dolaresAlAno": 16619.667096520396
+  },
+  "feedSpread1M": {
+   "n": 147,
+   "costeMedio": 1738.3605442176865,
+   "ret": -0.16341412932728056,
+   "señalesAlAno": 661.5,
+   "ops": 104,
+   "capital": 16500.628657812325,
+   "dolaresAlAno": -29543.55817818401
+  },
+  "todasSeñales": {
+   "n": 839,
+   "costeMedio": 2114.591179976163,
+   "ret": -0.10744824847912761,
+   "señalesAlAno": 3775.5,
+   "ops": 3775.5,
+   "capital": 728665.4642857144,
+   "dolaresAlAno": -857828.0270396542
+  }
+ }
+}

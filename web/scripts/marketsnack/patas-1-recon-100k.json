@@ -1,0 +1,338 @@
+{
+ "nivel": "100k",
+ "dias": 86,
+ "total": 2022492,
+ "primaTotal": 1349462798207,
+ "condiciones": [
+  {
+   "id": 232,
+   "code": "MLET",
+   "n": 731707,
+   "prima": 301248205814,
+   "multi": true
+  },
+  {
+   "id": 209,
+   "code": "AUTO",
+   "n": 648357,
+   "prima": 167192487933,
+   "multi": false
+  },
+  {
+   "id": 233,
+   "code": "MLAT",
+   "n": 138494,
+   "prima": 55186690599,
+   "multi": true
+  },
+  {
+   "id": 246,
+   "code": "CBMO",
+   "n": 130297,
+   "prima": 416525968236,
+   "multi": true
+  },
+  {
+   "id": 227,
+   "code": "SLAN",
+   "n": 122524,
+   "prima": 30499147679,
+   "multi": false
+  },
+  {
+   "id": 239,
+   "code": "MFSL",
+   "n": 53992,
+   "prima": 114611607245,
+   "multi": false
+  },
+  {
+   "id": 231,
+   "code": "SLFT",
+   "n": 40057,
+   "prima": 43644008712,
+   "multi": false
+  },
+  {
+   "id": 235,
+   "code": "MLFT",
+   "n": 38335,
+   "prima": 62544511299,
+   "multi": true
+  },
+  {
+   "id": 240,
+   "code": "TLET",
+   "n": 29789,
+   "prima": 8574904821,
+   "multi": false
+  },
+  {
+   "id": 204,
+   "code": "LATE",
+   "n": 22858,
+   "prima": 49243384691,
+   "multi": false
+  },
+  {
+   "id": 219,
+   "code": "ISOI",
+   "n": 11429,
+   "prima": 2459117957,
+   "multi": false
+  },
+  {
+   "id": 242,
+   "code": "TLFT",
+   "n": 10436,
+   "prima": 10497596334,
+   "multi": false
+  },
+  {
+   "id": 234,
+   "code": "MLCT",
+   "n": 8476,
+   "prima": 28046638612,
+   "multi": true
+  },
+  {
+   "id": 229,
+   "code": "SLCN",
+   "n": 7661,
+   "prima": 18070396274,
+   "multi": false
+  },
+  {
+   "id": 236,
+   "code": "MESL",
+   "n": 7609,
+   "prima": 1992715659,
+   "multi": false
+  },
+  {
+   "id": 201,
+   "code": "CANC",
+   "n": 6158,
+   "prima": 11913462526,
+   "multi": false
+  },
+  {
+   "id": 241,
+   "code": "TLCT",
+   "n": 5986,
+   "prima": 16841777787,
+   "multi": false
+  },
+  {
+   "id": 237,
+   "code": "TLAT",
+   "n": 4789,
+   "prima": 2686083803,
+   "multi": false
+  },
+  {
+   "id": 248,
+   "code": "EXHT",
+   "n": 1054,
+   "prima": 404893427,
+   "multi": false
+  },
+  {
+   "id": 203,
+   "code": "CNCL",
+   "n": 900,
+   "prima": 3994835206,
+   "multi": false
+  },
+  {
+   "id": 205,
+   "code": "CNCO",
+   "n": 657,
+   "prima": 1989182148,
+   "multi": false
+  },
+  {
+   "id": 228,
+   "code": "SLAI",
+   "n": 402,
+   "prima": 250744467,
+   "multi": false
+  },
+  {
+   "id": 202,
+   "code": "OSEQ",
+   "n": 370,
+   "prima": 617762924,
+   "multi": false
+  },
+  {
+   "id": 207,
+   "code": "CNOL",
+   "n": 107,
+   "prima": 275315634,
+   "multi": false
+  },
+  {
+   "id": 208,
+   "code": "OPNL",
+   "n": 33,
+   "prima": 71615040,
+   "multi": false
+  },
+  {
+   "id": 206,
+   "code": "OPEN",
+   "n": 13,
+   "prima": 79465400,
+   "multi": false
+  },
+  {
+   "id": 238,
+   "code": "MASL",
+   "n": 2,
+   "prima": 277980,
+   "multi": false
+  }
+ ],
+ "pctMultiOps": 0.5178309728790027,
+ "pctMultiPrima": 0.639922801656616,
+ "medibles": [
+  {
+   "t": "QQQ",
+   "n": 73030,
+   "pctMulti": 0.5575516910858551
+  },
+  {
+   "t": "NVDA",
+   "n": 63884,
+   "pctMulti": 0.3196888109698829
+  },
+  {
+   "t": "AMD",
+   "n": 60094,
+   "pctMulti": 0.5171564548873432
+  },
+  {
+   "t": "SPY",
+   "n": 58471,
+   "pctMulti": 0.30290229344461356
+  },
+  {
+   "t": "TSLA",
+   "n": 45346,
+   "pctMulti": 0.3499095840867993
+  },
+  {
+   "t": "MSFT",
+   "n": 31259,
+   "pctMulti": 0.3842413384945136
+  },
+  {
+   "t": "META",
+   "n": 30870,
+   "pctMulti": 0.3188856494978944
+  },
+  {
+   "t": "INTC",
+   "n": 23403,
+   "pctMulti": 0.28004956629491945
+  },
+  {
+   "t": "AAPL",
+   "n": 20589,
+   "pctMulti": 0.3636893486813347
+  },
+  {
+   "t": "ORCL",
+   "n": 12718,
+   "pctMulti": 0.31372857367510615
+  },
+  {
+   "t": "UNH",
+   "n": 3588,
+   "pctMulti": 0.40384615384615385
+  },
+  {
+   "t": "BA",
+   "n": 2039,
+   "pctMulti": 0.3918587542913193
+  },
+  {
+   "t": "CRM",
+   "n": 1845,
+   "pctMulti": 0.31869918699186994
+  },
+  {
+   "t": "JPM",
+   "n": 1772,
+   "pctMulti": 0.3335214446952596
+  },
+  {
+   "t": "COST",
+   "n": 1648,
+   "pctMulti": 0.441747572815534
+  },
+  {
+   "t": "XOM",
+   "n": 1592,
+   "pctMulti": 0.3693467336683417
+  },
+  {
+   "t": "CSCO",
+   "n": 1363,
+   "pctMulti": 0.3727072633895818
+  },
+  {
+   "t": "BAC",
+   "n": 812,
+   "pctMulti": 0.3583743842364532
+  },
+  {
+   "t": "WMT",
+   "n": 768,
+   "pctMulti": 0.3515625
+  },
+  {
+   "t": "NKE",
+   "n": 624,
+   "pctMulti": 0.20673076923076922
+  },
+  {
+   "t": "PYPL",
+   "n": 507,
+   "pctMulti": 0.3668639053254438
+  },
+  {
+   "t": "GE",
+   "n": 474,
+   "pctMulti": 0.30168776371308015
+  },
+  {
+   "t": "PFE",
+   "n": 402,
+   "pctMulti": 0.16666666666666666
+  },
+  {
+   "t": "DIS",
+   "n": 329,
+   "pctMulti": 0.2796352583586626
+  },
+  {
+   "t": "KO",
+   "n": 276,
+   "pctMulti": 0.5615942028985508
+  },
+  {
+   "t": "F",
+   "n": 246,
+   "pctMulti": 0.15853658536585366
+  },
+  {
+   "t": "T",
+   "n": 165,
+   "pctMulti": 0.3939393939393939
+  }
+ ],
+ "nMedibles": 438114,
+ "pctMedible": 0.21662088156590978
+}

@@ -1,0 +1,86 @@
+{
+ "generado": "2026-08-20T21:15:54.919Z",
+ "liston": 3.08,
+ "cuenta": 56389,
+ "efectivo": 7977,
+ "tarjetas": {
+  "ANCHA  (corta a 0,5% fuera)": {
+   "n": 516,
+   "debitoP50": 920,
+   "porOp": 64,
+   "t": 1.28,
+   "pctRiesgo": 6.61,
+   "alAno": 7417,
+   "pctCuenta": 13.2,
+   "gana": 45,
+   "mitadA": 85.04,
+   "tA": 1.42,
+   "mitadB": 45.85,
+   "tB": 0.59,
+   "tercios": [
+    66.21,
+    54.57,
+    71.22
+   ],
+   "terciosMismoSigno": true,
+   "anosPositivos": "5/5",
+   "control": {
+    "50/50": {
+     "azar": -30.02,
+     "pctil": 98.2
+    },
+    "sesgada 37% alcista": {
+     "azar": -26.51,
+     "pctil": 97.2
+    }
+   },
+   "ruinaPct": 41.1,
+   "cajaFinal": 41001,
+   "minCaja": 4206,
+   "peorDia": -1600,
+   "peorFecha": "2026-06-24",
+   "peorRacha": 8,
+   "peorCaida": -14046,
+   "diasAno": 116
+  },
+  "ESTRECHA (corta a 10 pts)": {
+   "n": 516,
+   "debitoP50": 470,
+   "porOp": 29.43,
+   "t": 1.39,
+   "pctRiesgo": 6.29,
+   "alAno": 3411,
+   "pctCuenta": 6,
+   "gana": 49.8,
+   "mitadA": 41.16,
+   "tA": 1.32,
+   "mitadB": 19.3,
+   "tB": 0.67,
+   "tercios": [
+    37.09,
+    29.95,
+    21.24
+   ],
+   "terciosMismoSigno": true,
+   "anosPositivos": "5/5",
+   "control": {
+    "50/50": {
+     "azar": -22.91,
+     "pctil": 99.6
+    },
+    "sesgada 37% alcista": {
+     "azar": -21.71,
+     "pctil": 100
+    }
+   },
+   "ruinaPct": 5.3,
+   "cajaFinal": 23162,
+   "minCaja": 4555,
+   "peorDia": -560,
+   "peorFecha": "2022-03-23",
+   "peorRacha": 8,
+   "peorCaida": -4859,
+   "diasAno": 116
+  }
+ }
+}

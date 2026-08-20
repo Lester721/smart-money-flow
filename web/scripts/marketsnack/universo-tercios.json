@@ -1,0 +1,1957 @@
+[
+ {
+  "T": "QCOM",
+  "plazas": 57,
+  "precioMedio": 187.7608771929825
+ },
+ {
+  "T": "CAT",
+  "plazas": 55,
+  "precioMedio": 908.9540000000002
+ },
+ {
+  "T": "CRWV",
+  "plazas": 54,
+  "precioMedio": 98.68675925925928
+ },
+ {
+  "T": "COIN",
+  "plazas": 54,
+  "precioMedio": 168.69620370370365
+ },
+ {
+  "T": "DRAM",
+  "plazas": 54,
+  "precioMedio": 57.137037037037025
+ },
+ {
+  "T": "GLW",
+  "plazas": 54,
+  "precioMedio": 181.21888888888887
+ },
+ {
+  "T": "NFLX",
+  "plazas": 53,
+  "precioMedio": 79.39075471698115
+ },
+ {
+  "T": "TQQQ",
+  "plazas": 53,
+  "precioMedio": 72.77849056603775
+ },
+ {
+  "T": "HOOD",
+  "plazas": 53,
+  "precioMedio": 93.12773584905663
+ },
+ {
+  "T": "SOXX",
+  "plazas": 53,
+  "precioMedio": 548.7743396226415
+ },
+ {
+  "T": "GEV",
+  "plazas": 52,
+  "precioMedio": 1042.6880769230768
+ },
+ {
+  "T": "LRCX",
+  "plazas": 51,
+  "precioMedio": 320.83647058823533
+ },
+ {
+  "T": "UNH",
+  "plazas": 51,
+  "precioMedio": 404.2505882352943
+ },
+ {
+  "T": "KLAC",
+  "plazas": 51,
+  "precioMedio": 211.2578823529412
+ },
+ {
+  "T": "COHR",
+  "plazas": 50,
+  "precioMedio": 343.89299999999986
+ },
+ {
+  "T": "BABA",
+  "plazas": 50,
+  "precioMedio": 120.236
+ },
+ {
+  "T": "PANW",
+  "plazas": 50,
+  "precioMedio": 291.5757
+ },
+ {
+  "T": "NOW",
+  "plazas": 49,
+  "precioMedio": 106.47714285714287
+ },
+ {
+  "T": "USO",
+  "plazas": 49,
+  "precioMedio": 126.8073469387755
+ },
+ {
+  "T": "RKLB",
+  "plazas": 49,
+  "precioMedio": 88.78367346938775
+ },
+ {
+  "T": "TSM",
+  "plazas": 49,
+  "precioMedio": 416.1757142857143
+ },
+ {
+  "T": "BE",
+  "plazas": 49,
+  "precioMedio": 253.553469387755
+ },
+ {
+  "T": "ASTS",
+  "plazas": 48,
+  "precioMedio": 76.73354166666668
+ },
+ {
+  "T": "VRT",
+  "plazas": 48,
+  "precioMedio": 313.9775
+ },
+ {
+  "T": "CRM",
+  "plazas": 48,
+  "precioMedio": 175.23104166666667
+ },
+ {
+  "T": "EWY",
+  "plazas": 48,
+  "precioMedio": 182.85687499999997
+ },
+ {
+  "T": "AMAT",
+  "plazas": 47,
+  "precioMedio": 510.0070212765957
+ },
+ {
+  "T": "ALAB",
+  "plazas": 47,
+  "precioMedio": 325.43468085106383
+ },
+ {
+  "T": "AAOI",
+  "plazas": 47,
+  "precioMedio": 143.00872340425533
+ },
+ {
+  "T": "LLY",
+  "plazas": 47,
+  "precioMedio": 1106.0948936170212
+ },
+ {
+  "T": "ADBE",
+  "plazas": 46,
+  "precioMedio": 237.8989130434782
+ },
+ {
+  "T": "LITE",
+  "plazas": 45,
+  "precioMedio": 840.1528888888888
+ },
+ {
+  "T": "CRDO",
+  "plazas": 45,
+  "precioMedio": 231.89522222222215
+ },
+ {
+  "T": "SLV",
+  "plazas": 45,
+  "precioMedio": 60.154444444444444
+ },
+ {
+  "T": "IBM",
+  "plazas": 45,
+  "precioMedio": 257.514
+ },
+ {
+  "T": "IREN",
+  "plazas": 45,
+  "precioMedio": 47.91911111111111
+ },
+ {
+  "T": "APP",
+  "plazas": 45,
+  "precioMedio": 462.86711111111094
+ },
+ {
+  "T": "GOOG",
+  "plazas": 44,
+  "precioMedio": 357.0029545454546
+ },
+ {
+  "T": "CRWD",
+  "plazas": 44,
+  "precioMedio": 173.2679545454545
+ },
+ {
+  "T": "ARM",
+  "plazas": 44,
+  "precioMedio": 288.9331818181819
+ },
+ {
+  "T": "IBIT",
+  "plazas": 44,
+  "precioMedio": 38.39613636363637
+ },
+ {
+  "T": "AAPL",
+  "plazas": 44,
+  "precioMedio": 303.0429545454545
+ },
+ {
+  "T": "MRVL",
+  "plazas": 43,
+  "precioMedio": 208.6006976744186
+ },
+ {
+  "T": "IWM",
+  "plazas": 43,
+  "precioMedio": 290.4511627906976
+ },
+ {
+  "T": "DELL",
+  "plazas": 43,
+  "precioMedio": 374.36674418604645
+ },
+ {
+  "T": "STX",
+  "plazas": 42,
+  "precioMedio": 855.9979761904763
+ },
+ {
+  "T": "SNOW",
+  "plazas": 42,
+  "precioMedio": 251.98023809523806
+ },
+ {
+  "T": "SMCI",
+  "plazas": 42,
+  "precioMedio": 33.10190476190476
+ },
+ {
+  "T": "WDC",
+  "plazas": 41,
+  "precioMedio": 530.0010975609755
+ },
+ {
+  "T": "GOOGL",
+  "plazas": 41,
+  "precioMedio": 363.1036585365853
+ },
+ {
+  "T": "MSTR",
+  "plazas": 41,
+  "precioMedio": 112.3367073170732
+ },
+ {
+  "T": "JPM",
+  "plazas": 41,
+  "precioMedio": 332.0590243902439
+ },
+ {
+  "T": "EEM",
+  "plazas": 41,
+  "precioMedio": 66.40048780487808
+ },
+ {
+  "T": "BA",
+  "plazas": 40,
+  "precioMedio": 224.63374999999996
+ },
+ {
+  "T": "AMZN",
+  "plazas": 40,
+  "precioMedio": 253.92950000000005
+ },
+ {
+  "T": "GS",
+  "plazas": 40,
+  "precioMedio": 1025.36625
+ },
+ {
+  "T": "SPY",
+  "plazas": 40,
+  "precioMedio": 745.1337500000002
+ },
+ {
+  "T": "GDX",
+  "plazas": 40,
+  "precioMedio": 80.84525
+ },
+ {
+  "T": "GLD",
+  "plazas": 39,
+  "precioMedio": 395.16999999999996
+ },
+ {
+  "T": "SMH",
+  "plazas": 39,
+  "precioMedio": 565.8943589743591
+ },
+ {
+  "T": "TLT",
+  "plazas": 39,
+  "precioMedio": 84.74692307692307
+ },
+ {
+  "T": "PLTR",
+  "plazas": 38,
+  "precioMedio": 135.67460526315787
+ },
+ {
+  "T": "META",
+  "plazas": 38,
+  "precioMedio": 614.4034210526314
+ },
+ {
+  "T": "INTC",
+  "plazas": 38,
+  "precioMedio": 106.86565789473684
+ },
+ {
+  "T": "CRCL",
+  "plazas": 38,
+  "precioMedio": 87.16473684210526
+ },
+ {
+  "T": "CIEN",
+  "plazas": 38,
+  "precioMedio": 453.24921052631584
+ },
+ {
+  "T": "WULF",
+  "plazas": 37,
+  "precioMedio": 21.496756756756767
+ },
+ {
+  "T": "IGV",
+  "plazas": 36,
+  "precioMedio": 93.79166666666666
+ },
+ {
+  "T": "ORCL",
+  "plazas": 36,
+  "precioMedio": 172.24749999999995
+ },
+ {
+  "T": "ASML",
+  "plazas": 36,
+  "precioMedio": 1707.4197222222224
+ },
+ {
+  "T": "NBIS",
+  "plazas": 36,
+  "precioMedio": 217.91833333333338
+ },
+ {
+  "T": "SOXL",
+  "plazas": 36,
+  "precioMedio": 171.41972222222222
+ },
+ {
+  "T": "HYG",
+  "plazas": 36,
+  "precioMedio": 79.69250000000002
+ },
+ {
+  "T": "AVGO",
+  "plazas": 35,
+  "precioMedio": 399.619
+ },
+ {
+  "T": "AXTI",
+  "plazas": 35,
+  "precioMedio": 80.81971428571427
+ },
+ {
+  "T": "COST",
+  "plazas": 34,
+  "precioMedio": 964.7845588235296
+ },
+ {
+  "T": "BRKB",
+  "plazas": 34,
+  "precioMedio": 492.3308823529413
+ },
+ {
+  "T": "MELI",
+  "plazas": 33,
+  "precioMedio": 1763.4748484848485
+ },
+ {
+  "T": "NOK",
+  "plazas": 33,
+  "precioMedio": 13.18969696969697
+ },
+ {
+  "T": "CBRS",
+  "plazas": 33,
+  "precioMedio": 215.60515151515153
+ },
+ {
+  "T": "CSCO",
+  "plazas": 31,
+  "precioMedio": 115.71516129032257
+ },
+ {
+  "T": "RDDT",
+  "plazas": 31,
+  "precioMedio": 169.48741935483875
+ },
+ {
+  "T": "MSFT",
+  "plazas": 30,
+  "precioMedio": 410.4383333333334
+ },
+ {
+  "T": "MDB",
+  "plazas": 29,
+  "precioMedio": 336.1462068965518
+ },
+ {
+  "T": "DDOG",
+  "plazas": 29,
+  "precioMedio": 240.69482758620688
+ },
+ {
+  "T": "SPCX",
+  "plazas": 29,
+  "precioMedio": 138.47241379310347
+ },
+ {
+  "T": "QQQ",
+  "plazas": 28,
+  "precioMedio": 707.2832142857143
+ },
+ {
+  "T": "AMD",
+  "plazas": 28,
+  "precioMedio": 471.78982142857143
+ },
+ {
+  "T": "CIFR",
+  "plazas": 28,
+  "precioMedio": 20.519107142857145
+ },
+ {
+  "T": "CLS",
+  "plazas": 28,
+  "precioMedio": 364.71285714285705
+ },
+ {
+  "T": "ANET",
+  "plazas": 28,
+  "precioMedio": 177.7192857142857
+ },
+ {
+  "T": "NVDA",
+  "plazas": 27,
+  "precioMedio": 210.88074074074072
+ },
+ {
+  "T": "FSLR",
+  "plazas": 27,
+  "precioMedio": 243.88851851851854
+ },
+ {
+  "T": "SNDK",
+  "plazas": 26,
+  "precioMedio": 1548.9165384615385
+ },
+ {
+  "T": "VST",
+  "plazas": 25,
+  "precioMedio": 150.584
+ },
+ {
+  "T": "IONQ",
+  "plazas": 25,
+  "precioMedio": 51.5604
+ },
+ {
+  "T": "C",
+  "plazas": 24,
+  "precioMedio": 132.43625
+ },
+ {
+  "T": "TSLA",
+  "plazas": 24,
+  "precioMedio": 377.7033333333333
+ },
+ {
+  "T": "TER",
+  "plazas": 24,
+  "precioMedio": 376.4604166666666
+ },
+ {
+  "T": "EWZ",
+  "plazas": 24,
+  "precioMedio": 35.58333333333333
+ },
+ {
+  "T": "SHOP",
+  "plazas": 24,
+  "precioMedio": 127.12708333333336
+ },
+ {
+  "T": "INTU",
+  "plazas": 24,
+  "precioMedio": 317.40666666666664
+ },
+ {
+  "T": "APLD",
+  "plazas": 23,
+  "precioMedio": 40.09673913043479
+ },
+ {
+  "T": "MPWR",
+  "plazas": 23,
+  "precioMedio": 1420.6243478260872
+ },
+ {
+  "T": "HUT",
+  "plazas": 23,
+  "precioMedio": 108.17521739130436
+ },
+ {
+  "T": "OKLO",
+  "plazas": 22,
+  "precioMedio": 59.84
+ },
+ {
+  "T": "SOFI",
+  "plazas": 22,
+  "precioMedio": 17.342045454545453
+ },
+ {
+  "T": "NET",
+  "plazas": 22,
+  "precioMedio": 276.87227272727273
+ },
+ {
+  "T": "MUU",
+  "plazas": 22,
+  "precioMedio": 39.98872727272727
+ },
+ {
+  "T": "XLE",
+  "plazas": 21,
+  "precioMedio": 58.38095238095238
+ },
+ {
+  "T": "UBER",
+  "plazas": 21,
+  "precioMedio": 72.5752380952381
+ },
+ {
+  "T": "CVNA",
+  "plazas": 20,
+  "precioMedio": 69.44949999999999
+ },
+ {
+  "T": "NVO",
+  "plazas": 20,
+  "precioMedio": 45.714999999999996
+ },
+ {
+  "T": "PDD",
+  "plazas": 20,
+  "precioMedio": 85.68499999999999
+ },
+ {
+  "T": "SNXX",
+  "plazas": 20,
+  "precioMedio": 25.63451
+ },
+ {
+  "T": "WMT",
+  "plazas": 20,
+  "precioMedio": 117.46099999999998
+ },
+ {
+  "T": "XLK",
+  "plazas": 20,
+  "precioMedio": 186.12550000000005
+ },
+ {
+  "T": "KORU",
+  "plazas": 20,
+  "precioMedio": 37.748575
+ },
+ {
+  "T": "FIX",
+  "plazas": 19,
+  "precioMedio": 1818.7778947368417
+ },
+ {
+  "T": "XOM",
+  "plazas": 19,
+  "precioMedio": 154.37526315789475
+ },
+ {
+  "T": "MXL",
+  "plazas": 19,
+  "precioMedio": 90.00368421052632
+ },
+ {
+  "T": "TXN",
+  "plazas": 19,
+  "precioMedio": 294.86947368421056
+ },
+ {
+  "T": "BAC",
+  "plazas": 19,
+  "precioMedio": 59.37473684210527
+ },
+ {
+  "T": "FCX",
+  "plazas": 18,
+  "precioMedio": 65.68666666666667
+ },
+ {
+  "T": "BMNR",
+  "plazas": 16,
+  "precioMedio": 18.384375000000002
+ },
+ {
+  "T": "STM",
+  "plazas": 15,
+  "precioMedio": 67.54199999999999
+ },
+ {
+  "T": "WBD",
+  "plazas": 15,
+  "precioMedio": 26.458000000000002
+ },
+ {
+  "T": "V",
+  "plazas": 15,
+  "precioMedio": 346.21
+ },
+ {
+  "T": "ON",
+  "plazas": 15,
+  "precioMedio": 98.88066666666666
+ },
+ {
+  "T": "CORZ",
+  "plazas": 15,
+  "precioMedio": 24.705666666666666
+ },
+ {
+  "T": "CEG",
+  "plazas": 15,
+  "precioMedio": 259.54466666666667
+ },
+ {
+  "T": "TLN",
+  "plazas": 15,
+  "precioMedio": 373.81
+ },
+ {
+  "T": "JNJ",
+  "plazas": 15,
+  "precioMedio": 253.688
+ },
+ {
+  "T": "NKE",
+  "plazas": 14,
+  "precioMedio": 43.369285714285716
+ },
+ {
+  "T": "SPOT",
+  "plazas": 14,
+  "precioMedio": 483.7628571428572
+ },
+ {
+  "T": "DIA",
+  "plazas": 14,
+  "precioMedio": 518.5285714285715
+ },
+ {
+  "T": "NVTS",
+  "plazas": 13,
+  "precioMedio": 22.85769230769231
+ },
+ {
+  "T": "BKNG",
+  "plazas": 13,
+  "precioMedio": 188.7446153846154
+ },
+ {
+  "T": "CHTR",
+  "plazas": 13,
+  "precioMedio": 143.1823076923077
+ },
+ {
+  "T": "XBI",
+  "plazas": 13,
+  "precioMedio": 153.45615384615388
+ },
+ {
+  "T": "TECL",
+  "plazas": 13,
+  "precioMedio": 213.0815384615385
+ },
+ {
+  "T": "PWR",
+  "plazas": 13,
+  "precioMedio": 679.8307692307692
+ },
+ {
+  "T": "SATS",
+  "plazas": 13,
+  "precioMedio": 118.42923076923078
+ },
+ {
+  "T": "LULU",
+  "plazas": 12,
+  "precioMedio": 119.62249999999999
+ },
+ {
+  "T": "TSEM",
+  "plazas": 12,
+  "precioMedio": 230.08916666666664
+ },
+ {
+  "T": "ZS",
+  "plazas": 12,
+  "precioMedio": 154.88416666666666
+ },
+ {
+  "T": "SQQQ",
+  "plazas": 12,
+  "precioMedio": 38.544999999999995
+ },
+ {
+  "T": "FXI",
+  "plazas": 12,
+  "precioMedio": 33.64666666666667
+ },
+ {
+  "T": "AGQ",
+  "plazas": 11,
+  "precioMedio": 113.08272727272728
+ },
+ {
+  "T": "MS",
+  "plazas": 11,
+  "precioMedio": 209.9227272727273
+ },
+ {
+  "T": "TTWO",
+  "plazas": 11,
+  "precioMedio": 233.56454545454545
+ },
+ {
+  "T": "MRNA",
+  "plazas": 11,
+  "precioMedio": 68.485
+ },
+ {
+  "T": "SEDG",
+  "plazas": 11,
+  "precioMedio": 58.70636363636363
+ },
+ {
+  "T": "SLS",
+  "plazas": 11,
+  "precioMedio": 12.826818181818185
+ },
+ {
+  "T": "SIMO",
+  "plazas": 11,
+  "precioMedio": 259.1190909090909
+ },
+ {
+  "T": "AXON",
+  "plazas": 11,
+  "precioMedio": 558.7663636363636
+ },
+ {
+  "T": "BX",
+  "plazas": 11,
+  "precioMedio": 128.09454545454548
+ },
+ {
+  "T": "CAR",
+  "plazas": 10,
+  "precioMedio": 210.78000000000003
+ },
+ {
+  "T": "HUM",
+  "plazas": 10,
+  "precioMedio": 324.74899999999997
+ },
+ {
+  "T": "UAL",
+  "plazas": 10,
+  "precioMedio": 114.56800000000001
+ },
+ {
+  "T": "GE",
+  "plazas": 10,
+  "precioMedio": 351.133
+ },
+ {
+  "T": "STRL",
+  "plazas": 10,
+  "precioMedio": 797.634
+ },
+ {
+  "T": "WOLF",
+  "plazas": 10,
+  "precioMedio": 44.301
+ },
+ {
+  "T": "WFC",
+  "plazas": 10,
+  "precioMedio": 82.48100000000001
+ },
+ {
+  "T": "BNO",
+  "plazas": 10,
+  "precioMedio": 52.001
+ },
+ {
+  "T": "SMTC",
+  "plazas": 10,
+  "precioMedio": 146.69599999999997
+ },
+ {
+  "T": "ENPH",
+  "plazas": 10,
+  "precioMedio": 55.0955
+ },
+ {
+  "T": "HPE",
+  "plazas": 10,
+  "precioMedio": 50.872
+ },
+ {
+  "T": "ACN",
+  "plazas": 10,
+  "precioMedio": 143.498
+ },
+ {
+  "T": "AZO",
+  "plazas": 10,
+  "precioMedio": 3044.577
+ },
+ {
+  "T": "DIS",
+  "plazas": 10,
+  "precioMedio": 99.13900000000001
+ },
+ {
+  "T": "POET",
+  "plazas": 9,
+  "precioMedio": 11.792222222222222
+ },
+ {
+  "T": "ETN",
+  "plazas": 9,
+  "precioMedio": 428.3755555555555
+ },
+ {
+  "T": "MU",
+  "plazas": 9,
+  "precioMedio": 827.33
+ },
+ {
+  "T": "WDAY",
+  "plazas": 9,
+  "precioMedio": 163.57333333333335
+ },
+ {
+  "T": "XLF",
+  "plazas": 9,
+  "precioMedio": 54.89777777777778
+ },
+ {
+  "T": "ISRG",
+  "plazas": 9,
+  "precioMedio": 394.24888888888887
+ },
+ {
+  "T": "OSCR",
+  "plazas": 9,
+  "precioMedio": 28.186666666666664
+ },
+ {
+  "T": "SOXS",
+  "plazas": 9,
+  "precioMedio": 64.80555555555556
+ },
+ {
+  "T": "CNC",
+  "plazas": 9,
+  "precioMedio": 63.95111111111112
+ },
+ {
+  "T": "CDNS",
+  "plazas": 9,
+  "precioMedio": 368.09444444444443
+ },
+ {
+  "T": "KWEB",
+  "plazas": 9,
+  "precioMedio": 26.534444444444446
+ },
+ {
+  "T": "ARKK",
+  "plazas": 8,
+  "precioMedio": 77.42625
+ },
+ {
+  "T": "AEHR",
+  "plazas": 8,
+  "precioMedio": 105.65625
+ },
+ {
+  "T": "RIOT",
+  "plazas": 8,
+  "precioMedio": 21.92125
+ },
+ {
+  "T": "DOCN",
+  "plazas": 8,
+  "precioMedio": 165.28249999999997
+ },
+ {
+  "T": "MTSI",
+  "plazas": 8,
+  "precioMedio": 333.265
+ },
+ {
+  "T": "FN",
+  "plazas": 8,
+  "precioMedio": 539.7275
+ },
+ {
+  "T": "HIMS",
+  "plazas": 8,
+  "precioMedio": 30.599999999999998
+ },
+ {
+  "T": "MPC",
+  "plazas": 7,
+  "precioMedio": 321.3557142857143
+ },
+ {
+  "T": "HD",
+  "plazas": 7,
+  "precioMedio": 334.99142857142857
+ },
+ {
+  "T": "VSAT",
+  "plazas": 7,
+  "precioMedio": 77.36
+ },
+ {
+  "T": "LQD",
+  "plazas": 7,
+  "precioMedio": 106.8157142857143
+ },
+ {
+  "T": "OKTA",
+  "plazas": 7,
+  "precioMedio": 138.27285714285716
+ },
+ {
+  "T": "TTMI",
+  "plazas": 7,
+  "precioMedio": 163.81071428571428
+ },
+ {
+  "T": "FIG",
+  "plazas": 7,
+  "precioMedio": 24.865714285714287
+ },
+ {
+  "T": "LMT",
+  "plazas": 6,
+  "precioMedio": 556.54
+ },
+ {
+  "T": "NEM",
+  "plazas": 6,
+  "precioMedio": 113.03833333333334
+ },
+ {
+  "T": "ZM",
+  "plazas": 6,
+  "precioMedio": 99.99666666666667
+ },
+ {
+  "T": "EFA",
+  "plazas": 6,
+  "precioMedio": 103.81166666666667
+ },
+ {
+  "T": "DAVE",
+  "plazas": 6,
+  "precioMedio": 324.205
+ },
+ {
+  "T": "FTNT",
+  "plazas": 6,
+  "precioMedio": 148.51166666666668
+ },
+ {
+  "T": "KRE",
+  "plazas": 6,
+  "precioMedio": 75.02499999999999
+ },
+ {
+  "T": "BIDU",
+  "plazas": 6,
+  "precioMedio": 120.07000000000001
+ },
+ {
+  "T": "SPXL",
+  "plazas": 6,
+  "precioMedio": 284.8
+ },
+ {
+  "T": "U",
+  "plazas": 6,
+  "precioMedio": 34.980000000000004
+ },
+ {
+  "T": "FLY",
+  "plazas": 6,
+  "precioMedio": 39.480000000000004
+ },
+ {
+  "T": "VSH",
+  "plazas": 6,
+  "precioMedio": 55.155
+ },
+ {
+  "T": "MA",
+  "plazas": 6,
+  "precioMedio": 549.7583333333333
+ },
+ {
+  "T": "HUBS",
+  "plazas": 6,
+  "precioMedio": 202.3166666666667
+ },
+ {
+  "T": "GWW",
+  "plazas": 6,
+  "precioMedio": 1354.99
+ },
+ {
+  "T": "REGN",
+  "plazas": 6,
+  "precioMedio": 761.6616666666665
+ },
+ {
+  "T": "OXY",
+  "plazas": 5,
+  "precioMedio": 56.838
+ },
+ {
+  "T": "MULL",
+  "plazas": 5,
+  "precioMedio": 28.110080000000004
+ },
+ {
+  "T": "AMKR",
+  "plazas": 5,
+  "precioMedio": 65.952
+ },
+ {
+  "T": "ADI",
+  "plazas": 5,
+  "precioMedio": 386.41
+ },
+ {
+  "T": "TWLO",
+  "plazas": 5,
+  "precioMedio": 218.53199999999998
+ },
+ {
+  "T": "FLEX",
+  "plazas": 5,
+  "precioMedio": 129.667
+ },
+ {
+  "T": "ZTS",
+  "plazas": 5,
+  "precioMedio": 80.22
+ },
+ {
+  "T": "SNPS",
+  "plazas": 5,
+  "precioMedio": 436.01900000000006
+ },
+ {
+  "T": "SE",
+  "plazas": 5,
+  "precioMedio": 104.38199999999999
+ },
+ {
+  "T": "ZETA",
+  "plazas": 5,
+  "precioMedio": 23.302
+ },
+ {
+  "T": "VLO",
+  "plazas": 5,
+  "precioMedio": 313.656
+ },
+ {
+  "T": "FICO",
+  "plazas": 5,
+  "precioMedio": 1229.8719999999998
+ },
+ {
+  "T": "TTD",
+  "plazas": 5,
+  "precioMedio": 19.54
+ },
+ {
+  "T": "CVX",
+  "plazas": 5,
+  "precioMedio": 186.91
+ },
+ {
+  "T": "PL",
+  "plazas": 5,
+  "precioMedio": 33.238
+ },
+ {
+  "T": "RDW",
+  "plazas": 5,
+  "precioMedio": 20.89
+ },
+ {
+  "T": "APH",
+  "plazas": 5,
+  "precioMedio": 155.53000000000003
+ },
+ {
+  "T": "RIVN",
+  "plazas": 5,
+  "precioMedio": 16.368000000000002
+ },
+ {
+  "T": "AMDL",
+  "plazas": 5,
+  "precioMedio": 57.262
+ },
+ {
+  "T": "POWL",
+  "plazas": 5,
+  "precioMedio": 240.02400000000003
+ },
+ {
+  "T": "AEM",
+  "plazas": 5,
+  "precioMedio": 162.43800000000002
+ },
+ {
+  "T": "XLV",
+  "plazas": 5,
+  "precioMedio": 163.17000000000002
+ },
+ {
+  "T": "TGT",
+  "plazas": 5,
+  "precioMedio": 140.986
+ },
+ {
+  "T": "ABBV",
+  "plazas": 5,
+  "precioMedio": 253.49200000000002
+ },
+ {
+  "T": "FRMI",
+  "plazas": 5,
+  "precioMedio": 7.894
+ },
+ {
+  "T": "RVMD",
+  "plazas": 5,
+  "precioMedio": 193.57599999999996
+ },
+ {
+  "T": "CF",
+  "plazas": 5,
+  "precioMedio": 120.16599999999998
+ },
+ {
+  "T": "TEAM",
+  "plazas": 5,
+  "precioMedio": 147.26600000000002
+ },
+ {
+  "T": "URI",
+  "plazas": 4,
+  "precioMedio": 1055.6525000000001
+ },
+ {
+  "T": "NVDL",
+  "plazas": 4,
+  "precioMedio": 38.153325
+ },
+ {
+  "T": "NXPI",
+  "plazas": 4,
+  "precioMedio": 277.9675
+ },
+ {
+  "T": "PYPL",
+  "plazas": 4,
+  "precioMedio": 52.295
+ },
+ {
+  "T": "AKAM",
+  "plazas": 4,
+  "precioMedio": 133.7025
+ },
+ {
+  "T": "CYTK",
+  "plazas": 4,
+  "precioMedio": 76.13
+ },
+ {
+  "T": "CCJ",
+  "plazas": 4,
+  "precioMedio": 96.2975
+ },
+ {
+  "T": "MAR",
+  "plazas": 4,
+  "precioMedio": 364.41
+ },
+ {
+  "T": "MCD",
+  "plazas": 4,
+  "precioMedio": 273.195
+ },
+ {
+  "T": "EXPE",
+  "plazas": 4,
+  "precioMedio": 265.85
+ },
+ {
+  "T": "BSX",
+  "plazas": 4,
+  "precioMedio": 52.209999999999994
+ },
+ {
+  "T": "AAL",
+  "plazas": 4,
+  "precioMedio": 15.10875
+ },
+ {
+  "T": "MP",
+  "plazas": 4,
+  "precioMedio": 59.7425
+ },
+ {
+  "T": "BB",
+  "plazas": 4,
+  "precioMedio": 9.9475
+ },
+ {
+  "T": "XOP",
+  "plazas": 4,
+  "precioMedio": 167.45499999999998
+ },
+ {
+  "T": "W",
+  "plazas": 4,
+  "precioMedio": 84.41250000000001
+ },
+ {
+  "T": "AVAV",
+  "plazas": 4,
+  "precioMedio": 178.6
+ },
+ {
+  "T": "ONDS",
+  "plazas": 4,
+  "precioMedio": 10.0875
+ },
+ {
+  "T": "PENG",
+  "plazas": 4,
+  "precioMedio": 67.795
+ },
+ {
+  "T": "VALE",
+  "plazas": 4,
+  "precioMedio": 15.3675
+ },
+ {
+  "T": "NU",
+  "plazas": 4,
+  "precioMedio": 13.4075
+ },
+ {
+  "T": "MDY",
+  "plazas": 4,
+  "precioMedio": 694.685
+ },
+ {
+  "T": "ROKU",
+  "plazas": 4,
+  "precioMedio": 143.47
+ },
+ {
+  "T": "NEE",
+  "plazas": 4,
+  "precioMedio": 85.8575
+ },
+ {
+  "T": "RSP",
+  "plazas": 4,
+  "precioMedio": 214.9525
+ },
+ {
+  "T": "ABVX",
+  "plazas": 4,
+  "precioMedio": 130.535
+ },
+ {
+  "T": "KO",
+  "plazas": 4,
+  "precioMedio": 84.17
+ },
+ {
+  "T": "VOO",
+  "plazas": 4,
+  "precioMedio": 680.0075
+ },
+ {
+  "T": "SBUX",
+  "plazas": 4,
+  "precioMedio": 106.52250000000001
+ },
+ {
+  "T": "SEZL",
+  "plazas": 4,
+  "precioMedio": 164.6925
+ },
+ {
+  "T": "MTUM",
+  "plazas": 4,
+  "precioMedio": 304.34749999999997
+ },
+ {
+  "T": "EOSE",
+  "plazas": 3,
+  "precioMedio": 6.236666666666667
+ },
+ {
+  "T": "URA",
+  "plazas": 3,
+  "precioMedio": 50.72666666666667
+ },
+ {
+  "T": "ETHA",
+  "plazas": 3,
+  "precioMedio": 14.103333333333332
+ },
+ {
+  "T": "JD",
+  "plazas": 3,
+  "precioMedio": 31.073333333333334
+ },
+ {
+  "T": "F",
+  "plazas": 3,
+  "precioMedio": 15.353333333333333
+ },
+ {
+  "T": "MARA",
+  "plazas": 3,
+  "precioMedio": 12.979999999999999
+ },
+ {
+  "T": "CMG",
+  "plazas": 3,
+  "precioMedio": 33.51333333333333
+ },
+ {
+  "T": "VCX",
+  "plazas": 3,
+  "precioMedio": 100.99333333333334
+ },
+ {
+  "T": "RGTI",
+  "plazas": 3,
+  "precioMedio": 22.71666666666667
+ },
+ {
+  "T": "QBTS",
+  "plazas": 3,
+  "precioMedio": 27.683333333333334
+ },
+ {
+  "T": "SITM",
+  "plazas": 3,
+  "precioMedio": 654.4266666666667
+ },
+ {
+  "T": "LUNR",
+  "plazas": 3,
+  "precioMedio": 25.77333333333333
+ },
+ {
+  "T": "LNG",
+  "plazas": 3,
+  "precioMedio": 244.35999999999999
+ },
+ {
+  "T": "RBRK",
+  "plazas": 3,
+  "precioMedio": 93.30333333333333
+ },
+ {
+  "T": "LQDA",
+  "plazas": 3,
+  "precioMedio": 81.02833333333335
+ },
+ {
+  "T": "OUST",
+  "plazas": 3,
+  "precioMedio": 47.84
+ },
+ {
+  "T": "UMC",
+  "plazas": 3,
+  "precioMedio": 24.396666666666665
+ },
+ {
+  "T": "GDXJ",
+  "plazas": 3,
+  "precioMedio": 97.56
+ },
+ {
+  "T": "AGX",
+  "plazas": 3,
+  "precioMedio": 589.3733333333333
+ },
+ {
+  "T": "VEEV",
+  "plazas": 3,
+  "precioMedio": 219.48000000000002
+ },
+ {
+  "T": "SCHW",
+  "plazas": 3,
+  "precioMedio": 102.11333333333333
+ },
+ {
+  "T": "RTX",
+  "plazas": 3,
+  "precioMedio": 209.64999999999998
+ },
+ {
+  "T": "BRUN",
+  "plazas": 3,
+  "precioMedio": 21.986666666666665
+ },
+ {
+  "T": "ABNB",
+  "plazas": 3,
+  "precioMedio": 180.83
+ },
+ {
+  "T": "TMUS",
+  "plazas": 3,
+  "precioMedio": 180.21
+ },
+ {
+  "T": "SLB",
+  "plazas": 2,
+  "precioMedio": 53.58
+ },
+ {
+  "T": "XPEV",
+  "plazas": 2,
+  "precioMedio": 14.195
+ },
+ {
+  "T": "CBOE",
+  "plazas": 2,
+  "precioMedio": 319.95000000000005
+ },
+ {
+  "T": "RH",
+  "plazas": 2,
+  "precioMedio": 163.515
+ },
+ {
+  "T": "CVS",
+  "plazas": 2,
+  "precioMedio": 96.38499999999999
+ },
+ {
+  "T": "GLXY",
+  "plazas": 2,
+  "precioMedio": 30.815
+ },
+ {
+  "T": "FISV",
+  "plazas": 2,
+  "precioMedio": 55.58
+ },
+ {
+  "T": "MCHP",
+  "plazas": 2,
+  "precioMedio": 88.44
+ },
+ {
+  "T": "USAR",
+  "plazas": 2,
+  "precioMedio": 27.245
+ },
+ {
+  "T": "ABT",
+  "plazas": 2,
+  "precioMedio": 94.91499999999999
+ },
+ {
+  "T": "WHR",
+  "plazas": 2,
+  "precioMedio": 39.46
+ },
+ {
+  "T": "DASH",
+  "plazas": 2,
+  "precioMedio": 162.99
+ },
+ {
+  "T": "RCL",
+  "plazas": 2,
+  "precioMedio": 274.135
+ },
+ {
+  "T": "ELF",
+  "plazas": 2,
+  "precioMedio": 75.695
+ },
+ {
+  "T": "ALB",
+  "plazas": 2,
+  "precioMedio": 144.285
+ },
+ {
+  "T": "TE",
+  "plazas": 2,
+  "precioMedio": 8.899999999999999
+ },
+ {
+  "T": "FCEL",
+  "plazas": 2,
+  "precioMedio": 30.205
+ },
+ {
+  "T": "XLY",
+  "plazas": 2,
+  "precioMedio": 119.59
+ },
+ {
+  "T": "FLNC",
+  "plazas": 2,
+  "precioMedio": 27.53
+ },
+ {
+  "T": "GME",
+  "plazas": 2,
+  "precioMedio": 20.619999999999997
+ },
+ {
+  "T": "VIAV",
+  "plazas": 2,
+  "precioMedio": 50.980000000000004
+ },
+ {
+  "T": "AMGN",
+  "plazas": 2,
+  "precioMedio": 380.47
+ },
+ {
+  "T": "HCA",
+  "plazas": 2,
+  "precioMedio": 362.46000000000004
+ },
+ {
+  "T": "KEEL",
+  "plazas": 2,
+  "precioMedio": 5.955
+ },
+ {
+  "T": "MRK",
+  "plazas": 2,
+  "precioMedio": 123.105
+ },
+ {
+  "T": "XYZ",
+  "plazas": 2,
+  "precioMedio": 75.45
+ },
+ {
+  "T": "MO",
+  "plazas": 2,
+  "precioMedio": 69.94
+ },
+ {
+  "T": "ONTO",
+  "plazas": 2,
+  "precioMedio": 343.65999999999997
+ },
+ {
+  "T": "AFRM",
+  "plazas": 2,
+  "precioMedio": 74.375
+ },
+ {
+  "T": "CRS",
+  "plazas": 2,
+  "precioMedio": 588.4100000000001
+ },
+ {
+  "T": "AA",
+  "plazas": 2,
+  "precioMedio": 54.58
+ },
+ {
+  "T": "CCL",
+  "plazas": 2,
+  "precioMedio": 28.625
+ },
+ {
+  "T": "MAGS",
+  "plazas": 2,
+  "precioMedio": 64.99
+ },
+ {
+  "T": "HL",
+  "plazas": 2,
+  "precioMedio": 15.614999999999998
+ },
+ {
+  "T": "AXP",
+  "plazas": 2,
+  "precioMedio": 348.115
+ },
+ {
+  "T": "RBLX",
+  "plazas": 2,
+  "precioMedio": 57.19
+ },
+ {
+  "T": "BMY",
+  "plazas": 2,
+  "precioMedio": 60.65
+ },
+ {
+  "T": "BLK",
+  "plazas": 2,
+  "precioMedio": 1090.295
+ },
+ {
+  "T": "NCLH",
+  "plazas": 2,
+  "precioMedio": 18.535
+ },
+ {
+  "T": "GM",
+  "plazas": 2,
+  "precioMedio": 83.28
+ },
+ {
+  "T": "B",
+  "plazas": 2,
+  "precioMedio": 40.53
+ },
+ {
+  "T": "RKT",
+  "plazas": 2,
+  "precioMedio": 14.575
+ },
+ {
+  "T": "P",
+  "plazas": 2,
+  "precioMedio": 104.69
+ },
+ {
+  "T": "XLU",
+  "plazas": 2,
+  "precioMedio": 44.03
+ },
+ {
+  "T": "AMPX",
+  "plazas": 1,
+  "precioMedio": 22.69
+ },
+ {
+  "T": "UCO",
+  "plazas": 1,
+  "precioMedio": 44.03
+ },
+ {
+  "T": "INOD",
+  "plazas": 1,
+  "precioMedio": 84.89
+ },
+ {
+  "T": "AG",
+  "plazas": 1,
+  "precioMedio": 20.42
+ },
+ {
+  "T": "FANG",
+  "plazas": 1,
+  "precioMedio": 205.62
+ },
+ {
+  "T": "VICR",
+  "plazas": 1,
+  "precioMedio": 267.99
+ },
+ {
+  "T": "FUTU",
+  "plazas": 1,
+  "precioMedio": 89.76
+ },
+ {
+  "T": "CLSK",
+  "plazas": 1,
+  "precioMedio": 17.13
+ },
+ {
+  "T": "CLF",
+  "plazas": 1,
+  "precioMedio": 12.83
+ },
+ {
+  "T": "DOW",
+  "plazas": 1,
+  "precioMedio": 34.77
+ },
+ {
+  "T": "MTZ",
+  "plazas": 1,
+  "precioMedio": 369.66
+ },
+ {
+  "T": "DE",
+  "plazas": 1,
+  "precioMedio": 588.29
+ },
+ {
+  "T": "NUE",
+  "plazas": 1,
+  "precioMedio": 262.28
+ },
+ {
+  "T": "PURR",
+  "plazas": 1,
+  "precioMedio": 8.53
+ },
+ {
+  "T": "EXE",
+  "plazas": 1,
+  "precioMedio": 90.42
+ },
+ {
+  "T": "PCT",
+  "plazas": 1,
+  "precioMedio": 9.02
+ },
+ {
+  "T": "ASST",
+  "plazas": 1,
+  "precioMedio": 16.67
+ },
+ {
+  "T": "PBR",
+  "plazas": 1,
+  "precioMedio": 16.75
+ },
+ {
+  "T": "HON",
+  "plazas": 1,
+  "precioMedio": 229.01
+ },
+ {
+  "T": "COP",
+  "plazas": 1,
+  "precioMedio": 107.74
+ },
+ {
+  "T": "VKTX",
+  "plazas": 1,
+  "precioMedio": 34.81
+ },
+ {
+  "T": "WPM",
+  "plazas": 1,
+  "precioMedio": 116.46
+ },
+ {
+  "T": "PM",
+  "plazas": 1,
+  "precioMedio": 178.78
+ },
+ {
+  "T": "RUN",
+  "plazas": 1,
+  "precioMedio": 14.42
+ },
+ {
+  "T": "UNP",
+  "plazas": 1,
+  "precioMedio": 268.35
+ },
+ {
+  "T": "VZ",
+  "plazas": 1,
+  "precioMedio": 44.1
+ },
+ {
+  "T": "RMBS",
+  "plazas": 1,
+  "precioMedio": 123.9
+ },
+ {
+  "T": "Q",
+  "plazas": 1,
+  "precioMedio": 141.75
+ },
+ {
+  "T": "APO",
+  "plazas": 1,
+  "precioMedio": 119.33
+ },
+ {
+  "T": "SHEL",
+  "plazas": 1,
+  "precioMedio": 82.24
+ },
+ {
+  "T": "PTCT",
+  "plazas": 1,
+  "precioMedio": 84.85
+ },
+ {
+  "T": "FTAI",
+  "plazas": 1,
+  "precioMedio": 209.88
+ },
+ {
+  "T": "COF",
+  "plazas": 1,
+  "precioMedio": 205.29
+ },
+ {
+  "T": "LEU",
+  "plazas": 1,
+  "precioMedio": 147.07
+ },
+ {
+  "T": "UPS",
+  "plazas": 1,
+  "precioMedio": 117.72
+ },
+ {
+  "T": "PCG",
+  "plazas": 1,
+  "precioMedio": 17.54
+ },
+ {
+  "T": "TSLL",
+  "plazas": 1,
+  "precioMedio": 7.76
+ },
+ {
+  "T": "QS",
+  "plazas": 1,
+  "precioMedio": 5.115
+ },
+ {
+  "T": "PG",
+  "plazas": 1,
+  "precioMedio": 146.97
+ },
+ {
+  "T": "PFE",
+  "plazas": 1,
+  "precioMedio": 24.67
+ },
+ {
+  "T": "GNRC",
+  "plazas": 1,
+  "precioMedio": 218.63
+ },
+ {
+  "T": "CMI",
+  "plazas": 1,
+  "precioMedio": 635.96
+ },
+ {
+  "T": "PEP",
+  "plazas": 1,
+  "precioMedio": 138.44
+ },
+ {
+  "T": "SIL",
+  "plazas": 1,
+  "precioMedio": 88.5
+ },
+ {
+  "T": "SILJ",
+  "plazas": 1,
+  "precioMedio": 29.14
+ },
+ {
+  "T": "BTDR",
+  "plazas": 1,
+  "precioMedio": 8.695
+ },
+ {
+  "T": "ONON",
+  "plazas": 1,
+  "precioMedio": 31.01
+ },
+ {
+  "T": "COPX",
+  "plazas": 1,
+  "precioMedio": 85.52
+ },
+ {
+  "T": "PAAS",
+  "plazas": 1,
+  "precioMedio": 47.3
+ },
+ {
+  "T": "DAL",
+  "plazas": 1,
+  "precioMedio": 85.7
+ },
+ {
+  "T": "ET",
+  "plazas": 1,
+  "precioMedio": 21.42
+ }
+]

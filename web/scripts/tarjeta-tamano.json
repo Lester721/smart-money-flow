@@ -1,0 +1,96 @@
+{
+ "generado": "2026-08-20T21:16:58.586Z",
+ "n": 516,
+ "diasAno": 116,
+ "filas": [
+  {
+   "N": 1,
+   "compromiso": 470,
+   "alAno": 3411,
+   "pctCuenta": 6,
+   "peorDia": -560,
+   "peorCaida": -4859,
+   "minCaja": 4555,
+   "ruina": 5.3,
+   "saltados": 0
+  },
+  {
+   "N": 2,
+   "compromiso": 940,
+   "alAno": 6821,
+   "pctCuenta": 12.1,
+   "peorDia": -1120,
+   "peorCaida": -9718,
+   "minCaja": 1134,
+   "ruina": 32.6,
+   "saltados": 0
+  },
+  {
+   "N": 3,
+   "compromiso": 1410,
+   "alAno": -1665,
+   "pctCuenta": -3,
+   "peorDia": -1680,
+   "peorCaida": -13046,
+   "minCaja": 562,
+   "ruina": 51.7,
+   "saltados": 455
+  },
+  {
+   "N": 4,
+   "compromiso": 1880,
+   "alAno": -1559,
+   "pctCuenta": -2.8,
+   "peorDia": -2240,
+   "peorCaida": -14449,
+   "minCaja": 1036,
+   "ruina": 63,
+   "saltados": 478
+  },
+  {
+   "N": 5,
+   "compromiso": 2350,
+   "alAno": -1629,
+   "pctCuenta": -2.9,
+   "peorDia": -2800,
+   "peorCaida": -16637,
+   "minCaja": 101,
+   "ruina": 69.7,
+   "saltados": 478
+  },
+  {
+   "N": 6,
+   "compromiso": 2820,
+   "alAno": -1678,
+   "pctCuenta": -3,
+   "peorDia": -3360,
+   "peorCaida": -18734,
+   "minCaja": 506,
+   "ruina": 76.2,
+   "saltados": 479
+  },
+  {
+   "N": 8,
+   "compromiso": 3760,
+   "alAno": -1320,
+   "pctCuenta": -2.3,
+   "peorDia": -4480,
+   "peorCaida": -20896,
+   "minCaja": 2098,
+   "ruina": 82.5,
+   "saltados": 484
+  },
+  {
+   "N": 10,
+   "compromiso": 4700,
+   "alAno": -1651,
+   "pctCuenta": -2.9,
+   "peorDia": -5601,
+   "peorCaida": -26120,
+   "minCaja": 628,
+   "ruina": 88.5,
+   "saltados": 484
+  }
+ ],
+ "tamanoSeguro": null
+}

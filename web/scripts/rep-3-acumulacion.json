@@ -1,0 +1,657 @@
+{
+ "LISTON": 3.53,
+ "escA": [
+  {
+   "nombre": "     TODO EN UN DIA",
+   "n": 2286,
+   "nDias": 80,
+   "nEfectiva": 178,
+   "ventanas": 17,
+   "media": 0.0014476584213232058,
+   "t": 1.7827440814341047,
+   "tercios": [
+    0.0018984530667069028,
+    0.0016153822831853407,
+    0.0008291399140773694
+   ],
+   "mismoSigno": true,
+   "cruza": false,
+   "lo": 1,
+   "hi": 1,
+   "X": 1000000
+  },
+  {
+   "nombre": "     en 2 días",
+   "n": 964,
+   "nDias": 78,
+   "nEfectiva": 135,
+   "ventanas": 17,
+   "media": 0.0010385922412513508,
+   "t": 0.8729419573898649,
+   "tercios": [
+    0.002012540066727519,
+    0.0022329368396876836,
+    -0.0011229663552576935
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 2,
+   "hi": 2,
+   "X": 1000000
+  },
+  {
+   "nombre": "     en 3-5 días",
+   "n": 303,
+   "nDias": 67,
+   "nEfectiva": 77,
+   "ventanas": 16,
+   "media": -0.0008076950243631369,
+   "t": 0.2599906115964886,
+   "tercios": [
+    0.0030034159953268398,
+    0.004866547695704614,
+    -0.010293048764120863
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 3,
+   "hi": 5,
+   "X": 1000000
+  },
+  {
+   "nombre": "     TODO EN UN DIA",
+   "n": 595,
+   "nDias": 78,
+   "nEfectiva": 130,
+   "ventanas": 17,
+   "media": -0.0004368423350548815,
+   "t": -0.08072770274043854,
+   "tercios": [
+    0.0027045847957692082,
+    -0.0012511275720827595,
+    -0.0027522900484802594
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 1,
+   "hi": 1,
+   "X": 2500000
+  },
+  {
+   "nombre": "     en 2 días",
+   "n": 526,
+   "nDias": 77,
+   "nEfectiva": 115,
+   "ventanas": 17,
+   "media": -0.0010353460475057792,
+   "t": 0.051760797516685636,
+   "tercios": [
+    0.003093277175194333,
+    0.001713337541131896,
+    -0.007873577251960964
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 2,
+   "hi": 2,
+   "X": 2500000
+  },
+  {
+   "nombre": "     en 3-5 días",
+   "n": 286,
+   "nDias": 67,
+   "nEfectiva": 77,
+   "ventanas": 16,
+   "media": 0.004011993299114014,
+   "t": 1.2714899559103607,
+   "tercios": [
+    0.002700926483467193,
+    0.004831536989153434,
+    0.004498396392163006
+   ],
+   "mismoSigno": true,
+   "cruza": false,
+   "lo": 3,
+   "hi": 5,
+   "X": 2500000
+  },
+  {
+   "nombre": "     TODO EN UN DIA",
+   "n": 205,
+   "nDias": 63,
+   "nEfectiva": 87,
+   "ventanas": 16,
+   "media": -0.002900730066632779,
+   "t": -0.26112029211663756,
+   "tercios": [
+    0.0034832341423258937,
+    -0.0007236394624440188,
+    -0.01133771162161865
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 1,
+   "hi": 1,
+   "X": 5000000
+  },
+  {
+   "nombre": "     en 2 días",
+   "n": 191,
+   "nDias": 64,
+   "nEfectiva": 79,
+   "ventanas": 16,
+   "media": -0.0022900611478181227,
+   "t": -0.8090098537199664,
+   "tercios": [
+    0.0022097635322745916,
+    0.00398373467818286,
+    -0.012732185638339692
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 2,
+   "hi": 2,
+   "X": 5000000
+  },
+  {
+   "nombre": "     en 3-5 días",
+   "n": 166,
+   "nDias": 57,
+   "nEfectiva": 51,
+   "ventanas": 16,
+   "media": 0.004168182314959301,
+   "t": 1.2256069671946255,
+   "tercios": [
+    0.002719533936820823,
+    0.004047206787116463,
+    0.00570977722261952
+   ],
+   "mismoSigno": true,
+   "cruza": false,
+   "lo": 3,
+   "hi": 5,
+   "X": 5000000
+  }
+ ],
+ "escB": [
+  {
+   "nombre": "     TODO EN UN DIA",
+   "n": 2280,
+   "nDias": 80,
+   "nEfectiva": 175,
+   "ventanas": 17,
+   "media": -0.00892821592730337,
+   "t": -0.16068770196123322,
+   "tercios": [
+    0.01090000043379045,
+    -0.01896996906238215,
+    -0.018714679153318366
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 1,
+   "hi": 1,
+   "X": 1000000
+  },
+  {
+   "nombre": "     en 2 días",
+   "n": 962,
+   "nDias": 78,
+   "nEfectiva": 133,
+   "ventanas": 17,
+   "media": -0.0348038154766371,
+   "t": -1.072076007651456,
+   "tercios": [
+    -0.002179122307982346,
+    -0.0313906813898953,
+    -0.07061780529566487
+   ],
+   "mismoSigno": true,
+   "cruza": false,
+   "lo": 2,
+   "hi": 2,
+   "X": 1000000
+  },
+  {
+   "nombre": "     en 3-5 días",
+   "n": 302,
+   "nDias": 67,
+   "nEfectiva": 77,
+   "ventanas": 16,
+   "media": -0.03403828736902337,
+   "t": -0.6967687553657579,
+   "tercios": [
+    0.050304649417161985,
+    -0.0691673304518571,
+    -0.08228720276446613
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 3,
+   "hi": 5,
+   "X": 1000000
+  },
+  {
+   "nombre": "     TODO EN UN DIA",
+   "n": 593,
+   "nDias": 78,
+   "nEfectiva": 128,
+   "ventanas": 17,
+   "media": -0.004016364037503158,
+   "t": 0.46980474561491603,
+   "tercios": [
+    -0.0009395442303380089,
+    -0.02929692017235094,
+    0.01796421916125803
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 1,
+   "hi": 1,
+   "X": 2500000
+  },
+  {
+   "nombre": "     en 2 días",
+   "n": 524,
+   "nDias": 77,
+   "nEfectiva": 113,
+   "ventanas": 17,
+   "media": -0.03030638759036405,
+   "t": 0.10713330395227308,
+   "tercios": [
+    0.02877071587696652,
+    -0.031744539090682436,
+    -0.08729035146684189
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 2,
+   "hi": 2,
+   "X": 2500000
+  },
+  {
+   "nombre": "     en 3-5 días",
+   "n": 285,
+   "nDias": 67,
+   "nEfectiva": 77,
+   "ventanas": 16,
+   "media": -0.03831027064880625,
+   "t": -0.674908959114356,
+   "tercios": [
+    0.05218909709371582,
+    -0.06568923892502387,
+    -0.10143067011511074
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 3,
+   "hi": 5,
+   "X": 2500000
+  },
+  {
+   "nombre": "     TODO EN UN DIA",
+   "n": 205,
+   "nDias": 63,
+   "nEfectiva": 87,
+   "ventanas": 16,
+   "media": -0.016937575580475518,
+   "t": -0.687517981822366,
+   "tercios": [
+    -0.061733992770138135,
+    -0.07192773840754538,
+    0.08140282211717384
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 1,
+   "hi": 1,
+   "X": 5000000
+  },
+  {
+   "nombre": "     en 2 días",
+   "n": 190,
+   "nDias": 63,
+   "nEfectiva": 78,
+   "ventanas": 16,
+   "media": -0.060280808154509924,
+   "t": -0.9456132901535119,
+   "tercios": [
+    0.03141665819035109,
+    -0.03809092155776264,
+    -0.1723886712064058
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 2,
+   "hi": 2,
+   "X": 5000000
+  },
+  {
+   "nombre": "     en 3-5 días",
+   "n": 166,
+   "nDias": 57,
+   "nEfectiva": 51,
+   "ventanas": 16,
+   "media": -0.06855398677277906,
+   "t": -1.1612873071453325,
+   "tercios": [
+    0.004107534018304571,
+    -0.11237930381157576,
+    -0.09687525831520362
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 3,
+   "hi": 5,
+   "X": 5000000
+  }
+ ],
+ "oiOut": [
+  {
+   "nombre": "     OI BAJA (cierran posiciones)",
+   "n": 288,
+   "nDias": 72,
+   "nEfectiva": 91,
+   "ventanas": 16,
+   "media": 0.0014171319349318438,
+   "t": 1.2742651032952175,
+   "tercios": [
+    0.0015123174478983397,
+    0.0034255342603411857,
+    -0.0006864559034439928
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": -9,
+   "hi": 0,
+   "campo": "exceso"
+  },
+  {
+   "nombre": "     OI BAJA (cierran posiciones) · esquina barata",
+   "n": 286,
+   "nDias": 72,
+   "nEfectiva": 89,
+   "ventanas": 16,
+   "media": -0.046770663436175475,
+   "t": -1.270734443139459,
+   "tercios": [
+    0.01525520903922153,
+    -0.07518675025459742,
+    -0.0800303471592236
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": -9,
+   "hi": 0,
+   "campo": "esqSeguir"
+  },
+  {
+   "nombre": "     OI sube <20%",
+   "n": 432,
+   "nDias": 72,
+   "nEfectiva": 96,
+   "ventanas": 16,
+   "media": 0.0008996926877988611,
+   "t": 0.1585932145578265,
+   "tercios": [
+    0.0026132567823463427,
+    0.004120115155965044,
+    -0.004034293874914805
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 0,
+   "hi": 0.2,
+   "campo": "exceso"
+  },
+  {
+   "nombre": "     OI sube <20% · esquina barata",
+   "n": 432,
+   "nDias": 72,
+   "nEfectiva": 96,
+   "ventanas": 16,
+   "media": -0.07285826344644658,
+   "t": -1.8669422172779626,
+   "tercios": [
+    -0.0047888756905559065,
+    -0.09366754859100665,
+    -0.12011836605777727
+   ],
+   "mismoSigno": true,
+   "cruza": false,
+   "lo": 0,
+   "hi": 0.2,
+   "campo": "esqSeguir"
+  },
+  {
+   "nombre": "     OI sube >=20% (la alerta)",
+   "n": 442,
+   "nDias": 77,
+   "nEfectiva": 99,
+   "ventanas": 17,
+   "media": -0.0017010393868490453,
+   "t": -0.42276358606654607,
+   "tercios": [
+    0.0019834914364729415,
+    0.0016244619249813775,
+    -0.008663706440007177
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 0.2,
+   "hi": 9,
+   "campo": "exceso"
+  },
+  {
+   "nombre": "     OI sube >=20% (la alerta) · esquina barata",
+   "n": 442,
+   "nDias": 77,
+   "nEfectiva": 99,
+   "ventanas": 17,
+   "media": -0.0025892936689800037,
+   "t": -0.04864093991585042,
+   "tercios": [
+    0.028567670515090862,
+    -0.038510308990901555,
+    0.002142567934155523
+   ],
+   "mismoSigno": false,
+   "cruza": false,
+   "lo": 0.2,
+   "hi": 9,
+   "campo": "esqSeguir"
+  }
+ ],
+ "C": {
+  "base": {
+   "nombre": "BASE (exceso sobre gemelos)",
+   "n": 812,
+   "nDias": 78,
+   "nEfectiva": 122,
+   "ventanas": 17,
+   "media": 0.0007424114070918333,
+   "t": 1.04974413485391,
+   "tercios": [
+    0.0029731118724425484,
+    0.002654613477552566,
+    -0.0033700286100739447
+   ],
+   "mismoSigno": false,
+   "cruza": false
+  },
+  "baseEsq": {
+   "nombre": "BASE (esquina barata en su dirección)",
+   "n": 809,
+   "nDias": 78,
+   "nEfectiva": 120,
+   "ventanas": 17,
+   "media": -0.03312604973085355,
+   "t": 0.0497713310969858,
+   "tercios": [
+    0.037041147905186554,
+    -0.046810139014476365,
+    -0.08919230857513478
+   ],
+   "mismoSigno": false,
+   "cruza": false
+  },
+  "masAskQueBid": {
+   "nombre": "además el ask DOBLA al bid del contrato",
+   "n": 413,
+   "nDias": 76,
+   "nEfectiva": 105,
+   "ventanas": 16,
+   "media": 0.0034224129595015257,
+   "t": 2.8625938503878468,
+   "tercios": [
+    0.003809256222653574,
+    0.0020531859038175186,
+    0.004390661733435897
+   ],
+   "mismoSigno": true,
+   "cruza": false
+  },
+  "calls": {
+   "nombre": "sólo CALL",
+   "n": 514,
+   "nDias": 75,
+   "nEfectiva": 110,
+   "ventanas": 17,
+   "media": 0.0001470773221532544,
+   "t": 0.3870557153133711,
+   "tercios": [
+    0.0033652045262319995,
+    0.0029954250271798802,
+    -0.005884127383992202
+   ],
+   "mismoSigno": false,
+   "cruza": false
+  },
+  "puts": {
+   "nombre": "sólo PUT",
+   "n": 298,
+   "nDias": 68,
+   "nEfectiva": 71,
+   "ventanas": 16,
+   "media": 0.0017692628153415952,
+   "t": -0.33486997410750347,
+   "tercios": [
+    0.0021939520546868053,
+    0.0022152820921001403,
+    0.0009072613843988802
+   ],
+   "mismoSigno": true,
+   "cruza": false
+  },
+  "acciones": {
+   "nombre": "sólo ACCIONES",
+   "n": 427,
+   "nDias": 68,
+   "nEfectiva": 70,
+   "ventanas": 16,
+   "media": -0.00002033901353694795,
+   "t": 0.6025905704473727,
+   "tercios": [
+    0.002688144559526012,
+    0.004395263087107835,
+    -0.007094605906309668
+   ],
+   "mismoSigno": false,
+   "cruza": false
+  },
+  "indices": {
+   "nombre": "sólo INDICES y ETF",
+   "n": 385,
+   "nDias": 72,
+   "nEfectiva": 52,
+   "ventanas": 17,
+   "media": 0.001588370964516481,
+   "t": 0.46786815487414896,
+   "tercios": [
+    0.002932455062015175,
+    0.0010355043230220243,
+    0.0008032869771634374
+   ],
+   "mismoSigno": true,
+   "cruza": false
+  },
+  "largo": {
+   "nombre": "plazo LARGO (>=60d)",
+   "n": 491,
+   "nDias": 78,
+   "nEfectiva": 85,
+   "ventanas": 17,
+   "media": 0.002408643701926524,
+   "t": 2.9854675679141267,
+   "tercios": [
+    0.0038330851906697673,
+    0.0020886609370262084,
+    0.0013175723565544333
+   ],
+   "mismoSigno": true,
+   "cruza": false
+  },
+  "lejos": {
+   "nombre": "contrato LEJOS del dinero (>=10%)",
+   "n": 126,
+   "nDias": 56,
+   "nEfectiva": 37,
+   "ventanas": 16,
+   "media": 0.007635326920205209,
+   "t": 3.785116765433788,
+   "tercios": [
+    0.006612719856957399,
+    0.004807358451289767,
+    0.01148590245236846
+   ],
+   "mismoSigno": true,
+   "cruza": true
+  }
+ },
+ "dinero": [
+  {
+   "nombre": "acumulación >=2d · el contrato",
+   "n": 812,
+   "prima": 18956.385467980297,
+   "nCtr": 1,
+   "comprometido": 18956.385467980297,
+   "media": -0.08097663732855692,
+   "anual": -100209.365017468,
+   "acierto": 36.69950738916256,
+   "diasPos": 5.5911330049261085
+  },
+  {
+   "nombre": "  su gemelo sorteado (azar)",
+   "n": 812,
+   "prima": 18956.385467980297,
+   "nCtr": 1,
+   "comprometido": 18956.385467980297,
+   "media": -0.08171904873564878,
+   "anual": -101128.10625124561,
+   "acierto": 36.45320197044335,
+   "diasPos": 5.5911330049261085
+  },
+  {
+   "nombre": "todo en 1 día · el contrato",
+   "n": 595,
+   "prima": 22603.689075630253,
+   "nCtr": 1,
+   "comprometido": 22603.689075630253,
+   "media": -0.022771067397358093,
+   "anual": -33387.74549331009,
+   "acierto": 38.319327731092436,
+   "diasPos": 5.6268907563025214
+  },
+  {
+   "nombre": "acumulación >=2d · esquina barata",
+   "n": 809,
+   "prima": 12631.557478368357,
+   "nCtr": 1,
+   "comprometido": 12631.557478368357,
+   "media": -0.07238379577902859,
+   "anual": -59678.38282561204,
+   "acierto": 37.824474660074166,
+   "diasPos": 5.592088998763906
+  }
+ ]
+}

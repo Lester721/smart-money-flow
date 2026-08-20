@@ -1,0 +1,26 @@
+{
+ "SPXW": {
+  "dias": 158,
+  "enRango": 83,
+  "primero": "20260422",
+  "ultimo": "20260819",
+  "expDia": 36,
+  "kExp": 362
+ },
+ "SPX": {
+  "dias": 158,
+  "enRango": 83,
+  "primero": "20260422",
+  "ultimo": "20260819",
+  "expDia": 5,
+  "kExp": 972
+ },
+ "SPY": {
+  "dias": 2643,
+  "enRango": 83,
+  "primero": "20260422",
+  "ultimo": "20260819",
+  "expDia": 35,
+  "kExp": 360
+ }
+}

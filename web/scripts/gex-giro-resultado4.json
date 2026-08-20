@@ -1,0 +1,345 @@
+{
+ "generado": "2026-08-20T20:40:47.274Z",
+ "liston": 3.32,
+ "pruebasDeclaradas": 56,
+ "sorteos": 500,
+ "cuenta": {
+  "costeMediano": 2090,
+  "efectivo": 7977,
+  "contratos": 3,
+  "peorDia1": -6216,
+  "peorDiaN": -18648,
+  "peorPctCuenta": 33.1
+ },
+ "efectivo": 7977,
+ "regla|gam|ABAJO|2022-2026": {
+  "n": 111,
+  "porOp": 285,
+  "alAno": 6832,
+  "acierto": 42.3,
+  "t": 1.17,
+  "peor": -6216,
+  "coste": 2090
+ },
+ "regla|gam|ABAJO|2022-2023": {
+  "n": 47,
+  "porOp": 296.6,
+  "alAno": 6971,
+  "acierto": 48.9,
+  "t": 0.97,
+  "peor": -6216,
+  "coste": 1840
+ },
+ "regla|gam|ABAJO|2024-2026": {
+  "n": 64,
+  "porOp": 276.4,
+  "alAno": 6726,
+  "acierto": 37.5,
+  "t": 0.77,
+  "peor": -3134,
+  "coste": 2140
+ },
+ "regla|gam|ARRIBA|2022-2026": {
+  "n": 104,
+  "porOp": 450.9,
+  "alAno": 10128,
+  "acierto": 48.1,
+  "t": 1.66,
+  "peor": -4911,
+  "coste": 2160
+ },
+ "regla|gam|ARRIBA|2022-2023": {
+  "n": 41,
+  "porOp": 655.5,
+  "alAno": 13437,
+  "acierto": 56.1,
+  "t": 1.98,
+  "peor": -2248,
+  "coste": 1860
+ },
+ "regla|gam|ARRIBA|2024-2026": {
+  "n": 63,
+  "porOp": 317.7,
+  "alAno": 7611,
+  "acierto": 42.9,
+  "t": 0.8,
+  "peor": -4911,
+  "coste": 2410
+ },
+ "regla|gam|cualquiera|2022-2026": {
+  "n": 215,
+  "porOp": 365.2,
+  "alAno": 16960,
+  "acierto": 45.1,
+  "t": 2.01,
+  "peor": -6216,
+  "coste": 2090
+ },
+ "regla|gam|cualquiera|2022-2023": {
+  "n": 88,
+  "porOp": 463.8,
+  "alAno": 20408,
+  "acierto": 52.3,
+  "t": 2.07,
+  "peor": -6216,
+  "coste": 1860
+ },
+ "regla|gam|cualquiera|2024-2026": {
+  "n": 127,
+  "porOp": 296.9,
+  "alAno": 14337,
+  "acierto": 40.2,
+  "t": 1.12,
+  "peor": -4911,
+  "coste": 2190
+ },
+ "regla|gamD|ABAJO|2022-2026": {
+  "n": 117,
+  "porOp": -94.2,
+  "alAno": -2382,
+  "acierto": 33.3,
+  "t": -0.37,
+  "peor": -7671,
+  "coste": 2110
+ },
+ "regla|gamD|ABAJO|2022-2023": {
+  "n": 41,
+  "porOp": -46.4,
+  "alAno": -951,
+  "acierto": 39,
+  "t": -0.17,
+  "peor": -4106,
+  "coste": 1830
+ },
+ "regla|gamD|ABAJO|2024-2026": {
+  "n": 76,
+  "porOp": -120.1,
+  "alAno": -3469,
+  "acierto": 30.3,
+  "t": -0.33,
+  "peor": -7671,
+  "coste": 2270
+ },
+ "regla|gamD|ARRIBA|2022-2026": {
+  "n": 110,
+  "porOp": 150.7,
+  "alAno": 3580,
+  "acierto": 42.7,
+  "t": 0.81,
+  "peor": -3577,
+  "coste": 2060
+ },
+ "regla|gamD|ARRIBA|2022-2023": {
+  "n": 52,
+  "porOp": 352.5,
+  "alAno": 9166,
+  "acierto": 46.2,
+  "t": 1.41,
+  "peor": -3243,
+  "coste": 1770
+ },
+ "regla|gamD|ARRIBA|2024-2026": {
+  "n": 58,
+  "porOp": -30.2,
+  "alAno": -667,
+  "acierto": 39.7,
+  "t": -0.11,
+  "peor": -3577,
+  "coste": 2210
+ },
+ "regla|gamD|cualquiera|2022-2026": {
+  "n": 227,
+  "porOp": 24.4,
+  "alAno": 1199,
+  "acierto": 37.9,
+  "t": 0.15,
+  "peor": -7671,
+  "coste": 2100
+ },
+ "regla|gamD|cualquiera|2022-2023": {
+  "n": 93,
+  "porOp": 176.6,
+  "alAno": 8214,
+  "acierto": 43,
+  "t": 0.94,
+  "peor": -4106,
+  "coste": 1790
+ },
+ "regla|gamD|cualquiera|2024-2026": {
+  "n": 134,
+  "porOp": -81.2,
+  "alAno": -4136,
+  "acierto": 34.3,
+  "t": -0.34,
+  "peor": -7671,
+  "coste": 2240
+ },
+ "azar$|gam|ABAJO": {
+  "real": 6832,
+  "p50": -841,
+  "p95": 6896,
+  "percentil": 94.8
+ },
+ "azar$|gam|ARRIBA": {
+  "real": 10128,
+  "p50": -9,
+  "p95": 6186,
+  "percentil": 99.4
+ },
+ "azar$|gam|cualquiera": {
+  "real": 16960,
+  "p50": -909,
+  "p95": 8389,
+  "percentil": 100
+ },
+ "azar$|gamD|ABAJO": {
+  "real": -2382,
+  "p50": -916,
+  "p95": 7386,
+  "percentil": 38
+ },
+ "azar$|gamD|ARRIBA": {
+  "real": 3580,
+  "p50": -463,
+  "p95": 5586,
+  "percentil": 86.6
+ },
+ "azar$|gamD|cualquiera": {
+  "real": 1199,
+  "p50": -1045,
+  "p95": 7963,
+  "percentil": 66
+ },
+ "hora$|gam|ABAJO": {
+  "real": 6832,
+  "p50": -2035,
+  "p95": 6139,
+  "percentil": 95.8
+ },
+ "hora$|gam|ARRIBA": {
+  "real": 10128,
+  "p50": -1931,
+  "p95": 6634,
+  "percentil": 98.4
+ },
+ "hora$|gam|cualquiera": {
+  "real": 16960,
+  "p50": -3839,
+  "p95": 8894,
+  "percentil": 99.4
+ },
+ "hora$|gamD|ABAJO": {
+  "real": -2382,
+  "p50": -2081,
+  "p95": 6529,
+  "percentil": 47.4
+ },
+ "hora$|gamD|ARRIBA": {
+  "real": 3580,
+  "p50": -2534,
+  "p95": 5786,
+  "percentil": 89.4
+ },
+ "hora$|gamD|cualquiera": {
+  "real": 1199,
+  "p50": -4536,
+  "p95": 7258,
+  "percentil": 78.8
+ },
+ "horaFija|0": {
+  "hora": "09:35",
+  "n": 1122,
+  "porOp": -9.5,
+  "alAno": -2300,
+  "acierto": 40.6,
+  "t": -0.12,
+  "peor": -6133,
+  "coste": 2820,
+  "a2223": 9386,
+  "b2426": -11187
+ },
+ "horaFija|12": {
+  "hora": "10:35",
+  "n": 1122,
+  "porOp": -74.5,
+  "alAno": -18043,
+  "acierto": 39.8,
+  "t": -1,
+  "peor": -9452,
+  "coste": 2350,
+  "a2223": -15226,
+  "b2426": -20186
+ },
+ "horaFija|24": {
+  "hora": "11:35",
+  "n": 1122,
+  "porOp": -75.3,
+  "alAno": -18251,
+  "acierto": 39,
+  "t": -1.14,
+  "peor": -6709,
+  "coste": 2050,
+  "a2223": -12357,
+  "b2426": -22734
+ },
+ "horaFija|27": {
+  "hora": "11:50",
+  "n": 1122,
+  "porOp": -72.1,
+  "alAno": -17463,
+  "acierto": 38.1,
+  "t": -1.1,
+  "peor": -9852,
+  "coste": 1990,
+  "a2223": -8103,
+  "b2426": -24581
+ },
+ "horaFija|36": {
+  "hora": "12:35",
+  "n": 1122,
+  "porOp": -43.8,
+  "alAno": -10603,
+  "acierto": 39.8,
+  "t": -0.7,
+  "peor": -6092,
+  "coste": 1790,
+  "a2223": 2620,
+  "b2426": -20659
+ },
+ "horaFija|48": {
+  "hora": "13:35",
+  "n": 1120,
+  "porOp": -150.2,
+  "alAno": -36325,
+  "acierto": 35.8,
+  "t": -3.3,
+  "peor": -8152,
+  "coste": 1520,
+  "a2223": -13661,
+  "b2426": -53561
+ },
+ "horaFija|60": {
+  "hora": "14:35",
+  "n": 1120,
+  "porOp": -84.2,
+  "alAno": -20376,
+  "acierto": 37,
+  "t": -2.26,
+  "peor": -5068,
+  "coste": 1210,
+  "a2223": -13610,
+  "b2426": -25522
+ },
+ "veredicto": {
+  "ganaAlAzar": [
+   "azar$|gam|ARRIBA",
+   "azar$|gam|cualquiera"
+  ],
+  "ganaALaHora": [
+   "hora$|gam|ABAJO",
+   "hora$|gam|ARRIBA",
+   "hora$|gam|cualquiera"
+  ],
+  "pasaListon": []
+ }
+}

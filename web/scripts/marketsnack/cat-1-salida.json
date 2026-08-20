@@ -1,0 +1,652 @@
+{
+ "total": 2208177,
+ "primaTotal": 2225973655543,
+ "sinSymbol": 493,
+ "sinCond": 0,
+ "porNivel": {
+  "100k": {
+   "dias": 86,
+   "n": 2022492,
+   "desde": "2026-04-22",
+   "hasta": "2026-08-19"
+  },
+  "1000k": {
+   "dias": 86,
+   "n": 185685,
+   "desde": "2026-04-22",
+   "hasta": "2026-08-19"
+  }
+ },
+ "diasAntesRuptura": 122,
+ "diasDespuesRuptura": 50,
+ "clase": {
+  "basura": 41603,
+  "suelta": 861027,
+  "multi": 1246819,
+  "accion": 58728
+ },
+ "side": {
+  "BIDSIDE": 805571,
+  "ASKSIDE": 779802,
+  "AT_ASK": 148467,
+  "AT_BID": 139891,
+  "MIDMKT": 139045,
+  "BELOW_BID": 93823,
+  "ABOVE_ASK": 101157,
+  "null": 421
+ },
+ "lado_x_clase": {
+  "basura|BIDSIDE": 7843,
+  "basura|ASKSIDE": 7144,
+  "suelta|AT_ASK": 125389,
+  "multi|ASKSIDE": 482789,
+  "multi|BIDSIDE": 494630,
+  "suelta|AT_BID": 116009,
+  "suelta|MIDMKT": 38825,
+  "suelta|ASKSIDE": 267415,
+  "multi|AT_BID": 20865,
+  "multi|BELOW_BID": 63838,
+  "multi|ABOVE_ASK": 66911,
+  "suelta|BIDSIDE": 275415,
+  "multi|AT_ASK": 20721,
+  "accion|BIDSIDE": 27683,
+  "suelta|ABOVE_ASK": 21086,
+  "multi|MIDMKT": 96853,
+  "accion|ASKSIDE": 22454,
+  "basura|AT_BID": 941,
+  "basura|BELOW_BID": 11999,
+  "suelta|BELOW_BID": 16691,
+  "basura|AT_ASK": 788,
+  "basura|ABOVE_ASK": 12208,
+  "accion|AT_BID": 2076,
+  "accion|MIDMKT": 2689,
+  "accion|BELOW_BID": 1295,
+  "accion|AT_ASK": 1569,
+  "accion|ABOVE_ASK": 952,
+  "suelta|null": 197,
+  "multi|null": 212,
+  "accion|null": 10,
+  "basura|MIDMKT": 678,
+  "basura|null": 2
+ },
+ "nulosAntes": {
+  "asset_price": 404718,
+  "open_interest": 7734,
+  "delta": 109249,
+  "gamma": 109249,
+  "theta": 109249,
+  "vega": 109249,
+  "implied_volatility": 109249,
+  "bid_price": 421,
+  "ask_price": 421,
+  "bid_size": 421,
+  "ask_size": 421,
+  "sentiment": 421,
+  "side": 421,
+  "volume": 35
+ },
+ "nulosDespues": {
+  "delta": 21890,
+  "gamma": 21890,
+  "theta": 21890,
+  "vega": 21890,
+  "implied_volatility": 21890,
+  "open_interest": 1431,
+  "volume": 11,
+  "asset_price": 1
+ },
+ "topTickers": [
+  {
+   "t": "SPX",
+   "n": 530623,
+   "prima": 1221860633824,
+   "pctPrima": 0.5489106444640026,
+   "medible": false
+  },
+  {
+   "t": "SPXW",
+   "n": 111371,
+   "prima": 128286601566,
+   "pctPrima": 0.05763168007246968,
+   "medible": false
+  },
+  {
+   "t": "MU",
+   "n": 208907,
+   "prima": 107274033724,
+   "pctPrima": 0.048191960159488845,
+   "medible": false
+  },
+  {
+   "t": "SNDK",
+   "n": 157758,
+   "prima": 86844818990,
+   "pctPrima": 0.03901430673887074,
+   "medible": false
+  },
+  {
+   "t": "QQQ",
+   "n": 79660,
+   "prima": 58922623796,
+   "pctPrima": 0.026470494675116234,
+   "medible": true
+  },
+  {
+   "t": "NDX",
+   "n": 42981,
+   "prima": 42990906489,
+   "pctPrima": 0.019313304262135518,
+   "medible": false
+  },
+  {
+   "t": "SPY",
+   "n": 62339,
+   "prima": 36030208251,
+   "pctPrima": 0.01618626894405489,
+   "medible": true
+  },
+  {
+   "t": "NVDA",
+   "n": 66974,
+   "prima": 33056958821,
+   "pctPrima": 0.014850561568275229,
+   "medible": true
+  },
+  {
+   "t": "AMD",
+   "n": 62814,
+   "prima": 28725726605,
+   "pctPrima": 0.012904791812548517,
+   "medible": true
+  },
+  {
+   "t": "TSLA",
+   "n": 47599,
+   "prima": 24312936452,
+   "pctPrima": 0.010922382837486522,
+   "medible": true
+  },
+  {
+   "t": "META",
+   "n": 32252,
+   "prima": 18068792801,
+   "pctPrima": 0.008117253659317154,
+   "medible": true
+  },
+  {
+   "t": "MSFT",
+   "n": 32692,
+   "prima": 17642299626,
+   "pctPrima": 0.0079256551765867,
+   "medible": true
+  },
+  {
+   "t": "GLD",
+   "n": 11087,
+   "prima": 17017677333,
+   "pctPrima": 0.007645048848904161,
+   "medible": false
+  },
+  {
+   "t": "IWM",
+   "n": 10393,
+   "prima": 12405633500,
+   "pctPrima": 0.005573126828841014,
+   "medible": false
+  },
+  {
+   "t": "INTC",
+   "n": 24639,
+   "prima": 12340730856,
+   "pctPrima": 0.005543969860231623,
+   "medible": true
+  },
+  {
+   "t": "AMZN",
+   "n": 20801,
+   "prima": 11782389440,
+   "pctPrima": 0.005293139660777263,
+   "medible": false
+  },
+  {
+   "t": "SMH",
+   "n": 15116,
+   "prima": 11021475466,
+   "pctPrima": 0.0049513054382089895,
+   "medible": false
+  },
+  {
+   "t": "SPCX",
+   "n": 18251,
+   "prima": 10792912978,
+   "pctPrima": 0.004848625656967713,
+   "medible": false
+  },
+  {
+   "t": "AAPL",
+   "n": 21474,
+   "prima": 10444467689,
+   "pctPrima": 0.004692089532592512,
+   "medible": true
+  },
+  {
+   "t": "GOOGL",
+   "n": 21873,
+   "prima": 9498285037,
+   "pctPrima": 0.004267024909907572,
+   "medible": false
+  },
+  {
+   "t": "TSM",
+   "n": 14734,
+   "prima": 9096830750,
+   "pctPrima": 0.004086674937660453,
+   "medible": false
+  },
+  {
+   "t": "NBIS",
+   "n": 21121,
+   "prima": 9065120192,
+   "pctPrima": 0.0040724292353714634,
+   "medible": false
+  },
+  {
+   "t": "MRVL",
+   "n": 16794,
+   "prima": 7831276305,
+   "pctPrima": 0.003518135214897524,
+   "medible": false
+  },
+  {
+   "t": "MSTR",
+   "n": 11068,
+   "prima": 7768725718,
+   "pctPrima": 0.003490034888173423,
+   "medible": false
+  },
+  {
+   "t": "AVGO",
+   "n": 18602,
+   "prima": 7706063886,
+   "pctPrima": 0.0034618845855658594,
+   "medible": false
+  }
+ ],
+ "hora": [
+  [
+   "09:30",
+   285362
+  ],
+  [
+   "10:00",
+   235443
+  ],
+  [
+   "10:30",
+   203372
+  ],
+  [
+   "11:00",
+   179112
+  ],
+  [
+   "11:30",
+   160281
+  ],
+  [
+   "12:00",
+   143562
+  ],
+  [
+   "12:30",
+   132539
+  ],
+  [
+   "13:00",
+   127102
+  ],
+  [
+   "13:30",
+   123407
+  ],
+  [
+   "14:00",
+   124479
+  ],
+  [
+   "14:30",
+   133920
+  ],
+  [
+   "15:00",
+   153891
+  ],
+  [
+   "15:30",
+   179473
+  ],
+  [
+   "16:00",
+   25212
+  ],
+  [
+   "16:30",
+   1022
+  ]
+ ],
+ "rejilla": [
+  {
+   "k": "121+|ITM",
+   "n": 524175,
+   "prima": 381311211834
+  },
+  {
+   "k": "121+|25%+",
+   "n": 197760,
+   "prima": 88593688408
+  },
+  {
+   "k": "121+|10-25%",
+   "n": 167266,
+   "prima": 94498339330
+  },
+  {
+   "k": "121+|ATM",
+   "n": 121865,
+   "prima": 81138612420
+  },
+  {
+   "k": "121+|5-10%",
+   "n": 99948,
+   "prima": 81222355494
+  },
+  {
+   "k": "61-120|ITM",
+   "n": 92564,
+   "prima": 90416067986
+  },
+  {
+   "k": "31-60|ATM",
+   "n": 88318,
+   "prima": 55824845432
+  },
+  {
+   "k": "121+|2-5%",
+   "n": 73134,
+   "prima": 56877014180
+  },
+  {
+   "k": "31-60|ITM",
+   "n": 66764,
+   "prima": 96516434612
+  },
+  {
+   "k": "61-120|ATM",
+   "n": 52835,
+   "prima": 31780165369
+  },
+  {
+   "k": "8-30|ITM",
+   "n": 42365,
+   "prima": 44516484669
+  },
+  {
+   "k": "8-30|ATM",
+   "n": 40703,
+   "prima": 19795800119
+  },
+  {
+   "k": "61-120|10-25%",
+   "n": 36750,
+   "prima": 21226821608
+  },
+  {
+   "k": "61-120|5-10%",
+   "n": 30162,
+   "prima": 19902175955
+  },
+  {
+   "k": "61-120|2-5%",
+   "n": 28201,
+   "prima": 18153909751
+  },
+  {
+   "k": "31-60|2-5%",
+   "n": 25598,
+   "prima": 16210574432
+  },
+  {
+   "k": "31-60|10-25%",
+   "n": 20339,
+   "prima": 8916921804
+  },
+  {
+   "k": "31-60|5-10%",
+   "n": 20183,
+   "prima": 11270661821
+  },
+  {
+   "k": "61-120|25%+",
+   "n": 16948,
+   "prima": 7986125249
+  },
+  {
+   "k": "0-7|ITM",
+   "n": 14812,
+   "prima": 16730040804
+  },
+  {
+   "k": "8-30|2-5%",
+   "n": 13459,
+   "prima": 6559512711
+  },
+  {
+   "k": "8-30|5-10%",
+   "n": 7654,
+   "prima": 3254576104
+  },
+  {
+   "k": "0-7|ATM",
+   "n": 7006,
+   "prima": 2065012728
+  },
+  {
+   "k": "31-60|25%+",
+   "n": 6429,
+   "prima": 2589341534
+  },
+  {
+   "k": "8-30|10-25%",
+   "n": 5179,
+   "prima": 2117386343
+  },
+  {
+   "k": "8-30|25%+",
+   "n": 1246,
+   "prima": 445178484
+  },
+  {
+   "k": "0-7|2-5%",
+   "n": 837,
+   "prima": 189883293
+  },
+  {
+   "k": "0-7|5-10%",
+   "n": 376,
+   "prima": 91649051
+  },
+  {
+   "k": "0-7|10-25%",
+   "n": 87,
+   "prima": 16710756
+  },
+  {
+   "k": "0-7|25%+",
+   "n": 3,
+   "prima": 402000
+  }
+ ],
+ "esquina": {
+  "total": 39208,
+  "medible": 9573,
+  "conSalida": 7348,
+  "suelta": 18361,
+  "sueltaAsk": 8853,
+  "sueltaAskMedible": 2962,
+  "sueltaAskConSalida": 2282
+ },
+ "esquinaDias": 82,
+ "esquinaTickers": [
+  [
+   "SPX",
+   8615
+  ],
+  [
+   "QQQ",
+   2929
+  ],
+  [
+   "SPXW",
+   2333
+  ],
+  [
+   "MU",
+   2229
+  ],
+  [
+   "SPY",
+   1929
+  ],
+  [
+   "NVDA",
+   1236
+  ],
+  [
+   "SNDK",
+   1095
+  ],
+  [
+   "MSFT",
+   767
+  ],
+  [
+   "SPCX",
+   726
+  ],
+  [
+   "TSLA",
+   678
+  ],
+  [
+   "AMD",
+   647
+  ],
+  [
+   "META",
+   625
+  ],
+  [
+   "IWM",
+   560
+  ],
+  [
+   "AAPL",
+   543
+  ],
+  [
+   "AMZN",
+   496
+  ],
+  [
+   "INTC",
+   450
+  ],
+  [
+   "TSM",
+   447
+  ],
+  [
+   "SMH",
+   422
+  ],
+  [
+   "AVGO",
+   392
+  ],
+  [
+   "GOOGL",
+   352
+  ],
+  [
+   "GLD",
+   351
+  ],
+  [
+   "NDX",
+   335
+  ],
+  [
+   "BE",
+   291
+  ],
+  [
+   "MRVL",
+   290
+  ],
+  [
+   "GOOG",
+   278
+  ],
+  [
+   "DELL",
+   276
+  ],
+  [
+   "ASML",
+   254
+  ],
+  [
+   "NBIS",
+   229
+  ],
+  [
+   "SOXX",
+   202
+  ],
+  [
+   "ARM",
+   200
+  ]
+ ],
+ "universoMedible": [
+  "AAPL",
+  "AMD",
+  "BA",
+  "BAC",
+  "COST",
+  "CRM",
+  "CSCO",
+  "DIS",
+  "F",
+  "GE",
+  "INTC",
+  "JPM",
+  "KO",
+  "META",
+  "MSFT",
+  "NKE",
+  "NVDA",
+  "ORCL",
+  "PFE",
+  "PYPL",
+  "QQQ",
+  "SPY",
+  "T",
+  "TSLA",
+  "UNH",
+  "WBA",
+  "WMT",
+  "XOM"
+ ],
+ "cadenaMax": 20260806
+}

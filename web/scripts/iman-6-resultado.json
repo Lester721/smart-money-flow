@@ -1,0 +1,31 @@
+{
+ "generado": "2026-08-20T21:02:14.953Z",
+ "n": 516,
+ "diasAno": 116,
+ "vertical": {
+  "pnlMedio": 64.06,
+  "mediana": -428,
+  "t": 1.28,
+  "pctSobreRiesgo": 6.62,
+  "anual": 7424,
+  "ic95": [
+   -3943,
+   18791
+  ],
+  "riesgoP50": 920,
+  "peorRacha": 8,
+  "peorCaida": -14045
+ },
+ "cruce": {
+  "A": 85.1,
+  "tA": 1.42,
+  "B": 45.91,
+  "tB": 0.59,
+  "mismoSigno": true
+ },
+ "control": {
+  "azar": -27.81,
+  "percentil": 97.2
+ },
+ "anosNecesarios": 123
+}

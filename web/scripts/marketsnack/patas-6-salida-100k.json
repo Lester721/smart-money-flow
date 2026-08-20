@@ -1,0 +1,24 @@
+{
+ "elasticidad": 8.488421448559105,
+ "tElasticidad": 41.47213838991037,
+ "equilibrioPct": 5.459959431812391,
+ "movMedio": 4.602540207558702,
+ "separadoCrudo": {
+  "m": 0.8636752856472192,
+  "t": 2.3888157447991047,
+  "n": 69
+ },
+ "separadoControl": {
+  "m": 0.03987562873135159,
+  "t": 0.7773131473372159,
+  "n": 69
+ },
+ "separadoEnPuntos": 0.22397486114966453,
+ "faltaMovimiento": 0.8574192242536887,
+ "cobertura": 0.2612197800260611,
+ "nEfActual": 13.8,
+ "nEfNecesaria": 216.6648660597087,
+ "sesionesNecesarias": 1083.3243302985434,
+ "dolaresAlAno": -186433.88893049036,
+ "capitalComprometido": 56389
+}

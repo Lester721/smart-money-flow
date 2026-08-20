@@ -1,0 +1,369 @@
+{
+  "BASE": {
+    "n": 653,
+    "total": 48638.280000000224,
+    "media": 74.48434915773389,
+    "peor": -4900.24,
+    "p1": -3805.2399999999993,
+    "p5": -2579.240000000033,
+    "dd": -15176.239999999882,
+    "acierto": 0.7549770290964778,
+    "alAno": 18695.571638591206
+  },
+  "retrato": [
+    {
+      "g": "camino",
+      "campo": "movManana",
+      "desc": "% de la apertura a las 11:00 (SIGNADO)",
+      "peor": -0.20548198623462424,
+      "mejor": -0.009501488794367852,
+      "dif": -0.1959804974402564,
+      "t": -0.9327856759445806,
+      "nNec": 560
+    },
+    {
+      "g": "camino",
+      "campo": "movMananaAbs",
+      "desc": "lo mismo en valor absoluto",
+      "peor": 0.40353333030300526,
+      "mejor": 0.7451623220143041,
+      "dif": -0.34162899171129885,
+      "t": -2.366507296736434,
+      "nNec": 87
+    },
+    {
+      "g": "camino",
+      "campo": "rangoManana",
+      "desc": "% de rango alto-bajo de la mañana",
+      "peor": 0.6333889820547377,
+      "mejor": 1.1027021467583162,
+      "dif": -0.46931316470357853,
+      "t": -2.3497166858513547,
+      "nNec": 89
+    },
+    {
+      "g": "camino",
+      "campo": "posRango",
+      "desc": "dónde queda a las 11:00 dentro del rango (0=suelo, 1=techo)",
+      "peor": 0.3983904634165449,
+      "mejor": 0.41817924164389186,
+      "dif": -0.01978877822734698,
+      "t": -0.19931751633983547,
+      "nNec": 12265
+    },
+    {
+      "g": "camino",
+      "campo": "extremo",
+      "desc": "qué tan al BORDE de ese rango (0=centro, 1=en el extremo)",
+      "peor": 0.7216059478037279,
+      "mejor": 0.7389319272624367,
+      "dif": -0.01732597945870884,
+      "t": -0.24523024462400353,
+      "nNec": 8102
+    },
+    {
+      "g": "camino",
+      "campo": "recorrido",
+      "desc": "% de camino andado sumando los 17 tramos de 5 min",
+      "peor": 1.4983616089803582,
+      "mejor": 2.582731934606824,
+      "dif": -1.0843703256264656,
+      "t": -2.1180340456635087,
+      "nNec": 109
+    },
+    {
+      "g": "camino",
+      "campo": "eficiencia",
+      "desc": "neto / camino (1 = línea recta, 0 = ida y vuelta)",
+      "peor": 0.28624961384422437,
+      "mejor": 0.3070417192483826,
+      "dif": -0.020792105404158212,
+      "t": -0.39244764635139384,
+      "nNec": 3164
+    },
+    {
+      "g": "camino",
+      "campo": "zigzag",
+      "desc": "nº de cambios de dirección en la mañana",
+      "peor": 8.066666666666666,
+      "mejor": 7.4,
+      "dif": 0.6666666666666661,
+      "t": 1.2264376778268669,
+      "nNec": 324
+    },
+    {
+      "g": "camino",
+      "campo": "rvManana",
+      "desc": "vol realizada de la mañana, anualizada %",
+      "peor": 15.298077660178171,
+      "mejor": 27.052756511884567,
+      "dif": -11.754678851706396,
+      "t": -1.8959172577636823,
+      "nNec": 136
+    },
+    {
+      "g": "camino",
+      "campo": "acel",
+      "desc": "% movido en la última media hora (10:30→11:00)",
+      "peor": 0.2472189521863174,
+      "mejor": 0.2600492157467856,
+      "dif": -0.01283026356046818,
+      "t": -0.2632890635139134,
+      "nNec": 7029
+    },
+    {
+      "g": "precio",
+      "campo": "ivAtm11",
+      "desc": "implícita del dinero a las 11:00, %",
+      "peor": 26.68266666666667,
+      "mejor": 43.821000000000005,
+      "dif": -17.138333333333335,
+      "t": -4.206650933535176,
+      "nNec": 28
+    },
+    {
+      "g": "precio",
+      "campo": "ivCambio",
+      "desc": "% que cambió esa implícita desde las 09:35",
+      "peor": -2.216801949667764,
+      "mejor": -1.042709702974387,
+      "dif": -1.1740922466933768,
+      "t": -0.2077335183657329,
+      "nNec": 11291
+    },
+    {
+      "g": "precio",
+      "campo": "sigma",
+      "desc": "movimiento esperado del resto de sesión, en puntos",
+      "peor": 91.70558129061652,
+      "mejor": 142.3606379176708,
+      "dif": -50.65505662705428,
+      "t": -4.660141747997195,
+      "nNec": 23
+    },
+    {
+      "g": "precio",
+      "campo": "sigmaRatio",
+      "desc": "cuántas σ son los ±25 fijos",
+      "peor": 0.30141491524694125,
+      "mejor": 0.18799381081130037,
+      "dif": 0.11342110443564088,
+      "t": 5.188418463434244,
+      "nNec": 19
+    },
+    {
+      "g": "precio",
+      "campo": "rvIv",
+      "desc": "vol realizada de la mañana / implícita (>1 = se mueve más de lo que paga)",
+      "peor": 0.5695950197760339,
+      "mejor": 0.5687039344956003,
+      "dif": 0.0008910852804335789,
+      "t": 0.014822771896993537,
+      "nNec": 2217546
+    },
+    {
+      "g": "crédito",
+      "campo": "credito",
+      "desc": "$ cobrados por el cóndor",
+      "peor": 1081.6666666666667,
+      "mejor": 1896.6666666666667,
+      "dif": -815,
+      "t": -6.513179954107642,
+      "nNec": 12
+    },
+    {
+      "g": "ayer",
+      "campo": "hueco",
+      "desc": "% de hueco de apertura contra el cierre de ayer (SIGNADO)",
+      "peor": -0.06370526487330717,
+      "mejor": -0.607068141707749,
+      "dif": 0.5433628768344418,
+      "t": 1.9763437486849575,
+      "nNec": 125
+    },
+    {
+      "g": "ayer",
+      "campo": "huecoAbs",
+      "desc": "lo mismo en valor absoluto",
+      "peor": 0.6398801339581184,
+      "mejor": 0.9389472920690609,
+      "dif": -0.29906715811094253,
+      "t": -1.427098361293969,
+      "nNec": 240
+    },
+    {
+      "g": "ayer",
+      "campo": "rangoAyerReal",
+      "desc": "% de rango de la SESIÓN ENTERA de ayer",
+      "peor": 0.9575442478261965,
+      "mejor": 1.7292966846441518,
+      "dif": -0.7717524368179552,
+      "t": -2.560368094049115,
+      "nNec": 75
+    },
+    {
+      "g": "ayer",
+      "campo": "rvAyer",
+      "desc": "vol realizada de la sesión entera de ayer, anualizada %",
+      "peor": 10.866618022698303,
+      "mejor": 17.9327617609331,
+      "dif": -7.066143738234798,
+      "t": -3.0105620696586373,
+      "nNec": 54
+    },
+    {
+      "g": "ayer",
+      "campo": "retAyer",
+      "desc": "% que se movió ayer de cierre a cierre",
+      "peor": -0.08660164065368403,
+      "mejor": -0.2449741531062529,
+      "dif": 0.15837251245256886,
+      "t": 0.3552116487841744,
+      "nNec": 3862
+    },
+    {
+      "g": "vol",
+      "campo": "vix",
+      "desc": "VIX al cierre de AYER",
+      "peor": 19.581,
+      "mejor": 23.317666666666664,
+      "dif": -3.7366666666666646,
+      "t": -2.654909086263033,
+      "nNec": 70
+    },
+    {
+      "g": "vol",
+      "campo": "vixCambio",
+      "desc": "% que cambió el VIX ayer",
+      "peor": 1.658755410600894,
+      "mejor": 3.076579987632218,
+      "dif": -1.417824577031324,
+      "t": -0.43920614629199417,
+      "nNec": 2526
+    },
+    {
+      "g": "vol",
+      "campo": "term9",
+      "desc": "VIX9D / VIX de ayer (>1 = estrés a corto)",
+      "peor": 0.9462861027984651,
+      "mejor": 1.0250645876322309,
+      "dif": -0.0787784848337657,
+      "t": -3.5517137812134227,
+      "nNec": 39
+    },
+    {
+      "g": "vol",
+      "campo": "term3m",
+      "desc": "VIX / VIX3M de ayer (>1 = curva invertida)",
+      "peor": 0.931777066030752,
+      "mejor": 0.9771766694879839,
+      "dif": -0.04539960345723182,
+      "t": -2.3439734983042735,
+      "nNec": 89
+    },
+    {
+      "g": "vol",
+      "campo": "vvix",
+      "desc": "VVIX al cierre de AYER",
+      "peor": 104.21266666666669,
+      "mejor": 114.03999999999998,
+      "dif": -9.827333333333286,
+      "t": -2.3194395466290536,
+      "nNec": 91
+    },
+    {
+      "g": "vol",
+      "campo": "vvixVix",
+      "desc": "VVIX / VIX de ayer",
+      "peor": 5.416134327036659,
+      "mejor": 5.048051044240021,
+      "dif": 0.36808328279663804,
+      "t": 2.160992780071405,
+      "nNec": 105
+    },
+    {
+      "g": "vol",
+      "campo": "ivVsVix",
+      "desc": "implícita 0DTE de las 11:00 / VIX de ayer",
+      "peor": 1.37567671269424,
+      "mejor": 1.8696480601709657,
+      "dif": -0.4939713474767258,
+      "t": -4.640079842965832,
+      "nNec": 23
+    },
+    {
+      "g": "cal",
+      "campo": "opex",
+      "desc": "tercer viernes",
+      "peor": 0.03333333333333333,
+      "mejor": 0,
+      "dif": 0.03333333333333333,
+      "t": 1.0000000000000004,
+      "nNec": null
+    },
+    {
+      "g": "cal",
+      "campo": "empleo",
+      "desc": "primer viernes",
+      "peor": 0.06666666666666667,
+      "mejor": 0.06666666666666667,
+      "dif": 0,
+      "t": 0,
+      "nNec": null
+    },
+    {
+      "g": "cal",
+      "campo": "finMes",
+      "desc": "último día del mes",
+      "peor": 0.2,
+      "mejor": 0.03333333333333333,
+      "dif": 0.16666666666666666,
+      "t": 2.047132493290726,
+      "nNec": null
+    }
+  ],
+  "mediaSesion": [
+    {
+      "fecha": "2024-07-03",
+      "s13": 5535.61,
+      "s16": 5537.02,
+      "mueve": 0.025471447591152163,
+      "pl": 49.75999999999999
+    },
+    {
+      "fecha": "2024-11-29",
+      "s13": 6033.56,
+      "s16": 6032.38,
+      "mueve": 0.01955727630122972,
+      "pl": 44.75999999999999
+    },
+    {
+      "fecha": "2024-12-24",
+      "s13": 6039.37,
+      "s16": 6040.04,
+      "mueve": 0.011093872374101643,
+      "pl": 70.76000000000364
+    },
+    {
+      "fecha": "2025-07-03",
+      "s13": 6277.6,
+      "s16": 6279.35,
+      "mueve": 0.027876895628908827,
+      "pl": 89.75999999999999
+    },
+    {
+      "fecha": "2025-11-28",
+      "s13": 6848.62,
+      "s16": 6849.09,
+      "mueve": 0.006862696426446213,
+      "pl": 284.76000000000005
+    },
+    {
+      "fecha": "2025-12-24",
+      "s13": 6931.43,
+      "s16": 6932.05,
+      "mueve": 0.008944763201812478,
+      "pl": 9.76
+    }
+  ]
+}
