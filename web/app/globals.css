@@ -1135,3 +1135,22 @@ tfoot .totals td {
   .est-grupo-head { gap: 8px; }
   .est-toggle { margin-left: 0; }
 }
+
+/* ── /estado · la tabla de estrategias año por año ───────────────────────── */
+.etab-aviso { font-size: 13px; color: var(--muted, #8b96a8); margin: 0 0 14px; line-height: 1.6; max-width: 76ch; }
+.etab-resumen { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 9px; font-size: 12.5px; color: var(--muted, #8b96a8); }
+.etab-resumen b { font-variant-numeric: tabular-nums; color: var(--fg, #e8edf5); }
+.etab-resumen .pos b { color: #3fb950; }
+.etab-resumen .neg b { color: #f85149; }
+
+.etab-scroll { overflow-x: auto; margin: 12px 0 4px; }
+.etab-tabla { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 13px; }
+.etab-tabla th { text-align: right; font-weight: 600; font-size: 10.5px; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--muted, #8b96a8); padding: 0 12px 7px; white-space: nowrap; }
+.etab-tabla th:first-child, .etab-tabla td:first-child { text-align: left; padding-left: 0; }
+.etab-tabla td { text-align: right; padding: 6px 12px; font-variant-numeric: tabular-nums;
+  border-top: 1px solid var(--line, #1e2531); white-space: nowrap; }
+.etab-tabla td.pos { color: #3fb950; }
+.etab-tabla td.neg { color: #f85149; }
+.etab-total td { border-top: 2px solid var(--line, #1e2531); font-weight: 600; }
+.etab-pie { font-size: 12.5px; color: var(--muted, #8b96a8); margin: 12px 0 0; line-height: 1.6; max-width: 82ch; }

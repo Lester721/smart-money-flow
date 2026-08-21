@@ -14,6 +14,7 @@
 import { useState } from "react";
 import NavTabs from "@/app/components/NavTabs";
 import EvaLogo from "@/app/components/EvaLogo";
+import EstrategiasTabla from "@/app/components/EstrategiasTabla";
 import { ITEMS, RESUMEN, ACTUALIZADO, type EstadoItem, type Item } from "@/lib/estadoProyecto";
 
 const GRUPOS: { estado: EstadoItem; titulo: string; sub: string; icono: string }[] = [
@@ -100,6 +101,8 @@ export default function EstadoPage() {
           <div className="est-cuenta-muerta"><b>{RESUMEN.cerrado}</b><span>cerrados</span></div>
         </div>
       </section>
+
+      <EstrategiasTabla />
 
       {GRUPOS.map((g) => {
         const items = ITEMS.filter((i) => i.estado === g.estado)

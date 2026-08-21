@@ -1,0 +1,432 @@
+{
+ "generado": "2026-08-21",
+ "capital": 50000,
+ "tablas": [
+  {
+   "nombre": "Cóndor · LOS TRES SÍES",
+   "unidad": "por contrato · retiene ~$5.000 de colateral",
+   "nota": "En 2022 operó sólo 13 días de 219 y ganó los 13. Eso NO demuestra que resista un año malo: demuestra que casi no juega. Cuál de esos 13 días le tocó puede ser suerte.",
+   "porAno": [
+    {
+     "ano": "2022",
+     "ops": 13,
+     "ganancia": 4327.880000000021,
+     "peorOp": 114.76000000000002,
+     "peorCaida": 0,
+     "rachaPerd": 0,
+     "rachaGan": 13
+    },
+    {
+     "ano": "2023",
+     "ops": 21,
+     "ganancia": 886.9600000000073,
+     "peorOp": -1191.2400000000127,
+     "peorCaida": -1220.2000000000235,
+     "rachaPerd": 1,
+     "rachaGan": 10
+    },
+    {
+     "ano": "2024",
+     "ops": 38,
+     "ganancia": 5052.879999999976,
+     "peorOp": -4725.24,
+     "peorCaida": -4725.24,
+     "rachaPerd": 1,
+     "rachaGan": 36
+    },
+    {
+     "ano": "2025",
+     "ops": 70,
+     "ganancia": 5713.200000000026,
+     "peorOp": -4440.24,
+     "peorCaida": -5098.480000000029,
+     "rachaPerd": 2,
+     "rachaGan": 44
+    },
+    {
+     "ano": "2026",
+     "ops": 59,
+     "ganancia": 9503.840000000018,
+     "peorOp": -2300.2399999999634,
+     "peorCaida": -2300.2399999999634,
+     "rachaPerd": 1,
+     "rachaGan": 14
+    }
+   ],
+   "total": {
+    "ops": 201,
+    "ganancia": 25484.759999999933,
+    "alAno": 6379.923639479079,
+    "peorOp": -4725.24,
+    "peorCaida": -7093.43999999997,
+    "rachaPerd": 2,
+    "rachaGan": 44,
+    "acierto": 0.9353233830845771,
+    "porOperacion": 126.78985074626833,
+    "desde": "2022-08-08",
+    "hasta": "2026-08-06"
+   }
+  },
+  {
+   "nombre": "Cóndor · ±25 sin ningún filtro",
+   "unidad": "por contrato · opera todos los días",
+   "nota": "El cóndor crudo, para ver qué aporta filtrar. Pierde en 2022 y 2023, y encadena 6 perdedoras seguidas.",
+   "porAno": [
+    {
+     "ano": "2022",
+     "ops": 219,
+     "ganancia": -23658.560000000052,
+     "peorOp": -4760.24,
+     "peorCaida": -34746.80000000001,
+     "rachaPerd": 6,
+     "rachaGan": 13
+    },
+    {
+     "ano": "2023",
+     "ops": 249,
+     "ganancia": -6712.759999999944,
+     "peorOp": -4940.24,
+     "peorCaida": -13805.719999999845,
+     "rachaPerd": 3,
+     "rachaGan": 20
+    },
+    {
+     "ano": "2024",
+     "ops": 252,
+     "ganancia": 17707.519999999837,
+     "peorOp": -4900.24,
+     "peorCaida": -11572.88000000014,
+     "rachaPerd": 2,
+     "rachaGan": 18
+    },
+    {
+     "ano": "2025",
+     "ops": 250,
+     "ganancia": 24718.000000000033,
+     "peorOp": -4605.24,
+     "peorCaida": -15176.23999999985,
+     "rachaPerd": 4,
+     "rachaGan": 20
+    },
+    {
+     "ano": "2026",
+     "ops": 151,
+     "ganancia": 6212.760000000026,
+     "peorOp": -4220.24,
+     "peorCaida": -13143.880000000156,
+     "rachaPerd": 4,
+     "rachaGan": 11
+    }
+   ],
+   "total": {
+    "ops": 1121,
+    "ganancia": 18266.959999999664,
+    "alAno": 3971.4328214284988,
+    "peorOp": -4940.24,
+    "peorCaida": -39650.00000000062,
+    "rachaPerd": 6,
+    "rachaGan": 20,
+    "acierto": 0.7466547725245317,
+    "porOperacion": 16.295236396074635,
+    "desde": "2022-01-03",
+    "hasta": "2026-08-10"
+   }
+  },
+  {
+   "nombre": "Cóndor · ±45 sin filtro",
+   "unidad": "por contrato · la misma geometría, sin las tres preguntas",
+   "nota": "Alejar los strikes NO salva 2022 por sí solo: −$22.074. Lo que cambia el año es el filtro de medias, no la geometría.",
+   "porAno": [
+    {
+     "ano": "2022",
+     "ops": 218,
+     "ganancia": -22074.320000000193,
+     "peorOp": -4475.240000000036,
+     "peorCaida": -27109.800000000116,
+     "rachaPerd": 2,
+     "rachaGan": 20
+    },
+    {
+     "ano": "2023",
+     "ops": 247,
+     "ganancia": 2438.7200000001385,
+     "peorOp": -3620.2400000000002,
+     "peorCaida": -5365.879999999997,
+     "rachaPerd": 2,
+     "rachaGan": 84
+    },
+    {
+     "ano": "2024",
+     "ops": 251,
+     "ganancia": 9943.759999999873,
+     "peorOp": -4980.24,
+     "peorCaida": -5277.92000000004,
+     "rachaPerd": 1,
+     "rachaGan": 35
+    },
+    {
+     "ano": "2025",
+     "ops": 249,
+     "ganancia": 21663.239999999932,
+     "peorOp": -4615.24,
+     "peorCaida": -9031.039999999946,
+     "rachaPerd": 3,
+     "rachaGan": 97
+    },
+    {
+     "ano": "2026",
+     "ops": 151,
+     "ganancia": 3504.7599999998447,
+     "peorOp": -4725.24,
+     "peorCaida": -10652.120000000068,
+     "rachaPerd": 4,
+     "rachaGan": 24
+    }
+   ],
+   "total": {
+    "ops": 1116,
+    "ganancia": 15476.159999999158,
+    "alAno": 3364.682999999817,
+    "peorOp": -4980.24,
+    "peorCaida": -27109.800000000116,
+    "rachaPerd": 4,
+    "rachaGan": 97,
+    "acierto": 0.8915770609318996,
+    "porOperacion": 13.867526881719675,
+    "desde": "2022-01-03",
+    "hasta": "2026-08-10"
+   }
+  },
+  {
+   "nombre": "Cóndor · ±45 con sólo el crédito ≥ $100",
+   "unidad": "por contrato · el tercer sí, a solas",
+   "nota": "El tercer sí solo tampoco salva 2022 (−$19.128). Los tres síes funcionan JUNTOS o no funcionan.",
+   "porAno": [
+    {
+     "ano": "2022",
+     "ops": 194,
+     "ganancia": -19127.560000000067,
+     "peorOp": -4405.24,
+     "peorCaida": -23814.960000000065,
+     "rachaPerd": 2,
+     "rachaGan": 14
+    },
+    {
+     "ano": "2023",
+     "ops": 77,
+     "ganancia": 6654.5200000001,
+     "peorOp": -1333.2399999999932,
+     "peorCaida": -2940.399999999965,
+     "rachaPerd": 2,
+     "rachaGan": 17
+    },
+    {
+     "ano": "2024",
+     "ops": 107,
+     "ganancia": 13776.31999999989,
+     "peorOp": -4725.24,
+     "peorCaida": -4725.24,
+     "rachaPerd": 1,
+     "rachaGan": 30
+    },
+    {
+     "ano": "2025",
+     "ops": 176,
+     "ganancia": 17460.76000000006,
+     "peorOp": -4615.24,
+     "peorCaida": -9384.839999999947,
+     "rachaPerd": 3,
+     "rachaGan": 43
+    },
+    {
+     "ano": "2026",
+     "ops": 135,
+     "ganancia": 2238.599999999843,
+     "peorOp": -4725.24,
+     "peorCaida": -10652.120000000068,
+     "rachaPerd": 4,
+     "rachaGan": 21
+    }
+   ],
+   "total": {
+    "ops": 689,
+    "ganancia": 21002.6399999996,
+    "alAno": 4577.096813842395,
+    "peorOp": -4725.24,
+    "peorCaida": -23814.960000000065,
+    "rachaPerd": 4,
+    "rachaGan": 43,
+    "acierto": 0.8476052249637155,
+    "porOperacion": 30.482786647314366,
+    "desde": "2022-01-07",
+    "hasta": "2026-08-10"
+   }
+  },
+  {
+   "nombre": "La mezcla · mitad QQQ, mitad venta de put",
+   "unidad": "sobre $50.000 de capital · escala lineal",
+   "nota": "Gana MENOS dinero que comprar QQQ a secas ($5.906 contra $6.792 al año). Lo que compra es tranquilidad: la peor caída es la mitad y 2022 costó −$3.494 en vez de −$11.821.",
+   "porAno": [
+    {
+     "ano": "2020",
+     "ops": 46,
+     "ganancia": 9398.694889676284,
+     "peorOp": -4526.730582938871,
+     "peorCaida": -8930.078167050648,
+     "rachaPerd": 3,
+     "rachaGan": 5
+    },
+    {
+     "ano": "2021",
+     "ops": 48,
+     "ganancia": 4792.510301021938,
+     "peorOp": -1883.2530139976398,
+     "peorCaida": -2424.3659560975675,
+     "rachaPerd": 4,
+     "rachaGan": 8
+    },
+    {
+     "ano": "2022",
+     "ops": 50,
+     "ganancia": -3494.0661088292154,
+     "peorOp": -2825.6837974362766,
+     "peorCaida": -6544.622518627431,
+     "rachaPerd": 5,
+     "rachaGan": 4
+    },
+    {
+     "ano": "2023",
+     "ops": 50,
+     "ganancia": 13462.869279161296,
+     "peorOp": -1008.9558723020135,
+     "peorCaida": -1945.5549502527938,
+     "rachaPerd": 3,
+     "rachaGan": 9
+    },
+    {
+     "ano": "2024",
+     "ops": 50,
+     "ganancia": 8086.062222943752,
+     "peorOp": -2134.848816901926,
+     "peorCaida": -2685.0166670577505,
+     "rachaPerd": 4,
+     "rachaGan": 7
+    },
+    {
+     "ano": "2025",
+     "ops": 48,
+     "ganancia": 4608.652855347092,
+     "peorOp": -4310.311164552969,
+     "peorCaida": -7573.3682640810985,
+     "rachaPerd": 4,
+     "rachaGan": 4
+    },
+    {
+     "ano": "2026",
+     "ops": 24,
+     "ganancia": 1854.610767127354,
+     "peorOp": -1585.6932708634429,
+     "peorCaida": -2457.3147929117827,
+     "rachaPerd": 4,
+     "rachaGan": 4
+    }
+   ],
+   "total": {
+    "ops": 316,
+    "ganancia": 38709.3342064485,
+    "alAno": 5905.84140305151,
+    "peorOp": -4526.730582938871,
+    "peorCaida": -8930.078167050648,
+    "rachaPerd": 5,
+    "rachaGan": 9,
+    "acierto": 0.5917721518987342,
+    "porOperacion": 122.49789305838132,
+    "desde": "2020-01-03",
+    "hasta": "2026-07-24"
+   }
+  },
+  {
+   "nombre": "CONTROL · sólo QQQ, sin vender nada",
+   "unidad": "sobre $50.000 de capital",
+   "nota": "El listón de verdad. Cualquier estrategia de cartera tiene que compararse contra esto, no contra cero.",
+   "porAno": [
+    {
+     "ano": "2020",
+     "ops": 46,
+     "ganancia": 7620.92199099636,
+     "peorOp": -5625.454923572843,
+     "peorCaida": -15099.506307867256,
+     "rachaPerd": 3,
+     "rachaGan": 5
+    },
+    {
+     "ano": "2021",
+     "ops": 48,
+     "ganancia": 4490.308215877378,
+     "peorOp": -2549.6948824844435,
+     "peorCaida": -4630.177767801497,
+     "rachaPerd": 4,
+     "rachaGan": 8
+    },
+    {
+     "ano": "2022",
+     "ops": 50,
+     "ganancia": -11821.324381677405,
+     "peorOp": -3726.2177311123355,
+     "peorCaida": -13808.399030162303,
+     "rachaPerd": 5,
+     "rachaGan": 4
+    },
+    {
+     "ano": "2023",
+     "ops": 50,
+     "ganancia": 20702.041772070763,
+     "peorOp": -1856.9807794981298,
+     "peorCaida": -5077.078887118845,
+     "rachaPerd": 3,
+     "rachaGan": 9
+    },
+    {
+     "ano": "2024",
+     "ops": 50,
+     "ganancia": 14886.848766747924,
+     "peorOp": -2895.416465450268,
+     "peorCaida": -4939.93591554308,
+     "rachaPerd": 4,
+     "rachaGan": 7
+    },
+    {
+     "ano": "2025",
+     "ops": 48,
+     "ganancia": 6896.518801246119,
+     "peorOp": -4933.466968055611,
+     "peorCaida": -11716.443513289229,
+     "rachaPerd": 4,
+     "rachaGan": 3
+    },
+    {
+     "ano": "2026",
+     "ops": 24,
+     "ganancia": 1740.1545336640856,
+     "peorOp": -2251.7641641045084,
+     "peorCaida": -5328.611280066098,
+     "rachaPerd": 5,
+     "rachaGan": 4
+    }
+   ],
+   "total": {
+    "ops": 316,
+    "ganancia": 44515.469698925255,
+    "alAno": 6791.677237899938,
+    "peorOp": -5625.454923572843,
+    "peorCaida": -18367.74663405998,
+    "rachaPerd": 5,
+    "rachaGan": 9,
+    "acierto": 0.5537974683544303,
+    "porOperacion": 140.87173955356093,
+    "desde": "2020-01-03",
+    "hasta": "2026-07-24"
+   }
+  }
+ ]
+}

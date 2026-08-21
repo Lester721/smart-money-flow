@@ -78,7 +78,7 @@ for (const fecha of fechas) {
 
 // ── la cinta de minutos de SPY para las medias ──────────────────────────────
 const dias = [];
-for (const y of [2023, 2024, 2025, 2026]) {
+for (const y of [2021, 2022, 2023, 2024, 2025, 2026]) {
   const f = `scripts/cache-theta/SPY_spotmin_y_${y}.json`;
   if (!existsSync(f)) continue;
   for (const [d, arr] of Object.entries(JSON.parse(readFileSync(f, "utf8")))) {
