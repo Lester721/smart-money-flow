@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { pedirGex, type DatosGex } from "@/lib/gexCliente";
+import { useState } from "react";
+import { useGexVivo } from "@/lib/gexCliente";
 import Info from "./Info";
 
 // EL PERFIL DE GAMMA POR STRIKE — vivía dentro de `GexView`. Se sacó a su propio componente el
@@ -22,15 +22,10 @@ const C = {
 const M = (x: number) => (Math.abs(x) >= 1000 ? `${(x / 1000).toFixed(1)}B` : `${Math.round(x)}M`);
 
 export default function GexPerfil() {
-  const [d, setD] = useState<DatosGex | null>(null);
-  const [cargando, setCargando] = useState(true);
+  const { d, cargando, auto } = useGexVivo();
   const [nStrikes, setNStrikes] = useState(40);
-
-  const cargar = useCallback(async (forzar = false) => {
-    setCargando(true);
-    try { setD(await pedirGex(forzar)); } finally { setCargando(false); }
-  }, []);
-  useEffect(() => { void cargar(); }, [cargar]);
+  // El interés abierto se puede apagar: en pantallas estrechas dos columnas más aprietan.
+  const [verOI, setVerOI] = useState(true);
 
   if (cargando && !d) return <div className="card"><p>Calculando el perfil de gamma…</p></div>;
   if (!d?.ok) return <div className="card"><b style={{ fontSize: 17 }}>Gamma Exposure</b>
@@ -42,6 +37,11 @@ export default function GexPerfil() {
     .slice(0, nStrikes)
     .sort((a, b) => a.strike - b.strike);
   const strikePrecio = cerca.reduce((a, b) => (Math.abs(b.strike - U) < Math.abs(a.strike - U) ? b : a), cerca[0])?.strike;
+  // EL strike del giro: el más cercano, uno y sólo uno. El giro cae entre strikes (SPX va de 5 en
+  // 5) y marcar "todo lo que esté a menos de 3" pintaba la etiqueta dos veces.
+  const strikeGiro = d.giro != null && cerca.length
+    ? cerca.reduce((a, b) => (Math.abs(b.strike - d.giro!) < Math.abs(a.strike - d.giro!) ? b : a), cerca[0]).strike
+    : null;
   const vals = cerca.flatMap((b) => [b.call, b.put]).filter((x) => x > 0).sort((a, b) => a - b);
   // Escala robusta: al filo del cierre la gamma al dinero es miles de veces la del resto y con
   // escala lineal desaparece todo lo demás. Se escala al percentil 90 y lo que se pasa lleva "›".
@@ -139,20 +139,39 @@ export default function GexPerfil() {
                        background: nStrikes === n ? C.azul : "transparent",
                        color: nStrikes === n ? "#fff" : "inherit", fontWeight: nStrikes === n ? 700 : 400 }}>{n}</button>
           ))}
+          <button type="button" onClick={() => setVerOI((v) => !v)}
+                  style={{ marginLeft: 6, padding: "2px 9px", borderRadius: 6, fontSize: 11.5, cursor: "pointer",
+                           border: `1px solid ${verOI ? C.azul : "rgba(148,163,184,.3)"}`,
+                           background: "transparent", color: verOI ? C.azul : "inherit" }}>
+            OI
+          </button>
+          {auto && (
+            <span title="se refresca solo cada minuto con el mercado abierto"
+                  style={{ marginLeft: 8, fontSize: 11, color: C.verde, display: "inline-flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 6, height: 6, borderRadius: 3, background: C.verde, display: "inline-block" }} />
+              en vivo
+            </span>
+          )}
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 8, fontSize: 12.5 }} className="muted">
+      <div style={{ display: "flex", gap: 8, fontSize: 12.5, alignItems: "center" }} className="muted">
+        {verOI && <span style={{ width: 52, textAlign: "right", fontSize: 10.5, letterSpacing: ".04em" }}>OI</span>}
         <span style={{ flex: 1, textAlign: "right" }}>◀ PUTS · amplifican</span>
         <span style={{ width: 104, textAlign: "center" }}>strike</span>
         <span style={{ flex: 1 }}>CALLS · amortiguan ▶</span>
+        {verOI && <span style={{ width: 52, fontSize: 10.5, letterSpacing: ".04em" }}>OI</span>}
       </div>
 
       <div>
         {[...cerca].reverse().map((b) => {
           const mC = d.muroCall === b.strike, mP = d.muroPut === b.strike;
           const esPrecio = b.strike === strikePrecio;
-          const esGiro = d.giro != null && Math.abs(b.strike - d.giro) < 3;
+          // EL GIRO SE PINTA UNA SOLA VEZ. Antes se marcaba todo strike a menos de 3 puntos, y
+          // como SPX va de 5 en 5, un giro a mitad de camino (7672,46) caía a menos de 3 de DOS
+          // strikes (7670 y 7675) y salían dos "Gamma Flip" en pantalla. Ahora se elige el más
+          // cercano de todos los visibles y sólo ése lleva la marca.
+          const esGiro = d.giro != null && b.strike === strikeGiro;
           const esImán = mand != null && b.strike === mand.strike;
           return (
             <div key={b.strike}>
@@ -162,6 +181,15 @@ export default function GexPerfil() {
               {esImán && <Marca texto={`${mand!.imán ? "◆ IMÁN" : "▲ ACELERADOR"} ${mand!.strike.toLocaleString("es-ES")}`} color={C.violeta} />}
               {esPrecio && <Marca texto={`SPX ${U.toLocaleString("es-ES", { minimumFractionDigits: 2 })}`} color={C.azul} />}
               <div style={{ display: "flex", alignItems: "center", gap: 8, height: 22 }}>
+                {/* EL INTERÉS ABIERTO, que la gamma sola esconde. La gamma es
+                    (contratos abiertos × gamma por contrato), así que un muro de $4B hecho de
+                    8.000 contratos lejos del dinero y otro de $4B hecho de 1.700 pegados al
+                    precio son el mismo número y NO la misma situación. */}
+                {verOI && (
+                  <div style={{ width: 52, textAlign: "right", fontSize: 11, color: "rgba(148,163,184,.5)", fontVariantNumeric: "tabular-nums" }}>
+                    {b.oiPut ? b.oiPut.toLocaleString("es-ES") : ""}
+                  </div>
+                )}
                 <div style={{ width: 66, textAlign: "right", fontSize: 12.5, color: C.tenue, fontVariantNumeric: "tabular-nums" }}>
                   {b.put > 0 ? `$${M(b.put / 1e6)}` : ""}
                 </div>
@@ -186,6 +214,11 @@ export default function GexPerfil() {
                 <div style={{ width: 66, fontSize: 12.5, color: C.tenue, fontVariantNumeric: "tabular-nums" }}>
                   {b.call > 0 ? `$${M(b.call / 1e6)}` : ""}
                 </div>
+                {verOI && (
+                  <div style={{ width: 52, fontSize: 11, color: "rgba(148,163,184,.5)", fontVariantNumeric: "tabular-nums" }}>
+                    {b.oiCall ? b.oiCall.toLocaleString("es-ES") : ""}
+                  </div>
+                )}
               </div>
             </div>
           );

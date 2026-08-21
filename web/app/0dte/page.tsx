@@ -8,7 +8,7 @@ import GexPerfil from "../components/GexPerfil";
 import PanelDecision from "../components/PanelDecision";
 import ForwardGexCard from "../components/ForwardGexCard";
 import GexQueSignifica from "../components/GexQueSignifica";
-import EscaleraYMapa from "../components/EscaleraYMapa";
+import MapaLiquidezVivo from "../components/MapaLiquidezVivo";
 
 export const metadata: Metadata = {
   title: "0DTE — GEX de SPX en vivo",
@@ -83,9 +83,11 @@ export default function ZeroDtePage() {
 
         {/* El reparto por vencimiento va DESPUÉS: es el contexto de fondo, no el paso de la
             decisión del día. */}
-        {/* El mapa dice A QUÉ PRECIO mandar la orden y la escalera DÓNDE poner las patas.
-            Van juntos y antes de los vencimientos, que es contexto y no decisión. */}
-        <EscaleraYMapa />
+        {/* El mapa dice A QUÉ PRECIO mandar la orden. La escalera de gamma que estuvo aquí se
+            retiró el 2026-08-21: enseñaba los MISMOS números que Gamma Exposure (comprobado al
+            decimal), y sus dos columnas de interés abierto se mudaron a ese panel. Dos tarjetas
+            con las mismas cifras no informan el doble, confunden. */}
+        <MapaLiquidezVivo />
 
         <GexVencimientos />
 

@@ -71,3 +71,84 @@ export function fiabilidadMuro(distPct: number | null): { pct: number; texto: st
   if (distPct < 0.6) return { pct: 78, texto: "distancia intermedia", nivel: "medio" };
   return { pct: 92, texto: "a distancia cómoda — es cuando el muro de verdad frena", nivel: "bueno" };
 }
+
+// ── EL LATIDO: que los paneles se refresquen SOLOS ───────────────────────────
+//
+// Hasta hoy los paneles pedían el GEX UNA vez, al montarse, y ahí se quedaban. Por eso la
+// cabecera decía "foto de las 15:15" y Lester nunca lo vio moverse con el mercado abierto:
+// había que darle a "Actualizar" a mano.
+//
+// UN SOLO LATIDO PARA TODOS. La primera versión ponía un `setInterval` dentro de cada panel y
+// cada uno forzaba su petición: con tres paneles eran TRES llamadas al Terminal por ciclo. Se vio
+// en el registro de red al probarlo. Ahora hay un único temporizador a nivel de módulo: pide una
+// vez y reparte el resultado a todos los suscritos.
+//
+// Dos guardas, porque refrescar cuesta tres llamadas al Terminal y ~5 segundos:
+//   · sólo con el mercado ABIERTO (09:30–16:15 ET). Fuera de ahí el dato no cambia.
+//   · sólo con la pestaña VISIBLE. Una pestaña de fondo no la mira nadie.
+
+import { useEffect, useState } from "react";
+
+const LATIDO_MS = 60_000;
+
+const horaET = () => new Date().toLocaleTimeString("en-US", { timeZone: "America/New_York", hour12: false }).slice(0, 5);
+const diaET = () => new Date().toLocaleDateString("en-US", { timeZone: "America/New_York", weekday: "short" });
+
+/** ¿Vale la pena refrescar ahora? Fin de semana no; fuera de horario tampoco. */
+export function mercadoVivo(): boolean {
+  const d = diaET();
+  if (d === "Sat" || d === "Sun") return false;
+  const h = horaET();
+  return h >= "09:30" && h <= "16:15";
+}
+
+type Oyente = (d: DatosGex) => void;
+const oyentes = new Set<Oyente>();
+let timer: ReturnType<typeof setInterval> | null = null;
+
+async function latir(forzar: boolean) {
+  const d = await pedirGex(forzar);
+  for (const f of oyentes) f(d);
+}
+
+function arrancarLatido() {
+  if (timer || typeof document === "undefined") return;
+  timer = setInterval(() => {
+    if (document.visibilityState !== "visible") return;
+    if (!mercadoVivo()) return;
+    void latir(true);
+  }, LATIDO_MS);
+  document.addEventListener("visibilitychange", alVolver);
+}
+function pararLatido() {
+  if (!timer) return;
+  clearInterval(timer); timer = null;
+  document.removeEventListener("visibilitychange", alVolver);
+}
+// Al volver a la pestaña, refrescar de golpe en vez de esperar al siguiente ciclo.
+const alVolver = () => { if (document.visibilityState === "visible" && mercadoVivo()) void latir(true); };
+
+/** El GEX con latido compartido. Todos los paneles que lo usen ven el MISMO dato a la vez. */
+export function useGexVivo() {
+  const [d, setD] = useState<DatosGex | null>(ultima?.d ?? null);
+  const [cargando, setCargando] = useState(!ultima);
+
+  useEffect(() => {
+    let montado = true;
+    const oyente: Oyente = (x) => { if (montado) { setD(x); setCargando(false); } };
+    oyentes.add(oyente);
+    arrancarLatido();
+    void latir(false).catch(() => { if (montado) setCargando(false); });
+    return () => {
+      montado = false;
+      oyentes.delete(oyente);
+      if (!oyentes.size) pararLatido();          // sin nadie mirando, no se gasta
+    };
+  }, []);
+
+  return {
+    d, cargando,
+    auto: typeof document !== "undefined" && mercadoVivo(),
+    recargar: () => { setCargando(true); return latir(true).finally(() => setCargando(false)); },
+  };
+}
