@@ -7,6 +7,7 @@ import UnderlyingGamma from "../components/UnderlyingGamma";
 import GexPerfil from "../components/GexPerfil";
 import PanelDecision from "../components/PanelDecision";
 import ForwardGexCard from "../components/ForwardGexCard";
+import GexQueSignifica from "../components/GexQueSignifica";
 
 export const metadata: Metadata = {
   title: "0DTE — GEX de SPX en vivo",
@@ -51,6 +52,10 @@ export default function ZeroDtePage() {
       </div>
 
       <div className="wrap page-stack">
+        {/* La ⓘ va PRIMERO a propósito: el GEX invita a leer una dirección que no está ahí,
+            y quien abra esta página tiene que poder saber qué medimos antes de mirarlo. */}
+        <GexQueSignifica />
+
         <GexView />
 
         {/* El orden NO es casual, y lo fijó Lester el 2026-08-14: primero CUÁNTA gamma hay
