@@ -13,6 +13,7 @@ const TABS = [
   { href: "/flow", label: "Time & Sales", icon: "⚡" },
   { href: "/0dte", label: "0DTE · GEX", icon: "🎯" },
   { href: "/credit-spread", label: "EVA Credit Spread", icon: "🛡️" },
+  { href: "/estado", label: "Estado", icon: "🗂️" },
 ];
 
 export default function NavTabs({ standalone = false }: { standalone?: boolean }) {

@@ -1,0 +1,132 @@
+"use client";
+
+// LA LISTA DEL PROYECTO — todo lo que se ha medido, en una sola pantalla.
+//
+// Nace de una preocupación de Lester: "con tanta validación puede estar pasando desapercibido
+// algo importante". Y es cierto — llevamos más de cien mediciones y lo único que las unía era
+// la memoria de Claude y los mensajes de commit.
+//
+// Los CERRADOS están aquí a propósito. Una lista que sólo enseña lo vivo invita a volver a
+// proponer lo que ya se mató, y eso ha pasado más de una vez.
+//
+// El contenido vive en lib/estadoProyecto.ts. Esta página sólo lo pinta.
+
+import { useState } from "react";
+import NavTabs from "@/app/components/NavTabs";
+import EvaLogo from "@/app/components/EvaLogo";
+import { ITEMS, RESUMEN, ACTUALIZADO, type EstadoItem, type Item } from "@/lib/estadoProyecto";
+
+const GRUPOS: { estado: EstadoItem; titulo: string; sub: string; icono: string }[] = [
+  { estado: "en-prueba", titulo: "En prueba ahora mismo", sub: "desplegado y midiéndose en directo", icono: "🔬" },
+  { estado: "funciona", titulo: "Medido y en pie", sub: "sobrevivió a las pruebas, listo para usar", icono: "🟢" },
+  { estado: "pendiente", titulo: "Pendiente", sub: "por orden de lo que yo haría primero", icono: "📋" },
+  { estado: "cerrado", titulo: "Cerrado", sub: "medido y descartado — está aquí para no volver a proponerlo", icono: "⛔" },
+];
+
+function Tarjeta({ it }: { it: Item }) {
+  const [abierto, setAbierto] = useState(false);
+  const hayDetalle = Boolean(it.evidencia?.length || it.pega || it.siguiente);
+
+  return (
+    <article className={`est-item est-${it.estado}`}>
+      <header
+        className="est-head"
+        onClick={() => hayDetalle && setAbierto((v) => !v)}
+        role={hayDetalle ? "button" : undefined}
+        tabIndex={hayDetalle ? 0 : undefined}
+        onKeyDown={(e) => { if (hayDetalle && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setAbierto((v) => !v); } }}
+      >
+        <div className="est-head-main">
+          <h3 className="est-titulo">
+            {it.prioridad ? <span className="est-prio">{it.prioridad}</span> : null}
+            {it.titulo}
+          </h3>
+          <p className="est-quees">{it.queEs}</p>
+          {it.numero ? <p className="est-numero">{it.numero}</p> : null}
+        </div>
+        {hayDetalle ? <span className={`est-flecha ${abierto ? "on" : ""}`} aria-hidden="true">▾</span> : null}
+      </header>
+
+      {abierto && hayDetalle ? (
+        <div className="est-detalle">
+          {it.evidencia?.length ? (
+            <div className="est-bloque">
+              <h4>Lo que lo sostiene</h4>
+              <ul>{it.evidencia.map((e, i) => <li key={i}>{e}</li>)}</ul>
+            </div>
+          ) : null}
+          {it.pega ? (
+            <div className="est-bloque est-pega">
+              <h4>La pega</h4>
+              <p>{it.pega}</p>
+            </div>
+          ) : null}
+          {it.siguiente ? (
+            <div className="est-bloque est-siguiente">
+              <h4>Lo siguiente</h4>
+              <p>{it.siguiente}</p>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+export default function EstadoPage() {
+  const [verCerrados, setVerCerrados] = useState(false);
+
+  return (
+    <main className="est-page">
+      <div className="hb hb-slim">
+        <div className="hb-brand">
+          <div className="hb-logo"><EvaLogo /></div>
+          <div className="hb-name">EVA</div>
+          <div className="hb-chip">Estado del proyecto</div>
+        </div>
+        <NavTabs />
+      </div>
+
+      <section className="est-intro">
+        <h1>Qué hemos medido</h1>
+        <p>
+          Desde el <strong>{RESUMEN.desde}</strong>. Cada entrada lleva su pega escrita al lado:
+          un hallazgo sin su objeción es propaganda, no una nota de trabajo.
+        </p>
+        <div className="est-cuentas">
+          <div><b>{RESUMEN.enPrueba}</b><span>en prueba</span></div>
+          <div><b>{RESUMEN.loQueFunciona}</b><span>en pie</span></div>
+          <div><b>{RESUMEN.pendiente}</b><span>pendientes</span></div>
+          <div className="est-cuenta-muerta"><b>{RESUMEN.cerrado}</b><span>cerrados</span></div>
+        </div>
+      </section>
+
+      {GRUPOS.map((g) => {
+        const items = ITEMS.filter((i) => i.estado === g.estado)
+          .sort((a, b) => (a.prioridad ?? 99) - (b.prioridad ?? 99));
+        if (!items.length) return null;
+        const plegado = g.estado === "cerrado" && !verCerrados;
+
+        return (
+          <section key={g.estado} className="est-grupo">
+            <header className="est-grupo-head">
+              <h2><span aria-hidden="true">{g.icono}</span> {g.titulo}</h2>
+              <p>{g.sub}</p>
+              {g.estado === "cerrado" ? (
+                <button type="button" className="est-toggle" onClick={() => setVerCerrados((v) => !v)}>
+                  {verCerrados ? "ocultar" : `ver los ${items.length}`}
+                </button>
+              ) : null}
+            </header>
+            {!plegado ? <div className="est-lista">{items.map((it) => <Tarjeta key={it.id} it={it} />)}</div> : null}
+          </section>
+        );
+      })}
+
+      <footer className="est-pie">
+        Actualizado el {ACTUALIZADO}. El contenido vive en <code>lib/estadoProyecto.ts</code> —
+        si un resultado no está ahí, para el proyecto no existe.
+      </footer>
+    </main>
+  );
+}
