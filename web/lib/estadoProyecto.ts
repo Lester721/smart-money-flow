@@ -105,26 +105,10 @@ export const ITEMS: Item[] = [
   // PENDIENTE
   // ══════════════════════════════════════════════════════════════════════════
   {
-    id: "gex-vivo",
-    titulo: "El GEX vivo, con el interés abierto real",
-    estado: "pendiente",
-    prioridad: 1,
-    queEs:
-      "Recalcular los muros de gamma durante la sesión, como hace el panel de MarketSnack, y responder si el muro tiene vida propia o simplemente persigue al precio.",
-    evidencia: [
-      "los 1.123 días de interés abierto de SPXW terminaron de bajar el 20 de agosto",
-      "la primera medición SIN interés abierto dio correlación 0,761 — pero era un artefacto: sin el peso, el imán es el strike cercano al dinero por construcción",
-    ],
-    pega:
-      "La versión congelada del GEX ya salió que describe pero no predice: el muro para el precio el 38,8% de las veces contra el 43,2% de una raya al azar. La versión viva podría no ser distinta.",
-    siguiente: "Correr gex-vivo.mjs con el OI real. Los datos ya están pagados y en disco.",
-    actualizado: "2026-08-21",
-  },
-  {
     id: "forward-mezcla",
     titulo: "Forward test de la mezcla put + índice",
     estado: "pendiente",
-    prioridad: 2,
+    prioridad: 1,
     queEs:
       "Poner en directo la estrategia con mejor perfil de caída que tenemos, igual que se hizo con el cóndor.",
     pega:
@@ -133,21 +117,10 @@ export const ITEMS: Item[] = [
     actualizado: "2026-08-21",
   },
   {
-    id: "direccional-minutos",
-    titulo: "El pase direccional de minutos",
-    estado: "pendiente",
-    prioridad: 3,
-    queEs:
-      "La idea de Lester: con gamma negativa, el imán del GEX podría dar dirección aprovechable en una operación de 5 a 10 minutos.",
-    pega: "Tiene que ganarle a 0,209 puntos por operación, que es lo que da entrar al azar.",
-    siguiente: "Depende del GEX vivo. Va después del punto 1.",
-    actualizado: "2026-08-21",
-  },
-  {
     id: "earnings",
     titulo: "Earnings",
     estado: "pendiente",
-    prioridad: 4,
+    prioridad: 2,
     queEs:
       "Comprar el cono antes de resultados es la apuesta de movimiento clásica y nunca la hemos medido. Tenemos cadenas de 2016-2026 para 40 tickers.",
     pega:
@@ -159,7 +132,7 @@ export const ITEMS: Item[] = [
     id: "wheel",
     titulo: "Wheel: backtest y monitoreo",
     estado: "pendiente",
-    prioridad: 5,
+    prioridad: 3,
     queEs: "Falta hacerle lo mismo que al credit spread: backtest completo y forward test en directo.",
     evidencia: ["los 5 activos medidos salen positivos pero ninguno es concluyente (HOOD +0,52, PLTR +0,48)"],
     pega: "La inclinación es débil; sólo un forward test puede resolverla.",
@@ -169,7 +142,7 @@ export const ITEMS: Item[] = [
     id: "trimestre-semestre",
     titulo: "Trimestre y semestre",
     estado: "pendiente",
-    prioridad: 6,
+    prioridad: 4,
     queEs: "Los dos huecos vacíos de la combinación por horizontes.",
     pega:
       "El semestral no llega al mínimo de muestra con 8 tickers (170 < 200). Hay que bajar unos 20 símbolos más antes de poder medirlo.",
@@ -179,7 +152,7 @@ export const ITEMS: Item[] = [
     id: "clave-theta",
     titulo: "Rotar la clave de ThetaData",
     estado: "pendiente",
-    prioridad: 7,
+    prioridad: 5,
     queEs:
       "La clave va como argumento de java, o sea visible en la lista de procesos para cualquier cosa que corra en la máquina.",
     siguiente: "Rotarla y pasarla por variable de entorno cuando se suelte el Terminal.",
@@ -189,7 +162,7 @@ export const ITEMS: Item[] = [
     id: "nombre",
     titulo: 'Quitar el nombre "Tito Metralleta"',
     estado: "pendiente",
-    prioridad: 8,
+    prioridad: 6,
     queEs: "De todas partes del repo.",
     pega:
       "Cuidado: la carpeta de memoria de Claude se deriva de la ruta del proyecto. Si se renombra sin llevársela, se pierde todo el historial.",
@@ -253,6 +226,23 @@ export const ITEMS: Item[] = [
       "comprando a largo: 0 de 12, concluyente. El +0,7% que parecía hallazgo era peaje de liquidez",
       "ninguno de sus ingredientes es estable: el proxy de IV pasa de t=+6,7 a t=−3,8 en el período siguiente",
     ],
+    actualizado: "2026-08-21",
+  },
+  {
+    id: "cerrado-gex-vivo",
+    titulo: "El GEX vivo como brújula para operar a minutos",
+    estado: "cerrado",
+    queEs:
+      "La última excusa que le quedaba al GEX: el panel de Victor se recalcula durante la sesión y el nuestro estaba congelado. Ya no. Medido con el interés abierto real sobre 85.021 barras de 5 minutos y cuatro años y medio.",
+    numero: "lo mejor de la rejilla, 0,053 puntos · el listón del azar está en 0,209",
+    evidencia: [
+      "ir hacia el imán: −0,020 a 5 min · −0,018 a 15 min · −0,072 a 60 min",
+      "con gamma NEGATIVA e invirtiendo (la hipótesis de Lester): 0,002 puntos, y las dos mitades con SIGNO OPUESTO",
+      "EL IMÁN BARAJADO LO HACE MEJOR QUE EL REAL: 0,124 puntos a 30 min (t=3,1) contra −0,021 del verdadero",
+      "lo bueno: los muros vivos SÍ son independientes (correlación 0,229 con el precio, se mueven el 7-10% de las barras) — no son un espejo del precio",
+    ],
+    pega:
+      "Que el barajado gane al real no es señal débil: es ausencia de señal. El positivo del barajado es la deriva del mercado por el sesgo direccional del interés abierto. El GEX vivo vale como MAPA (dónde está la posición grande), no como brújula. Sigue vivo y sin contradicción el GEX como FILTRO del cóndor 0DTE, que es elegir días, no dirección.",
     actualizado: "2026-08-21",
   },
   {
