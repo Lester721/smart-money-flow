@@ -1189,3 +1189,109 @@ tfoot .totals td {
 .gexi-veredicto p:first-of-type { font-size: 14.5px !important; }
 
 @media (max-width: 640px) { .gexi-defs > div { grid-template-columns: 1fr; gap: 3px; } }
+
+/* ── Mapa de liquidez ────────────────────────────────────────────────────── */
+.mapl-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+.mapl-head > div { flex: 1; }
+.mapl-refrescar { background: none; border: 1px solid var(--line, #1e2531); color: var(--muted, #8b96a8);
+  border-radius: 999px; padding: 4px 13px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.mapl-refrescar:hover:not(:disabled) { color: var(--fg, #e8edf5); border-color: var(--muted, #8b96a8); }
+.mapl-refrescar:disabled { opacity: .5; cursor: default; }
+.mapl-vacio { color: var(--muted, #8b96a8); font-size: 13.5px; margin: 0; }
+
+.mapl-total { border: 1px solid var(--line, #1e2531); border-radius: 8px; padding: 12px 15px; margin-bottom: 12px; }
+.mapl-total > div { display: flex; align-items: baseline; gap: 11px; flex-wrap: wrap; }
+.mapl-total b { font-size: 24px; font-variant-numeric: tabular-nums; color: #3fb950; }
+.mapl-total span { font-size: 13px; color: var(--muted, #8b96a8); }
+.mapl-aviso { margin: 9px 0 0; font-size: 12.5px; color: #e3b341; line-height: 1.55; }
+
+.mapl-patas { display: flex; flex-direction: column; gap: 6px; }
+.mapl-pata { border: 1px solid var(--line, #1e2531); border-radius: 7px; overflow: hidden; }
+.mapl-sin { opacity: .6; }
+.mapl-pata-head { width: 100%; display: flex; align-items: center; gap: 12px; padding: 9px 13px;
+  background: none; border: 0; color: var(--fg, #e8edf5); font: inherit; font-size: 12.5px;
+  cursor: pointer; text-align: left; flex-wrap: wrap; }
+.mapl-sin .mapl-pata-head { cursor: default; }
+.mapl-pata-head:hover:not(.mapl-sin *) { background: rgba(255,255,255,0.02); }
+.mapl-accion { font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; padding: 2px 7px;
+  border-radius: 4px; font-weight: 600; }
+.mapl-vender { background: rgba(248,81,73,.14); color: #f85149; }
+.mapl-comprar { background: rgba(63,185,80,.14); color: #3fb950; }
+.mapl-strike { font-variant-numeric: tabular-nums; font-weight: 600; min-width: 62px; }
+.mapl-strike sub { font-size: 9px; opacity: .7; }
+.mapl-barra { display: inline-flex; align-items: center; gap: 6px; font-size: 9.5px; color: var(--muted, #8b96a8); }
+.mapl-barra-pista { position: relative; width: 84px; height: 3px; background: var(--line, #1e2531); border-radius: 2px; }
+.mapl-barra-marca { position: absolute; top: -3px; width: 3px; height: 9px; background: #4c9aff; border-radius: 1px; transform: translateX(-50%); }
+.mapl-precios { color: var(--muted, #8b96a8); font-variant-numeric: tabular-nums; }
+.mapl-precios b { color: var(--fg, #e8edf5); }
+.mapl-ahorro { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
+.mapl-ahorro.pos { color: #3fb950; }
+.mapl-motivo { color: var(--muted, #8b96a8); font-style: italic; }
+
+.mapl-detalle { padding: 4px 13px 12px; border-top: 1px solid var(--line, #1e2531); }
+.mapl-ctx { font-size: 12px; color: var(--muted, #8b96a8); margin: 9px 0; }
+.mapl-tabla { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+.mapl-tabla th { text-align: right; font-size: 10px; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--muted, #8b96a8); padding: 0 8px 5px; font-weight: 600; }
+.mapl-tabla th:first-child, .mapl-tabla td:first-child { text-align: left; padding-left: 0; }
+.mapl-tabla td { text-align: right; padding: 3px 8px; border-top: 1px solid var(--line, #1e2531); }
+.mapl-tenue { color: var(--muted, #8b96a8); }
+.mapl-pie { font-size: 12.5px; color: var(--muted, #8b96a8); line-height: 1.65; margin: 14px 0 0; max-width: 86ch; }
+.mapl-pie strong { color: var(--fg, #e8edf5); }
+
+/* ── Escalera de gamma ───────────────────────────────────────────────────── */
+.glad-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
+.glad-head > div:first-child { flex: 1; }
+.glad-radio { display: flex; gap: 5px; }
+.glad-r { background: none; border: 1px solid var(--line, #1e2531); color: var(--muted, #8b96a8);
+  border-radius: 5px; padding: 3px 9px; font-size: 11.5px; cursor: pointer; }
+.glad-r.on { border-color: #4c9aff; color: #4c9aff; }
+.glad-scroll { overflow-x: auto; }
+.glad-tabla { width: 100%; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; min-width: 520px; }
+.glad-tabla th { font-size: 10px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted, #8b96a8);
+  padding: 0 8px 6px; font-weight: 600; text-align: right; }
+.glad-tabla td { padding: 2px 8px; border-top: 1px solid rgba(255,255,255,0.03); text-align: right; }
+.glad-izq { text-align: right !important; width: 34%; position: relative; }
+.glad-der { text-align: left !important; width: 34%; position: relative; }
+.glad-k { text-align: center !important; white-space: nowrap; }
+.glad-barra { display: inline-block; height: 9px; border-radius: 2px; vertical-align: middle; }
+.glad-put { background: rgba(248,81,73,.5); }
+.glad-call { background: rgba(63,185,80,.5); }
+.glad-izq .glad-barra { margin-left: 6px; }
+.glad-der .glad-barra { margin-right: 6px; }
+.glad-cifra { font-size: 11px; color: var(--muted, #8b96a8); }
+.glad-precio { background: rgba(76,154,255,.09); }
+.glad-precio td { border-top-color: rgba(76,154,255,.3); }
+.glad-tag { font-size: 8.5px; text-transform: uppercase; letter-spacing: .04em; padding: 1px 5px;
+  border-radius: 3px; margin-left: 5px; vertical-align: middle; }
+.glad-tc { background: rgba(63,185,80,.16); color: #3fb950; }
+.glad-tp { background: rgba(248,81,73,.16); color: #f85149; }
+.glad-tg { background: rgba(168,85,247,.16); color: #c084fc; }
+.glad-tx { background: rgba(76,154,255,.18); color: #4c9aff; }
+.glad-oi { color: var(--muted, #8b96a8); font-size: 11px; }
+.glad-pie { font-size: 12.5px; color: var(--muted, #8b96a8); line-height: 1.6; margin: 12px 0 0; max-width: 86ch; }
+.glad-pie strong { color: var(--fg, #e8edf5); }
+.mapl-hipo { font-size: 12.5px; color: #e3b341; line-height: 1.55; margin: 7px 0 0; max-width: 74ch; }
+.mapl-hipo strong { color: #f0c674; }
+
+/* Con la séptima pestaña ("Estado") la barra pasó a empujar la página entera en pantallas
+   estrechas. Que scrollee ella sola en vez de arrastrar el layout. */
+.nav-tabs { overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab { flex-shrink: 0; }
+
+/* La barra y la cifra se pisaban cuando la barra llegaba al 100%: la celda es de ancho fijo y
+   el contenido se salía por encima del strike. Con flex se reparten en vez de solaparse. */
+.glad-izq, .glad-der { display: flex; align-items: center; gap: 6px; }
+.glad-izq { justify-content: flex-end; }
+.glad-der { justify-content: flex-start; }
+.glad-izq .glad-barra, .glad-der .glad-barra { flex: 0 1 auto; min-width: 2px; max-width: 62%; margin: 0; }
+.glad-cifra { flex: 0 0 auto; white-space: nowrap; }
+.glad-tabla td.glad-k { position: relative; z-index: 1; background: inherit; }
+
+/* La pista de ancho fijo: la barra mide su proporción contra ella, no contra la celda. */
+.glad-pista { flex: 0 0 84px; height: 9px; background: rgba(255,255,255,0.035); border-radius: 2px; overflow: hidden; display: block; }
+.glad-izq .glad-pista { display: flex; justify-content: flex-end; }
+.glad-izq .glad-barra, .glad-der .glad-barra { max-width: 100%; height: 100%; display: block; }
+.glad-cifra { min-width: 52px; text-align: inherit; }
+.glad-izq .glad-cifra { text-align: right; order: -1; }
