@@ -122,7 +122,7 @@ const compras = [];
       ...p,
       dia: String(o.timestamp).slice(0, 10).replace(/-/g, ""),
       ts: Date.parse(o.timestamp),
-      size: o.size, premium: o.premium, ask,
+      size: o.size, premium: o.premium, ask, lado: o.side,
       // EL PRECIO AL QUE DE VERDAD SE CRUZÓ. Es la pieza del mapa de liquidez: si te pegas al
       // print puedes comprar ahí en vez de al ask de la cadena, que es mucho más caro.
       precioPrint: Number(o.price) > 0 ? Number(o.price) : null,
@@ -309,6 +309,31 @@ console.log("=".repeat(110) + "\n");
   }
   console.log("=".repeat(110));
 }
+
+
+// ── ¿LLEVA MÁS INFORMACIÓN EL COMPRADOR AGRESIVO? ──────────────────────────
+// Quien paga POR ENCIMA del ask tiene prisa, y la prisa suele significar convicción.
+// Si la señal está en algún sitio, tendría que estar aquí concentrada.
+console.log("\n" + "=".repeat(110));
+console.log("  ¿PAGA MÁS EL QUE TIENE PRISA? — diferencia contra el control, pareada");
+console.log("=".repeat(110) + "\n");
+console.log("| quién compra | n | 1d | 3d | 5d | 10d |");
+console.log("|---|---|---|---|---|---|");
+for (const [nom, filtro] of [
+  ["POR ENCIMA del ask (prisa)", (x) => x.lado === "ABOVE_ASK"],
+  ["al ask", (x) => x.lado === "ASKSIDE" || x.lado === "AT_ASK"],
+  ["pata sola Y con prisa", (x) => x.lado === "ABOVE_ASK" && x.pataSola],
+  ["pata sola, prisa y ≥$5M", (x) => x.lado === "ABOVE_ASK" && x.pataSola && x.premium >= 5e6],
+  ["prisa, sola, ≥$5M y ≤60 días", (x) => x.lado === "ABOVE_ASK" && x.pataSola && x.premium >= 5e6 && x.dte <= 60],
+]) {
+  const sub = res.filter(filtro);
+  const cel = HORIZONTES.map((h) => {
+    const d = sub.filter((x) => x[`r${h}`] != null && x[`c${h}`] != null).map((x) => x[`r${h}`] - x[`c${h}`]);
+    return d.length >= 150 ? `${pct(media(d))} (t ${tDe(d).toFixed(2)})` : "—";
+  });
+  console.log(`| ${nom} | ${sub.length.toLocaleString("es-ES")} | ${cel.join(" | ")} |`);
+}
+console.log("");
 
 writeFileSync(SALIDA, JSON.stringify({
   generado: new Date().toISOString(), n: res.length,
