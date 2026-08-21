@@ -26,7 +26,8 @@
     "tres-sies": "node scripts/forward-tres-sies.mjs",
     "tres-sies:theta": "node scripts/with-theta.mjs npm run tres-sies",
     "ms-cadena": "node scripts/marketsnack/cron-cadena-strike.mjs",
-    "condor-aviso": "node scripts/avisar-condor-telegram.mjs"
+    "condor-aviso": "node scripts/avisar-condor-telegram.mjs",
+    "condor-todos": "npm run condor-forward; npm run condor-sinfiltro; npm run condor-tendencia; npm run tres-sies"
   },
   "engines": {
     "node": ">=22"
