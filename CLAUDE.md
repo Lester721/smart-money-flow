@@ -18,7 +18,7 @@ número y su pega. Si un resultado no está ahí, para el proyecto no existe.
 
 | | |
 |---|---|
-| **Desplegado y midiéndose** | el **cóndor 0DTE de SPX, «los tres síes»** — a las 11:00: ¿SPX sobre su media de 5 sesiones? ¿sobre la de 50? ¿el cóndor de ±45 con alas de 50 paga ≥$100? Los tres síes → 1 contrato. **$6.380/año**, en forward test desde el 19 de agosto |
+| **Desplegado y midiéndose** | el **cóndor 0DTE de SPX, «los tres síes»** — a las 11:00: ¿SPX sobre su media de 5 sesiones? ¿sobre la de 50? ¿el cóndor de ±45 con alas de 50 paga ≥$100? Los tres síes → 1 contrato. **$6.380/año**, en forward test desde el 21 de agosto |
 | **Medido y en pie** | el mapa de liquidez (es ejecución, no señal) · la mezcla QQQ + venta de puts, que **no está en forward test** y es el hueco más grande de la lista |
 | **Cerrado, con número** | MarketSnack como señal · el scorecard de EVA · el GEX como predictor (congelado y vivo) · comprar calls o puts direccionales · la familia de venta de prima · 16 filtros de régimen |
 

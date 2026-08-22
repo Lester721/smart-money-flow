@@ -58,7 +58,7 @@ export const ITEMS: Item[] = [
       "en 2022 operó sólo 13 días de 219 y ganó los 13; el mismo cóndor sin filtro perdió $22.074 ese año",
       "retiene ~$5.000 de colateral por contrato",
       "pre-registrado ANTES de medirlo, con sus cuatro debilidades escritas",
-      "en forward test desde el 19 de agosto (cuaderno forward:tres-sies)",
+      "en forward test desde el 21 de agosto (cuaderno forward:tres-sies) — al 22 de agosto lleva UN día y aún no ha operado",
     ],
     pega:
       "El 2022 que parece salvarlo son 13 operaciones: eso no prueba que resista un año malo, prueba que casi no juega — y cuál de esos 13 días le tocó puede ser suerte. No cruza el listón de Bonferroni: t=3,57 contra el 4,0 que le tocaría por las ~300 configuraciones probadas sobre los mismos días. Opera cada vez más (6% de los días en 2022, 40% en 2026), así que casi toda la evidencia viene de los últimos meses. Con 2 contratos la caída máxima sería −$14.187, el número que Lester dijo que le destroza.",
