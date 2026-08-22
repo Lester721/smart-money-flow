@@ -105,10 +105,31 @@ export const ITEMS: Item[] = [
   // PENDIENTE
   // ══════════════════════════════════════════════════════════════════════════
   {
+    id: "triple-negativo",
+    titulo: "El «triple negativo» — reevaluar cuando haya muestra",
+    estado: "pendiente",
+    prioridad: 1,
+    queEs:
+      "Una alarma de tres luces (gamma en el spot, gamma total y skew de IV) que dice «hoy no te metas». En cristiano: los días que la enciende, el mercado se mueve más y el cóndor lo pasa mal.",
+    numero: "la alarma acierta, pero grita casi siempre cuando ya estás a salvo",
+    evidencia: [
+      "de los 412 días que enciende la alarma, en 350 tu regla de medias YA te tenía fuera — la alarma llega tarde",
+      "quedan 62 días donde las medias dicen «adelante» y la alarma dice «no». Son los únicos que importan",
+      "en esos 62 días el cóndor dio −1 de media contra +7 los otros — pero con 62 días eso puede ser mala suerte y no lo sabemos distinguir",
+      "sobre los 1.112 días el efecto SÍ existe y es sólido: 19 menos por operación los días de alarma",
+      "añadirlo hoy subiría de .541 a .134 al año, pero eso sale de quitar 21 días de 201 que ya sabíamos malos DESPUÉS de pasar",
+    ],
+    pega:
+      "La tercera luz (el skew de puts) está encendida el 99% de los días, así que en realidad es un DOBLE negativo con una bombilla decorativa. Y su etiqueta de «bajista» es falsa: esos días SPX sube +0,03% de media, no baja.",
+    siguiente:
+      "ESPERAR. El forward test va añadiendo días de esos 62 por su cuenta. Cuando lleguen a unos 200 se puede decidir de verdad; con 62 no. Revisar en unos meses, no antes — y si entonces sale bien, se pre-registra APARTE y se abre cuaderno nuevo, sin tocar la regla que está corriendo.",
+    actualizado: "2026-08-22",
+  },
+  {
     id: "forward-mezcla",
     titulo: "Forward test de la mezcla put + índice",
     estado: "pendiente",
-    prioridad: 1,
+    prioridad: 2,
     queEs:
       "Poner en directo la estrategia con mejor perfil de caída que tenemos, igual que se hizo con el cóndor.",
     pega:
@@ -120,7 +141,7 @@ export const ITEMS: Item[] = [
     id: "earnings",
     titulo: "Earnings",
     estado: "pendiente",
-    prioridad: 2,
+    prioridad: 3,
     queEs:
       "Comprar el cono antes de resultados es la apuesta de movimiento clásica y nunca la hemos medido. Tenemos cadenas de 2016-2026 para 40 tickers.",
     pega:
@@ -132,7 +153,7 @@ export const ITEMS: Item[] = [
     id: "wheel",
     titulo: "Wheel: backtest y monitoreo",
     estado: "pendiente",
-    prioridad: 3,
+    prioridad: 4,
     queEs: "Falta hacerle lo mismo que al credit spread: backtest completo y forward test en directo.",
     evidencia: ["los 5 activos medidos salen positivos pero ninguno es concluyente (HOOD +0,52, PLTR +0,48)"],
     pega: "La inclinación es débil; sólo un forward test puede resolverla.",
@@ -142,7 +163,7 @@ export const ITEMS: Item[] = [
     id: "trimestre-semestre",
     titulo: "Trimestre y semestre",
     estado: "pendiente",
-    prioridad: 4,
+    prioridad: 5,
     queEs: "Los dos huecos vacíos de la combinación por horizontes.",
     pega:
       "El semestral no llega al mínimo de muestra con 8 tickers (170 < 200). Hay que bajar unos 20 símbolos más antes de poder medirlo.",
@@ -152,7 +173,7 @@ export const ITEMS: Item[] = [
     id: "clave-theta",
     titulo: "Rotar la clave de ThetaData",
     estado: "pendiente",
-    prioridad: 5,
+    prioridad: 6,
     queEs:
       "La clave va como argumento de java, o sea visible en la lista de procesos para cualquier cosa que corra en la máquina.",
     siguiente: "Rotarla y pasarla por variable de entorno cuando se suelte el Terminal.",
@@ -162,7 +183,6 @@ export const ITEMS: Item[] = [
     id: "nombre",
     titulo: "Quitar el nombre viejo del proyecto",
     estado: "cerrado",
-    prioridad: 6,
     queEs: "De todas partes del repo.",
     pega:
       "Cuidado: la carpeta de memoria de Claude se deriva de la ruta del proyecto. Si se renombra sin llevársela, se pierde todo el historial.",
@@ -227,25 +247,6 @@ export const ITEMS: Item[] = [
       "ninguno de sus ingredientes es estable: el proxy de IV pasa de t=+6,7 a t=−3,8 en el período siguiente",
     ],
     actualizado: "2026-08-21",
-  },
-  {
-    id: "cerrado-triple-negativo",
-    titulo: "El «triple negativo» del curso de Victor",
-    estado: "cerrado",
-    queEs:
-      "Un semáforo de tres luces que enseña Sergio Morales: gamma en el spot negativa, gamma total negativa y skew de IV negativo. Las tres en rojo = «volátil / bajista, movimientos amplificados».",
-    numero: "el efecto es real (−$119 por operación, t=−2,07) pero las medias ya quitan el 85% de esos días",
-    evidencia: [
-      "LA TERCERA LUZ NUNCA SE APAGA: el skew está negativo el 99% de los días (1.106 de 1.118). Los puts de SPX son SIEMPRE más caros — es el smirk de volatilidad. Así que es un DOBLE negativo",
-      "dirección: NO. +0,03% con t=0,7, y positivo en vez de bajista",
-      "movimiento: SÍ, 0,58% contra 0,36% — pero eso es la gamma, que ya estaba medida",
-      "sobre los 1.112 días el cóndor da −$61 esos días contra $58 el resto (diferencia $119, t=−2,07)",
-      "PERO de los 412 días de triple negativo, 350 no pasan las medias. Sólo se cuelan 62",
-      "y dentro de esos 62 la diferencia cae a −$88 con t=−0,97: indistinguible del azar",
-    ],
-    pega:
-      "Quitar esos días de los tres síes sube el resultado de $5.541 a $6.134 al año, pero viene de excluir 21 días de 201 cuya propia diferencia no es significativa. Es aritmética de quitar perdedores, no un filtro que anticipe. Queda VIVO un resto: el forward test irá acumulando días de triple negativo por su cuenta, y con 200 en vez de 62 se podrá decidir de verdad.",
-    actualizado: "2026-08-22",
   },
   {
     id: "cerrado-gex-vivo",
