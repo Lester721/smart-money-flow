@@ -4,27 +4,60 @@ Guía para Claude Code al trabajar en este proyecto.
 
 ## Qué es este proyecto
 
-**EVA** es un sistema **multi-agente de análisis de flujo de opciones** (options flow). Su propósito es identificar **actividad inusual** en el mercado de opciones —actual e histórica— e interpretarla para dar contexto operativo, incluyendo señales de soporte/resistencia, "muros", flujo direccional vs. cobertura, y noticias relevantes del subyacente.
+**EVA empezó como un lector de flujo de opciones y hoy es otra cosa: un laboratorio de medición.**
+Nació el 24 de julio de 2026 para detectar actividad inusual e interpretarla. Lo que descubrió por
+el camino es que casi nada de lo que se detecta predice — y el valor del proyecto pasó a ser
+**medir con honestidad qué funciona y qué no**, con precios reales y cribas que se aplican sin
+excepción.
 
-**Estado actual:** en construcción. La documentación del agente está completa y existe un primer
-incremento de la **web interactiva** (`web/`) que lee la option chain desde Massive y muestra
-Open Interest, Open Premium y Valor Nocional con pasos de carga en vivo (cubre Tareas 1, 2 y 5).
+**Si sólo lees una cosa de este archivo, que sea la página `/estado`** (`web/lib/estadoProyecto.ts`):
+es la fuente única de qué está vivo, qué está en prueba y qué está cerrado, cada entrada con su
+número y su pega. Si un resultado no está ahí, para el proyecto no existe.
+
+### El estado, a 22 de agosto de 2026
+
+| | |
+|---|---|
+| **Desplegado y midiéndose** | el **cóndor 0DTE de SPX, «los tres síes»** — a las 11:00: ¿SPX sobre su media de 5 sesiones? ¿sobre la de 50? ¿el cóndor de ±45 con alas de 50 paga ≥$100? Los tres síes → 1 contrato. **$6.380/año**, en forward test desde el 19 de agosto |
+| **Medido y en pie** | el mapa de liquidez (es ejecución, no señal) · la mezcla QQQ + venta de puts, que **no está en forward test** y es el hueco más grande de la lista |
+| **Cerrado, con número** | MarketSnack como señal · el scorecard de EVA · el GEX como predictor (congelado y vivo) · comprar calls o puts direccionales · la familia de venta de prima · 16 filtros de régimen |
+
+**La conclusión que más tiempo ahorra:** comprar opciones direccionales cuesta ~3% por operación y
+la mejor señal que hemos encontrado vale 0,3%. Antes de medir otra idea de compra, comprobar si su
+ventaja esperada supera ese 3%. Si no lo supera, no hace falta medirla.
+
+### Proveedor de datos
+
+**ThetaData**, por el Theta Terminal local en `:25503` (`DATA_PROVIDER=theta`). **Massive quedó
+tumbado**: si algún texto más abajo lo menciona como fuente viva, está desactualizado. Las llamadas
+van por el conmutador de `lib/flowProvider.ts` y los errores por `lib/errorProveedor.ts`, que nombra
+al proveedor REAL y explica la causa — un mensaje que culpa al proveedor equivocado manda a buscar
+el fallo donde no está, y eso ya pasó.
 
 ## Estructura
 
 ```
-agente-opciones/
-├── CLAUDE.md                        # Este archivo
-├── Agente Principal/
-│   ├── Proceso Principal.pdf        # Fuente original (Apple Pages/PDF)
-│   └── Proceso Principal.md         # Especificación del agente de Opciones (7 tareas)
-├── Intrucciones Referencias.md      # Advertencia de liquidez / GEX
-├── Intrucciones Referencias.pages   # Fuente original
-├── RSS Feed.md                      # Fuentes de noticias a monitorear
-├── RSS Feed.pages                   # Fuente original
-├── Sub Agentes/                     # (vacío — agentes secundarios por definir)
-└── web/                             # App Next.js (lector interactivo) — ver web/SPEC.md
+eva/
+├── CLAUDE.md                 # este archivo
+├── docs/                     # referencias del agente (proceso, GEX, RSS)
+├── SCOREDCARD/               # el scorecard original — MEDIDO Y CERRADO, se conserva como historia
+└── web/                      # la aplicación y TODO el laboratorio de medición
+    ├── app/                  # Next.js: /0dte, /ideas, /wheel, /flow, /credit-spread, /estado
+    ├── lib/
+    │   ├── estadoProyecto.ts # ← LA FUENTE ÚNICA de qué está vivo y qué está cerrado
+    │   ├── flowProvider.ts   # el conmutador de proveedor (theta / massive)
+    │   └── errorProveedor.ts # mensajes de error que nombran al proveedor REAL
+    └── scripts/
+        ├── raiz.mjs          # la raíz DEDUCIDA — nunca escribir rutas absolutas
+        ├── cache-theta/      # ~1,2 GB de datos bajados. NO volver a bajarlos
+        │   ├── gex-2026/     # cadenas de SPXW cada 5 min, 1.123 días
+        │   ├── oi-spxw/      # interés abierto por strike, 1.119 días
+        │   └── cadenas/      # cadenas diarias de 40 tickers, 2016-2026
+        └── forward-*.mjs     # los cuadernos que corren en Railway
 ```
+
+**El repositorio de documentos vive aparte**, en `../eva-docs` (manuales, referencias visuales,
+API). No es el mismo repo.
 
 ## App web (`web/`)
 
