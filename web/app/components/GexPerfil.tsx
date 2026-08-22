@@ -21,6 +21,53 @@ const C = {
 };
 const M = (x: number) => (Math.abs(x) >= 1000 ? `${(x / 1000).toFixed(1)}B` : `${Math.round(x)}M`);
 
+
+// ── LAS PISTAS AL VUELO ──────────────────────────────────────────────────────
+// Lo que sale al dejar el cursor encima. Dos partes siempre: QUÉ ES y CÓMO SE USA.
+//
+// Las tres que la gente usa como si predijeran —el muro, el imán y el Gamma Flip— llevan su
+// medición escrita. Callarla aquí sería dejar el panel invitando al error que ya pagamos por
+// descubrir.
+const P = {
+  put: (mill: string, oi: number) =>
+    "PUTS en este strike: " + mill +
+    "\n\nEs dinero de cobertura por cada 1% que se mueva SPX: si el índice se mueve un 1%, cuánto tienen que operar los dealers por culpa de las puts de aquí." +
+    "\n\nROJO = AMPLIFICA. Con puts mandando, los dealers compran cuando sube y venden cuando baja, así que el precio pasa de largo y más rápido." +
+    (oi ? "\n\n" + oi.toLocaleString("es-ES") + " contratos abiertos." : ""),
+  call: (mill: string, oi: number) =>
+    "CALLS en este strike: " + mill +
+    "\n\nEs dinero de cobertura por cada 1% que se mueva SPX." +
+    "\n\nVERDE = AMORTIGUA. Con calls mandando, los dealers venden cuando sube y compran cuando baja: frenan el movimiento en los dos sentidos." +
+    (oi ? "\n\n" + oi.toLocaleString("es-ES") + " contratos abiertos." : ""),
+  strike: (k: number, dist: string) =>
+    "Strike " + k.toLocaleString("es-ES") + " · a " + dist + " del precio" +
+    "\n\nCÓMO SE USA: es donde iría una pata del cóndor. La regla de los tres síes pone la pata corta a ±45 puntos, que es donde la gamma ya ha caído bastante — no en el muro.",
+  oi: (n: number, lado: string) =>
+    n.toLocaleString("es-ES") + " contratos de " + lado + " abiertos aquí, del cierre de ayer." +
+    "\n\nPOR QUÉ IMPORTA: la gamma es (contratos abiertos × gamma por contrato). Dos muros iguales en dólares con muy distinto número de contratos NO son la misma situación: mucho interés abierto lejos del dinero es posición vieja acumulada; poco interés abierto pegado al precio es gente colocándose ahora.",
+  muroCall:
+    "MURO DE CALLS\n\nEl strike con más gamma de calls de todo el gráfico." +
+    "\n\nCÓMO SE USA, y esto importa: NO es una barrera. Medido sobre 1.122 días, el precio se para aquí el 38,8% de las veces; una raya trazada al azar a la misma distancia lo para el 43,2%. Sirve para saber dónde está la posición, no para apoyarse en ella.",
+  muroPut:
+    "MURO DE PUTS\n\nEl strike con más gamma de puts de todo el gráfico. Suele ser donde está la cobertura del mercado." +
+    "\n\nMisma advertencia que el muro de calls: medido, frena menos que una raya al azar.",
+  precio: (u: number) =>
+    "SPX " + u.toLocaleString("es-ES", { minimumFractionDigits: 2 }) + " — el precio AHORA MISMO." +
+    "\n\nTodo lo de arriba son strikes por encima del precio; todo lo de abajo, por debajo. La gamma es máxima cerca de aquí y se desploma al alejarse.",
+  flip: (g: number) =>
+    "GAMMA FLIP " + g.toLocaleString("es-ES") +
+    "\n\nEl precio al que el GEX neto cambiaría de signo. Por encima el mercado tiene freno; por debajo, acelerador." +
+    "\n\nCÓMO SE USA: como contexto de si el día será tranquilo o nervioso. NO como señal de entrada — está medido y no predice la dirección.",
+  iman: (k: number, es: boolean) =>
+    es
+      ? "IMÁN " + k.toLocaleString("es-ES") + "\n\nEl strike con más gamma total. La teoría dice que el precio se queda pegado aquí." +
+        "\n\nLO MEDIMOS Y NO ES VERDAD: sobre 85.021 barras de 5 minutos, ir hacia el imán da −0,02 puntos por operación y entrar al azar da +0,21. Y usar el imán de OTRO DÍA da mejor resultado que el de hoy."
+      : "ACELERADOR " + k.toLocaleString("es-ES") + "\n\nEl strike con más gamma total, pero aquí mandan las puts: en vez de frenar, empuja. El precio tiende a pasar de largo y más rápido." +
+        "\n\nIgual que el imán: sirve para describir, no para entrar.",
+  fuera:
+    "La barra se sale de la escala.\n\nEl gráfico se escala al percentil 90 porque al filo del cierre la gamma pegada al precio es miles de veces la del resto y aplastaría todo lo demás. Este strike lo supera.",
+};
+
 export default function GexPerfil() {
   const { d, cargando, auto } = useGexVivo();
   const [nStrikes, setNStrikes] = useState(40);
@@ -164,7 +211,9 @@ export default function GexPerfil() {
       </div>
 
       <div>
-        {[...cerca].reverse().map((b) => {
+        {[...cerca].reverse().map((b, iFila) => {
+          // Las cuatro primeras filas no tienen sitio por encima: su pista sale por debajo.
+          const arriba = iFila < 4;
           const mC = d.muroCall === b.strike, mP = d.muroPut === b.strike;
           const esPrecio = b.strike === strikePrecio;
           // EL GIRO SE PINTA UNA SOLA VEZ. Antes se marcaba todo strike a menos de 3 puntos, y
@@ -175,47 +224,73 @@ export default function GexPerfil() {
           const esImán = mand != null && b.strike === mand.strike;
           return (
             <div key={b.strike}>
-              {esGiro && <Marca texto={`Gamma Flip ${d.giro?.toLocaleString("es-ES")}`} color={C.ambar} punteada izquierda />}
+              {esGiro && (
+                <span data-pista={P.flip(d.giro!)} data-izq="" data-abajo={arriba ? "" : undefined} style={{ display: "block" }}>
+                  <Marca texto={`Gamma Flip ${d.giro?.toLocaleString("es-ES")}`} color={C.ambar} punteada izquierda />
+                </span>
+              )}
               {/* La línea del IMÁN: el strike de mayor gamma total. Si ahí mandan los puts no es
                   un imán sino un ACELERADOR, y la etiqueta lo dice — son efectos opuestos. */}
-              {esImán && <Marca texto={`${mand!.imán ? "◆ IMÁN" : "▲ ACELERADOR"} ${mand!.strike.toLocaleString("es-ES")}`} color={C.violeta} />}
-              {esPrecio && <Marca texto={`SPX ${U.toLocaleString("es-ES", { minimumFractionDigits: 2 })}`} color={C.azul} />}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, height: 22 }}>
+              {esImán && (
+                <span data-pista={P.iman(mand!.strike, mand!.imán)} data-abajo={arriba ? "" : undefined} style={{ display: "block" }}>
+                  <Marca texto={`${mand!.imán ? "◆ IMÁN" : "▲ ACELERADOR"} ${mand!.strike.toLocaleString("es-ES")}`} color={C.violeta} />
+                </span>
+              )}
+              {esPrecio && (
+                <span data-pista={P.precio(U)} data-abajo={arriba ? "" : undefined} style={{ display: "block" }}>
+                  <Marca texto={`● PRECIO AHORA · SPX ${U.toLocaleString("es-ES", { minimumFractionDigits: 2 })}`} color={C.azul} />
+                </span>
+              )}
+              <div className={esPrecio ? "gex-fila-precio" : undefined}
+                   style={{ display: "flex", alignItems: "center", gap: 8, height: 22 }}>
                 {/* EL INTERÉS ABIERTO, que la gamma sola esconde. La gamma es
                     (contratos abiertos × gamma por contrato), así que un muro de $4B hecho de
                     8.000 contratos lejos del dinero y otro de $4B hecho de 1.700 pegados al
                     precio son el mismo número y NO la misma situación. */}
                 {verOI && (
-                  <div style={{ width: 52, textAlign: "right", fontSize: 11, color: "rgba(148,163,184,.5)", fontVariantNumeric: "tabular-nums" }}>
+                  <div data-pista={b.oiPut ? P.oi(b.oiPut, "puts") : undefined} data-izq="" data-abajo={arriba ? "" : undefined}
+                       style={{ width: 52, textAlign: "right", fontSize: 11, color: "rgba(148,163,184,.5)", fontVariantNumeric: "tabular-nums" }}>
                     {b.oiPut ? b.oiPut.toLocaleString("es-ES") : ""}
                   </div>
                 )}
-                <div style={{ width: 66, textAlign: "right", fontSize: 12.5, color: C.tenue, fontVariantNumeric: "tabular-nums" }}>
+                <div data-pista={b.put > 0 ? P.put(`$${M(b.put / 1e6)}`, b.oiPut ?? 0) : undefined} data-izq="" data-abajo={arriba ? "" : undefined}
+                     style={{ width: 66, textAlign: "right", fontSize: 12.5, color: C.tenue, fontVariantNumeric: "tabular-nums" }}>
                   {b.put > 0 ? `$${M(b.put / 1e6)}` : ""}
                 </div>
-                <div style={{ flex: 1, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 3 }}>
-                  {b.put > tope && <span style={{ fontSize: 12, color: C.rojo, fontWeight: 700 }}>‹</span>}
+                <div data-pista={b.put > 0 ? P.put(`$${M(b.put / 1e6)}`, b.oiPut ?? 0) : undefined} data-abajo={arriba ? "" : undefined}
+                     style={{ flex: 1, display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 3 }}>
+                  {b.put > tope && <span data-pista={P.fuera} style={{ fontSize: 12, color: C.rojo, fontWeight: 700 }}>‹</span>}
                   {b.put > 0 && <div style={{ width: 6, height: 6, borderRadius: 3, background: C.rojo }} />}
                   <div style={{ width: `${ancho(b.put)}%`, height: 11, background: C.rojo, borderRadius: 2,
                                 opacity: mP ? 1 : .8, outline: mP ? `1.5px solid ${C.rojo}` : undefined, outlineOffset: 2 }} />
                 </div>
                 <div style={{ width: 104, textAlign: "center", fontSize: 14.5, fontVariantNumeric: "tabular-nums",
                               fontWeight: esPrecio || mC || mP ? 700 : 500 }}>
-                  {mP && <Etiq t="PW" c={C.rojo} antes />}
+                  {mP && <span data-pista={P.muroPut} data-abajo={arriba ? "" : undefined}><Etiq t="PW" c={C.rojo} antes /></span>}
                   {b.strike.toLocaleString("es-ES")}
-                  {mC && <Etiq t="CW" c={C.verde} />}
+                  {/* El precio exacto pegado al strike más cercano: sin esto hay que mirar
+                      la cabecera de la tarjeta y volver, que es justo lo que Lester pidió evitar. */}
+                  {esPrecio && (
+                    <span className="gex-precio-tag" data-pista={P.precio(U)} data-abajo={arriba ? "" : undefined}>
+                      SPX {U.toLocaleString("es-ES", { minimumFractionDigits: 2 })}
+                    </span>
+                  )}
+                  {mC && <span data-pista={P.muroCall} data-abajo={arriba ? "" : undefined}><Etiq t="CW" c={C.verde} /></span>}
                 </div>
-                <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 3 }}>
+                <div data-pista={b.call > 0 ? P.call(`$${M(b.call / 1e6)}`, b.oiCall ?? 0) : undefined} data-abajo={arriba ? "" : undefined}
+                     style={{ flex: 1, display: "flex", alignItems: "center", gap: 3 }}>
                   <div style={{ width: `${ancho(b.call)}%`, height: 11, background: C.verde, borderRadius: 2,
                                 opacity: mC ? 1 : .8, outline: mC ? `1.5px solid ${C.verde}` : undefined, outlineOffset: 2 }} />
                   {b.call > 0 && <div style={{ width: 6, height: 6, borderRadius: 3, background: C.verde }} />}
-                  {b.call > tope && <span style={{ fontSize: 12, color: C.verde, fontWeight: 700 }}>›</span>}
+                  {b.call > tope && <span data-pista={P.fuera} style={{ fontSize: 12, color: C.verde, fontWeight: 700 }}>›</span>}
                 </div>
-                <div style={{ width: 66, fontSize: 12.5, color: C.tenue, fontVariantNumeric: "tabular-nums" }}>
+                <div data-pista={b.call > 0 ? P.call(`$${M(b.call / 1e6)}`, b.oiCall ?? 0) : undefined} data-der="" data-abajo={arriba ? "" : undefined}
+                     style={{ width: 66, fontSize: 12.5, color: C.tenue, fontVariantNumeric: "tabular-nums" }}>
                   {b.call > 0 ? `$${M(b.call / 1e6)}` : ""}
                 </div>
                 {verOI && (
-                  <div style={{ width: 52, fontSize: 11, color: "rgba(148,163,184,.5)", fontVariantNumeric: "tabular-nums" }}>
+                  <div data-pista={b.oiCall ? P.oi(b.oiCall, "calls") : undefined} data-der="" data-abajo={arriba ? "" : undefined}
+                       style={{ width: 52, fontSize: 11, color: "rgba(148,163,184,.5)", fontVariantNumeric: "tabular-nums" }}>
                     {b.oiCall ? b.oiCall.toLocaleString("es-ES") : ""}
                   </div>
                 )}

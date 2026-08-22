@@ -1295,3 +1295,44 @@ tfoot .totals td {
 .glad-izq .glad-barra, .glad-der .glad-barra { max-width: 100%; height: 100%; display: block; }
 .glad-cifra { min-width: 52px; text-align: inherit; }
 .glad-izq .glad-cifra { text-align: right; order: -1; }
+
+/* ── PISTAS AL PASAR EL RATÓN ────────────────────────────────────────────────
+   Lester: "cuando yo coloque el cursor sobre cualquier parte de ella me diga qué es
+   y cómo debo usarlo".
+
+   Se hace con un atributo y CSS, sin JavaScript: el perfil pinta ~40 filas por 8
+   elementos, y envolver 320 nodos en componentes de React para enseñar un texto
+   sería pagar carísimo un cartelito.
+
+   El texto va en data-pista y respeta los saltos de línea, así que cada pista puede
+   traer QUÉ ES y CÓMO SE USA en dos párrafos. */
+[data-pista] { position: relative; cursor: help; }
+[data-pista]::after {
+  content: attr(data-pista);
+  position: absolute; left: 50%; bottom: calc(100% + 8px); transform: translateX(-50%);
+  min-width: 210px; max-width: 330px; white-space: pre-line; text-align: left;
+  background: #0b0f16; color: #e8edf5; border: 1px solid rgba(148,163,184,.35);
+  border-radius: 8px; padding: 9px 12px; font-size: 12px; line-height: 1.5; font-weight: 400;
+  box-shadow: 0 10px 28px rgba(0,0,0,.55); z-index: 60;
+  opacity: 0; visibility: hidden; transition: opacity .12s .25s, visibility 0s .37s;
+  pointer-events: none;
+}
+[data-pista]:hover::after, [data-pista]:focus-visible::after {
+  opacity: 1; visibility: visible; transition: opacity .12s .25s, visibility 0s .25s;
+}
+/* Las filas de arriba no tienen sitio por encima: su pista sale por debajo. */
+[data-pista][data-abajo]::after { bottom: auto; top: calc(100% + 8px); }
+/* Cerca de los bordes, que no se salga de la tarjeta. */
+[data-pista][data-izq]::after { left: 0; transform: none; }
+[data-pista][data-der]::after { left: auto; right: 0; transform: none; }
+
+/* ── LA FILA DEL PRECIO, explícita ───────────────────────────────────────── */
+.gex-fila-precio {
+  background: linear-gradient(90deg, rgba(59,130,246,0) 0%, rgba(59,130,246,.16) 22%, rgba(59,130,246,.16) 78%, rgba(59,130,246,0) 100%);
+  border-radius: 4px;
+}
+.gex-precio-tag {
+  display: inline-flex; align-items: center; gap: 5px; margin-left: 7px;
+  background: #3B82F6; color: #fff; border-radius: 5px; padding: 1px 7px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .02em; vertical-align: middle;
+}
