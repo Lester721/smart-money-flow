@@ -5,8 +5,9 @@ import type { CompanyInfo } from "@/lib/types";
 import { pct, px } from "../format";
 import NavTabs from "./NavTabs";
 import EvaLogo from "./EvaLogo";
+import { TICKERS_RAPIDOS as QUICK } from "@/lib/tickersRapidos";
 
-const QUICK = ["HOOD", "TSLA", "NVDA", "QQQ"];
+// La lista vive en lib/tickersRapidos.ts para que Time & Sales pueda usar la MISMA.
 
 export default function HeaderBar({
   ticker,

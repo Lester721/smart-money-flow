@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import type { AggressionScore, FlowRow } from "@/lib/flow";
 import NavTabs from "@/app/components/NavTabs";
+import { TICKERS_RAPIDOS } from "@/lib/tickersRapidos";
 
 interface StepLine { label: string; detail?: string }
 interface FlowMeta {
@@ -91,8 +92,15 @@ export default function FlowPage() {
 
   function search(e: React.FormEvent) {
     e.preventDefault();
-    const t = ticker.trim().toUpperCase();
+    buscarTicker(ticker);
+  }
+
+  // Separada del formulario para que las pastillas de acceso rápido puedan llamarla
+  // directamente, sin tener que fabricar un evento de submit falso.
+  function buscarTicker(bruto: string) {
+    const t = bruto.trim().toUpperCase();
     if (!t || loading) return;
+    setTicker(t);
     esRef.current?.close();
     setLoading(true);
     setSteps([]); setRows(null); setScore(null); setMeta(null); setError(null);
@@ -121,6 +129,19 @@ export default function FlowPage() {
           placeholder="Ticker o contrato — TSLA, NVDA, SPX…" autoFocus spellCheck={false} />
         <button type="submit" disabled={loading || !ticker.trim()}>{loading ? "Buscando…" : "Buscar"}</button>
       </form>
+
+      {/* LAS MISMAS pastillas que la página de Ticker. Esta vista también trabaja con un ticker,
+          así que no tenerlas era una inconsistencia, no una decisión. La lista vive en
+          lib/tickersRapidos.ts para que las dos páginas no se puedan desincronizar. */}
+      <div className="flow-rapidos">
+        {TICKERS_RAPIDOS.map((t) => (
+          <button key={t} type="button" disabled={loading}
+            className={`flow-rapido ${ticker.trim().toUpperCase() === t ? "on" : ""}`}
+            onClick={() => buscarTicker(t)}>
+            {t}
+          </button>
+        ))}
+      </div>
 
       {steps.length > 0 && (
         <div className="steps">
