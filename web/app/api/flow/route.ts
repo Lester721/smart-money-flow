@@ -7,6 +7,7 @@ import { saveTrades } from "@/lib/store";
 import { ivContextScore, type IvContextScore } from "@/lib/ivcontext";
 import { loadIvHistory, saveIvSnapshot } from "@/lib/ivStore";
 import { MassiveError } from "@/lib/massive";
+import { mensajeDeError } from "@/lib/errorProveedor";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -64,7 +65,7 @@ export async function GET(request: Request) {
       });
     } catch (err) {
       const message =
-        err instanceof MassiveError ? err.message : "Error al consultar Massive.";
+        mensajeDeError(err, err instanceof MassiveError ? err.message : undefined);
       return Response.json({ error: message }, { status: 502 });
     }
   }
@@ -208,7 +209,7 @@ export async function GET(request: Request) {
         });
       } catch (err) {
         const message =
-          err instanceof MassiveError ? err.message : "Error inesperado al consultar Massive.";
+          mensajeDeError(err, err instanceof MassiveError ? err.message : undefined);
         send({ type: "error", message });
       } finally {
         controller.close();

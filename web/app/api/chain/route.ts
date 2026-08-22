@@ -4,6 +4,7 @@ import { countExpirations, sortByOpenInterestDesc, toRow } from "@/lib/compute";
 import { structureScore } from "@/lib/structure";
 import { saveChainSnapshot, type ChainSnapshot } from "@/lib/chainStore";
 import { MassiveError } from "@/lib/massive";
+import { mensajeDeError } from "@/lib/errorProveedor";
 // La ficha va por el conmutador: con DATA_PROVIDER=theta la identidad sale de la SEC y los
 // precios de ThetaData, sin depender de Massive.
 import { fetchCompany, fetchOptionChain } from "@/lib/flowProvider";
@@ -92,10 +93,9 @@ export async function GET(request: Request) {
         };
         send({ type: "done", rows, meta, structure, history });
       } catch (err) {
-        const message =
-          err instanceof MassiveError
-            ? err.message
-            : "Error inesperado al consultar Massive.";
+        // El mensaje nombra al proveedor REAL. Ver lib/errorProveedor.ts: el texto viejo
+        // culpaba a Massive aunque la llamada fuera a ThetaData.
+        const message = mensajeDeError(err, err instanceof MassiveError ? err.message : undefined);
         send({ type: "error", message });
       } finally {
         controller.close();
