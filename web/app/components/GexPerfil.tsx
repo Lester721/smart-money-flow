@@ -192,7 +192,9 @@ export default function GexPerfil() {
                   style={{ marginLeft: 6, padding: "2px 9px", borderRadius: 6, fontSize: 11.5, cursor: "pointer",
                            border: `1px solid ${verOI ? C.azul : "rgba(148,163,184,.3)"}`,
                            background: "transparent", color: verOI ? C.azul : "inherit" }}>
-            OI
+            {/* "ver OI" y no "OI": el interruptor caía justo al lado de la cabecera de la
+                columna, que también dice OI, y se leían dos veces la misma palabra seguida. */}
+            ver OI
           </button>
           {auto && (
             <span title="se refresca solo cada minuto con el mercado abierto"
