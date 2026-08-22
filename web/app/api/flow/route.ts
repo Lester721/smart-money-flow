@@ -7,7 +7,7 @@ import { saveTrades } from "@/lib/store";
 import { ivContextScore, type IvContextScore } from "@/lib/ivcontext";
 import { loadIvHistory, saveIvSnapshot } from "@/lib/ivStore";
 import { MassiveError } from "@/lib/massive";
-import { mensajeDeError } from "@/lib/errorProveedor";
+import { mensajeDeError, nombreProveedor } from "@/lib/errorProveedor";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -82,7 +82,9 @@ export async function GET(request: Request) {
           return;
         }
 
-        send({ type: "step", label: "Conectando con Massive…" });
+        // EL CARTEL LEE EL PROVEEDOR REAL. Antes decía "Massive" escrito a fuego mientras la
+        // llamada iba a ThetaData: Lester lo vio en pantalla y con razón dudó de la migración.
+        send({ type: "step", label: `Conectando con ${nombreProveedor}…` });
         send({ type: "step", label: `Buscando transacciones ≥ $${(MIN_PREMIUM / 1000).toFixed(0)}K de ${ticker}…` });
 
         const { trades, truncated } = await fetchFlow(ticker, {

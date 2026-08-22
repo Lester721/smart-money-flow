@@ -15,6 +15,7 @@ import { useState } from "react";
 import NavTabs from "@/app/components/NavTabs";
 import EvaLogo from "@/app/components/EvaLogo";
 import EstrategiasTabla from "@/app/components/EstrategiasTabla";
+import ForwardTests from "@/app/components/ForwardTests";
 import { ITEMS, RESUMEN, ACTUALIZADO, type EstadoItem, type Item } from "@/lib/estadoProyecto";
 
 const GRUPOS: { estado: EstadoItem; titulo: string; sub: string; icono: string }[] = [
@@ -101,6 +102,11 @@ export default function EstadoPage() {
           <div className="est-cuenta-muerta"><b>{RESUMEN.cerrado}</b><span>cerrados</span></div>
         </div>
       </section>
+
+      {/* ARRIBA DEL TODO: lo que esta pasando en directo va antes que el backtest.
+          Lester se entero de que el credit spread llevaba 126 operaciones cerradas
+          solo porque pregunto — eso no puede volver a depender de que yo me acuerde. */}
+      <ForwardTests />
 
       <EstrategiasTabla />
 
