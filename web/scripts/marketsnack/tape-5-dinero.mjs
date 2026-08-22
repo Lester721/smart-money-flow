@@ -19,8 +19,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { listonT } from "../../lib/barreraHallazgos";
+// La raíz se DEDUCE (scripts/raiz.mjs): escrita a mano se rompe al renombrar la carpeta.
+import { RAIZ } from "../raiz.mjs";
 
-const RAIZ = "C:/Users/leste/dev/agente-tito-metralleta/web";
 const PANEL = path.join(RAIZ, "scripts/cache-theta/marketsnack/tape-panel.json");
 const SALIDA = path.join(RAIZ, "scripts/marketsnack/tape-5-salida.json");
 const PRUEBAS = 78, LISTON = listonT(PRUEBAS);

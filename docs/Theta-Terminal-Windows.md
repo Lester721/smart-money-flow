@@ -62,7 +62,7 @@ cp "$JH/lib/security/cacerts" theta-truststore.jks
 ### 3. Usarlo
 
 ```bash
-THETA_TRUSTSTORE="C:/Users/leste/dev/agente-tito-metralleta/web/theta-truststore.jks" \
+THETA_TRUSTSTORE="<raiz-del-proyecto>/web/theta-truststore.jks" \
   node scripts/with-theta.mjs npx tsx scripts/backtest-strategy.ts
 ```
 

@@ -27,8 +27,9 @@ import zlib from "node:zlib";
 import path from "node:path";
 import { listonT } from "../../lib/barreraHallazgos";
 import { radiografia } from "../../lib/radiografia";
+// La raíz se DEDUCE (scripts/raiz.mjs): escrita a mano se rompe al renombrar la carpeta.
+import { RAIZ } from "../raiz.mjs";
 
-const RAIZ = "C:/Users/leste/dev/agente-tito-metralleta/web";
 const DIR = path.join(RAIZ, "scripts/cache-theta/marketsnack/flujo-100k");
 const CHART = path.join(RAIZ, "scripts/cache-theta/marketsnack/aux/chart-all");
 const PRUEBAS = 26, LISTON = listonT(PRUEBAS);

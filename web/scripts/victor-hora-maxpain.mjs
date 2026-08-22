@@ -20,10 +20,11 @@ import { fileURLToPath } from "node:url";
 import { listonT } from "../lib/barreraHallazgos";
 
 const AQUI = path.dirname(fileURLToPath(import.meta.url));
-const CAMINO = path.join(
-  "C:/Users/leste/AppData/Local/Temp/claude/C--Users-leste-OneDrive-Desktop-Agente-Tito-Metralleta",
-  "296b4519-6df7-4f7a-9e53-fef3c87e134d/scratchpad/camino5min.csv",
-);
+// La entrada era un CSV de un directorio temporal de sesión, que ya no existe. Se pide
+// por variable de entorno y se falla claro: una ruta muerta escrita dentro sólo sirve
+// para que el script se caiga leyendo un sitio que nadie va a reconocer.
+const CAMINO = process.env.CAMINO_5MIN;
+if (!CAMINO) throw new Error("Falta CAMINO_5MIN: la ruta al CSV de camino de 5 minutos.");
 const SORTEOS = 500, LISTON = listonT(200);
 const media = (v) => (v.length ? v.reduce((a, x) => a + x, 0) / v.length : NaN);
 const varianza = (v) => { if (v.length < 2) return 0; const m = media(v); return v.reduce((a, x) => a + (x - m) ** 2, 0) / (v.length - 1); };

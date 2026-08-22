@@ -12,7 +12,9 @@ REM     con CODIGO 0 habiendo bajado cero. Por eso se carga .env.local a mano.
 REM  2. Dos Terminal de ThetaData a la vez y el segundo se muere a los 180 segundos.
 REM     Por eso el cerrojo.
 setlocal enabledelayedexpansion
-set RAIZ=C:\Users\leste\dev\agente-tito-metralleta\web
+REM La raíz se deduce de dónde vive este .cmd (%~dp0 = su propia carpeta). Escrita a
+REM mano se rompe el día que se renombra o mueve el proyecto.
+for %%I in ("%~dp0..") do set "RAIZ=%%~fI"
 set CERROJO=%RAIZ%\scripts\cache-theta\.oi-corriendo
 set LOG=%RAIZ%\scripts\cache-theta\oi-detached.log
 cd /d "%RAIZ%"

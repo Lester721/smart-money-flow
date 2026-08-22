@@ -27,8 +27,9 @@ const MODULO = "PRECIO-TEORICO-NO-USAR-PARA-RESULTADOS";
  * Para quitar uno de aquí: que use bid/ask reales. Para añadir uno: explicar por qué, aquí.
  */
 const DEUDA_CONOCIDA = new Set([
-  // parados, no registran nada
-  "scripts/forward-ideas.ts",   // parado: depende de los pesos de EVA, pendientes de revisar
+  // forward-ideas.ts SALIÓ de aquí el 2026-08-22: desde el commit 3a7d742 ("Ideas REACTIVADA")
+  // valora con precios reales y lo único que le queda de Black-Scholes es un comentario que
+  // explica que ya NO lo usa. La entrada se quedó en la lista aquel día; este test la cazó.
   // forward-wheel.ts SALIÓ de aquí el 2026-08-13: ya usa putReal/valorPutReal (bid al vender,
   // ask al recomprar). Esta lista sólo encoge.
   // backtest-eva-vs-victor.ts SALIÓ de aquí el 2026-08-13: su salida ya usa el bid real de

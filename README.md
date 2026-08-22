@@ -1,4 +1,4 @@
-# Agente Tito Metralleta
+# EVA — agente de análisis de opciones
 
 Sistema **multi-agente de análisis de flujo de opciones** (options flow). Identifica actividad inusual en el mercado de opciones, la interpreta y la convierte en tres escenarios de precio con probabilidad.
 

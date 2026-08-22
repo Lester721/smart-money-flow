@@ -18,7 +18,7 @@ de distancia: todos vendían lejos, donde el peaje se come el billete.
 bajar nada.** Cualquier script de aquí funciona pasándole esa ruta como `<scratch>`:
 
 ```bash
-node semanal.mjs "C:/Users/leste/dev/agente-tito-metralleta/web/scripts/cache-theta/noche-2026-08-10"
+node semanal.mjs "../cache-theta/noche-2026-08-10"
 ```
 
 | carpeta | qué es |

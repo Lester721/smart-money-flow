@@ -1,10 +1,10 @@
-# CLAUDE.md — Agente Tito Metralleta
+# CLAUDE.md — EVA · agente de análisis de opciones
 
 Guía para Claude Code al trabajar en este proyecto.
 
 ## Qué es este proyecto
 
-**Agente Tito Metralleta** es un sistema **multi-agente de análisis de flujo de opciones** (options flow). Su propósito es identificar **actividad inusual** en el mercado de opciones —actual e histórica— e interpretarla para dar contexto operativo, incluyendo señales de soporte/resistencia, "muros", flujo direccional vs. cobertura, y noticias relevantes del subyacente.
+**EVA** es un sistema **multi-agente de análisis de flujo de opciones** (options flow). Su propósito es identificar **actividad inusual** en el mercado de opciones —actual e histórica— e interpretarla para dar contexto operativo, incluyendo señales de soporte/resistencia, "muros", flujo direccional vs. cobertura, y noticias relevantes del subyacente.
 
 **Estado actual:** en construcción. La documentación del agente está completa y existe un primer
 incremento de la **web interactiva** (`web/`) que lee la option chain desde Massive y muestra
@@ -13,7 +13,7 @@ Open Interest, Open Premium y Valor Nocional con pasos de carga en vivo (cubre T
 ## Estructura
 
 ```
-Agente Tito Metralleta/
+agente-opciones/
 ├── CLAUDE.md                        # Este archivo
 ├── Agente Principal/
 │   ├── Proceso Principal.pdf        # Fuente original (Apple Pages/PDF)
@@ -161,8 +161,8 @@ Todo lo de aquí está **medido**, no supuesto. Es para no volver a descubrirlo 
 ### 0. ARRANCAR EL TERMINAL (Norton rompe el TLS)
 
 ```bash
-cd "C:\Users\leste\dev\agente-tito-metralleta\web" && \
-JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=C:\\Users\\leste\\dev\\agente-tito-metralleta\\web\\theta-truststore.jks -Djavax.net.ssl.trustStorePassword=changeit" \
+cd "<raiz-del-proyecto>\web" && \
+JAVA_TOOL_OPTIONS="-Djavax.net.ssl.trustStore=<raiz-del-proyecto>\\web\\theta-truststore.jks -Djavax.net.ssl.trustStorePassword=changeit" \
 java -jar ThetaTerminalv3.jar
 ```
 

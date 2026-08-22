@@ -22,7 +22,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import type { CompanyInfo } from "./types";
 import { dirname } from "node:path";
 
-const UA = process.env.SEC_USER_AGENT || "Agente Tito Metralleta contacto@ejemplo.com";
+const UA = process.env.SEC_USER_AGENT || "EVA Options Research contacto@ejemplo.com";
 const CACHE_TICKERS = "data/sec-tickers.json";
 const TTL_DIAS = 7;
 

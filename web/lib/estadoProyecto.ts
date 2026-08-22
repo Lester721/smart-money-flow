@@ -160,8 +160,8 @@ export const ITEMS: Item[] = [
   },
   {
     id: "nombre",
-    titulo: 'Quitar el nombre "Tito Metralleta"',
-    estado: "pendiente",
+    titulo: "Quitar el nombre viejo del proyecto",
+    estado: "cerrado",
     prioridad: 6,
     queEs: "De todas partes del repo.",
     pega:

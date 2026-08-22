@@ -1,4 +1,4 @@
-# Spec — Lector web "Tito Metralleta" (v1)
+# Spec — Lector web "EVA" (v1)
 
 Fecha: 2026-07-22 · Estado: aprobado, en implementación
 
@@ -13,7 +13,7 @@ Cubre las Tareas 1, 2 y 5 del [Proceso Principal](../Agente%20Principal/Proceso%
 
 ## Stack
 
-- **Next.js** (App Router, TypeScript), en `Agente Tito Metralleta/web/`.
+- **Next.js** (App Router, TypeScript), en `web/`.
 - API key en `.env.local` como `MASSIVE_API_KEY` — **solo servidor**, nunca `NEXT_PUBLIC`. En `.gitignore`.
 - Progreso en vivo vía **SSE** (Server-Sent Events) desde un route handler.
 

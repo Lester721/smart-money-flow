@@ -3,7 +3,9 @@ REM Enciende el Theta Terminal y lo deja vivo, fuera de la sesión de Claude.
 REM Carga .env.local a mano porque el Programador de tareas no hereda el entorno
 REM (eso ya nos costó 876 peticiones a un puerto vacío que salieron con código 0).
 setlocal enabledelayedexpansion
-set RAIZ=C:\Users\leste\dev\agente-tito-metralleta\web
+REM La raíz se deduce de dónde vive este .cmd (%~dp0 = su propia carpeta). Escrita a
+REM mano se rompe el día que se renombra o mueve el proyecto.
+for %%I in ("%~dp0..") do set "RAIZ=%%~fI"
 cd /d "%RAIZ%"
 for /f "usebackq eol=# tokens=1,* delims==" %%A in ("%RAIZ%\.env.local") do (
   if not "%%~A"=="" if not "%%~B"=="" set "%%~A=%%~B"
