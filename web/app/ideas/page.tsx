@@ -26,9 +26,11 @@ import {
   saveEntries,
 } from "@/lib/watchlistLocal";
 import type { Idea, IdeasEvent, IdeasMeta } from "./types";
+import { leerClave, escribirClave } from "@/lib/claves";
 
-const KEY_VIEW = "tito.view";
-const KEY_HORIZON = "tito.ideas.horizon";
+// Las claves van por lib/claves.ts, que se trae solo lo guardado con el nombre viejo.
+const KEY_VIEW = "view";
+const KEY_HORIZON = "ideas.horizon";
 
 const HORIZON_LABELS: Record<number, string> = {
   10: "Esta semana",
@@ -86,9 +88,9 @@ export default function IdeasPage() {
   // para no romper la hidratación del servidor.
   useEffect(() => {
     setProfile(loadProfile());
-    const v = window.localStorage.getItem(KEY_VIEW);
+    const v = leerClave(KEY_VIEW);
     if (v === "pro" || v === "estudiante") setView(v);
-    const h = Number(window.localStorage.getItem(KEY_HORIZON));
+    const h = Number(leerClave(KEY_HORIZON));
     if (HORIZONS.some((o) => o.days === h)) setHorizonDays(h);
   }, []);
 
@@ -255,11 +257,11 @@ export default function IdeasPage() {
 
   const pickView = (v: "estudiante" | "pro") => {
     setView(v);
-    window.localStorage.setItem(KEY_VIEW, v);
+    escribirClave(KEY_VIEW, v);
   };
   const pickHorizon = (d: number) => {
     setHorizonDays(d);
-    window.localStorage.setItem(KEY_HORIZON, String(d));
+    escribirClave(KEY_HORIZON, String(d));
   };
 
   const scan = useCallback(() => {

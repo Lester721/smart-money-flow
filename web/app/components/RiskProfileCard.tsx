@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { THETA_BUDGET_PCT, budgetsOf, type RiskProfile } from "@/lib/risk";
+import { leerClave, escribirClave } from "@/lib/claves";
 
-const KEY_ACCOUNT = "tito.risk.accountSize";
-const KEY_TOLERANCE = "tito.risk.tolerancePct";
+// El saldo y la tolerancia son lo más caro de perder: van por lib/claves.ts, que se trae
+// solo lo que estuviera guardado con el nombre viejo del proyecto.
+const KEY_ACCOUNT = "risk.accountSize";
+const KEY_TOLERANCE = "risk.tolerancePct";
 
 export const DEFAULT_PROFILE: RiskProfile = { accountSize: 10_000, tolerancePct: 4 };
 
@@ -15,8 +18,8 @@ const money = new Intl.NumberFormat("en-US", {
 /** Lee el perfil de localStorage. Solo cliente — el saldo nunca llega al servidor. */
 export function loadProfile(): RiskProfile {
   if (typeof window === "undefined") return DEFAULT_PROFILE;
-  const account = Number(window.localStorage.getItem(KEY_ACCOUNT));
-  const tolerance = Number(window.localStorage.getItem(KEY_TOLERANCE));
+  const account = Number(leerClave(KEY_ACCOUNT));
+  const tolerance = Number(leerClave(KEY_TOLERANCE));
   return {
     accountSize: Number.isFinite(account) && account > 0 ? account : DEFAULT_PROFILE.accountSize,
     tolerancePct:
@@ -41,12 +44,12 @@ export default function RiskProfileCard({
   const commitAccount = (raw: string) => {
     const n = Number(raw.replace(/[^0-9.]/g, ""));
     const accountSize = Number.isFinite(n) && n > 0 ? n : 0;
-    window.localStorage.setItem(KEY_ACCOUNT, String(accountSize));
+    escribirClave(KEY_ACCOUNT, String(accountSize));
     onChange({ ...profile, accountSize });
   };
 
   const commitTolerance = (tolerancePct: number) => {
-    window.localStorage.setItem(KEY_TOLERANCE, String(tolerancePct));
+    escribirClave(KEY_TOLERANCE, String(tolerancePct));
     onChange({ ...profile, tolerancePct });
   };
 

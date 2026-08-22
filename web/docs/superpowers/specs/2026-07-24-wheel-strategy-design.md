@@ -61,7 +61,7 @@ Por cada ticker del universo, con concurrencia limitada a 6:
                           → métricas → score compuesto → razones en llano.
 ```
 
-**El saldo nunca llega al servidor.** Misma regla que `/ideas`: la ruta devuelve candidatos con métricas; la asequibilidad (`colateral ≤ efectivo`) se calcula en el cliente leyendo `tito.risk.*` de `localStorage`. Los alcanzables se ordenan arriba; el resto aparece abajo marcado «te faltan $X», para que se vea hacia dónde crece la cuenta.
+**El saldo nunca llega al servidor.** Misma regla que `/ideas`: la ruta devuelve candidatos con métricas; la asequibilidad (`colateral ≤ efectivo`) se calcula en el cliente leyendo `eva.risk.*` de `localStorage`. Los alcanzables se ordenan arriba; el resto aparece abajo marcado «te faltan $X», para que se vea hacia dónde crece la cuenta.
 
 ## 4. Los tres presets
 
@@ -177,9 +177,9 @@ Y todo el copy dice «candidato» y «si vendieras esto, cobrarías X» — **nu
 
 Cuarta pestaña `🎡 Wheel` en `NavTabs` → `/wheel`.
 
-- **`WheelPresetCard`** — los 3 presets con su explicación en llano. Se persiste en `tito.wheel.preset`.
-- **`RiskProfileCard`** — el mismo componente de `/ideas`, mismo `tito.risk.*`. No se duplica el capital.
-- **Toggle Estudiante/Pro** leyendo el mismo `tito.view`.
+- **`WheelPresetCard`** — los 3 presets con su explicación en llano. Se persiste en `eva.wheel.preset`.
+- **`RiskProfileCard`** — el mismo componente de `/ideas`, mismo `eva.risk.*`. No se duplica el capital.
+- **Toggle Estudiante/Pro** leyendo el mismo `eva.view`.
 - **`WheelTable`** en dos densidades:
   - *Estudiante:* tarjetas en español llano — «Put de F a $11, vence 14 ago (21 días). Cobrarías $32. Necesitas $1,100 en efectivo retenido. Empiezas a perder por debajo de $10.68. 82% de que expire sin valor.»
   - *Pro:* tabla densa con Δ, IV implícita, IV rank, OI, spread, colchón, anualizado y el desglose de los 5 componentes del score.

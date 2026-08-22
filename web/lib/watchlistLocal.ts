@@ -1,6 +1,6 @@
 // El watchlist del estudiante, en su navegador.
 //
-// Vive en localStorage por la misma razón que el perfil de riesgo (`tito.risk.*`): la
+// Vive en localStorage por la misma razón que el perfil de riesgo (`eva.risk.*`): la
 // entrada guarda tu saldo y tu sizing del momento, y eso no tiene por qué llegar al
 // servidor. De paso resuelve el despliegue compartido — con un archivo único en el
 // servidor toda la clase escribía en el mismo watchlist.
@@ -8,16 +8,20 @@
 // Contrapartida asumida: no cruza dispositivos y limpiar el navegador lo borra.
 
 import { sortEntries, type WatchlistEntry } from "./watchlist";
+import { leerClave, escribirClave } from "@/lib/claves";
 
-const KEY = "tito.watchlist";
-const KEY_BROKER = "tito.watchlist.broker";
+// EL WATCHLIST ES EL DATO MÁS CARO DE PERDER de toda la aplicación: es una lista que el
+// usuario ha construido a mano. Va por lib/claves.ts, que migra lo guardado con el nombre
+// viejo la primera vez que se lee.
+const KEY = "watchlist";
+const KEY_BROKER = "watchlist.broker";
 /** Marca de la importación única desde el viejo data/watchlist.json. */
-const KEY_MIGRATED = "tito.watchlist.migrated";
+const KEY_MIGRATED = "watchlist.migrated";
 
 export function loadEntries(): WatchlistEntry[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(KEY);
+    const raw = leerClave(KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as WatchlistEntry[];
     return Array.isArray(parsed) ? sortEntries(parsed) : [];
@@ -29,7 +33,7 @@ export function loadEntries(): WatchlistEntry[] {
 export function saveEntries(entries: WatchlistEntry[]): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(KEY, JSON.stringify(entries));
+    escribirClave(KEY, JSON.stringify(entries));
   } catch {
     // cuota llena o modo privado: el watchlist sigue en memoria esta sesión
   }
@@ -37,13 +41,13 @@ export function saveEntries(entries: WatchlistEntry[]): void {
 
 export function loadBroker(): string {
   if (typeof window === "undefined") return "none";
-  return window.localStorage.getItem(KEY_BROKER) ?? "none";
+  return leerClave(KEY_BROKER) ?? "none";
 }
 
 export function saveBroker(id: string): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(KEY_BROKER, id);
+    escribirClave(KEY_BROKER, id);
   } catch {
     // ver saveEntries
   }
@@ -52,13 +56,13 @@ export function saveBroker(id: string): void {
 /** ¿Ya importamos el watchlist viejo del servidor? Solo se hace una vez. */
 export function hasMigrated(): boolean {
   if (typeof window === "undefined") return true;
-  return window.localStorage.getItem(KEY_MIGRATED) === "1";
+  return leerClave(KEY_MIGRATED) === "1";
 }
 
 export function markMigrated(): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(KEY_MIGRATED, "1");
+    escribirClave(KEY_MIGRATED, "1");
   } catch {
     // si no se puede marcar, se reintentará la próxima vez: la importación es idempotente
   }

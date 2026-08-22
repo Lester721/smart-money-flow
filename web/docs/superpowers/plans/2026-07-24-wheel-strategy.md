@@ -14,7 +14,7 @@
 
 - **Idioma:** todo el código, comentarios, nombres de bandas y copy de UI en **español**. Es la convención del proyecto (CLAUDE.md).
 - **Pureza:** `lib/blackScholes.ts`, `lib/wheel.ts`, `lib/wheelUniverse.ts` y `lib/earnings.ts` (salvo su fetch) no tocan red ni disco. Todo lo que decide criterio es testeable sin mocks.
-- **El saldo nunca llega al servidor.** La ruta devuelve métricas; la asequibilidad se calcula en el cliente con `tito.risk.*` de `localStorage`.
+- **El saldo nunca llega al servidor.** La ruta devuelve métricas; la asequibilidad se calcula en el cliente con `eva.risk.*` de `localStorage`.
 - **Salvaguarda de liquidez:** sin bid, o `spread > 25%`, o `OI < 100` → candidato `blocked`, **sin número de prima** y fuera de la lista de operables.
 - **Copy:** siempre «candidato» y «si vendieras esto, cobrarías X». **Nunca** «vende esto» ni ninguna forma de recomendación personalizada.
 - **Tests:** `npm test` (vitest). Cada archivo `lib/X.ts` con lógica lleva `lib/X.test.ts`. No hay tests de rutas SSE ni de UI — es el patrón del proyecto.
@@ -1672,7 +1672,7 @@ Crea `web/app/api/wheel/route.ts`:
 //
 // Orquesta I/O y NADA de criterio: todo lo que decide vive en lib/wheel.ts.
 // El saldo NO llega aquí: la ruta devuelve candidatos con métricas y la
-// asequibilidad se calcula en el cliente con tito.risk.* de localStorage.
+// asequibilidad se calcula en el cliente con eva.risk.* de localStorage.
 
 import { fetchWheelChain } from "@/lib/massive";
 import { cachedDailyBars } from "@/lib/barsStore";
@@ -2226,8 +2226,8 @@ import type { PresetId, WheelCandidate } from "@/lib/wheel";
 import type { RiskProfile } from "@/lib/risk";
 import type { WheelSseEvent } from "./types";
 
-const KEY_VIEW = "tito.view";
-const KEY_PRESET = "tito.wheel.preset";
+const KEY_VIEW = "eva.view";
+const KEY_PRESET = "eva.wheel.preset";
 
 type WheelMeta = { scanned: number; failed: number; withCandidates: number; degraded: boolean };
 
@@ -2388,5 +2388,5 @@ git commit -m "feat(wheel): página /wheel, pestaña de navegación y documentac
 ## Notas de ejecución
 
 - **Orden:** las tasks van en secuencia; cada una compila y pasa tests antes de la siguiente. Las Tasks 1-5, 7 y 9 son puras y no necesitan red. Las Tasks 6, 8 y 11 tocan API/navegador.
-- **Dev server:** reusa el `tito-web` existente (o `npm run dev` en `web/`); no arranques un segundo servidor en el mismo puerto.
+- **Dev server:** reusa el `eva-web` existente (o `npm run dev` en `web/`); no arranques un segundo servidor en el mismo puerto.
 - **Si un test de `gex` se rompe en la Task 1:** la mudanza de `bsGamma` alteró la fórmula. Es un bug de la task, no del test — revísalo.

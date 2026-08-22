@@ -5,7 +5,7 @@
 
 ## El problema
 
-En `/ideas` marcas una idea con ⭐ y se guarda en Tito. Ahí se acaba. La pregunta del
+En `/ideas` marcas una idea con ⭐ y se guarda en EVA. Ahí se acaba. La pregunta del
 usuario fue: *"si marco una empresa con la estrella, ¿puedes añadirla a mi Robinhood?
 Y como esto va para los estudiantes, ¿que sincronice con el broker que cada uno use?"*
 
@@ -42,7 +42,7 @@ subyacente (`WULF`), no el contrato (`$20C 15-ene-2027`).
 | Schwab / thinkorswim | `schwab.com/research/stocks/quotes/summary/{T}` | ✅ 200 y renderiza el ticker |
 | Fidelity | `digital.fidelity.com/prgw/digital/research/quote/dashboard/summary?symbol={T}` | ✅ 200 |
 | Tastytrade | `my.tastytrade.com/app.html#/trade/{T}` | ⚠️ 200, pero es el shell de una SPA con ruta en hash — no verificable por HTTP |
-| Webull | `webull.com/quote/{exchange}-{t}` | ❌ exige prefijo de bolsa (`nasdaq-wulf` 200, `nyse-wulf` 404) y el feed de Tito no trae la bolsa |
+| Webull | `webull.com/quote/{exchange}-{t}` | ❌ exige prefijo de bolsa (`nasdaq-wulf` 200, `nyse-wulf` 404) y el feed de EVA no trae la bolsa |
 | Interactive Brokers | `interactivebrokers.com/en/index.php?f=2222&symbol={T}` | ❌ 200 pero es una página genérica, no enruta por símbolo |
 
 Webull e IBKR **no reciben deep link**: reciben copiar-al-portapapeles. Es la degradación
@@ -56,7 +56,7 @@ Hoy vive en `data/watchlist.json`, un archivo único en el servidor. En un despl
 compartido con estudiantes eso significa **un solo watchlist para toda la clase**, y el
 saldo de cuenta y el sizing de cada uno aterrizando en el servidor.
 
-Se muda a `tito.watchlist` en el navegador, siguiendo la regla que el perfil de riesgo ya
+Se muda a `eva.watchlist` en el navegador, siguiendo la regla que el perfil de riesgo ya
 sigue (*"el saldo nunca llega al servidor"*). Por estudiante, privado, sin autenticación.
 
 - **Contrapartida aceptada:** no hay sincronía entre dispositivos y limpiar el navegador lo borra.

@@ -10,9 +10,11 @@ import { sortByAffordThenScore } from "@/lib/wheelAfford";
 import type { PresetId, WheelCandidate } from "@/lib/wheel";
 import type { RiskProfile } from "@/lib/risk";
 import type { WheelSseEvent } from "./types";
+import { leerClave, escribirClave } from "@/lib/claves";
 
-const KEY_VIEW = "tito.view";
-const KEY_PRESET = "tito.wheel.preset";
+// Las claves van por lib/claves.ts, que se trae solo lo guardado con el nombre viejo.
+const KEY_VIEW = "view";
+const KEY_PRESET = "wheel.preset";
 
 type WheelMeta = { scanned: number; failed: number; withCandidates: number; degraded: boolean };
 
@@ -30,9 +32,9 @@ export default function WheelPage() {
 
   useEffect(() => {
     setProfile(loadProfile());
-    const v = window.localStorage.getItem(KEY_VIEW);
+    const v = leerClave(KEY_VIEW);
     if (v === "pro" || v === "estudiante") setView(v);
-    const p = window.localStorage.getItem(KEY_PRESET);
+    const p = leerClave(KEY_PRESET);
     if (p === "conservador" || p === "balanceado" || p === "agresivo") setPreset(p);
   }, []);
 
@@ -52,8 +54,8 @@ export default function WheelPage() {
 
   useEffect(() => { scan(preset); return () => esRef.current?.close(); }, [scan, preset]);
 
-  const pickPreset = (p: PresetId) => { setPreset(p); window.localStorage.setItem(KEY_PRESET, p); };
-  const pickView = (v: "estudiante" | "pro") => { setView(v); window.localStorage.setItem(KEY_VIEW, v); };
+  const pickPreset = (p: PresetId) => { setPreset(p); escribirClave(KEY_PRESET, p); };
+  const pickView = (v: "estudiante" | "pro") => { setView(v); escribirClave(KEY_VIEW, v); };
 
   const rows = useMemo(() => {
     if (!candidates) return [];

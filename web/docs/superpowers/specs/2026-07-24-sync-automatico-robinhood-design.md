@@ -15,7 +15,7 @@ Se evaluó y se descartó la vía obvia —que Next.js llame a Robinhood— porq
 
 - Robinhood **no tiene programa OAuth público para acciones ni opciones**. Su única API
   pública documentada es la de cripto (key desde su portal). Sus ToS prohíben el acceso
-  automatizado por endpoints no oficiales. No se puede registrar Tito como app OAuth.
+  automatizado por endpoints no oficiales. No se puede registrar EVA como app OAuth.
 - El único token que existe lo emitió Robinhood **a Claude**, no a esta app, y vive en el
   keychain gestionado por Claude Code. Reutilizarlo desde el servidor sería: un token
   ajeno a su propósito, que caduca sin que controlemos su renovación, **de un solo
@@ -151,5 +151,5 @@ dejar 96 ejecuciones diarias en vacío. Es una línea de cron si luego se quiere
 
 - Sincronizar para estudiantes (imposible sin OAuth propio, ver arriba).
 - Borrar del watchlist del bróker.
-- Colocar órdenes. Tito nunca coloca una orden.
+- Colocar órdenes. EVA nunca coloca una orden.
 - Estrategias de varias patas: Robinhood no las acepta por API.
