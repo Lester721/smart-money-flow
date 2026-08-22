@@ -37,7 +37,7 @@ export type Item = {
   actualizado: string;
 };
 
-export const ACTUALIZADO = "2026-08-21";
+export const ACTUALIZADO = "2026-08-22";
 
 export const ITEMS: Item[] = [
   // ══════════════════════════════════════════════════════════════════════════
@@ -227,6 +227,25 @@ export const ITEMS: Item[] = [
       "ninguno de sus ingredientes es estable: el proxy de IV pasa de t=+6,7 a t=−3,8 en el período siguiente",
     ],
     actualizado: "2026-08-21",
+  },
+  {
+    id: "cerrado-triple-negativo",
+    titulo: "El «triple negativo» del curso de Victor",
+    estado: "cerrado",
+    queEs:
+      "Un semáforo de tres luces que enseña Sergio Morales: gamma en el spot negativa, gamma total negativa y skew de IV negativo. Las tres en rojo = «volátil / bajista, movimientos amplificados».",
+    numero: "el efecto es real (−$119 por operación, t=−2,07) pero las medias ya quitan el 85% de esos días",
+    evidencia: [
+      "LA TERCERA LUZ NUNCA SE APAGA: el skew está negativo el 99% de los días (1.106 de 1.118). Los puts de SPX son SIEMPRE más caros — es el smirk de volatilidad. Así que es un DOBLE negativo",
+      "dirección: NO. +0,03% con t=0,7, y positivo en vez de bajista",
+      "movimiento: SÍ, 0,58% contra 0,36% — pero eso es la gamma, que ya estaba medida",
+      "sobre los 1.112 días el cóndor da −$61 esos días contra $58 el resto (diferencia $119, t=−2,07)",
+      "PERO de los 412 días de triple negativo, 350 no pasan las medias. Sólo se cuelan 62",
+      "y dentro de esos 62 la diferencia cae a −$88 con t=−0,97: indistinguible del azar",
+    ],
+    pega:
+      "Quitar esos días de los tres síes sube el resultado de $5.541 a $6.134 al año, pero viene de excluir 21 días de 201 cuya propia diferencia no es significativa. Es aritmética de quitar perdedores, no un filtro que anticipe. Queda VIVO un resto: el forward test irá acumulando días de triple negativo por su cuenta, y con 200 en vez de 62 se podrá decidir de verdad.",
+    actualizado: "2026-08-22",
   },
   {
     id: "cerrado-gex-vivo",

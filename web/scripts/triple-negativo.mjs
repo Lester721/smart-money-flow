@@ -132,7 +132,7 @@ for (const fecha of fechas) {
   const skew = (cOTM.iv - pOTM.iv) * 100;           // en puntos de volatilidad
 
   // ── el cóndor de las 11:00, con precios reales ───────────────────────────
-  let condor = null;
+  let condor = null, credito = 0;
   if (C.entrada.length && P.entrada.length) {
     const sp = C.spotEnt, X = C.cierre;
     const cC = cerca(C.entrada, sp + DIST), pC = cerca(P.entrada, sp - DIST);
@@ -143,12 +143,13 @@ for (const fecha of fechas) {
         const aC = cL.K - cC.K, aP = pC.K - pL.K;
         const dC = Math.min(Math.max(X - cC.K, 0), aC), dP = Math.min(Math.max(pC.K - X, 0), aP);
         condor = (cred - dC - dP) * 100 - 8 * COMM;
+        credito = cred * 100;
       }
     }
   }
 
   dias.push({
-    fecha, gammaSpot, gexTotal, skew, condor,
+    fecha, gammaSpot, gexTotal, skew, condor, credito,
     // el movimiento DESPUÉS de leer las luces: de las 11:00 al cierre
     retorno: (C.cierre - C.spotEnt) / C.spotEnt * 100,
     mueve: Math.abs(C.cierre - C.spotEnt) / C.spotEnt * 100,
@@ -228,6 +229,103 @@ for (const [nom, g] of [["más negativo (puts caros)", orden.slice(0, k)], ["med
   const c = g.map((d) => d.condor).filter((x) => x != null);
   console.log(`| ${nom} | ${g.length} | ${num(media(g.map((d) => d.skew)))} pts | ${num(media(g.map((d) => d.retorno)))}% | ${num(media(g.map((d) => d.mueve)))}% | ${eur(media(c))} |`);
 }
+
+// ═══ LA PREGUNTA DE LESTER: ¿MEJORA ALGUNA DE NUESTRAS ESTRATEGIAS? ═══════════
+//
+// La única desplegada es el cóndor de los TRES SÍES. Así que la pregunta concreta es:
+// ¿añade algo NO OPERAR los días de triple negativo, encima de lo que ya filtran las medias?
+//
+// Ojo con la trampa: el triple negativo es esencialmente gamma, y la gamma ya salió que no
+// aporta encima de los tres síes (2 de diferencia, t=0,15). Pero el triple no es idéntico
+// al GEX solo —lleva también la gamma en el spot— así que se mide en vez de suponerse.
+
+const serie = [];
+for (const y of [2021, 2022, 2023, 2024, 2025, 2026]) {
+  const f = `scripts/cache-theta/SPY_spotmin_y_${y}.json`;
+  if (!existsSync(f)) continue;
+  for (const [d, arr] of Object.entries(JSON.parse(readFileSync(f, "utf8")))) {
+    const m = new Map(arr.map(([mi, p]) => [mi, p]));
+    const c = m.get(960), p11 = m.get(660);
+    if (c > 0 && p11 > 0) serie.push({ fecha: `${d.slice(0,4)}-${d.slice(4,6)}-${d.slice(6,8)}`, c, p11 });
+  }
+}
+serie.sort((a, b) => a.fecha.localeCompare(b.fecha));
+const idxS = new Map(serie.map((d, i) => [d.fecha, i]));
+
+// los tres síes necesitan el crédito, que ya se calculó dentro de `condor`: se recupera
+// recorriendo otra vez la cadena de las 11:00 sería caro, así que se aprovecha que el cóndor
+// sólo existe cuando el crédito fue positivo, y el tercer sí (>= $100) se recalcula aparte.
+for (const d of dias) {
+  const i = idxS.get(d.fecha);
+  if (i === undefined || i < 55) { d.tresSies = false; continue; }
+  const cierres = serie.slice(Math.max(0, i - 200), i).map((x) => x.c);
+  const p11 = serie[i].p11;
+  d.sobreMA5 = p11 > media(cierres.slice(-5));
+  d.sobreMA50 = p11 > media(cierres.slice(-50));
+  // LOS TRES SÍES COMPLETOS: las dos medias Y el crédito mínimo de $100. Sin el tercero esto
+  // no es la regla desplegada, es otra parecida — y compararse contra otra cosa no vale.
+  d.tresSies = d.sobreMA5 && d.sobreMA50 && d.condor != null && d.credito >= 100;
+}
+
+console.log("\n" + "=".repeat(100));
+console.log("  ¿MEJORA EL TRIPLE NEGATIVO NUESTRA REGLA DESPLEGADA (los tres síes)?");
+console.log("=".repeat(100) + "\n");
+console.log("| qué días | n | cóndor por operación | t | al año (1 contrato) |");
+console.log("|---|---|---|---|---|");
+const anos = (Date.parse(dias[dias.length-1].fecha) - Date.parse(dias[0].fecha)) / 86400000 / 365.25;
+for (const [nom, filtro] of [
+  ["**los tres síes** (como está desplegado)", (d) => d.tresSies],
+  ["· quitando los de TRIPLE NEGATIVO", (d) => d.tresSies && !d.triple],
+  ["· sólo los de triple negativo", (d) => d.tresSies && d.triple],
+  ["", null],
+  ["sin ningún filtro", () => true],
+  ["· sólo NO triple negativo", (d) => !d.triple],
+]) {
+  if (!filtro) { console.log("| | | | | |"); continue; }
+  const c = dias.filter(filtro).map((d) => d.condor).filter((x) => x != null);
+  if (c.length < 20) { console.log(`| ${nom} | ${c.length} | muestra corta | | |`); continue; }
+  console.log(`| ${nom} | ${c.length} | ${eur(media(c))} | ${num(tDe(c), 2)} | **${eur(suma(c) / anos)}** |`);
+}
+console.log("");
+
+// ── LA PREGUNTA DIRECTA, CON TODA LA MUESTRA ────────────────────────────────
+// Antes la contesté con 21 días —la interseccion con los tres síes— y con 21 datos no se puede
+// afirmar nada. Pero la pregunta no necesita esa interseccion: "¿son los días de triple negativo
+// malos para vender un cóndor?" se mide sobre TODOS los días. Y encima se puede separar en dos:
+//   · ¿el efecto existe?            → triple vs no triple, sobre los 1.112
+//   · ¿lo capturan ya las medias?   → lo mismo, pero sólo dentro de los días que pasan las medias
+console.log("### ¿SON MALOS ESOS DÍAS? — con toda la muestra, no con 21\n");
+console.log("| población | triple negativo | resto | diferencia | t de la diferencia |");
+console.log("|---|---|---|---|---|");
+function comparar(nom, filtro) {
+  const a = dias.filter((d) => filtro(d) && d.triple).map((d) => d.condor).filter((x) => x != null);
+  const b = dias.filter((d) => filtro(d) && !d.triple).map((d) => d.condor).filter((x) => x != null);
+  if (a.length < 20 || b.length < 20) { console.log("| " + nom + " | muestra corta | | | |"); return; }
+  const dif = media(a) - media(b);
+  const se = Math.sqrt(sd(a) ** 2 / a.length + sd(b) ** 2 / b.length);
+  console.log("| " + nom + " | " + eur(media(a)) + " (n " + a.length + ") | " + eur(media(b)) + " (n " + b.length + ") | **" + eur(dif) + "** | " + num(dif / se, 2) + " |");
+}
+comparar("todos los días", () => true);
+comparar("sólo los que pasan las DOS medias", (d) => d.sobreMA5 && d.sobreMA50);
+comparar("sólo los que NO pasan las medias", (d) => !(d.sobreMA5 && d.sobreMA50));
+console.log("");
+
+// LAS DOS MITADES. Quitar 62 días de 491 puede mejorar por casualidad; si la mejora es real
+// tiene que aparecer en las dos mitades del período, no en una.
+const mitad = dias[Math.floor(dias.length / 2)].fecha;
+console.log("### Las dos mitades — corte en " + mitad + "\n");
+console.log("| qué | primera mitad | segunda mitad | ¿mejora en las DOS? |");
+console.log("|---|---|---|---|");
+for (const [nom, con, sin] of [["los tres síes, quitando el triple negativo", (d) => d.tresSies, (d) => d.tresSies && !d.triple]]) {
+  const trozo = (f, desde, hasta) => dias.filter((d) => d.fecha >= desde && d.fecha < hasta && f(d)).map((d) => d.condor).filter((x) => x != null);
+  const a1 = trozo(con, "0000", mitad), a2 = trozo(sin, "0000", mitad);
+  const b1 = trozo(con, mitad, "9999"), b2 = trozo(sin, mitad, "9999");
+  const m1 = media(a2) - media(a1), m2 = media(b2) - media(b1);
+  console.log("| " + nom + " | " + eur(media(a1)) + " -> " + eur(media(a2)) + " (" + (m1>=0?"+":"") + eur(m1) + ") | " +
+    eur(media(b1)) + " -> " + eur(media(b2)) + " (" + (m2>=0?"+":"") + eur(m2) + ") | " +
+    (m1 > 0 && m2 > 0 ? "**sí**" : "NO") + " |");
+}
+console.log("");
 
 writeFileSync(SALIDA, JSON.stringify({
   generado: new Date().toISOString().slice(0, 10), n: dias.length,
