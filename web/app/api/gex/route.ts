@@ -9,7 +9,7 @@
 // concentra el 67% de la gamma.
 
 import { NextResponse } from "next/server";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
 export const runtime = "nodejs";
@@ -99,6 +99,44 @@ async function cadena(dia: string, lado: "P" | "C") {
   return { q, U, hora: ultima };
 }
 
+
+// ── LA ÚLTIMA FOTO BUENA ─────────────────────────────────────────────────────
+//
+// Lester: "los paneles se pueden quedar con el último dato de manera que pueda validarlos?".
+// Sí, y hace falta: fuera de horario el Terminal no sirve nada y toda la pantalla se queda en
+// "sin datos", así que no hay forma de revisar un panel por la tarde.
+//
+// LA CONDICIÓN INNEGOCIABLE: el dato viejo NO puede parecerse al vivo. Sale marcado con
+// `viejo: true` y con la hora exacta en que se capturó, y los paneles lo pintan en ámbar. Un
+// panel que enseña la foto de ayer como si fuera de ahora es el fallo silencioso que este
+// proyecto lleva meses pagando.
+//
+// Y LA SEÑAL SE ANULA. Lo que se guarda es la foto para MIRARLA, no para decidir con ella: al
+// servirla se sustituye `señal` por un "no operar" explícito. Un crédito de ayer con los
+// strikes de ayer no es una orden, es un recuerdo.
+const FOTO = "data/gex-ultima-foto.json";
+
+function guardarFoto(cuerpo: Record<string, unknown>) {
+  try {
+    if (!existsSync("data")) mkdirSync("data", { recursive: true });
+    writeFileSync(FOTO, JSON.stringify({ ...cuerpo, capturadaEn: new Date().toISOString() }), "utf8");
+  } catch { /* que no se pueda guardar no puede tumbar la respuesta buena */ }
+}
+
+function leerFoto(motivo: string) {
+  try {
+    if (!existsSync(FOTO)) return null;
+    const f = JSON.parse(readFileSync(FOTO, "utf8"));
+    return {
+      ...f,
+      viejo: true,
+      motivoDelViejo: motivo,
+      // LA SEÑAL NO SOBREVIVE A LA FOTO. Ver el panel es una cosa; operarlo, otra.
+      señal: { operar: false, motivo: "dato viejo — no se decide con una foto" },
+    };
+  } catch { return null; }
+}
+
 export async function GET() {
   const t0 = Date.now();
   const dia = hoyET();
@@ -107,6 +145,8 @@ export async function GET() {
     abrirInteres(dia), cadena(dia, "P"), cadena(dia, "C"), actividad(dia, "P"), actividad(dia, "C"),
   ]);
   if (!oi || !P || !C || !(C.U > 0)) {
+    const foto = leerFoto("sin datos del Terminal (¿apagado? ¿festivo? ¿fuera de horario?)");
+    if (foto) return NextResponse.json(foto);
     return NextResponse.json({ ok: false, motivo: "sin datos del Terminal (¿apagado? ¿festivo? ¿antes de abrir?)", dia, ahora: ahoraET() });
   }
   const U = C.U, hora = C.hora;
@@ -210,7 +250,7 @@ export async function GET() {
       rangoGanador: [Kp, Kc], precios: { callCorta: c.bid, callLarga: cA.ask, putCorta: p.bid, putLarga: pA.ask } };
   }
 
-  return NextResponse.json({
+  const cuerpo = {
     ok: true, dia, hora, ahora: ahoraET(), ms: Date.now() - t0,
     spx: Math.round(U * 100) / 100,
     minutosAlCierre: Math.round(T * 365 * 24 * 60),
@@ -219,6 +259,8 @@ export async function GET() {
     nominal: Math.round(nominal / 1e6),
     volumen: actP.volumen + actC.volumen,
     primaDia: Math.round((actP.prima + actC.prima) / 1e6),
-    muroCall, muroPut, giro, barras, historia, aguante, señal,
-  });
+    muroCall, muroPut, giro, barras, historia, aguante, señal, viejo: false,
+  };
+  guardarFoto(cuerpo);
+  return NextResponse.json(cuerpo);
 }

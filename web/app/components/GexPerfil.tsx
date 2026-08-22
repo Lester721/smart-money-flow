@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useGexVivo } from "@/lib/gexCliente";
 import Info from "./Info";
+import DatoViejo from "./DatoViejo";
 
 // EL PERFIL DE GAMMA POR STRIKE — vivía dentro de `GexView`. Se sacó a su propio componente el
 // 2026-08-14 para poder ponerlo AL LADO del panel de decisión, que es como Lester lo pidió:
@@ -110,6 +111,7 @@ export default function GexPerfil() {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
         <div>
           <b style={{ fontSize: 17 }}>Gamma Exposure</b>
+          <DatoViejo viejo={d.viejo} capturadaEn={d.capturadaEn} compacto />
           <Info titulo="Qué son estas cifras y por qué un strike hace de imán" ancho={520}>
             <p style={{ margin: "0 0 9px" }}>
               Cada número es <b>dinero de cobertura por cada 1% que se mueva el índice</b>: si SPX

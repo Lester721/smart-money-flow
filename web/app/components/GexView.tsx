@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 // Petición compartida: este panel y PanelDecision necesitan los MISMOS datos. Si cada uno
 // pidiera lo suyo serían dos esperas de ~20 s y, peor, dos fotos de instantes distintos.
 import { pedirGex } from "@/lib/gexCliente";
+import DatoViejo from "./DatoViejo";
 
 // GEX de SPX 0DTE — el diseño de MarketSnack (docs/referencias-visuales) en oscuro, con lo
 // mismo que enseñan ellos y cuatro cosas que no enseñan:
@@ -32,6 +33,10 @@ interface Datos {
   historia?: { n: number; percentil: number | null; aciertoConSeñal: number; mediaConSeñal: number } | null;
   aguante?: { call: number | null; put: number | null; distCall: number | null; distPut: number | null; n: number } | null;
   señal?: Señal;
+  /** true cuando esto es la última foto guardada y no el mercado en vivo. */
+  viejo?: boolean;
+  motivoDelViejo?: string;
+  capturadaEn?: string;
 }
 
 const M = (x: number) => (Math.abs(x) >= 1000 ? `${(x / 1000).toFixed(1)}B` : `${Math.round(x)}M`);
@@ -81,6 +86,10 @@ export default function GexView() {
 
   return (
     <>
+      {/* ARRIBA DEL TODO y en ámbar: si lo que se ve es la foto guardada y no el mercado, hay
+          que saberlo ANTES de leer un solo número, no después. */}
+      <DatoViejo viejo={d.viejo} capturadaEn={d.capturadaEn} motivo={d.motivoDelViejo} />
+
       {/* ══ cabecera: ticker + métricas ══ */}
       <div className="card" style={{ gap: 0, padding: 0, overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "18px 24px", flexWrap: "wrap" }}>

@@ -1336,3 +1336,22 @@ tfoot .totals td {
   background: #3B82F6; color: #fff; border-radius: 5px; padding: 1px 7px;
   font-size: 10.5px; font-weight: 700; letter-spacing: .02em; vertical-align: middle;
 }
+
+/* ── Aviso de dato viejo ─────────────────────────────────────────────────────
+   Ámbar y arriba de la tarjeta. La foto guardada sirve para revisar los paneles con
+   el mercado cerrado, pero tiene que ser IMPOSIBLE confundirla con el dato en vivo. */
+.dviejo { border: 1px solid rgba(247,144,9,.45); background: rgba(247,144,9,.09);
+  border-radius: 8px; padding: 11px 14px; margin-bottom: 14px; }
+.dviejo-cab { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; margin-bottom: 6px; }
+.dviejo-cab b { color: #F79009; font-size: 13.5px; }
+.dviejo-icono { color: #F79009; font-size: 14px; }
+.dviejo-cuando { margin-left: auto; font-size: 12px; color: rgba(247,144,9,.85); font-variant-numeric: tabular-nums; }
+.dviejo p { margin: 0 0 5px; font-size: 12.5px; line-height: 1.6; color: var(--muted, #8b96a8); max-width: 78ch; }
+.dviejo p:last-child { margin-bottom: 0; }
+.dviejo strong { color: var(--fg, #e8edf5); }
+.dviejo-señal strong { color: #F79009; }
+
+.dviejo-chip { display: inline-flex; align-items: center; gap: 5px; margin-left: 9px;
+  border: 1px solid rgba(247,144,9,.45); background: rgba(247,144,9,.12); color: #F79009;
+  border-radius: 999px; padding: 1px 9px; font-size: 11px; font-weight: 600; vertical-align: middle;
+  cursor: help; }

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { pedirGex, distanciaPct, fiabilidadMuro, type DatosGex } from "@/lib/gexCliente";
 import Info from "./Info";
+import DatoViejo from "./DatoViejo";
 
 // PANEL DE DECISIÓN — los números que hay que cruzar para decidir, juntos y en el mismo sitio.
 //
@@ -132,7 +133,9 @@ export default function PanelDecision() {
   const filaActiva = !gexPos ? 2 : peorMuro?.nivel === "bueno" ? 1 : 3;
 
   return (
-    <div className="card" style={{ borderLeft: `3px solid ${s?.operar ? C.verde : C.rojo}` }}>
+    <div className="card" style={{ borderLeft: `3px solid ${d.viejo ? "#F79009" : s?.operar ? C.verde : C.rojo}` }}>
+      {/* La tarjeta donde se decide es donde más caro sale confundir la foto con el mercado. */}
+      <DatoViejo viejo={d.viejo} capturadaEn={d.capturadaEn} motivo={d.motivoDelViejo} />
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: ".06em", padding: "3px 9px", borderRadius: 5,
                        background: s?.operar ? "rgba(18,183,106,.16)" : "rgba(240,68,56,.16)",

@@ -38,3 +38,4 @@ norton-root.crt
 # Bitácoras de corridas largas
 scripts/*.log
 web/scripts/cache-theta/flujo-historico/
+data/gex-ultima-foto.json

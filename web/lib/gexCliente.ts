@@ -21,6 +21,10 @@ export interface DatosGex {
   gexNeto?: number; gexCalls?: number; gexPuts?: number; oiTotal?: number;
   nominal?: number; volumen?: number; primaDia?: number;
   muroCall?: number | null; muroPut?: number | null; giro?: number | null;
+  /** true cuando lo que se está viendo es la última foto guardada, no el mercado en vivo. */
+  viejo?: boolean;
+  motivoDelViejo?: string;
+  capturadaEn?: string;
   barras?: Barra[];
   historia?: { n: number; percentil: number | null; aciertoConSeñal: number; mediaConSeñal: number } | null;
   aguante?: { call: number | null; put: number | null; distCall: number | null; distPut: number | null; n: number } | null;
