@@ -1355,3 +1355,8 @@ tfoot .totals td {
   border: 1px solid rgba(247,144,9,.45); background: rgba(247,144,9,.12); color: #F79009;
   border-radius: 999px; padding: 1px 9px; font-size: 11px; font-weight: 600; vertical-align: middle;
   cursor: help; }
+
+/* La barra scrolleaba para no empujar la página, pero con siete pestañas eso escondía la
+   última fuera de la vista sin ninguna pista de que estaba ahí. Que envuelva: ocupa una
+   línea más en pantallas estrechas y no esconde nada. */
+.nav-tabs { flex-wrap: wrap; row-gap: 6px; overflow-x: visible; }
