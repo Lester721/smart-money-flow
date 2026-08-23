@@ -12,7 +12,7 @@
 import { useEffect, useState } from "react";
 
 type Cuaderno = {
-  clave: string; nombre: string; familia: "condor" | "riesgo"; unidad: string; pega?: string;
+  id: string; clave: string; nombre: string; familia: "condor" | "riesgo"; unidad: string; pega?: string;
   filas: number; vacio: boolean;
   desde?: string | null; hasta?: string | null;
   cerradas?: number; abiertas?: number; sinSenal?: number;
@@ -66,16 +66,16 @@ export default function ForwardTests() {
               </thead>
               <tbody>
                 {cs.map((c) => {
-                  const on = abierto === c.clave;
+                  const on = abierto === c.id;
                   const res = c.media == null ? null
                     : c.familia === "condor"
                       ? `${usd(c.media)} por operación${c.total != null ? ` · ${usd(c.total)} total` : ""}`
                       : pct(c.media) + " sobre el riesgo";
                   const bueno = (c.media ?? 0) > 0;
                   return (
-                    <tr key={c.clave}
+                    <tr key={c.id}
                         className={`${c.vacio ? "ftest-vacio" : ""} ${on ? "ftest-on" : ""}`}
-                        onClick={() => c.pega && setAbierto(on ? null : c.clave)}>
+                        onClick={() => c.pega && setAbierto(on ? null : c.id)}>
                       <td className="ftest-nombre">
                         {c.nombre}
                         {c.pega ? <span className="ftest-aviso" title="tiene una pega — pulsa">⚠</span> : null}
@@ -97,8 +97,8 @@ export default function ForwardTests() {
 
           {abierto ? (
             <div className="est-bloque est-pega ftest-pega">
-              <h4>La pega de «{cs.find((c) => c.clave === abierto)?.nombre}»</h4>
-              <p>{cs.find((c) => c.clave === abierto)?.pega}</p>
+              <h4>La pega de «{cs.find((c) => c.id === abierto)?.nombre}»</h4>
+              <p>{cs.find((c) => c.id === abierto)?.pega}</p>
             </div>
           ) : (
             <p className="ftest-pie">

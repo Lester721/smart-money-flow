@@ -159,13 +159,24 @@ async function foto(dia) {
   for (const c of oiRaw.filas) { const v = +c[iO]; if (v > 0) oi[c[iR].replace(/"/g, '') === 'CALL' ? 'C' : 'P'].set(+c[iK], v); }
 
   const cad = { C: new Map(), P: new Map() }; let U = 0;
+  // LA CUNA DE LA MAÑANA, capturada en el MISMO bucle. La cadena que se descarga trae todas las
+  // barras del día, así que leer también las 09:35 no cuesta ni una petición más. Sirve para
+  // medir el crédito RELATIVO a lo que el mercado decía que se iba a mover ese día — sin eso,
+  // un crédito de $800 en un día tranquilo y otro de $800 en uno salvaje se ven iguales.
+  const cad35 = { C: new Map(), P: new Map() }; let U35 = 0;
   for (const lado of ['P', 'C']) {
     const d = await csv(`option/history/greeks/implied_volatility?symbol=${SYM}&expiration=${dia}&start_date=${dia}&end_date=${dia}&right=${lado}&interval=5m`);
     if (!d) return null;
     const jK = d.cab.indexOf('strike'), jT = d.cab.indexOf('timestamp'), jB = d.cab.indexOf('bid'),
           jA = d.cab.indexOf('ask'), jM = d.cab.indexOf('midpoint'), jV = d.cab.indexOf('implied_vol'), jU = d.cab.indexOf('underlying_price');
     for (const c of d.filas) {
-      if (c[jT].slice(11, 16) !== HORA) continue;
+      const hora = c[jT].slice(11, 16);
+      if (hora === '09:35') {
+        const u35 = +c[jU], a35 = +c[jA];
+        if (u35 > 0) U35 = u35;
+        if (a35 > 0) cad35[lado].set(+c[jK], a35);
+      }
+      if (hora !== HORA) continue;
       const u = +c[jU]; if (u > 0) U = u;
       const bid = +c[jB], ask = +c[jA], mid = +c[jM], iv = +c[jV];
       // MISMO CRITERIO QUE EL BACKTEST. El filtro de horquilla al 50% del punto medio que había
@@ -186,7 +197,17 @@ async function foto(dia) {
       const $ = g * o * 100 * U * U * 0.01; if (!isFinite($)) continue;
       if (lado === 'C') gC += $; else gP += $;
     }
-  return { U, T, cad, gexNeto: gC - gP, gexCalls: gC, gexPuts: gP };
+  // La cuna al dinero de las 09:35, al ask las dos patas: lo que costaba comprar el movimiento
+  // del día entero. NO veta nada — se guarda para poder medir después el filtro de crédito
+  // relativo sin montar un segundo cuaderno.
+  let cuna35 = null;
+  if (U35 > 0 && cad35.C.size && cad35.P.size) {
+    const cercano = (m) => [...m.keys()].reduce((a, b) => (Math.abs(b - U35) < Math.abs(a - U35) ? b : a));
+    const Kc = cercano(cad35.C), Kp = cercano(cad35.P);
+    // sólo vale si las dos patas caen en el MISMO strike; si no, no es una cuna al dinero
+    if (Kc === Kp) cuna35 = Math.round((cad35.C.get(Kc) + cad35.P.get(Kp)) * 100) / 100;
+  }
+  return { U, T, cad, U35, cuna35, gexNeto: gC - gP, gexCalls: gC, gexPuts: gP };
 }
 
 // ── LAS MEDIAS DE 20 Y 50, CON CIERRES HASTA AYER ────────────────────────────
@@ -267,6 +288,8 @@ async function cierreSPX(dia) {
       const origen = Object.keys(process.env).some(k => k.startsWith('RAILWAY_'))
         ? `railway:${process.env.RAILWAY_SERVICE_NAME || '?'}` : 'local';
       const base = { dia: DIA, hora: HORA, registradoEn: ahoraET(), origen, spx: Math.round(f.U * 100) / 100,
+                     spx0935: f.U35 ? Math.round(f.U35 * 100) / 100 : null,
+                     cuna0935: f.cuna35,
                      gexNeto: Math.round(f.gexNeto / 1e6), gexCalls: Math.round(f.gexCalls / 1e6), gexPuts: Math.round(f.gexPuts / 1e6) };
       const mm = await mediasHastaAyer(DIA);
       if (!mm) {
@@ -306,8 +329,14 @@ async function cierreSPX(dia) {
           if (!(anchoC > 0) || !(anchoP > 0)) throw new Error('ancho de ala no positivo: ' + anchoC + '/' + anchoP);
           // SIN MÍNIMO DE CRÉDITO — es la diferencia deliberada con «los tres síes». Si algún
           // día se le quiere poner uno, va en un cuaderno APARTE.
+          // EL COCIENTE QUE MIDE LA SEGUNDA REGLA. Declarado el 2026-08-23, antes de que exista
+          // una sola operación: la variante «crédito ≥ 30% de la cuna de las 09:35» se evalúa
+          // DESDE ESTE MISMO cuaderno filtrando por este campo. No hace falta un segundo
+          // registro y así los dos no se pueden desincronizar.
+          const credCuna = f.cuna35 > 0 ? Math.round((credito / f.cuna35) * 10000) / 10000 : null;
           ledger.push({ ...base, estado: 'abierta', callCorta: Kc, callLarga: KcA, putCorta: Kp, putLarga: KpA,
-                        credito, riesgoMax: Math.round((Math.max(anchoC, anchoP) - credito) * 100),
+                        credito, creditoSobreCuna: credCuna,
+                        riesgoMax: Math.round((Math.max(anchoC, anchoP) - credito) * 100),
                         precios: { callCorta: c.bid, callLarga: cA.ask, putCorta: p.bid, putLarga: pA.ask } });
           console.log(`    ✓ SEÑAL · SPX ${f.U.toFixed(2)} · GEX ${f.gexNeto >= 0 ? "+" : "−"}${Math.abs(f.gexNeto / 1e6).toFixed(0)}M (no veta, sólo se anota)`);
           console.log(`      vender call ${Kc} Y put ${Kp}  ·  comprar call ${KcA} y put ${KpA}`);

@@ -23,7 +23,8 @@ A las **15:00 ET**, y sólo si el SPX está por encima de su media de 5 cierres 
 - $0,03 por contrato y pata
 
 **Sin mínimo de crédito.** El cóndor tiene el suyo ($100); ésta no. Es una diferencia
-deliberada. Si algún día se le quiere poner uno, va en un cuaderno aparte.
+deliberada. Hay una SEGUNDA regla declarada más abajo que sí lleva umbral, y se mide desde este
+mismo cuaderno sin tocar ésta.
 
 ---
 
@@ -98,7 +99,9 @@ Escrito ahora para no poder moverlo después:
 
 ## LO QUE NO SE HARÁ
 
-- no se toca la hora, ni el ala, ni el filtro, ni se añade un mínimo de crédito
+- no se toca la hora, ni el ala, ni el filtro de medias. NO se le añade el umbral de crédito a
+  ESTA regla: el umbral es la segunda regla, declarada abajo, y se lee filtrando el mismo
+  registro. Si se metiera aquí dejaríamos de tener el control contra el que compararlo
 - **no se cierra ninguna operación antes del vencimiento, pase lo que pase.** Está medido: las
   282 formas de cerrar antes de tiempo pierden dinero, entre $3.753 y $69.077 al año, sin una
   sola excepción. Son cuatro patas y cerrar hace pagar la horquilla otra vez en las cuatro
@@ -111,6 +114,49 @@ esta regla — la escalera de cinco montones no es monótona (15.773 / 6.208 / 2
 28.037), el control barajado hace lo mismo, dentro de tercios de volatilidad se evapora
 (t=0,37 / 1,32 / 0,04) y año a año se contradice. Se guarda para poder responder esa pregunta
 más adelante sin montar un tercer cuaderno.
+
+---
+
+## LA SEGUNDA REGLA, DECLARADA HOY — «MARIPOSA CON UMBRAL»
+
+**Congelada el 2026-08-23, antes de que exista una sola operación en directo.**
+
+Idéntica a la de arriba en todo — misma hora, mismo ala, mismo filtro de medias, misma salida —
+con **una sola condición añadida**:
+
+> se opera sólo si el crédito es **≥ 30% de la cuna al dinero de las 09:35**
+> (call ATM al ask + put ATM al ask, medidas esa mañana)
+
+El cuaderno guarda `cuna0935` y `creditoSobreCuna` en **cada fila**, así que esta variante se
+evalúa **desde el mismo registro** filtrando por ese campo. No hay un segundo cuaderno: los dos
+no se pueden desincronizar y las dos reglas ven exactamente el mismo mercado desde el día uno.
+
+**Por qué 30% y no otro número.** Salió de un barrido de nueve umbrales sobre el backtest, y eso
+son nueve puertas más abiertas sobre una muestra que ya se usó para elegir la hora, el ala y las
+medias. **No es una comprobación independiente y por eso está aquí declarada como una regla
+aparte, no metida en la principal.** Lester lo señaló bien: esperar meses para empezar a medirla
+sólo perdería meses. Se declara ahora, se mide desde mañana, y en unos meses la diferencia entre
+las dos es una medición limpia.
+
+**Lo que el backtest dice que debe pasar con el umbral (372 de las 518 operaciones):**
+
+| | sin umbral | con umbral ≥30% |
+|---|---|---|
+| operaciones | 518 | 372 (−28%) |
+| $/año | $11.405 | $11.140 (−2%) |
+| $ por operación | $101 | $138 |
+| peor día | −$3.247 | −$2.965 |
+
+O sea: **el mismo dinero, operando un 28% menos días.** Los 146 días que se salta valían, entre
+todos, aproximadamente cero — no eran perdedores, eran ruido con $5.000 de colateral puesto.
+
+**Qué contaría como que el umbral SÍ aporta:** que a igualdad de dinero opere menos días y su
+peor día sea mejor. **Qué contaría como que NO:** que gane menos dinero sin mejorar el peor día,
+o que las dos den lo mismo (entonces el umbral es ruido y se retira).
+
+**Aviso:** con ~46% de días con señal y un 28% menos por el umbral, esta variante opera unas 81
+veces al año. Hacen falta muchos meses para distinguirlas. Ninguna lectura antes de 60 cierres
+de la variante significa nada.
 
 ---
 
