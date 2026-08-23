@@ -16,8 +16,13 @@ import DatoViejo from "./DatoViejo";
 //
 // Comparte la petición con los demás paneles vía `lib/gexCliente`: una sola llamada para todos.
 
+// LOS COLORES DE LAS LÍNEAS MARCADAS. Hay tres muy juntas —el precio, el punto de giro y el
+// imán/acelerador— y a veces caen en cuatro filas seguidas. Lester: «la línea azul que dice
+// precio ahora no contrasta con la línea violeta que dice acelerador». Tenía razón: el violeta
+// #A855F7 y el azul #3B82F6 son los dos azul-violeta. El imán pasa a MAGENTA, que no se confunde
+// con el azul ni con el ámbar del giro.
 const C = {
-  rojo: "#F04438", verde: "#12B76A", azul: "#3B82F6", ambar: "#F79009", violeta: "#A855F7",
+  rojo: "#F04438", verde: "#12B76A", azul: "#3B82F6", ambar: "#F79009", violeta: "#EC4899",
   tenue: "rgba(148,163,184,.75)",
 };
 const M = (x: number) => (Math.abs(x) >= 1000 ? `${(x / 1000).toFixed(1)}B` : `${Math.round(x)}M`);
@@ -272,13 +277,12 @@ export default function GexPerfil() {
                               fontWeight: esPrecio || mC || mP ? 700 : 500 }}>
                   {mP && <span data-pista={P.muroPut} data-abajo={arriba ? "" : undefined}><Etiq t="PW" c={C.rojo} antes /></span>}
                   {b.strike.toLocaleString("es-ES")}
-                  {/* El precio exacto pegado al strike más cercano: sin esto hay que mirar
-                      la cabecera de la tarjeta y volver, que es justo lo que Lester pidió evitar. */}
-                  {esPrecio && (
-                    <span className="gex-precio-tag" data-pista={P.precio(U)} data-abajo={arriba ? "" : undefined}>
-                      SPX {U.toLocaleString("es-ES", { minimumFractionDigits: 2 })}
-                    </span>
-                  )}
+                  {/* EL PRECIO SE ESCRIBE UNA SOLA VEZ. Aquí había una segunda etiqueta con
+                      «SPX 7.674,90» pegada al strike, además del cartel azul de la línea de
+                      arriba, que ya lleva el mismo número. Lester: «¿por qué tengo dos veces el
+                      precio puesto?». Es el mismo error que el Gamma Flip doble: se añadió lo
+                      nuevo sin quitar lo viejo. El cartel azul se queda porque además marca la
+                      línea a la altura exacta del precio; esta etiqueta sobraba. */}
                   {mC && <span data-pista={P.muroCall} data-abajo={arriba ? "" : undefined}><Etiq t="CW" c={C.verde} /></span>}
                 </div>
                 <div data-pista={b.call > 0 ? P.call(`$${M(b.call / 1e6)}`, b.oiCall ?? 0) : undefined} data-abajo={arriba ? "" : undefined}
@@ -304,10 +308,20 @@ export default function GexPerfil() {
         })}
       </div>
 
+      {/* LA LEYENDA COMPLETA. Antes sólo explicaba las etiquetas y las líneas, y Lester tuvo que
+          preguntarme qué era la barra verde y para qué estaba el puntito de la punta. Si hay que
+          preguntarlo, es que no estaba escrito. */}
       <p className="muted" style={{ margin: 0, fontSize: 12.5, lineHeight: 1.6 }}>
-        <b>CW</b> muro de calls · <b>PW</b> muro de puts · línea ámbar = punto de giro de gamma (donde el
-        GEX neto cambiaría de signo) · línea azul = precio · <b>›</b> <b>‹</b> = la barra se sale de la
-        escala, vale el número de al lado.
+        <b style={{ color: C.verde }}>Barra verde</b> = contratos de CALL de ese strike ·{" "}
+        <b style={{ color: C.rojo }}>barra roja</b> = contratos de PUT · el <b>puntito</b> de la punta
+        marca dónde acaba la barra, para que un strike con poco interés abierto —pero no cero— se
+        siga viendo. Cuanto más larga la barra, más fuerza hay ahí; una que sobresale mucho de sus
+        vecinas es un <b>muro</b>.
+        <br />
+        <b>CW</b> muro de calls · <b>PW</b> muro de puts · <b style={{ color: C.azul }}>línea azul</b> = precio
+        ahora · <b style={{ color: C.ambar }}>línea ámbar</b> = punto de giro de gamma (donde el GEX neto
+        cambiaría de signo) · <b style={{ color: C.violeta }}>línea magenta</b> = imán o acelerador ·{" "}
+        <b>›</b> <b>‹</b> = la barra se sale de la escala, vale el número de al lado.
         {d.giro == null && " Hoy no hay punto de giro en el ±3%: la gamma es del mismo signo en todo el rango."}
       </p>
     </div>

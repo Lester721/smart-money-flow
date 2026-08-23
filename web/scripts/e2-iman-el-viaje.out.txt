@@ -1,0 +1,119 @@
+== SENAL ==============================================
+dias con cadena: 1123  ·  sin OI: 4  ·  sin spot: 0  ·  sin iman: 0
+dias con senal: 1119   (2022-01-03 -> 2026-08-10)
+distancia al iman: min 0.1  mediana 30.4  max 59.9
+iman ARRIBA (compra calls): 638  ·  ABAJO (compra puts): 481
+
+dias cargados: 1119  ·  nulos/truncados: 0  ·  49 s
+
+== EXISTE EL VIAJE? (n=1119 dias) ================
+                        real     barajado   espejo
+distancia apertura         30.4       30.4     30.4
+distancia minima           14.5       14.2     14.6
+% del hueco cerrado       58.1%      59.1%    58.2%
+toca (+-5 pts)            46.1%      46.7%    46.7%
+toca (+-10 pts)           53.2%      54.2%    53.9%
+distancia al cierre        42.7       42.4     43.5
+
+toca +-5 por tercios (real / barajado / espejo):
+  2022-01-03 -> 2023-08-11   49.3%   46.6%   44.5%
+  2023-08-14 -> 2025-02-12   41.6%   40.2%   42.6%
+  2025-02-13 -> 2026-08-10   47.5%   53.4%   53.1%
+
+PAREADO real - espejo (misma distancia, otro lado):
+  toca+-5:      -0.63 pts porcentuales   t=-0.31  (n=1119)
+  hueco cerrado -0.08 pts porcentuales   t=-0.05
+PAREADO real - barajado: toca+-5 -0.63 pts  t=-0.30
+
+toca+-5 por tamano del iman (quintiles de contratos abiertos en el strike):
+  OI   1604-  5671  n=223  real 51.1%  espejo 53.4%  dif -2.2 pts (t=-0.48)
+  OI   5683-  7492  n=224  real 49.6%  espejo 47.8%  dif 1.8 pts (t=0.37)
+  OI   7497- 10038  n=224  real 43.8%  espejo 45.5%  dif -1.8 pts (t=-0.40)
+  OI  10049- 14278  n=224  real 38.4%  espejo 41.5%  dif -3.1 pts (t=-0.75)
+  OI  14279-106013  n=224  real 47.8%  espejo 45.5%  dif 2.2 pts (t=0.49)
+
+% hueco cerrado por distancia de apertura:
+  0-10 pts  real n= 178  cerrado 70.5%  toca5 93.8%   |  barajado n= 197  cerrado 71.9%  toca5 93.9%
+  10-20 pts  real n= 177  cerrado 68.8%  toca5 65.0%   |  barajado n= 155  cerrado 71.8%  toca5 67.7%
+  20-30 pts  real n= 193  cerrado 63.5%  toca5 47.2%   |  barajado n= 201  cerrado 65.5%  toca5 52.7%
+  30-45 pts  real n= 283  cerrado 54.6%  toca5 32.5%   |  barajado n= 276  cerrado 54.1%  toca5 30.4%
+  45-61 pts  real n= 288  cerrado 43.6%  toca5 17.7%   |  barajado n= 283  cerrado 43.7%  toca5 15.2%
+
+== VALIDACION DE COSTES (brazo real) ==================
+  real|h10:05|iman|cierre    n=1118  coste medio $6.33  rango $0.10-$86.90  horquilla media 6.6%
+  real|h10:05|atm|cierre     n=1118  coste medio $14.20  rango $4.40-$66.40  horquilla media 1.5%
+  real|h09:35|iman|+60m      n=1117  coste medio $6.42  rango $0.10-$61.80  horquilla media 5.6%
+
+== LAS 15 MEJORES DEL BRAZO REAL (de 378 variantes) ==
+entrada  strike salida         n   media%      t  acierto    $/op    $/ano  huecos
+h10:45   iman   cierre     1118      2.8   0.12     14%     -49   -11990      1
+h11:00   iman   cierre     1118      0.0   0.00     14%     -42   -10183      1
+h10:30   iman   cierre     1118     -0.7  -0.03     14%     -53   -13003      1
+u40      iman   cierre      685     -4.9  -0.19      7%     -11    -1666      1
+h10:15   iman   cierre     1118     -4.4  -0.26     15%     -53   -12909      1
+h09:35   iman   cierre     1117     -4.6  -0.27     15%     -88   -21258      2
+u40      medio  +120m       684     -2.2  -0.30     28%     -47    -7021      2
+u40      medio  cierre      684     -4.1  -0.33     18%     -58    -8620      2
+h09:35   medio  toca       1118     -1.9  -0.38     41%     -64   -15644      1
+h09:35   medio  cierre     1118     -3.7  -0.45     23%    -109   -26409      1
+h10:05   iman   cierre     1118     -8.2  -0.50     15%     -79   -19249      1
+h11:00   atm    +30m       1117     -0.8  -0.62     42%      -6    -1474      2
+u40      atm    +30m        683     -1.2  -0.68     41%     -14    -2023      3
+h09:55   atm    +90m       1118     -1.6  -0.71     41%     -29    -7160      1
+u30      medio  cierre      841     -6.6  -0.71     19%     -82   -15062      2
+
+== LAS 5 PEORES ==
+h11:00   iman   obj50      1118    -25.4  -9.32
+h10:30   iman   obj25      1118    -21.2  -9.36
+h10:45   iman   obj25_60m  1118    -14.6  -9.48
+h10:45   iman   obj25      1118    -21.8  -9.48
+h11:00   iman   obj25      1118    -23.2  -9.93
+
+===== LA MEJOR: real|h10:45|iman|cierre =====
+n=1118  media 2.78%  t=0.12  aciertos 14.0%  $-49/op  $-11990/ano  huecos 1
+mitades:  1a n=558 12.81% (t=0.36)   2a n=560 -7.22% (t=-0.24)
+tercios:  -25.79% (n=372)  ·  80.68% (n=373)  ·  -46.62% (n=373)
+baraj    n=1116  -26.97%  t= -2.20  $  -52/op  $ -12605/ano  huecos 3
+contra   n=1118   -9.49%  t= -2.91  $ -298/op  $ -72440/ano  huecos 1
+tontoC   n=1116  -11.00%  t= -2.89  $ -141/op  $ -34307/ano  huecos 3
+tontoP   n=1116  -13.98%  t= -2.75  $ -185/op  $ -44910/ano  huecos 3
+
+== LAS 15 MEJORES EN DINERO (brazo real) ==
+entrada  strike salida         n     $/op   t($)    $/ano  media%  acierto  costeMedio
+u40      iman   cierre      685      -11  -0.16    -1666    -4.9      7%  $2.94
+h11:00   atm    +30m       1117       -6  -0.34    -1474    -0.8     42%  $12.26
+u40      atm    +30m        683      -14  -0.45    -2023    -1.2     41%  $15.33
+h11:00   iman   +90m       1118      -11  -0.52    -2665   -18.9     25%  $5.96
+h11:00   iman   +120m      1118      -10  -0.53    -2547   -17.3     25%  $5.96
+h11:00   medio  +120m      1117      -13  -0.58    -3151    -7.1     32%  $7.36
+h11:00   medio  +30m       1117       -7  -0.58    -1714    -3.1     36%  $7.36
+h10:15   iman   +60m       1118      -11  -0.63    -2762   -12.1     28%  $6.07
+h10:45   iman   +30m       1118       -8  -0.66    -1843   -11.8     30%  $6.03
+u30      iman   cierre      842      -39  -0.67    -7210   -14.8     10%  $3.59
+h11:00   medio  +90m       1117      -16  -0.70    -3837    -8.3     33%  $7.36
+u40      medio  +30m        684      -14  -0.70    -2035    -3.6     35%  $6.65
+u40      medio  cierre      684      -58  -0.71    -8620    -4.1     18%  $6.65
+u40      iman   +30m        685      -10  -0.75    -1419    -9.5     29%  $2.94
+h10:45   iman   +120m      1118      -17  -0.77    -4201   -18.5     24%  $6.03
+variantes reales con dinero POSITIVO: 0 de 378
+la mejor de todas en dinero, mirando TODOS los brazos: baraj|u30|atm|+90m  $65/op  t=1.41
+
+===== LA MEJOR EN DINERO: real|u40|iman|cierre =====
+coste de entrada: p10 $0.30  mediana $1.55  p90 $6.90  (min $0.10 max $48.60)
+n=685  $-11/op  t($)=-0.16  media -4.93%  aciertos 7.4%  $-1666/ano  huecos 1
+mitades ($): 1a -54 (t=-1.17)   2a 27 (t=0.22)
+mitades (%): 1a 24.54%   2a -30.62%
+tercios ($): -78 / 3 / 33    tercios (%): -26.40% / 53.40% / -36.72%
+baraj    n= 673  $  -47/op  t($)= -1.08   -31.40%  $  -6928/ano
+contra   n= 685  $ -375/op  t($)= -2.83    -7.74%  $ -55858/ano
+tontoC   n= 683  $ -122/op  t($)= -1.23   -10.44%  $ -18096/ano
+tontoP   n= 683  $ -172/op  t($)= -1.81   -10.13%  $ -25473/ano
+
+== MEDIA DE TODAS LAS VARIANTES, POR BRAZO ==
+real     variantes  378  media de medias -9.07%  positivas 2/378  mejor t 0.12
+baraj    variantes  378  media de medias -6.35%  positivas 72/378  mejor t 1.66
+contra   variantes  378  media de medias -4.21%  positivas 23/378  mejor t 0.57
+tontoC   variantes  126  media de medias -4.98%  positivas 3/126  mejor t 0.14
+tontoP   variantes  126  media de medias -5.02%  positivas 4/126  mejor t 0.51
+
+real - barajado, variante a variante: n=378 media -2.72 pts  a favor del real 19%

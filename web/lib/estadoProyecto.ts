@@ -105,6 +105,29 @@ export const ITEMS: Item[] = [
   // PENDIENTE
   // ══════════════════════════════════════════════════════════════════════════
   {
+    id: "mariposa-15h",
+    titulo: "Mariposa de hierro 0DTE a las 15:00 — la mejor candidata sobre la mesa",
+    estado: "en-prueba",
+    prioridad: 1,
+    queEs:
+      "A las 15:00, y sólo si el SPX está por encima de su media de 5 cierres Y de la de 50: vender la mariposa de hierro al dinero sobre SPXW del mismo día (vender la call y la put del strike pegado al precio, comprar la call 50 puntos arriba y la put 50 abajo). Un contrato. NO se cierra nunca: se deja vencer.",
+    numero: "$11.405/año con un contrato · caída máxima $5.321 · peor día $3.247 · acierta 2 de cada 3",
+    evidencia: [
+      "gana MÁS y asusta MENOS que el cóndor de los tres síes medido sobre los mismos días ($6.722/año con caída de $7.092)",
+      "ningún año perdedor: 2022 +$8.903 · 2023 +$14.907 · 2024 +$17.739 · 2025 +$8.494 · 2026 +$2.422 (hasta el 10 de agosto)",
+      "NO cerrarla antes es la mitad del negocio: las 282 formas de cerrar antes de tiempo pierden dinero, entre $3.753 y $69.077 al año. Son cuatro patas y cerrar hace pagar la horquilla otra vez en las cuatro",
+      "la hora manda: a las 10:00 pierde $23.377/año; de 13:00 a 15:00 es donde paga. Es el otro lado de lo medido en compra — una 0DTE comprada por la tarde pierde entre el 9% y el 19% por operación",
+      "el 100% de los 518 días acabó dentro de las alas: a las 15:00 sólo queda una hora y al índice le cuesta recorrer 50 puntos en una hora",
+      "castigada con un 10% más de horquilla en contra en cada pata sigue dando $10.943/año con todos los años en positivo",
+      "colateral $5.000 en Robinhood, el mismo que el cóndor que ya corre",
+    ],
+    pega:
+      "NO cruza el listón de las muchas puertas: 468 casillas en este encargo más ~300 previas del proyecto ponen el listón cerca de 4 y da 3,41 — el mismo agujero que tiene el cóndor. Se está apagando (primera mitad $14.872/año, segunda $7.939). El filtro de las medias NO es nuevo: salió de un barrido sobre estos mismos días al construir los tres síes, así que reutilizarlo no es comprobación independiente. Y 2022 casi no está probado: sólo 40 operaciones, porque el filtro apaga el mercado bajista, que es justo el año que decidiría si aguanta un susto.",
+    siguiente:
+      "Pre-registrarla APARTE, con la geometría y la hora congeladas por escrito, y abrir cuaderno en Railway como se hizo con el cóndor. NO tocar la regla del cóndor que ya está corriendo. El forward test es la única prueba fuera de muestra que queda: todo lo medible sobre 2022-2026 ya se usó para elegirla.",
+    actualizado: "2026-08-22",
+  },
+  {
     id: "triple-negativo",
     titulo: "El «triple negativo» — reevaluar cuando haya muestra",
     estado: "pendiente",
@@ -128,14 +151,19 @@ export const ITEMS: Item[] = [
   {
     id: "forward-mezcla",
     titulo: "Forward test de la mezcla put + índice",
-    estado: "pendiente",
-    prioridad: 2,
+    estado: "cerrado",
     queEs:
-      "Poner en directo la estrategia con mejor perfil de caída que tenemos, igual que se hizo con el cóndor.",
+      "Poner en directo la mitad QQQ + mitad venta de puts, como se hizo con el cóndor.",
+    numero: "no hay ventaja que verificar: es un reparto de la cartera, no una señal",
+    evidencia: [
+      "Lester: «¿para qué quiero hacer un forward test de mitad QQQ, mitad venta de put? ¿porque me da más efectivo para comprar QQQ?»",
+      "tenía razón. Un forward test sirve para ver si una VENTAJA medida sobrevive en directo. La mezcla no tiene ventaja: gana casi lo mismo que el índice (18,1% contra 16,6% con dividendos) con la mitad de susto (18% contra 36%)",
+      "eso no es algo que descubra un cuaderno en papel: es una decisión de cuánto riesgo quiere llevar, y ya está medida sobre la historia entera",
+      "el cóndor sí necesitaba cuaderno porque su ventaja depende de precios de ejecución que sólo se ven en directo. La mezcla se ejecuta con dos órdenes de mercado al mes",
+    ],
     pega:
-      "Que no esté ya montado es un descuido: es la única estrategia medida que reduce el susto a la mitad y no la estamos verificando.",
-    siguiente: "Cuaderno en Redis + cron de Railway, copiando la forma de forward-tres-sies.",
-    actualizado: "2026-08-21",
+      "Lo que SÍ queda abierto es la decisión, no la medición: cuánto de la cuenta va a la mezcla. Eso está en el pendiente de la combinación por horizontes.",
+    actualizado: "2026-08-22",
   },
   {
     id: "earnings",

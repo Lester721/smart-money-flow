@@ -152,27 +152,57 @@ export async function GET() {
   const U = C.U, hora = C.hora;
   const T = Math.max((16 * 60 - (+hora.slice(0, 2) * 60 + +hora.slice(3))) / 60 / 24 / 365, 1 / 24 / 365);
 
+  // ── LA TABLA POR STRIKE, UNA SOLA VEZ ────────────────────────────────────────────────────
+  //
+  // FALLO QUE ESTO ARREGLA, y lo vio Lester en pantalla: «¿por qué no tengo barras rojas encima
+  // del precio?». El panel decía que los 152 strikes por encima del precio tenían CERO puts,
+  // cuando el 7700 del 21 de agosto tenía 5.589 de verdad. Y por debajo desaparecían 75 calls.
+  // Media cadena, y no sólo en el dibujo: el total de GEX salía del mismo bucle.
+  //
+  // LA CAUSA: una opción DENTRO del dinero es casi todo valor intrínseco, así que su volatilidad
+  // implícita no se puede despejar y el proveedor la devuelve como 0,00000. El filtro de
+  // `cadena()` exige iv > 0,01, así que tiraba la fila entera — y como las puts por encima del
+  // precio están TODAS dentro del dinero, desaparecía el lado rojo completo de la mitad de
+  // arriba. Es el patrón de siempre aquí: un campo que no existe se lee como cero.
+  //
+  // EL ARREGLO, y no es un apaño: por paridad put-call, la call y la put del MISMO strike y
+  // vencimiento tienen la MISMA volatilidad implícita y la MISMA gamma. Así que se toma la IV
+  // del lado que sí se despeja —siempre el que está FUERA del dinero— y se usa para las dos
+  // patas. La gamma se calcula UNA vez por strike y se aplica a los dos intereses abiertos.
+  // Antes se calculaba dos veces con dos IV distintas, lo cual además era matemáticamente falso.
+  const ivDe = (K: number) => {
+    const qC = C.q.get(K), qP = P.q.get(K);
+    // el lado de FUERA del dinero es el que da una IV fiable; el de dentro la hereda
+    const v = K >= U ? (qC?.iv ?? qP?.iv) : (qP?.iv ?? qC?.iv);
+    return v != null && v > 0.01 && v <= 4 ? v : null;
+  };
+  const tabla: { K: number; iv: number; oC: number; oP: number }[] = [];
+  for (const K of new Set<number>([...oi.C.keys(), ...oi.P.keys()])) {
+    const oC = oi.C.get(K) ?? 0, oP = oi.P.get(K) ?? 0;
+    if (!oC && !oP) continue;
+    const iv = ivDe(K);
+    if (iv == null) continue;              // sin IV en NINGUNO de los dos lados: no se inventa
+    tabla.push({ K, iv, oC, oP });
+  }
+  tabla.sort((a, b) => a.K - b.K);
+
   // gamma en dólares por strike
   const barras: { strike: number; call: number; put: number; oiCall: number; oiPut: number }[] = [];
-  const mapa = new Map<number, { call: number; put: number; oiCall: number; oiPut: number }>();
   let gC = 0, gP = 0, nominal = 0;
-  for (const [lado, ch] of [["C", C] as const, ["P", P] as const]) {
-    for (const [K, q] of ch.q) {
-      const o = oi[lado].get(K); if (!o) continue;
-      const g = gammaBS(U, K, T, q.iv); if (!isFinite(g) || g <= 0) continue;
-      const $ = g * o * 100 * U * U * 0.01;
-      if (!isFinite($)) continue;
-      // Nominal AJUSTADO POR DELTA: lo que los dealers tienen que cubrir de verdad, no el
-      // nominal bruto. (El bruto con este open interest daría ~$297B; ajustado, ~$25B.)
-      const dl = lado === "C" ? deltaCall(U, K, T, q.iv) : deltaPut(U, K, T, q.iv);
-      if (isFinite(dl)) nominal += Math.abs(dl) * o * 100 * U;
-      if (lado === "C") gC += $; else gP += $;
-      const m = mapa.get(K) ?? { call: 0, put: 0, oiCall: 0, oiPut: 0 };
-      if (lado === "C") { m.call = $; m.oiCall = o; } else { m.put = $; m.oiPut = o; }
-      mapa.set(K, m);
-    }
+  for (const { K, iv, oC, oP } of tabla) {
+    const g = gammaBS(U, K, T, iv);
+    if (!isFinite(g) || g <= 0) continue;
+    const unidad = g * 100 * U * U * 0.01;  // gamma en dólares por contrato: la MISMA para C y P
+    const $C = unidad * oC, $P = unidad * oP;
+    if (!isFinite($C) || !isFinite($P)) continue;
+    // Nominal AJUSTADO POR DELTA: lo que los dealers tienen que cubrir de verdad, no el
+    // nominal bruto. (El bruto con este open interest daría ~$297B; ajustado, ~$25B.)
+    const dC = deltaCall(U, K, T, iv), dP = deltaPut(U, K, T, iv);
+    if (isFinite(dC)) nominal += Math.abs(dC) * oC * 100 * U;
+    if (isFinite(dP)) nominal += Math.abs(dP) * oP * 100 * U;
+    gC += $C; gP += $P;
+    barras.push({ strike: K, call: $C, put: $P, oiCall: oC, oiPut: oP });
   }
-  for (const [strike, v] of [...mapa.entries()].sort((a, b) => a[0] - b[0])) barras.push({ strike, ...v });
   const net = gC - gP;
 
   // muros y punto de giro
@@ -183,15 +213,15 @@ export async function GET() {
   // La primera versión lo buscaba acumulando barras y devolvía null casi siempre — eso no es el
   // giro, es otra cosa. Lo correcto es RECALCULAR el GEX neto suponiendo el índice en distintos
   // niveles y ver dónde cruza el cero: la gamma de cada strike depende de dónde esté el precio.
+  // Usa LA MISMA tabla que las barras: antes este bucle repetía el fallo de las opciones dentro
+  // del dinero por su cuenta, así que el punto de giro también salía de media cadena.
   const netoEn = (S: number) => {
     let a = 0, b = 0;
-    for (const [lado, ch] of [["C", C] as const, ["P", P] as const])
-      for (const [K, q] of ch.q) {
-        const o = oi[lado].get(K); if (!o) continue;
-        const g = gammaBS(S, K, T, q.iv); if (!isFinite(g) || g <= 0) continue;
-        const $ = g * o * 100 * S * S * 0.01; if (!isFinite($)) continue;
-        if (lado === "C") a += $; else b += $;
-      }
+    for (const { K, iv, oC, oP } of tabla) {
+      const g = gammaBS(S, K, T, iv); if (!isFinite(g) || g <= 0) continue;
+      const unidad = g * 100 * S * S * 0.01; if (!isFinite(unidad)) continue;
+      a += unidad * oC; b += unidad * oP;
+    }
     return a - b;
   };
   let giro: number | null = null;

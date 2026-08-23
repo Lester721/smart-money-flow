@@ -27,6 +27,8 @@ export const dynamic = "force-dynamic";
 type Familia = "condor" | "riesgo";
 
 const CUADERNOS: { clave: string; nombre: string; familia: Familia; unidad: string; pega?: string }[] = [
+  { clave: "forward:mariposa-15h", nombre: "Mariposa de hierro · 15:00", familia: "condor", unidad: "$ por operación",
+    pega: "La mejor candidata medida: $11.405/año contra los $6.722 del cóndor, y con menos susto. PERO no cruza el listón de las muchas puertas (t=3,41 con el listón en 4) y se va apagando (primera mitad $14.872/año, segunda $7.939). Este cuaderno es la única prueba fuera de muestra que le queda. Arrancó el 22 de agosto." },
   { clave: "forward:tres-sies", nombre: "Cóndor · los tres síes", familia: "condor", unidad: "$ por operación",
     pega: "Es la regla que damos como buena. Arrancó el 21 de agosto y aún no ha operado ni una vez." },
   { clave: "forward:gex-condor", nombre: "Cóndor · filtro de GEX", familia: "condor", unidad: "$ por operación",

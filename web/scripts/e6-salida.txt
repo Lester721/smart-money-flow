@@ -1,0 +1,261 @@
+  … 200/1123 días (8s)
+  … 400/1123 días (14s)
+  … 600/1123 días (21s)
+  … 800/1123 días (28s)
+  … 1000/1123 días (36s)
+Pasada completa en 41.2s
+
+═══ VALIDACIÓN ═══════════════════════════════════════════════════════
+días listados ........ 1123
+días cargados ........ 1123   (nulos: 0)
+días con alguna hora de la rejilla ausente: 0
+rango del SPX en la muestra: 3499.45 … 7791.01
+horas de la rejilla: 72 (09:35 … 15:30) → 2556 parejas
+coste de entrada de una CALL EN EL DINERO a las 10:00 (n=1120):
+   mín $3.40 · p10 $8.30 · mediana $13.00 · p90 $22.20 · máx $68.80
+control cruzado con operar() del banco: 135 operaciones recalculadas, 0 discrepancias
+operaciones válidas totales: 14.323.700
+huecos (faltaba un precio): 28.240  (0.20 %)
+
+═══ ¿CUÁNTAS PAREJAS DE HORAS SALEN POSITIVAS? ═══════════════════════
+contrato   parejas   positivas   con t>2   media global   $/año medio   peor pareja $/año
+C_ATM        2556     502 (19.6%)        0         -1,43%         -1843            -16.052
+C_+10        2556     303 (11.9%)        0         -2,83%         -1631            -13.868
+P_ATM        2556        6 (0.2%)        0         -4,02%       -11.936            -26.449
+P_-10        2556       66 (2.6%)        0         -4,53%         -9237            -22.546
+P_+10        2556        1 (0.0%)        0         -3,52%       -16.189            -33.125
+
+═══ LAS 15 PAREJAS DE HORAS MEJORES (de las 12.780) ═══════════════════
+ 1. C_+10  09:45→15:20  n=1119  media    5,75%  t=  1.18  acierta 33,60%  $/op    61  $/año    15.398  coste $10.3  horq 2,39%
+ 2. C_+10  09:45→15:25  n=1119  media    5,39%  t=  1.11  acierta 33,07%  $/op    63  $/año    15.782  coste $10.3  horq 2,39%
+ 3. P_-10  12:35→15:30  n=1122  media    5,15%  t=  0.65  acierta 23,35%  $/op   -26  $/año     -6612  coste $6.3  horq 3,07%
+ 4. C_+10  09:35→15:20  n=1119  media    4,98%  t=  0.99  acierta 33,60%  $/op    44  $/año    11.037  coste $10.8  horq 2,22%
+ 5. C_+10  09:50→15:20  n=1119  media    4,80%  t=  0.98  acierta 33,24%  $/op    42  $/año    10.558  coste $10.1  horq 2,17%
+ 6. C_+10  09:45→15:10  n=1119  media    4,73%  t=  0.99  acierta 33,87%  $/op    57  $/año    14.338  coste $10.3  horq 2,39%
+ 7. C_+10  09:55→15:20  n=1123  media    4,66%  t=  0.93  acierta 32,59%  $/op    23  $/año      5892  coste $10.0  horq 2,14%
+ 8. C_+10  09:45→15:30  n=1119  media    4,64%  t=  0.95  acierta 33,15%  $/op    52  $/año    13.080  coste $10.3  horq 2,39%
+ 9. C_+10  09:45→15:15  n=1119  media    4,63%  t=  0.96  acierta 32,89%  $/op    55  $/año    13.686  coste $10.3  horq 2,39%
+10. C_+10  09:35→15:25  n=1119  media    4,60%  t=  0.91  acierta 33,07%  $/op    46  $/año    11.616  coste $10.8  horq 2,22%
+11. C_+10  09:50→15:25  n=1119  media    4,47%  t=  0.91  acierta 33,15%  $/op    44  $/año    11.035  coste $10.1  horq 2,17%
+12. C_+10  09:45→15:05  n=1119  media    4,46%  t=  0.95  acierta 33,78%  $/op    56  $/año    14.020  coste $10.3  horq 2,39%
+13. P_-10  12:30→15:30  n=1121  media    4,39%  t=  0.58  acierta 23,73%  $/op   -25  $/año     -6325  coste $6.4  horq 2,93%
+14. C_+10  09:55→15:25  n=1123  media    4,27%  t=  0.86  acierta 32,68%  $/op    25  $/año      6388  coste $10.0  horq 2,14%
+15. C_+10  09:40→15:20  n=1121  media    4,23%  t=  0.86  acierta 33,01%  $/op    43  $/año    10.748  coste $10.6  horq 2,16%
+
+═══ LAS 15 PAREJAS DE HORAS PEORES ════════════════════════════════════
+ 1. C_+10  15:05→15:30  n=1122  media  -18,97%  t= -6.16  acierta 24,69%  $/op   -29  $/año     -7345  coste $2.3  horq 7,72%
+ 2. C_+10  15:10→15:30  n=1121  media  -18,41%  t= -6.09  acierta 24,00%  $/op   -23  $/año     -5902  coste $2.2  horq 8,31%
+ 3. C_+10  15:20→15:30  n=1122  media  -18,12%  t= -9.04  acierta 24,51%  $/op   -20  $/año     -5055  coste $1.9  horq 9,86%
+ 4. C_+10  15:00→15:30  n=1121  media  -16,60%  t= -4.36  acierta 25,25%  $/op   -23  $/año     -5835  coste $2.5  horq 7,31%
+ 5. P_-10  14:50→15:20  n=1122  media  -16,57%  t= -5.65  acierta 24,33%  $/op   -24  $/año     -6035  coste $3.0  horq 5,89%
+ 6. P_-10  14:20→15:20  n=1122  media  -16,44%  t= -3.73  acierta 22,64%  $/op   -56  $/año   -14.016  coste $3.9  horq 4,91%
+ 7. C_+10  15:25→15:30  n=1120  media  -16,35%  t=-11.95  acierta 24,02%  $/op   -18  $/año     -4626  coste $1.7  horq 10,69%
+ 8. P_-10  14:40→15:20  n=1122  media  -16,18%  t= -4.77  acierta 25,13%  $/op   -25  $/año     -6358  coste $3.3  horq 5,40%
+ 9. P_-10  15:00→15:20  n=1122  media  -16,13%  t= -6.48  acierta 24,15%  $/op   -30  $/año     -7517  coste $2.8  horq 6,50%
+10. P_-10  14:35→15:20  n=1122  media  -16,06%  t= -4.33  acierta 23,35%  $/op   -39  $/año     -9907  coste $3.5  horq 5,32%
+11. P_-10  14:55→15:20  n=1121  media  -16,00%  t= -5.77  acierta 23,73%  $/op   -27  $/año     -6736  coste $2.9  horq 5,94%
+12. P_-10  14:30→15:20  n=1123  media  -15,78%  t= -3.72  acierta 21,73%  $/op   -47  $/año   -11.852  coste $3.7  horq 5,10%
+13. C_+10  14:55→15:30  n=1121  media  -15,66%  t= -4.04  acierta 24,71%  $/op   -31  $/año     -7879  coste $2.6  horq 6,98%
+14. P_-10  14:50→15:25  n=1122  media  -15,58%  t= -4.52  acierta 24,78%  $/op   -23  $/año     -5824  coste $3.0  horq 5,89%
+15. P_-10  15:00→15:30  n=1122  media  -15,48%  t= -4.76  acierta 24,51%  $/op   -26  $/año     -6509  coste $2.8  horq 6,50%
+
+═══ LAS 10 MEJORES, AÑO A AÑO Y POR CORTES ════════════════════════════
+(un año negativo entre positivos ya avisa de que la pareja no es estable)
+C_+10  09:45→15:20  n=1119  media    5,75%  t=  1.18  acierta 33,60%  $/op    61  $/año    15.398  coste $10.3  horq 2,39%
+      años:  2022   -7,88% (n=216)  2023    9,97% (n=250)  2024    5,00% (n=252)  2025    6,10% (n=250)  2026   18,91% (n=151)
+      mitades: 3,04% / 8,43%      tercios: 2,04% / 3,30% / 11,84%
+C_+10  09:45→15:25  n=1119  media    5,39%  t=  1.11  acierta 33,07%  $/op    63  $/año    15.782  coste $10.3  horq 2,39%
+      años:  2022   -5,57% (n=216)  2023    7,77% (n=250)  2024    4,30% (n=252)  2025    6,36% (n=250)  2026   17,37% (n=151)
+      mitades: 2,66% / 8,10%      tercios: 2,16% / 2,65% / 11,32%
+P_-10  12:35→15:30  n=1122  media    5,15%  t=  0.65  acierta 23,35%  $/op   -26  $/año     -6612  coste $6.3  horq 3,07%
+      años:  2022   -7,60% (n=219)  2023   22,59% (n=250)  2024    4,50% (n=252)  2025    2,89% (n=250)  2026   -0,39% (n=151)
+      mitades: 10,69% / -0,37%      tercios: 2,71% / 13,09% / -0,34%
+C_+10  09:35→15:20  n=1119  media    4,98%  t=  0.99  acierta 33,60%  $/op    44  $/año    11.037  coste $10.8  horq 2,22%
+      años:  2022   -7,09% (n=217)  2023   12,92% (n=250)  2024    2,53% (n=252)  2025    4,78% (n=249)  2026   13,59% (n=151)
+      mitades: 4,33% / 5,63%      tercios: 4,03% / 2,08% / 8,82%
+C_+10  09:50→15:20  n=1119  media    4,80%  t=  0.98  acierta 33,24%  $/op    42  $/año    10.558  coste $10.1  horq 2,17%
+      años:  2022   -7,40% (n=216)  2023   11,00% (n=250)  2024    4,35% (n=252)  2025    4,30% (n=250)  2026   13,55% (n=151)
+      mitades: 3,64% / 5,96%      tercios: 3,59% / 2,13% / 8,66%
+C_+10  09:45→15:10  n=1119  media    4,73%  t=  0.99  acierta 33,87%  $/op    57  $/año    14.338  coste $10.3  horq 2,39%
+      años:  2022   -8,09% (n=216)  2023    8,78% (n=250)  2024    3,59% (n=252)  2025    5,33% (n=250)  2026   17,29% (n=151)
+      mitades: 2,43% / 7,01%      tercios: 1,44% / 1,63% / 11,06%
+C_+10  09:55→15:20  n=1123  media    4,66%  t=  0.93  acierta 32,59%  $/op    23  $/año      5892  coste $10.0  horq 2,14%
+      años:  2022   -8,37% (n=220)  2023   13,33% (n=250)  2024    5,19% (n=252)  2025    3,24% (n=250)  2026   10,75% (n=151)
+      mitades: 4,41% / 4,91%      tercios: 3,83% / 3,73% / 6,41%
+C_+10  09:45→15:30  n=1119  media    4,64%  t=  0.95  acierta 33,15%  $/op    52  $/año    13.080  coste $10.3  horq 2,39%
+      años:  2022   -4,45% (n=216)  2023    7,60% (n=250)  2024    5,22% (n=252)  2025    3,00% (n=250)  2026   14,53% (n=151)
+      mitades: 3,25% / 6,03%      tercios: 2,20% / 3,27% / 8,43%
+C_+10  09:45→15:15  n=1119  media    4,63%  t=  0.96  acierta 32,89%  $/op    55  $/año    13.686  coste $10.3  horq 2,39%
+      años:  2022   -7,15% (n=216)  2023    8,36% (n=250)  2024    2,75% (n=252)  2025    5,69% (n=250)  2026   16,69% (n=151)
+      mitades: 1,99% / 7,25%      tercios: 1,92% / 0,93% / 11,00%
+C_+10  09:35→15:25  n=1119  media    4,60%  t=  0.91  acierta 33,07%  $/op    46  $/año    11.616  coste $10.8  horq 2,22%
+      años:  2022   -4,62% (n=217)  2023   10,38% (n=250)  2024    1,69% (n=252)  2025    5,01% (n=249)  2026   12,43% (n=151)
+      mitades: 3,83% / 5,35%      tercios: 4,14% / 1,19% / 8,46%
+
+═══ ¿ALGUNA PAREJA SOBREVIVE A LOS CORTES DEL TIEMPO? ═════════════════
+filtro: media>0, n>=800, las DOS mitades positivas y los TRES tercios positivos
+sobreviven 63 de 12780 parejas con n>=800
+C_+10  09:45→15:20  n=1119  media    5,75%  t=  1.18  acierta 33,60%  $/op    61  $/año    15.398  coste $10.3  horq 2,39%
+      años:  2022   -7,88%  2023    9,97%  2024    5,00%  2025    6,10%  2026   18,91%
+      mitades: 3,04% / 8,43%      tercios: 2,04% / 3,30% / 11,84%
+C_+10  09:45→15:25  n=1119  media    5,39%  t=  1.11  acierta 33,07%  $/op    63  $/año    15.782  coste $10.3  horq 2,39%
+      años:  2022   -5,57%  2023    7,77%  2024    4,30%  2025    6,36%  2026   17,37%
+      mitades: 2,66% / 8,10%      tercios: 2,16% / 2,65% / 11,32%
+C_+10  09:35→15:20  n=1119  media    4,98%  t=  0.99  acierta 33,60%  $/op    44  $/año    11.037  coste $10.8  horq 2,22%
+      años:  2022   -7,09%  2023   12,92%  2024    2,53%  2025    4,78%  2026   13,59%
+      mitades: 4,33% / 5,63%      tercios: 4,03% / 2,08% / 8,82%
+C_+10  09:50→15:20  n=1119  media    4,80%  t=  0.98  acierta 33,24%  $/op    42  $/año    10.558  coste $10.1  horq 2,17%
+      años:  2022   -7,40%  2023   11,00%  2024    4,35%  2025    4,30%  2026   13,55%
+      mitades: 3,64% / 5,96%      tercios: 3,59% / 2,13% / 8,66%
+C_+10  09:45→15:10  n=1119  media    4,73%  t=  0.99  acierta 33,87%  $/op    57  $/año    14.338  coste $10.3  horq 2,39%
+      años:  2022   -8,09%  2023    8,78%  2024    3,59%  2025    5,33%  2026   17,29%
+      mitades: 2,43% / 7,01%      tercios: 1,44% / 1,63% / 11,06%
+C_+10  09:55→15:20  n=1123  media    4,66%  t=  0.93  acierta 32,59%  $/op    23  $/año      5892  coste $10.0  horq 2,14%
+      años:  2022   -8,37%  2023   13,33%  2024    5,19%  2025    3,24%  2026   10,75%
+      mitades: 4,41% / 4,91%      tercios: 3,83% / 3,73% / 6,41%
+C_+10  09:45→15:30  n=1119  media    4,64%  t=  0.95  acierta 33,15%  $/op    52  $/año    13.080  coste $10.3  horq 2,39%
+      años:  2022   -4,45%  2023    7,60%  2024    5,22%  2025    3,00%  2026   14,53%
+      mitades: 3,25% / 6,03%      tercios: 2,20% / 3,27% / 8,43%
+C_+10  09:45→15:15  n=1119  media    4,63%  t=  0.96  acierta 32,89%  $/op    55  $/año    13.686  coste $10.3  horq 2,39%
+      años:  2022   -7,15%  2023    8,36%  2024    2,75%  2025    5,69%  2026   16,69%
+      mitades: 1,99% / 7,25%      tercios: 1,92% / 0,93% / 11,00%
+C_+10  09:35→15:25  n=1119  media    4,60%  t=  0.91  acierta 33,07%  $/op    46  $/año    11.616  coste $10.8  horq 2,22%
+      años:  2022   -4,62%  2023   10,38%  2024    1,69%  2025    5,01%  2026   12,43%
+      mitades: 3,83% / 5,35%      tercios: 4,14% / 1,19% / 8,46%
+C_+10  09:50→15:25  n=1119  media    4,47%  t=  0.91  acierta 33,15%  $/op    44  $/año    11.035  coste $10.1  horq 2,17%
+      años:  2022   -4,97%  2023    9,20%  2024    3,52%  2025    4,25%  2026   12,09%
+      mitades: 3,42% / 5,51%      tercios: 3,94% / 1,44% / 8,02%
+C_+10  09:45→15:05  n=1119  media    4,46%  t=  0.95  acierta 33,78%  $/op    56  $/año    14.020  coste $10.3  horq 2,39%
+      años:  2022   -8,14%  2023    8,81%  2024    2,37%  2025    5,99%  2026   16,22%
+      mitades: 2,49% / 6,41%      tercios: 1,52% / 0,55% / 11,26%
+C_+10  09:55→15:25  n=1123  media    4,27%  t=  0.86  acierta 32,68%  $/op    25  $/año      6388  coste $10.0  horq 2,14%
+      años:  2022   -5,93%  2023   11,20%  2024    4,21%  2025    3,21%  2026    9,55%
+      mitades: 3,99% / 4,56%      tercios: 4,08% / 2,82% / 5,92%
+C_+10  09:40→15:20  n=1121  media    4,23%  t=  0.86  acierta 33,01%  $/op    43  $/año    10.748  coste $10.6  horq 2,16%
+      años:  2022   -7,70%  2023   11,22%  2024    2,64%  2025    2,55%  2026   15,33%
+      mitades: 3,69% / 4,77%      tercios: 2,79% / 1,68% / 8,20%
+C_+10  09:35→15:30  n=1119  media    3,86%  t=  0.77  acierta 32,80%  $/op    36  $/año      8988  coste $10.8  horq 2,22%
+      años:  2022   -3,87%  2023   10,49%  2024    2,29%  2025    1,72%  2026   10,15%
+      mitades: 4,34% / 3,39%      tercios: 4,10% / 1,66% / 5,82%
+C_+10  09:40→15:25  n=1121  media    3,82%  t=  0.78  acierta 32,47%  $/op    45  $/año    11.255  coste $10.6  horq 2,16%
+      años:  2022   -5,18%  2023    8,62%  2024    1,74%  2025    2,71%  2026   14,18%
+      mitades: 3,22% / 4,42%      tercios: 2,83% / 0,84% / 7,78%
+
+═══ EL AGUJERO — cuánto cuesta comprar a ciegas, por hora de ENTRADA ══
+(salida fija a las 15:30; un contrato; todos los días de la muestra)
+hora    C_ATM %/op    C_ATM $/año      C_+10 %/op    C_+10 $/año     P_ATM %/op    P_ATM $/año
+09:35        1,64%           8636          3,86%           8988         -0,19%        -13.278
+10:05        1,69%           6049          2,66%           4427         -2,77%        -17.352
+10:35        0,42%           3238          0,66%           2825         -3,30%        -14.248
+11:05        1,68%           6885          1,55%           5957         -4,77%        -15.279
+11:35        0,25%           1502         -0,00%           1313         -5,17%        -16.255
+12:05       -0,53%           1152         -1,48%            876         -3,25%        -15.070
+12:35       -0,58%           4233         -2,39%           2924         -1,15%        -10.189
+13:05       -1,26%           4900         -3,65%           5056         -3,43%        -15.328
+13:35       -4,94%          -9648         -9,56%          -7992         -5,15%        -19.284
+14:05       -5,47%        -12.626         -8,83%          -9897         -8,23%        -16.500
+14:35       -7,53%        -10.745        -13,79%          -6329         -7,35%        -10.507
+15:05       -8,93%        -12.135        -18,97%          -7345         -6,41%          -6863
+
+═══ EL AGUJERO POR DURACIÓN — media de TODAS las entradas ═════════════
+dura.   C_ATM        C_+10        P_ATM        P_-10        P_+10      (media %/op)
+  5min      -2,45%       -4,36%       -2,58%       -4,08%       -2,36%
+ 10min      -2,56%       -4,57%       -2,85%       -4,46%       -2,49%
+ 15min      -2,60%       -4,64%       -3,12%       -4,79%       -2,63%
+ 30min      -2,71%       -4,71%       -3,65%       -5,29%       -2,94%
+ 60min      -2,47%       -4,32%       -4,21%       -5,28%       -3,41%
+120min      -1,30%       -2,86%       -4,20%       -3,95%       -3,69%
+180min      -0,68%       -1,88%       -4,45%       -4,47%       -4,00%
+240min       0,21%       -0,28%       -4,70%       -4,97%       -4,31%
+300min       1,13%        1,83%       -3,30%       -2,95%       -3,62%
+355min       1,64%        3,86%       -0,19%        0,37%       -0,97%
+
+═══ CONTROL DE SIMETRÍA — call contra put, misma hora ═════════════════
+media de las 2.556 parejas:  C_ATM -1,43%   P_ATM -4,02%   C_+10 -2,83%   P_-10 -4,53%   P_+10 -3,52%
+si las dos direcciones pierden lo mismo, lo que se está pagando es el paso del tiempo, no la dirección.
+
+═══ LA VENTANA DE EDUARDO (entra 09:55-10:05, sale 11:20-12:00) ═══════
+sin ninguna señal, esas mismas horas sobre los 1.123 días:
+  C_ATM  09:55→11:35  n=1122  media   -2,49%  t= -1.14  acierta 41,09%  $/op   -42  $/año   -10.587  coste $14.6  horq 1,50%   mitades -3,20%/-1,78%
+  C_+10  09:55→11:35  n=1123  media   -3,94%  t= -1.52  acierta 36,60%  $/op   -41  $/año   -10.448  coste $10.0  horq 2,14%   mitades -4,86%/-3,02%
+  C_ATM  10:00→11:55  n=1120  media   -1,37%  t= -0.58  acierta 41,88%  $/op   -21  $/año     -5253  coste $14.5  horq 2,84%   mitades -4,14%/1,38%
+  C_+10  10:00→11:55  n=1120  media   -2,11%  t= -0.74  acierta 37,41%  $/op   -20  $/año     -5080  coste $9.8  horq 3,69%   mitades -5,48%/1,23%
+  C_ATM  10:05→11:55  n=1122  media    0,08%  t=  0.03  acierta 41,62%  $/op    -8  $/año     -2100  coste $14.1  horq 1,54%   mitades -0,82%/0,98%
+  C_+10  10:05→11:55  n=1122  media   -0,68%  t= -0.24  acierta 37,08%  $/op   -14  $/año     -3418  coste $9.5  horq 2,25%   mitades -2,16%/0,80%
+  C_ATM  10:00→12:00  n=1120  media   -1,79%  t= -0.75  acierta 41,43%  $/op   -28  $/año     -6947  coste $14.5  horq 2,84%   mitades -3,56%/-0,04%
+  C_+10  10:00→12:00  n=1120  media   -2,76%  t= -0.96  acierta 36,16%  $/op   -26  $/año     -6549  coste $9.8  horq 3,69%   mitades -4,94%/-0,59%
+  C_ATM  09:55→11:20  n=1122  media   -2,90%  t= -1.44  acierta 42,25%  $/op   -48  $/año   -12.051  coste $14.6  horq 1,50%   mitades -4,53%/-1,28%
+  C_+10  09:55→11:20  n=1123  media   -4,50%  t= -1.90  acierta 37,49%  $/op   -46  $/año   -11.700  coste $10.0  horq 2,14%   mitades -6,58%/-2,41%
+
+
+═══ AUTOPSIA DE LAS CANDIDATAS ════════════════════════════════════════
+
+── C_+10 09:45 15:20   n=1119
+   mediana del retorno: -81,37%   ·   media: 5,75%
+   días que pierden TODO (retorno −100%): 166  (14.8%)
+   $/año con todos los días ........ 15.398
+   $/año quitando el MEJOR día ..... 7995
+   $/año quitando los 5 mejores .... -1972
+   $/año quitando los 10 mejores ... -9743
+   $/año quitando los 25 mejores ... -26.923
+   los 5 mejores días: 2025-04-09 $32990 · 2022-10-13 $15260 · 2025-04-07 $12130 · 2026-08-04 $9060 · 2025-10-14 $7970
+   dinero por año: 2022 -26.380  ·  2023 18.495  ·  2024 8445  ·  2025 42.985  ·  2026 25.075
+
+── C_+10 09:45 15:25   n=1119
+   mediana del retorno: -83,80%   ·   media: 5,39%
+   días que pierden TODO (retorno −100%): 205  (18.3%)
+   $/año con todos los días ........ 15.782
+   $/año quitando el MEJOR día ..... 7926
+   $/año quitando los 5 mejores .... -1647
+   $/año quitando los 10 mejores ... -9813
+   $/año quitando los 25 mejores ... -28.218
+   los 5 mejores días: 2025-04-09 $35010 · 2022-10-13 $14830 · 2025-04-07 $10680 · 2026-08-04 $8890 · 2025-03-31 $8260
+   dinero por año: 2022 -18.070  ·  2023 15.165  ·  2024 9300  ·  2025 42.820  ·  2026 21.115
+
+── C_ATM 09:45 15:20   n=1119
+   mediana del retorno: -54,86%   ·   media: 3,55%
+   días que pierden TODO (retorno −100%): 93  (8.3%)
+   $/año con todos los días ........ 17.352
+   $/año quitando el MEJOR día ..... 9839
+   $/año quitando los 5 mejores .... -564
+   $/año quitando los 10 mejores ... -8923
+   $/año quitando los 25 mejores ... -27.802
+   los 5 mejores días: 2025-04-09 $33480 · 2022-10-13 $15740 · 2025-04-07 $12580 · 2026-08-04 $9580 · 2025-10-14 $8460
+   dinero por año: 2022 -29.790  ·  2023 24.565  ·  2024 5675  ·  2025 50.865  ·  2026 26.010
+
+── C_ATM 09:35 15:30   n=1118
+   mediana del retorno: -63,64%   ·   media: 1,64%
+   días que pierden TODO (retorno −100%): 133  (11.9%)
+   $/año con todos los días ........ 8636
+   $/año quitando el MEJOR día ..... 136
+   $/año quitando los 5 mejores .... -8548
+   $/año quitando los 10 mejores ... -16.759
+   $/año quitando los 25 mejores ... -37.049
+   los 5 mejores días: 2025-04-09 $37880 · 2022-10-13 $14010 · 2026-08-04 $9010 · 2022-10-21 $7870 · 2026-03-09 $7810
+   dinero por año: 2022 -16.130  ·  2023 13.305  ·  2024 -1270  ·  2025 38.495  ·  2026 4085
+
+── C_+10 10:05 11:55   n=1122
+   mediana del retorno: -28,10%   ·   media: -0,68%
+   días que pierden TODO (retorno −100%): 0  (0.0%)
+   $/año con todos los días ........ -3418
+   $/año quitando el MEJOR día ..... -5244
+   $/año quitando los 5 mejores .... -10.392
+   $/año quitando los 10 mejores ... -14.662
+   $/año quitando los 25 mejores ... -24.284
+   los 5 mejores días: 2024-12-20 $8140 · 2022-10-13 $7990 · 2022-02-25 $5180 · 2023-10-06 $5020 · 2025-02-03 $4750
+   dinero por año: 2022 -11.010  ·  2023 2000  ·  2024 -2500  ·  2025 -16.040  ·  2026 12.320
+
+
+═══ CONTROLES FINALES ═════════════════════════════════════════════════
+REGLA      C_+10 09:45→15:20 : media 5,75%  t=1.18  n=1119  $/año 15.398
+SIMETRÍA   P_-10 09:45→15:20 : media -1,64%  t=-0.28  n=1119  $/año -18.208
+(la misma hora, el lado contrario — si las dos ganan, es volatilidad, no dirección)
+BARAJADO   strike de otro día : media -55,79%  t=-22.19  n=794  huecos=329  $/año -29.061
+(el strike barajado queda a 340 puntos de media del precio de hoy — deja de ser una opción cercana)
+
+EL AGUJERO sobre las 12.780 parejas de horas (un contrato):
+   mediana del retorno por operación: -3,07%   ·   media: -3,26%
+   mediana del dinero al año: -7876   ·   media: -8167
+   sólo CALLS (5.112 parejas): mediana -2478 $/año
+   parejas con t>2 en TODA la rejilla: 0 de 12780
+   parejas con t<-2 en TODA la rejilla: 3492 de 12780
