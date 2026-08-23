@@ -173,3 +173,61 @@ console.log(`    → una señal tiene que separar MÁS de ${pct(Math.abs(cono))}
 console.log(`\n  (el estudio de MarketSnack midió −25,5% sobre 86 días de mercado alcista.`);
 console.log(`   Esto son ${ops.length.toLocaleString("es-ES")} operaciones sobre ~10 años y varios regímenes.)`);
 console.log("═".repeat(76));
+
+// ═══ LA VARA DE LESTER, añadida el 2026-08-23 ═══════════════════════════════════════════════
+//
+// Sus palabras: «perder $1.000 para intentar ganar $10.000 o más, eso para mí valía la pena...
+// si la estrategia tiene éxito 7 de 10 veces, perder $3.000 pero generar $70.000 lo hago con la
+// felicidad más grande del mundo. Pero si es exitosa 2 de 10, gano $20.000 pero perdí $8.000 en
+// el camino, no me va a gustar tanto.»
+//
+// Eso no es el neto: es CUÁNTO GANA POR CADA DÓLAR QUE PIERDE. Sus dos ejemplos dan 23 y 2,5.
+// El retorno medio, que es lo único que este script daba hasta ahora, no distingue entre esos
+// dos mundos — y para una estrategia convexa esa distinción ES la estrategia.
+//
+// Se mide con TAMAÑO IGUAL en cada intento ($1.000 arriesgado siempre), que es como se operaría
+// de verdad: el que compra elige cuánto pone. Sumar primas de tickers distintos mediría el
+// tamaño de los contratos, no la calidad de la estrategia.
+
+const APUESTA = 1000;
+const dolar = (o) => APUESTA * o.ret;          // mismo riesgo en cada intento
+
+function vara(lista, etiqueta) {
+  if (!lista.length) { console.log(`  ${etiqueta}: sin operaciones`); return null; }
+  const d = lista.map(dolar);
+  const gan = d.filter((x) => x > 0), per = d.filter((x) => x <= 0);
+  const totalGan = gan.reduce((a, b) => a + b, 0);
+  const totalPer = Math.abs(per.reduce((a, b) => a + b, 0));
+  const ratio = totalPer > 0 ? totalGan / totalPer : Infinity;
+  const orden = [...d].sort((a, b) => b - a);
+  // ¿cuántos ganadores hacen falta para pagar TODAS las pérdidas?
+  let acum = 0, cuantos = 0;
+  for (const x of orden) { if (x <= 0) break; acum += x; cuantos++; if (acum >= totalPer) break; }
+  console.log(
+    `  ${etiqueta.padEnd(26)} n=${String(lista.length).padStart(5)} · acierta ${(100 * gan.length / d.length).toFixed(1).padStart(4)}% · ` +
+    `gana $${Math.round(totalGan).toLocaleString("es-ES").padStart(8)} · pierde $${Math.round(totalPer).toLocaleString("es-ES").padStart(8)} · ` +
+    `RATIO ${ratio.toFixed(2).padStart(5)} · neto $${Math.round(totalGan - totalPer).toLocaleString("es-ES").padStart(8)}`);
+  console.log(
+    `  ${"".padEnd(26)} el mayor billete pagó $${Math.round(orden[0]).toLocaleString("es-ES")} · ` +
+    `hacen falta ${acum >= totalPer ? cuantos : "MÁS DE " + cuantos} ganadores para pagar TODAS las pérdidas · ` +
+    `ganador medio $${gan.length ? Math.round(totalGan / gan.length) : 0} · perdedor medio $${per.length ? Math.round(totalPer / per.length) : 0}`);
+  return { ratio, neto: totalGan - totalPer, acierto: gan.length / d.length };
+}
+
+console.log(`\n\n${"═".repeat(100)}`);
+console.log(`  EL ENVASE VACÍO, CON LA VARA DE LESTER`);
+console.log(`  (arriesgando $${APUESTA} en cada intento · sin ninguna señal · ${ops.length.toLocaleString("es-ES")} operaciones)`);
+console.log(`${"═".repeat(100)}\n`);
+vara(ops, "TODO (el cono)");
+vara(ops.filter((o) => o.tipo === "C"), "sólo calls");
+vara(ops.filter((o) => o.tipo === "P"), "sólo puts");
+console.log(`\n  Año a año (el cono, que aísla el vehículo de la deriva del mercado):`);
+for (const a of [...new Set(ops.map((o) => o.ano))].sort()) vara(ops.filter((o) => o.ano === a), `  ${a}`);
+
+console.log(`\n${"═".repeat(100)}`);
+console.log(`  CÓMO LEER ESTO`);
+console.log(`  · RATIO = dólares ganados ÷ dólares perdidos. Sus dos ejemplos daban 23 y 2,5.`);
+console.log(`  · Si el envase VACÍO ya da un ratio por encima de 1, sólo falta subir el acierto.`);
+console.log(`  · Si da por debajo de 1, el envase pierde y ninguna señal lo arregla sola: habría`);
+console.log(`    que cambiar el vehículo (otro plazo, otra distancia, otra salida) antes de buscar señales.`);
+console.log(`${"═".repeat(100)}`);
