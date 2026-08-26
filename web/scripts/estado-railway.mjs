@@ -111,7 +111,10 @@ const enET = (d) => d.toLocaleString("sv-SE", { timeZone: "America/New_York" }).
 
 /** "gex-condor" ↔ "Forward · Cóndor 0DTE": el latido y Railway no usan el mismo nombre. */
 const ALIAS = { "gex-condor": "Cóndor", "condor-sinfiltro": "Cóndor", "credit-spread": "Credit Spread", wheel: "Wheel", ideas: "Ideas",
-                "ideas-worker": "smart-money-flow" };
+                "ideas-worker": "smart-money-flow",
+                // Los registros del cóndor viven todos en el MISMO servicio de Railway
+                // ("Forward · Cóndor 0DTE"), cada uno con su propio ledger en Redis.
+                "tres-sies": "Cóndor", "condor-tendencia": "Cóndor", "mariposa-15h": "Cóndor" };
 function buscarDespliegue(mapa, servicio) {
   if (!mapa) return null;
   const pista = (ALIAS[servicio] || servicio).toLowerCase();
@@ -157,7 +160,11 @@ console.log("\n── SERVICIOS ────────────────
 // servicio de mentira al que meterle latidos falsos, y antes usaba "ideas" —un servicio REAL—
 // dejando basura en producción cuando su limpieza no acertaba. Una herramienta de diagnóstico
 // no puede ensuciar lo que vigila.
-const ESPERADOS = (process.env.SERVICIOS_ESPERADOS || "gex-condor,condor-sinfiltro,credit-spread,wheel,ideas,ideas-worker")
+// 2026-08-26: faltaban tres-sies, condor-tendencia y mariposa-15h. Estaban escribiendo en Redis
+// pero el vigilante no los tenía en la lista, así que si se morían nadie se enteraba: salían como
+// "latido con un nombre que no es de ningún servicio esperado" y no sumaban aviso. Ese es
+// justo el fallo que esta lista existe para impedir — un monitor tiene que fallar CERRADO.
+const ESPERADOS = (process.env.SERVICIOS_ESPERADOS || "gex-condor,condor-sinfiltro,condor-tendencia,tres-sies,mariposa-15h,credit-spread,wheel,ideas,ideas-worker")
   .split(",").map((x) => x.trim()).filter(Boolean);
 const sueltos = (await r.keys("latido:*")).map((k) => k.replace("latido:", "")).filter((n) => !ESPERADOS.includes(n));
 if (sueltos.length) {
