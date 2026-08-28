@@ -29,7 +29,9 @@
     "tres-sies:theta": "node scripts/with-theta.mjs npm run tres-sies",
     "ms-cadena": "node scripts/marketsnack/cron-cadena-strike.mjs",
     "condor-aviso": "node scripts/avisar-condor-telegram.mjs",
-    "condor-todos": "npm run condor-forward; npm run condor-sinfiltro; npm run condor-tendencia; npm run tres-sies; npm run mariposa-15h"
+    "condor-todos": "npm run condor-forward; npm run condor-sinfiltro; npm run condor-tendencia; npm run tres-sies; npm run mariposa-15h",
+    "missile": "node scripts/forward-tsla-missile.mjs",
+    "missile:theta": "node scripts/with-theta.mjs npm run missile"
   },
   "engines": {
     "node": ">=22"
