@@ -60,7 +60,7 @@ export default function ForwardTests() {
             <table className="ftest-tabla">
               <thead>
                 <tr>
-                  <th>cuaderno</th><th>desde</th><th>operaciones</th><th>cerradas</th>
+                  <th>cuaderno</th><th>desde</th><th>operaciones</th><th>cerradas</th><th>abiertas</th>
                   <th>resultado</th><th>acierto</th><th>días sin señal</th>
                 </tr>
               </thead>
@@ -83,8 +83,13 @@ export default function ForwardTests() {
                         {c.enContra ? <span className="ftest-aviso" title="tiene algo en contra — pulsa">⚠</span> : null}
                       </td>
                       <td>{dia(c.desde)}</td>
-                      <td>{c.filas || "—"}</td>
+                      {/* "operaciones" son las que de verdad ENTRARON, no las filas del cuaderno.
+                          Para el Wheel coinciden (274 filas = 274 puts vendidos), pero para el
+                          cóndor 7 filas son 2 operaciones + 5 días que miró y no entró. Con el
+                          número crudo se comparaban peras con manzanas. Lester, 31-ago-2026. */}
+                      <td>{(c.filas ?? 0) - (c.sinSenal ?? 0) || "—"}</td>
                       <td><b>{c.cerradas ?? 0}</b></td>
+                      <td className="ftest-tenue">{c.abiertas ? c.abiertas : "—"}</td>
                       <td className={res ? (bueno ? "pos" : "neg") : "ftest-tenue"}>
                         {res ?? (c.abiertas ? `${c.abiertas} abiertas, ninguna cerrada` : "sin operar todavía")}
                       </td>
