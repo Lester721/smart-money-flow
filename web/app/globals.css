@@ -61,8 +61,12 @@ html, body {
   padding: 0 32px;
   display: flex;
   align-items: center;
-  gap: 22px;
-  height: 64px;
+  gap: 14px;
+  /* ⚠️ min-height, NO height. Con `height: 64px` fijo, el día que el menú envuelve a una
+     segunda fila (71px) la fila se SALE de la cabecera y se pisa con el contenido. Lester lo
+     vio el 2026-08-31. Que crezca es feo un momento; recortar es un fallo silencioso.
+     El gap baja de 22 a 14: le devuelve 32px al menú, que es lo que le faltaba para caber. */
+  min-height: 64px;
   position: sticky;
   top: 0;
   z-index: 40;
@@ -114,7 +118,8 @@ html, body {
 .nav-tab {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 13px; font-weight: 600; line-height: 1;
-  padding: 8px 14px; border-radius: 999px;
+  /* 11px y no 14px: con siete pestañas el menú pedía 803px y sólo tenía 745. */
+  padding: 8px 11px; border-radius: 999px;
   color: var(--muted); text-decoration: none; white-space: nowrap;
   transition: background 0.12s ease, color 0.12s ease;
 }
@@ -1360,6 +1365,16 @@ tfoot .totals td {
    última fuera de la vista sin ninguna pista de que estaba ahí. Que envuelva: ocupa una
    línea más en pantallas estrechas y no esconde nada. */
 .nav-tabs { flex-wrap: wrap; row-gap: 6px; overflow-x: visible; }
+
+/* Pero envolver DENTRO de la cabecera, compitiendo con la marca, los tickers y el buscador,
+   convertia el menu en una lista vertical: a 820px salian SIETE filas y la cabecera medía
+   247px, un cuarto de la pantalla. Por debajo de 1200px el menu baja a su PROPIA linea, donde
+   tiene todo el ancho: a 1024px cabe entero en una fila y a 820px en dos. */
+@media (max-width: 1200px) {
+  .hb { flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; row-gap: 10px; }
+  .hb .nav-tabs { order: 10; width: 100%; justify-content: flex-start; }
+  .hb-right { order: 9; }
+}
 
 /* ── El marcador de los forward tests ────────────────────────────────────────
    Va arriba de /estado: lo que pasa en directo antes que el backtest. */
