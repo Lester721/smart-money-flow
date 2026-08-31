@@ -61,7 +61,7 @@ export default function ForwardTests() {
               <thead>
                 <tr>
                   <th>cuaderno</th><th>desde</th><th>operaciones</th><th>cerradas</th>
-                  <th>resultado</th><th>acierto</th><th></th>
+                  <th>resultado</th><th>acierto</th><th>sin operar</th>
                 </tr>
               </thead>
               <tbody>
@@ -70,7 +70,9 @@ export default function ForwardTests() {
                   const res = c.media == null ? null
                     : c.familia === "condor"
                       ? `${usd(c.media)} por operación${c.total != null ? ` · ${usd(c.total)} total` : ""}`
-                      : pct(c.media) + " sobre el riesgo";
+                      // La unidad NO se escribe a mano: cada cuaderno trae la suya. El Wheel mide
+                      // sobre el COLATERAL y decia "sobre el riesgo" porque este texto estaba fijo.
+                      : pct(c.media) + " " + (c.unidad || "").replace(/^%\s*/, "");
                   const bueno = (c.media ?? 0) > 0;
                   return (
                     <tr key={c.id}
@@ -102,6 +104,9 @@ export default function ForwardTests() {
             </div>
           ) : (
             <p className="ftest-pie">
+              <b>«Sin operar»</b> son los días que el cuaderno miró y decidió no entrar porque no se
+              cumplían sus condiciones. Se apuntan a propósito: sin ellos, «miró y no operó» y
+              «no miró» se ven igual.<br />
               Las filas con <span className="ftest-aviso">⚠</span> tienen algo en contra — pulsa para leerla.
               <br />
               <strong>Nada de esto es dinero real:</strong> son cuadernos en papel. Y con pocas

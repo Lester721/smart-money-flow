@@ -62,7 +62,7 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
     filtro: (f) => typeof f.creditoSobreCuna === "number" && f.creditoSobreCuna >= 0.30,
     enContra: "MISMO cuaderno que la de arriba, leído con una condición añadida: sólo las operaciones donde el crédito llegó al 30% de la cuna de la mañana. En el backtest da el MISMO dinero operando un 28% menos días ($11.140 contra $11.405) y con mejor peor día (−$2.965 contra −$3.247). El umbral se eligió mirando el backtest, así que no es independiente — por eso corre al lado de la regla sin filtro y no dentro de ella." },
   { id: "tres-sies", clave: "forward:tres-sies", nombre: "Cóndor · los tres síes", familia: "condor", unidad: "$ por operación",
-    enContra: "Es la regla que damos como buena. Arrancó el 21 de agosto y aún no ha operado ni una vez." },
+    enContra: "Es la regla que damos como buena, y en directo va PERDIENDO: −$530 por operación. Con 2 operaciones cerradas eso no decide nada — hacen falta unas 30 — pero conviene mirarlo junto a los otros tres cóndores, que también van los cuatro en rojo, incluido el que no lleva filtro. Arrancó el 21 de agosto." },
   { id: "gex-condor", clave: "forward:gex-condor", nombre: "Cóndor · filtro de GEX", familia: "condor", unidad: "$ por operación",
     enContra: "Usa ±25, que es la geometría con la peor caída de las tres versiones con GEX (−$20.356 en el backtest)." },
   { id: "condor-sinfiltro", clave: "forward:condor-sinfiltro", nombre: "Cóndor · sin filtro", familia: "condor", unidad: "$ por operación",
@@ -76,7 +76,7 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
     // de media. Es la MISMA trampa que ya dio por muertos a credit spread, wheel e ideas en agosto:
     // cada familia guarda con SUS nombres y leerlos con los del vecino devuelve vacio, no un error.
     campoRes: "retOnColl",
-    enContra: "195 posiciones abiertas y NINGUNA cerrada. Hay vencimientos ya pasados sin liquidar: el cuaderno abre pero no cierra." },
+    enContra: "Las 274 filas NO son 274 apuestas: son 19 días × hasta 48 combinaciones (12 acciones × 2 deltas × 2 plazos). Es una rejilla que prueba todas las celdas en paralelo para ver cuál sirve, no una cartera. El colateral comprometido suma $10.609.650 — unas 140 veces la cuenta real, así que el +0,24% de media NO es dinero que se pueda ganar: es el rendimiento de una celda, no de una cartera. Y el 100% de acierto no dice nada: vender puts a 0,15 de delta acierta casi siempre por construcción, y todavía NO ha habido ni una asignación. Con 0,15 de delta toca ~1 asignación de cada 7 operaciones, y ganando 0,24% cada vez, una sola que cueste más del 1,7% se lleva la racha entera. Pendiente: 12 puts vencieron el 28 de agosto y siguen sin liquidar (las otras 255 abiertas vencen entre hoy y el 2 de octubre, y están bien)." },
   { id: "ideas", clave: "forward:ideas", nombre: "Ideas (scorecard de EVA)", familia: "riesgo", unidad: "% sobre el riesgo",
     enContra: "El scorecard está medido y cerrado (19.465 operaciones, no separa). Esto es la comprobación en directo de esa conclusión." },
 ];
