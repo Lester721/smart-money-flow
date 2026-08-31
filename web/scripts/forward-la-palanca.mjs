@@ -118,15 +118,23 @@ async function leer(){
   if(STORE!=="redis"){ const {readFileSync}=await import("node:fs");
     try{ return JSON.parse(readFileSync("data/forward/la-palanca.json","utf8")); }catch{ return null; } }
   const c=await (await redis()).get(CLAVE); return c?JSON.parse(c):null; }
-async function guardar(E, reporte){
+async function guardar(E, reporte, resumen){
   const s=JSON.stringify(E);
   if(STORE!=="redis"){ const {writeFileSync,mkdirSync}=await import("node:fs");
     mkdirSync("data/forward",{recursive:true}); writeFileSync("data/forward/la-palanca.json",s); return; }
   const r=await redis();
   await r.set(CLAVE,s);
   if(reporte) await r.set(CLAVE+":report",reporte);
-  try{ const {escribirLatido}=await import("../lib/origenEjecucion.ts"); await escribirLatido("la-palanca"); }catch{}
+  // ⚠️ La firma es (redis, servicio, resultado). Llamarla con un argumento daba
+  //    "redis.set is not a function" y el latido no se escribía: el vigilante habría visto
+  //    este servicio como MUERTO aunque corriera bien.
+  try{ const {escribirLatido}=await import("../lib/origenEjecucion.ts");
+       await escribirLatido(r, "la-palanca", resumen || "corrida"); }catch{}
 }
+// ⚠️ Y HAY QUE CERRAR REDIS. Sin esto el proceso no termina NUNCA: ioredis deja el socket
+//    abierto y en Railway, con restartPolicyType NEVER, el cron se quedaría colgado para
+//    siempre en vez de acabar. Cazado el 2026-08-30: la corrida salió con código 4 por esto.
+async function cerrar(){ if(_r){ try{ await _r.quit(); }catch{} _r=null; } }
 
 // ══ EL DÍA ═══════════════════════════════════════════════════════════════════════════════
 const HOY = process.env.PALANCA_DIA || hoyYMD();
@@ -137,7 +145,7 @@ console.log("\n  ╔═══ LA PALANCA · forward-test ═══╗   día " +
 
 // el calendario de sesiones sale de SPY: es la referencia de "días de mercado"
 const spyC = await cierres("SPY", desde, HOY);
-if (!spyC) { console.log("  ⛔ sin cierres de SPY — no hay datos hoy. No se escribe nada."); process.exit(0); }
+if (!spyC) { console.log("  ⛔ sin cierres de SPY — no hay datos hoy. No se escribe nada."); await cerrar(); process.exit(0); }
 const SES = spyC.map(x=>x[0]);
 const DIA = SES[SES.length-1];                    // la última sesión REAL con datos
 const SPYP = spyC[spyC.length-1][1];
@@ -148,7 +156,7 @@ if (!E) {                                          // primera corrida: se siembr
   E = { creado:new Date().toISOString(), regla:R, capital:R.capital,
         caja:R.capital, spyAcc:0, abiertas:[], operaciones:[], ultimoDia:null, sesiones:[] };
   console.log("  cuaderno NUEVO: se siembra con $" + R.capital.toLocaleString("en-US")); }
-if (E.ultimoDia === DIA) { console.log("  ya se procesó " + iso(DIA) + " — no se repite. Salgo."); process.exit(0); }
+if (E.ultimoDia === DIA) { console.log("  ya se procesó " + iso(DIA) + " — no se repite. Salgo."); await cerrar(); process.exit(0); }
 if (!E.sesiones.includes(DIA)) E.sesiones.push(DIA);
 E.sesiones.sort();
 const nSes = (d)=>{ const i=E.sesiones.indexOf(d); return i<0?0:E.sesiones.length-1-i; };
@@ -251,7 +259,8 @@ const reporte =
     " · suma " + (cerr.reduce((a,o)=>a+o.resultado,0)>=0?"+$":"−$") +
     Math.abs(Math.round(cerr.reduce((a,o)=>a+o.resultado,0))).toLocaleString("en-US") : "") + "\n" +
   "hoy: " + abiertasHoy + " abiertas, " + cerradas + " cerradas, " + seniales.length + " señales";
-await guardar(E, reporte);
+await guardar(E, reporte, iso(DIA) + ": " + abiertasHoy + " abiertas, " + cerradas +
+  " cerradas, " + seniales.length + " señales, " + E.abiertas.length + "/" + R.huecos + " vivas");
 console.log("");
 console.log("  " + reporte.split("\n").join("\n  "));
 console.log("");
