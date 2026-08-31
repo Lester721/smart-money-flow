@@ -32,8 +32,30 @@ type Familia = "condor" | "riesgo";
 // OJO: `clave` es la clave de REDIS y dos entradas pueden compartirla (la mariposa y su
 // variante filtrada leen el mismo registro). `id` es lo que identifica la FILA en pantalla, y
 // tiene que ser único: la web lo usa como key de React y para abrir la pega.
+// `extrae` y `campoRes` existen porque NO todos los cuadernos guardan igual. El Missile guarda
+// un OBJETO `{operaciones:[...]}` en vez de un array, y llama `resultado` a lo que los demás
+// llaman `pl`. Sin esto se leería vacío y saldría con cero operaciones — que es exactamente el
+// fallo que ya dio por muertos a credit spread, wheel e ideas una vez.
 const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; unidad: string; pega?: string;
-                   filtro?: (f: Record<string, unknown>) => boolean }[] = [
+                   filtro?: (f: Record<string, unknown>) => boolean;
+                   extrae?: (raw: unknown) => Record<string, unknown>[];
+                   campoRes?: string }[] = [
+  { id: "la-palanca", clave: "forward:la-palanca", nombre: "LA PALANCA", familia: "condor",
+    unidad: "$ por operación · cartera de $60.000 · 60 grandes capitalizaciones",
+    // El cuaderno guarda un OBJETO con `abiertas` y `operaciones` (las cerradas), no un array.
+    // Se juntan las dos para que la API vea abiertas y cerradas a la vez.
+    extrae: (raw) => { const o = raw as { abiertas?: unknown[]; operaciones?: unknown[] } | null;
+      if (!o || typeof o !== "object") return [];
+      return [...(Array.isArray(o.operaciones) ? o.operaciones : []),
+              ...(Array.isArray(o.abiertas) ? o.abiertas : [])] as Record<string, unknown>[]; },
+    campoRes: "resultado",
+    pega: "Aprobó el examen fuera de muestra el 30 de agosto de 2026: afinada en 24 empresas dio 17,6% al año y en 36 que nunca había visto dio 17,6%, con los criterios escritos antes de mirar los datos. En el histórico da $36.702 al año contra los $19.039 de comprar SPY. PERO el Sharpe apenas supera al índice (0,73 contra 0,70) y la caída es −47% contra −34%: se gana más porque se asume más. Cada posición guarda la HORQUILLA que pagó, porque con horquilla menor del 3% la regla da Sharpe 0,80-0,82 y caída −36% en los dos universos — pero son sólo ~6 operaciones al año y no decide nada todavía. Por eso no se filtra al escribir: se apunta y se lee de las dos maneras dentro de un año. Arrancó el 30 de agosto de 2026." },
+  { id: "tsla-missile", clave: "forward:tsla-missile", nombre: "TSLA's Missile", familia: "condor",
+    unidad: "$ por operación · cartera de $60.000",
+    extrae: (raw) => (raw && typeof raw === "object" && Array.isArray((raw as { operaciones?: unknown }).operaciones)
+      ? (raw as { operaciones: Record<string, unknown>[] }).operaciones : []),
+    campoRes: "resultado",
+    pega: "La tabla mágica está CERRADA como regla general: falló dos exámenes fuera de muestra y su lado dominante (puts dentro del dinero con la acción bajo su media) pierde −5,21% con t=−5,36 sobre 580 entradas independientes. En TSLA no se pudo tumbar (34 señales, +11,34% por operación, t=4,23, seis de seis años positivos), pero 34 señales sobre UN solo nombre es exactamente donde vive la casualidad. Este cuaderno es la única prueba que le queda. Arrancó el 28 de agosto de 2026." },
   { id: "mariposa", clave: "forward:mariposa-15h", nombre: "Mariposa de hierro · 15:00", familia: "condor", unidad: "$ por operación",
     pega: "La mejor candidata medida: $11.405/año contra los $6.722 del cóndor, y con menos susto. PERO no cruza el listón de las muchas puertas (t=3,41 con el listón en 4) y se va apagando (primera mitad $14.872/año, segunda $7.939). Este cuaderno es la única prueba fuera de muestra que le queda. Arrancó el 22 de agosto." },
   { id: "mariposa-umbral", clave: "forward:mariposa-15h", nombre: "Mariposa · con umbral de crédito", familia: "condor", unidad: "$ por operación",
@@ -67,7 +89,10 @@ export async function GET() {
     const salida = [];
     for (const c of CUADERNOS) {
       let filas: Record<string, unknown>[] = [];
-      try { filas = JSON.parse((await r.get(c.clave)) ?? "[]"); } catch { /* se dice abajo */ }
+      try {
+        const crudo = JSON.parse((await r.get(c.clave)) ?? "[]");
+        filas = c.extrae ? c.extrae(crudo) : crudo;      // el Missile guarda {operaciones:[...]}
+      } catch { /* se dice abajo */ }
       // La variante filtrada ve las MISMAS filas, sólo que se queda con las que cumplen su
       // condición. Las que no la cumplen no son "sin señal" para ella: simplemente no opera.
       if (c.filtro && Array.isArray(filas)) filas = filas.filter((f) => f.estado === "sin señal" || c.filtro!(f));
@@ -81,7 +106,7 @@ export async function GET() {
       const campoDia = esCondor ? "dia" : "entryDate";
       const campoEstado = esCondor ? "estado" : "status";
       const cerrado = esCondor ? "cerrada" : "closed";
-      const campoRes = esCondor ? "pl" : "retOnRisk";
+      const campoRes = c.campoRes ?? (esCondor ? "pl" : "retOnRisk");
 
       const dias = [...new Set(filas.map((f) => f[campoDia]).filter(Boolean))].sort() as string[];
       const cerradas = filas.filter((f) => f[campoEstado] === cerrado && typeof f[campoRes] === "number");

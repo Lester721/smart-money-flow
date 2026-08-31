@@ -1,7 +1,148 @@
 {
- "generado": "2026-08-21",
+ "generado": "2026-08-31",
  "capital": 50000,
  "tablas": [
+  {
+   "nombre": "LA PALANCA · calls muy dentro del dinero",
+   "unidad": "cartera de $60.000 · 60 grandes capitalizaciones · el ocioso en SPY",
+   "nota": "CALL 10% dentro del dinero, vencimiento a ~400 días, comprada AL ASK el día que la acción está más de un 7% por debajo de su media de 50 sesiones. Se aguanta 120 sesiones, suelo 0,50x, sin tope de ganancia, se vende AL BID. 10 posiciones simultáneas al 2,4% del patrimonio cada una (24% de exposición total), una por empresa. Sin mínimo de coste por contrato. Precios reales, más un castigo de ejecución del 2,75% (media horquilla real medida sobre las operaciones que la regla coge de verdad: la horquilla mediana es 5,5%, no el 2,76% que se usaba antes). APROBÓ EL EXAMEN FUERA DE MUESTRA el 30 de agosto de 2026 con criterios escritos antes de mirar los datos: afinada en 24 empresas dio 17,6% al año y en 36 que nunca había visto dio 17,6%. Después, un barrido multiagente encontró que comprar la call 10% dentro en vez de 25% mejora las dos cosas: el contrato cuesta 41% menos ($2.015 contra $3.430) y entra donde el caro no cabía. AVISOS: (1) el Sharpe apenas supera a comprar SPY y dormir (0,74 contra 0,70): se gana más porque se asume más, no por acertar más; (2) la caída máxima es −47% contra el −34% de SPY; (3) el acierto es del 46%: menos de la mitad de las operaciones ganan, y la estrategia vive de que las ganadoras son mucho mayores que las perdedoras; (4) el 65% del dinero lo pone el SPY ocioso, no las opciones. En el mismo período comprar SPY y dormir da $202.254, o sea $19.039 al año.",
+   "porAno": [
+    {
+     "ano": "2016",
+     "ops": 26,
+     "ganancia": 11973.482326209012,
+     "gananciaSPY": 6380.665021834009,
+     "gananciaTrade": 5592.817304375003,
+     "peorOp": -775.453363125,
+     "peorCaida": -1632.1395274999998,
+     "rachaPerd": 3,
+     "rachaGan": 5
+    },
+    {
+     "ano": "2017",
+     "ops": 19,
+     "ganancia": 19715.855504037445,
+     "gananciaSPY": 12131.372130912452,
+     "gananciaTrade": 7584.483373124994,
+     "peorOp": -973.2243299999999,
+     "peorCaida": -2999.568655,
+     "rachaPerd": 2,
+     "rachaGan": 5
+    },
+    {
+     "ano": "2018",
+     "ops": 33,
+     "ganancia": -13618.868348935765,
+     "gananciaSPY": -3219.148067685765,
+     "gananciaTrade": -10399.72028125,
+     "peorOp": -1885.575,
+     "peorCaida": -15265.59087,
+     "rachaPerd": 14,
+     "rachaGan": 5
+    },
+    {
+     "ano": "2019",
+     "ops": 23,
+     "ganancia": 34575.161771152256,
+     "gananciaSPY": 19454.010439152262,
+     "gananciaTrade": 15121.151331999994,
+     "peorOp": -1331.99451,
+     "peorCaida": -7283.906377624999,
+     "rachaPerd": 8,
+     "rachaGan": 4
+    },
+    {
+     "ano": "2020",
+     "ops": 38,
+     "ganancia": 19487.164980305177,
+     "gananciaSPY": 11197.28053205518,
+     "gananciaTrade": 8289.884448249999,
+     "peorOp": -1544.8678175,
+     "peorCaida": -7642.630431999998,
+     "rachaPerd": 6,
+     "rachaGan": 6
+    },
+    {
+     "ano": "2021",
+     "ops": 26,
+     "ganancia": 73584.57674377816,
+     "gananciaSPY": 32574.139897528145,
+     "gananciaTrade": 41010.43684625002,
+     "peorOp": -2357.0904000000005,
+     "peorCaida": -5803.864729999999,
+     "rachaPerd": 3,
+     "rachaGan": 4
+    },
+    {
+     "ano": "2022",
+     "ops": 28,
+     "ganancia": -39399.059228686165,
+     "gananciaSPY": -29539.73280556116,
+     "gananciaTrade": -9859.326423125005,
+     "peorOp": -2483.690034375,
+     "peorCaida": -23174.379742499998,
+     "rachaPerd": 9,
+     "rachaGan": 4
+    },
+    {
+     "ano": "2023",
+     "ops": 21,
+     "ganancia": 64233.11961590523,
+     "gananciaSPY": 35238.63103028024,
+     "gananciaTrade": 28994.48858562499,
+     "peorOp": -2676.37299,
+     "peorCaida": -4865.890514999999,
+     "rachaPerd": 2,
+     "rachaGan": 4
+    },
+    {
+     "ano": "2024",
+     "ops": 29,
+     "ganancia": 46545.689861573264,
+     "gananciaSPY": 42085.99131282326,
+     "gananciaTrade": 4459.698548750002,
+     "peorOp": -4908.759975,
+     "peorCaida": -22950.891965625,
+     "rachaPerd": 4,
+     "rachaGan": 2
+    },
+    {
+     "ano": "2025",
+     "ops": 24,
+     "ganancia": 88104.26827066756,
+     "gananciaSPY": 37875.47315691753,
+     "gananciaTrade": 50228.79511375003,
+     "peorOp": -3740.409045,
+     "peorCaida": -12063.642233749999,
+     "rachaPerd": 4,
+     "rachaGan": 5
+    },
+    {
+     "ano": "2026",
+     "ops": 14,
+     "ganancia": 84677.04340752376,
+     "gananciaSPY": 42279.79767564876,
+     "gananciaTrade": 42397.245731874995,
+     "peorOp": -5423.156999999999,
+     "peorCaida": -10602.531961875002,
+     "rachaPerd": 2,
+     "rachaGan": 4
+    }
+   ],
+   "total": {
+    "ops": 281,
+    "ganancia": 389878.43490352994,
+    "alAno": 36701.829471266574,
+    "peorOp": -5423.156999999999,
+    "peorCaida": -28319.230941249996,
+    "rachaPerd": 14,
+    "rachaGan": 7,
+    "acierto": 0.45907473309608543,
+    "porOperacion": 0.2672103202846975,
+    "desde": "2016-03-17",
+    "hasta": "2026-08-19"
+   }
+  },
   {
    "nombre": "Cóndor · LOS TRES SÍES",
    "unidad": "por contrato · retiene ~$5.000 de colateral",
