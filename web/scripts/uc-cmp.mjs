@@ -1,0 +1,13 @@
+import { readFileSync } from 'node:fs';
+const V = {};
+for (const U of ['AB','27']) for (const P of ['25','15','10']) V[U+'p'+P] = JSON.parse(readFileSync(`uc-vent-${U}-p${P}.json`,'utf8'));
+const VN = Object.keys(V['ABp25'].h7_H10);
+const cand = []; for (const P of ['25','15','10']) for (const k of Object.keys(V['ABp'+P])) cand.push([P,k]);
+const bA = V['ABp25'].h7_H10, b2 = V['27p25'].h7_H10;
+const R = cand.map(([P,k]) => { const a = V['ABp'+P][k], c = V['27p'+P][k];
+  const rA = VN.map(v => a[v].dol/bA[v].dol), r2 = VN.map(v => c[v].dol/b2[v].dol);
+  return { n:'p'+P+' '+k, rA, r2, minA:Math.min(...rA), min2:Math.min(...r2), a, c }; });
+console.log('RATIO $/ano contra la REGLA ACTUAL (p25 h7_H10) en cada ventana.  AB/27');
+console.log(''.padEnd(24)+VN.map(v=>v.replace('cal ','').padStart(11)).join(''));
+R.sort((x,y)=>Math.min(y.minA,y.min2)-Math.min(x.minA,x.min2));
+for (const r of R) console.log(r.n.padEnd(24)+r.rA.map((x,i)=>(x.toFixed(2)+'/'+r.r2[i].toFixed(2)).padStart(11)).join('')+'  MIN '+r.minA.toFixed(2)+'/'+r.min2.toFixed(2));

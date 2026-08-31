@@ -1,0 +1,7 @@
+[{"etq":"BASE (LA PALANCA nueva)","cfg":{}},
+ {"etq":"PROPUESTA: + frenoSPY 0.12 / reent 0.05","cfg":{"frenoSPY":0.12,"reentrada":0.05}},
+ {"etq":"  vecina  freno 0.10 / 0.05","cfg":{"frenoSPY":0.10,"reentrada":0.05}},
+ {"etq":"  vecina  freno 0.14 / 0.05","cfg":{"frenoSPY":0.14,"reentrada":0.05}},
+ {"etq":"  vecina  freno 0.12 / 0.03","cfg":{"frenoSPY":0.12,"reentrada":0.03}},
+ {"etq":"  vecina  freno 0.12 / 0.07","cfg":{"frenoSPY":0.12,"reentrada":0.07}},
+ {"etq":"EXTRA: + huecos 16 tam 0.015","cfg":{"frenoSPY":0.12,"reentrada":0.05,"huecos":16,"tam":0.015}}]

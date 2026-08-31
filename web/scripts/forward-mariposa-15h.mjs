@@ -150,7 +150,7 @@ const guardar = async (l, reporte = '', resumen = '') => {
   fs.writeFileSync(LEDGER, JSON.stringify(l, null, 1), 'utf8');
 };
 
-// ── la foto de las 11:00 ──────────────────────────────────────────────────────
+// ── la foto de las 15:00 (NO las 11:00 del condor: esta estrategia es de las 15:00) ──────────────────────────────────────────────────
 async function foto(dia) {
   const oiRaw = await csv(`option/history/open_interest?symbol=${SYM}&expiration=${dia}&start_date=${dia}&end_date=${dia}`);
   if (!oiRaw) return null;
@@ -282,7 +282,19 @@ async function cierreSPX(dia) {
   if (ledger.some(o => o.dia === DIA)) { console.log('    ya estaba registrado — no se duplica'); }
   else {
     const f = await foto(DIA);
-    if (!f) { console.log(`    ✗ sin datos para ${DIA} (¿festivo? ¿aún no son las ${HORA}?)`); }
+    if (!f) {
+      // ⚠️ ANTES no se registraba NADA aqui. El cuaderno quedaba vacio y eso es
+      //    indistinguible de "nunca corrio": el 31 de agosto llevaba 9 dias sin una sola fila
+      //    y el informe decia "dias registrados: 0". El fallo real era de HORA — corria a las
+      //    11:10 de Nueva York buscando la foto de las 15:00, cuatro horas en el futuro.
+      //    Un dia sin dato se APUNTA, con su motivo. Un cuaderno vacio no dice nada; uno con
+      //    nueve filas que dicen "sin datos a las 15:00" grita lo que pasa.
+      const origen = Object.keys(process.env).some(k => k.startsWith('RAILWAY_'))
+        ? `railway:${process.env.RAILWAY_SERVICE_NAME || '?'}` : 'local';
+      ledger.push({ dia: DIA, hora: HORA, registradoEn: ahoraET(), origen, estado: 'sin señal',
+                    motivo: `sin datos de ${SYM} a las ${HORA} (¿festivo, o el cron corrio antes de esa hora?)` });
+      console.log(`    ✗ sin datos para ${DIA} a las ${HORA} — se APUNTA el dia con el motivo`);
+    }
     else {
       // railway o local: sin esto el ledger no se puede auditar (ver lib/origenEjecucion.ts)
       const origen = Object.keys(process.env).some(k => k.startsWith('RAILWAY_'))

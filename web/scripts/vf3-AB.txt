@@ -1,0 +1,55 @@
+═══ AB — recalibrado DENTRO de cada ventana ═══
+--- TODO ---
+  plana                        $/año   26964  cagr 18.48  caida 47.8  sharpe 0.715  ops  251  inv 18.87  saltadas   971
+  k=1 tb 1.264%                $/año   33869  cagr 20.37  caida 51.3  sharpe 0.743  ops  230  inv 18.88  saltadas  1983
+  k=2 tb 0.816%                $/año   34088  cagr 20.42  caida 51.2  sharpe 0.730  ops  221  inv 18.89  saltadas  2394
+  k=3 tb 0.611%                $/año   33260  cagr 20.52  caida 52.9  sharpe 0.730  ops  216  inv 18.88  saltadas  2551
+  ratio $/plana: k1 1.26  k2 1.26  k3 1.23
+--- sin 2020 ---
+  plana                        $/año   27324  cagr 18.38  caida 37.2  sharpe 0.747  ops  216  inv 16.73  saltadas   754
+  k=1 tb 1.311%                $/año   30295  cagr 19.42  caida 35.9  sharpe 0.770  ops  198  inv 16.62  saltadas  1874
+  k=2 tb 0.856%                $/año   28210  cagr 18.31  caida 36.5  sharpe 0.713  ops  190  inv 16.73  saltadas  2226
+  k=3 tb 0.648%                $/año   33020  cagr 20.20  caida 35.5  sharpe 0.783  ops  183  inv 16.74  saltadas  2276
+  ratio $/plana: k1 1.11  k2 1.03  k3 1.21
+--- sin 2025 ---
+  plana                        $/año   27170  cagr 17.95  caida 47.8  sharpe 0.706  ops  233  inv 17.41  saltadas   977
+  k=1 tb 1.277%                $/año   27909  cagr 18.44  caida 51.4  sharpe 0.684  ops  213  inv 17.41  saltadas  1901
+  k=2 tb 0.816%                $/año   26222  cagr 18.19  caida 51.2  sharpe 0.666  ops  204  inv 17.48  saltadas  2338
+  k=3 tb 0.620%                $/año   26213  cagr 17.87  caida 53.3  sharpe 0.649  ops  197  inv 17.41  saltadas  2481
+  ratio $/plana: k1 1.03  k2 0.97  k3 0.96
+--- sin 2020+2025 ---
+  plana                        $/año   25815  cagr 18.03  caida 37.2  sharpe 0.740  ops  198  inv 15.28  saltadas   775
+  k=1 tb 1.334%                $/año   24665  cagr 17.76  caida 36.0  sharpe 0.711  ops  181  inv 15.27  saltadas  1744
+  k=2 tb 0.870%                $/año   22488  cagr 16.23  caida 36.6  sharpe 0.640  ops  172  inv 15.29  saltadas  2155
+  k=3 tb 0.667%                $/año   23878  cagr 16.80  caida 35.7  sharpe 0.660  ops  164  inv 15.28  saltadas  2235
+  ratio $/plana: k1 0.96  k2 0.87  k3 0.92
+--- 1a mitad ---
+  plana                        $/año   15935  cagr 17.62  caida 47.8  sharpe 0.659  ops  131  inv 17.26  saltadas   701
+  k=1 tb 1.292%                $/año   15797  cagr 18.16  caida 51.6  sharpe 0.630  ops  114  inv 17.26  saltadas  1229
+  k=2 tb 0.825%                $/año   16146  cagr 18.19  caida 51.4  sharpe 0.617  ops  104  inv 17.27  saltadas  1493
+  k=3 tb 0.619%                $/año   14128  cagr 16.04  caida 53.2  sharpe 0.550  ops   99  inv 17.29  saltadas  1494
+  ratio $/plana: k1 0.99  k2 1.01  k3 0.89
+--- 2a mitad ---
+  plana                        $/año   14546  cagr 16.99  caida 29.6  sharpe 0.723  ops   99  inv 16.85  saltadas  5370
+  k=1 tb 1.262%                $/año   16286  cagr 18.70  caida 29.1  sharpe 0.746  ops   88  inv 16.69  saltadas  5297
+  k=2 tb 0.832%                $/año   15070  cagr 17.81  caida 28.8  sharpe 0.696  ops   85  inv 16.83  saltadas  5456
+  k=3 tb 0.625%                $/año   14421  cagr 17.75  caida 28.8  sharpe 0.684  ops   79  inv 17.03  saltadas  5882
+  ratio $/plana: k1 1.12  k2 1.04  k3 0.99
+--- 16-19 ---
+  plana                        $/año   13712  cagr 17.50  caida 26.1  sharpe 0.794  ops   85  inv 16.88  saltadas   334
+  k=1 tb 1.399%                $/año   11194  cagr 15.35  caida 27.9  sharpe 0.667  ops   77  inv 16.88  saltadas   601
+  k=2 tb 0.928%                $/año    9876  cagr 13.86  caida 26.2  sharpe 0.579  ops   67  inv 16.94  saltadas   869
+  k=3 tb 0.701%                $/año    9090  cagr 12.49  caida 26.5  sharpe 0.527  ops   64  inv 16.96  saltadas  1043
+  ratio $/plana: k1 0.82  k2 0.72  k3 0.66
+--- 20-22 ---
+  plana                        $/año    5933  cagr 8.72  caida 43.7  sharpe 0.330  ops   70  inv 16.25  saltadas  2582
+  k=1 tb 1.175%                $/año    1033  cagr 1.66  caida 52.2  sharpe 0.139  ops   60  inv 16.19  saltadas  3507
+  k=2 tb 0.783%                $/año     163  cagr 0.27  caida 54.7  sharpe 0.107  ops   57  inv 16.21  saltadas  3313
+  k=3 tb 0.579%                $/año    -519  cagr -0.84  caida 55.6  sharpe 0.076  ops   55  inv 16.25  saltadas  3373
+  ratio $/plana: k1 0.17  k2 0.03  k3 -0.09
+--- 23-26 ---
+  plana                        $/año   24229  cagr 28.64  caida 21.6  sharpe 1.300  ops   75  inv 16.89  saltadas  2005
+  k=1 tb 1.211%                $/año   25173  cagr 29.84  caida 22.1  sharpe 1.261  ops   67  inv 16.90  saltadas  2815
+  k=2 tb 0.780%                $/año   24969  cagr 28.47  caida 23.6  sharpe 1.164  ops   62  inv 16.90  saltadas  3171
+  k=3 tb 0.591%                $/año   24959  cagr 28.34  caida 24.8  sharpe 1.147  ops   60  inv 16.58  saltadas  3253
+  ratio $/plana: k1 1.04  k2 1.03  k3 1.03

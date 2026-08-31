@@ -60,7 +60,7 @@ export default function ForwardTests() {
             <table className="ftest-tabla">
               <thead>
                 <tr>
-                  <th>cuaderno</th><th>desde</th><th>filas</th><th>cerradas</th>
+                  <th>cuaderno</th><th>desde</th><th>operaciones</th><th>cerradas</th>
                   <th>resultado</th><th>acierto</th><th></th>
                 </tr>
               </thead>

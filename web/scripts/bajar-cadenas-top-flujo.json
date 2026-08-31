@@ -1,62 +1,122 @@
 {
- "MU": {
-  "dias": 83,
-  "cierres": 83,
-  "expDia": 15,
-  "kExp": 432
- },
- "SNDK": {
-  "dias": 83,
-  "cierres": 83,
-  "expDia": 15,
-  "kExp": 535
- },
- "NDX": {
-  "dias": 83,
-  "cierres": 0,
-  "expDia": 12,
-  "kExp": 224
- },
  "GOOGL": {
-  "dias": 83,
-  "cierres": 83,
-  "expDia": 19,
-  "kExp": 170
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 15,
+  "kExp": 156
  },
  "AMZN": {
-  "dias": 83,
-  "cierres": 83,
-  "expDia": 20,
-  "kExp": 102
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 16,
+  "kExp": 114
  },
  "AVGO": {
-  "dias": 83,
-  "cierres": 83,
-  "expDia": 19,
-  "kExp": 138
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 13,
+  "kExp": 119
  },
- "NBIS": {
-  "dias": 83,
-  "cierres": 83,
-  "expDia": 14,
-  "kExp": 116
+ "MU": {
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 13,
+  "kExp": 81
  },
  "MRVL": {
-  "dias": 83,
-  "cierres": 83,
+  "dias": 1384,
+  "cierres": 660,
   "expDia": 14,
-  "kExp": 120
- },
- "PLTR": {
-  "dias": 83,
-  "cierres": 83,
-  "expDia": 15,
-  "kExp": 132
+  "kExp": 68
  },
  "TSM": {
-  "dias": 83,
-  "cierres": 83,
-  "expDia": 15,
-  "kExp": 130
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 14,
+  "kExp": 72
+ },
+ "PLTR": {
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 13,
+  "kExp": 76
+ },
+ "ASML": {
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 12,
+  "kExp": 132
+ },
+ "MSTR": {
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 10,
+  "kExp": 174
+ },
+ "DELL": {
+  "dias": 1383,
+  "cierres": 660,
+  "expDia": 11,
+  "kExp": 64
+ },
+ "WDC": {
+  "dias": 1383,
+  "cierres": 660,
+  "expDia": 13,
+  "kExp": 58
+ },
+ "AMAT": {
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 13,
+  "kExp": 84
+ },
+ "STX": {
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 12,
+  "kExp": 61
+ },
+ "GS": {
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 13,
+  "kExp": 126
+ },
+ "NFLX": {
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 13,
+  "kExp": 199
+ },
+ "COIN": {
+  "dias": 1311,
+  "cierres": 660,
+  "expDia": 12,
+  "kExp": 115
+ },
+ "BABA": {
+  "dias": 1382,
+  "cierres": 660,
+  "expDia": 14,
+  "kExp": 104
+ },
+ "SHOP": {
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 14,
+  "kExp": 86
+ },
+ "UBER": {
+  "dias": 1384,
+  "cierres": 660,
+  "expDia": 14,
+  "kExp": 56
+ },
+ "ARM": {
+  "dias": 733,
+  "cierres": 660,
+  "expDia": 14,
+  "kExp": 98
  }
 }
