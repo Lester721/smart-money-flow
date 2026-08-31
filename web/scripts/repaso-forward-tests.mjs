@@ -12,7 +12,7 @@ const CUAD = [
   ["forward:condor-sinfiltro", "Cóndor · sin filtro",        "condor", "pl",        "$ por operación"],
   ["forward:condor-tendencia", "Cóndor · filtro tendencia",  "condor", "pl",        "$ por operación"],
   ["forward:ledger",           "Credit spread",              "riesgo", "retOnRisk", "% sobre riesgo"],
-  ["forward:wheel",            "Wheel",                      "riesgo", "retOnRisk", "% sobre riesgo"],
+  ["forward:wheel",            "Wheel",                      "riesgo", "retOnColl", "% sobre colateral"],
   ["forward:ideas",            "Ideas (scorecard EVA)",      "riesgo", "retOnRisk", "% sobre riesgo"],
 ];
 const D = (x) => (x < 0 ? "−$" : "$") + Math.abs(Math.round(x)).toLocaleString("en-US");

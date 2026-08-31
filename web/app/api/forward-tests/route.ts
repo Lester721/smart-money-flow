@@ -70,7 +70,12 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
   { id: "condor-tendencia", clave: "forward:condor-tendencia", nombre: "Cóndor · filtro de tendencia", familia: "condor", unidad: "$ por operación" },
   { id: "ledger", clave: "forward:ledger", nombre: "Credit spread", familia: "riesgo", unidad: "% sobre el riesgo",
     pega: "OJO: el backtest de esta estrategia con precios reales daba −2,53%, y aquí sale positivo. Uno de los dos está mal y falta averiguar cuál." },
-  { id: "wheel", clave: "forward:wheel", nombre: "Wheel", familia: "riesgo", unidad: "% sobre el riesgo",
+  { id: "wheel", clave: "forward:wheel", nombre: "Wheel", familia: "riesgo", unidad: "% sobre el colateral",
+    // El Wheel guarda el resultado en `retOnColl` (sobre el COLATERAL, que es lo correcto para una
+    // put vendida), no en `retOnRisk`. Sin esto la web decia "0 cerradas" habiendo 7 con +23,57%
+    // de media. Es la MISMA trampa que ya dio por muertos a credit spread, wheel e ideas en agosto:
+    // cada familia guarda con SUS nombres y leerlos con los del vecino devuelve vacio, no un error.
+    campoRes: "retOnColl",
     pega: "195 posiciones abiertas y NINGUNA cerrada. Hay vencimientos ya pasados sin liquidar: el cuaderno abre pero no cierra." },
   { id: "ideas", clave: "forward:ideas", nombre: "Ideas (scorecard de EVA)", familia: "riesgo", unidad: "% sobre el riesgo",
     pega: "El scorecard está medido y cerrado (19.465 operaciones, no separa). Esto es la comprobación en directo de esa conclusión." },
