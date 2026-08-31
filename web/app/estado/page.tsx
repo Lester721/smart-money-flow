@@ -71,6 +71,38 @@ function CuadernosSinFicha() {
   );
 }
 
+/** La MUESTRA VIVA de una ficha: cuantas ha operado y con que resultado, leido de Redis.
+ *
+ *  Lester, 31-ago-2026: "en todas coloca la muestra de lo que han tradeado con su respectivo
+ *  resultado". No se escribe a mano a proposito: un numero pegado aqui estaria viejo manana, que
+ *  es exactamente la deriva que acabamos de arreglar. La prosa se escribe; la cifra se lee. */
+let _cache: Promise<any> | null = null;
+const traerCuadernos = () => (_cache ??= fetch("/api/forward-tests").then((r) => r.json()).catch(() => null));
+
+function MuestraViva({ ids }: { ids: string[] }) {
+  const [txt, setTxt] = useState<string | null>(null);
+  useEffect(() => {
+    traerCuadernos().then((d) => {
+      if (!d?.ok || !Array.isArray(d.cuadernos)) return;
+      const mios = d.cuadernos.filter((c: { id: string }) => ids.includes(c.id));
+      if (!mios.length) return;
+      const partes = mios.map((c: any) => {
+        const cer = c.cerradas ?? 0, abi = c.abiertas ?? 0;
+        if (!cer && !abi) return `${mios.length > 1 ? c.nombre + ": " : ""}sin operar todavia`;
+        const res = c.media == null ? ""
+          : c.unidad?.startsWith("$")
+            ? ` · ${c.media < 0 ? "−$" : "$"}${Math.abs(Math.round(c.media)).toLocaleString("es-ES")} por operacion`
+            : ` · ${c.media >= 0 ? "+" : "−"}${Math.abs(c.media).toFixed(2)}% ${c.unidad.replace("% sobre", "sobre")}`;
+        const ac = c.acierto != null ? ` · acierta ${Math.round(c.acierto * 100)}%` : "";
+        return `${mios.length > 1 ? c.nombre + ": " : ""}${cer} cerradas${abi ? ` y ${abi} abiertas` : ""}${res}${ac}`;
+      });
+      setTxt(partes.join("  ·  "));
+    });
+  }, [ids]);
+  if (!txt) return null;
+  return <p className="est-muestra"><span aria-hidden="true">📓</span> En directo: {txt}</p>;
+}
+
 function Tarjeta({ it }: { it: Item }) {
   const [abierto, setAbierto] = useState(false);
   const hayDetalle = Boolean(it.evidencia?.length || it.pega || it.siguiente);
@@ -91,6 +123,7 @@ function Tarjeta({ it }: { it: Item }) {
           </h3>
           <p className="est-quees">{it.queEs}</p>
           {it.numero ? <p className="est-numero">{it.numero}</p> : null}
+          {it.cuadernos?.length ? <MuestraViva ids={it.cuadernos} /> : null}
         </div>
         {hayDetalle ? <span className={`est-flecha ${abierto ? "on" : ""}`} aria-hidden="true">▾</span> : null}
       </header>

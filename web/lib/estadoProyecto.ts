@@ -136,6 +136,92 @@ export const ITEMS: Item[] = [
     actualizado: "2026-08-22",
   },
   {
+    id: "la-palanca",
+    titulo: "LA PALANCA · calls muy dentro del dinero",
+    estado: "en-prueba",
+    cuadernos: ["la-palanca"],
+    queEs:
+      "El día que una acción cierra más de un 7% por debajo de su media de 50 sesiones, se compra una call 10% dentro del dinero con vencimiento a ~400 días. Se aguanta 120 sesiones o hasta que valga la mitad. 10 posiciones a la vez sobre 60 grandes capitalizaciones, con el dinero parado en SPY.",
+    numero: "$36.702 al año contra los $19.039 de comprar SPY · caída −47% contra −34%",
+    evidencia: [
+      "APROBÓ EL EXAMEN FUERA DE MUESTRA el 30 de agosto: afinada en 24 empresas dio 17,6% al año, y en 36 que nunca había visto dio 17,6%",
+      "los criterios se escribieron ANTES de construir un solo camino del grupo B",
+      "281 operaciones · acierta el 46% · la mayor pesa el 10% del dinero (la versión vieja: 43%)",
+      "un barrido multiagente encontró que la call 10% dentro bate a la de 25%: cuesta un 41% menos y entra donde la cara no cabía",
+      "sobrevive a quitar 2020 y 2025 enteros, y a pagar la horquilla dos veces",
+    ],
+    pega:
+      "El Sharpe apenas supera a comprar SPY y dormir (0,73 contra 0,70): se gana más porque se asume más, no por acertar más. El 65% del dinero lo pone el SPY parado, no las opciones. Y con una cuenta de $60.000 cada hueco es de $1.440, así que sólo caben 18 de 58 empresas — y las que caben son las de PEOR horquilla (VZ 10,4%, ZTS 9,0%). La primera posición real entró pagando un 14,29%.",
+    siguiente:
+      "Ver si el corte de horquilla menor del 3% aguanta: da Sharpe 0,80-0,82 con la caída de SPY en los dos universos, pero son ~6 operaciones al año. El cuaderno apunta la horquilla de cada entrada sin filtrar, para poder leerlo de las dos maneras dentro de un año.",
+    actualizado: "2026-08-31",
+  },
+  {
+    id: "tsla-missile",
+    titulo: "TSLA's Missile · sólo TSLA",
+    estado: "en-prueba",
+    cuadernos: ["tsla-missile"],
+    queEs:
+      "Cuando en TSLA entra una sola operación de más de $500.000 pagada al ask después de las 14:00, y ese contrato vale 12 veces o más el interés abierto que tenía la víspera, se compra al día siguiente al cierre. Se sale a 1,50x, a 0,50x, o a los 60 días.",
+    numero: "34 señales · +11,34% por operación · acierta 82% · t=4,23",
+    evidencia: [
+      "seis de seis años positivos: 2021 +39% · 2022 +13% · 2023 +32% · 2024 +3% · 2025 +4% · 2026 +40%",
+      "22,2% al año con caída del 10%",
+      "con 673 controles, los días CON golpe dieron +10,40% y los días SIN golpe −0,51%: la señal elige el día",
+    ],
+    pega:
+      "Todo eso es EN MUESTRA, sobre el único ticker alrededor del cual se construyó la regla, con 34 operaciones. La tabla mágica, como regla general, está CERRADA: falló dos exámenes fuera de muestra y su lado dominante pierde −5,21% con t=−5,36 sobre 580 entradas. En TSLA no se pudo tumbar, pero 34 señales sobre UN nombre es exactamente donde vive la casualidad. No queda historia con la que validarlo: sólo se puede hacia adelante.",
+    actualizado: "2026-08-31",
+  },
+  {
+    id: "condor-gex",
+    titulo: "Cóndor 0DTE · filtro de GEX",
+    estado: "en-prueba",
+    cuadernos: ["gex-condor"],
+    queEs:
+      "El mismo cóndor de SPX del día, pero sólo se abre cuando el GEX (el gamma que tienen los creadores de mercado) es positivo. Usa alas de ±25, que es la geometría más ajustada de las tres.",
+    numero: "en el backtest: +3,93% por operación · t=2,09 · positivo en 8 horas del día y en 3 años",
+    evidencia: [
+      "el control en GEX negativo da CERO: la separación no es un artefacto del cóndor",
+      "cuatro de cuatro fuera de muestra en la primera medición",
+    ],
+    pega:
+      "Es la versión con PEOR caída de las tres con GEX: −$20.356 en el backtest. Y el GEX vivo, medido aparte sobre 85.021 barras con interés abierto real, NO predice el precio — describe dónde hay muros. Que aquí funcione y allí no es una contradicción sin resolver.",
+    actualizado: "2026-08-31",
+  },
+  {
+    id: "condor-sinfiltro",
+    titulo: "Cóndor 0DTE · sin filtro (el CONTROL)",
+    estado: "en-prueba",
+    cuadernos: ["condor-sinfiltro"],
+    queEs:
+      "El mismo cóndor, abierto TODOS los días sin condición ninguna. No está para operarlo: está para saber cuánto aportan de verdad los filtros de los otros tres.",
+    numero: "es el listón contra el que se miden los demás",
+    evidencia: [
+      "sin un control, un filtro que no aporta nada se ve igual que uno que sí",
+      "en el backtest, el cóndor crudo perdió $22.074 en 2022 mientras el de los tres síes ganaba los 13 días que operó",
+    ],
+    pega:
+      "No se opera nunca. Si algún día sale mejor que los filtrados, la conclusión no es operarlo: es que los filtros no valen y hay que cerrarlos.",
+    actualizado: "2026-08-31",
+  },
+  {
+    id: "condor-tendencia",
+    titulo: "Cóndor 0DTE · filtro de tendencia",
+    estado: "en-prueba",
+    cuadernos: ["condor-tendencia"],
+    queEs:
+      "El mismo cóndor, abierto sólo cuando SPX está por encima de sus medias. Es la mitad del filtro de los tres síes, sin la condición del crédito mínimo.",
+    numero: "sirve para separar qué parte del filtro de los tres síes hace el trabajo",
+    evidencia: [
+      "los tres síes son tres condiciones a la vez; sin desmontarlas no se sabe cuál aporta",
+      "si este da lo mismo que los tres síes, la condición del crédito de $100 sobra",
+    ],
+    pega:
+      "Con dos cuadernos midiendo variantes de lo mismo, el riesgo es leer el que salga mejor. Los dos se leen juntos o no se leen.",
+    actualizado: "2026-08-31",
+  },
+  {
     id: "triple-negativo",
     titulo: "El «triple negativo» — reevaluar cuando haya muestra",
     estado: "pendiente",
@@ -187,6 +273,8 @@ export const ITEMS: Item[] = [
   },
   {
     id: "wheel",
+    cuadernos: ["wheel"],
+    // El monitoreo YA existe y lleva escribiendo desde el 4 de agosto; lo que falta es el backtest a escala. OJO: el 100% de acierto no dice nada — vender puts a 0,15 de delta acierta casi siempre por construccion, y aun no ha habido NI UNA asignacion.
     titulo: "Wheel: backtest y monitoreo",
     estado: "pendiente",
     prioridad: 4,
@@ -274,6 +362,8 @@ export const ITEMS: Item[] = [
   },
   {
     id: "cerrado-eva",
+    cuadernos: ["ideas"],
+    // El cuaderno sigue corriendo para comprobar en directo la conclusion del backtest (19.465 operaciones, no separa).
     titulo: "EVA · el scorecard",
     estado: "cerrado",
     queEs: "El sistema de puntuación con pesos, medido en grande y con precios reales.",
@@ -316,6 +406,8 @@ export const ITEMS: Item[] = [
   },
   {
     id: "cerrado-venta-prima",
+    cuadernos: ["ledger"],
+    // El cuaderno sigue corriendo A PROPOSITO: el backtest con precios reales daba −2,53% y en directo sale POSITIVO. Uno de los dos esta mal y con 253 operaciones cerradas ya no se puede aplazar.
     titulo: "La familia de venta de prima (credit spreads, calls cubiertas)",
     estado: "cerrado",
     queEs: "Vender prima sistemáticamente, en sus varias formas.",
