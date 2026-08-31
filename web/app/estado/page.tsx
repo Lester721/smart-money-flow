@@ -19,7 +19,7 @@ import ForwardTests from "@/app/components/ForwardTests";
 import { ITEMS, RESUMEN, ACTUALIZADO, type EstadoItem, type Item } from "@/lib/estadoProyecto";
 
 const GRUPOS: { estado: EstadoItem; titulo: string; sub: string; icono: string }[] = [
-  { estado: "en-prueba", titulo: "En prueba ahora mismo", sub: "desplegado y midiéndose en directo", icono: "🔬" },
+  { estado: "en-prueba", titulo: "EN PRUEBA AHORA MISMO", sub: "desplegado y midiéndose en directo", icono: "🔬" },
   { estado: "funciona", titulo: "Medido y en pie", sub: "sobrevivió a las pruebas, listo para usar", icono: "🟢" },
   { estado: "pendiente", titulo: "Pendiente", sub: "por orden de lo que yo haría primero", icono: "📋" },
   { estado: "cerrado", titulo: "Cerrado", sub: "medido y descartado — está aquí para no volver a proponerlo", icono: "⛔" },
@@ -38,6 +38,7 @@ const GRUPOS: { estado: EstadoItem; titulo: string; sub: string; icono: string }
  *  esto avisa de los que no cubre nadie. */
 function CuadernosSinFicha() {
   const [sueltos, setSueltos] = useState<{ id: string; nombre: string; cerradas: number }[]>([]);
+  const [fuera, setFuera] = useState<{ id: string; nombre: string; cerradas: number; donde: string }[]>([]);
   useEffect(() => {
     fetch("/api/forward-tests")
       .then((r) => r.json())
@@ -49,17 +50,49 @@ function CuadernosSinFicha() {
             .filter((c: { id: string }) => !cubiertos.has(c.id))
             .map((c: { id: string; nombre: string; cerradas?: number }) => ({
               id: c.id, nombre: c.nombre, cerradas: c.cerradas ?? 0 })));
+        // Los que SI tienen ficha, pero en otra seccion. Lester, 31-ago: "por que hay forward
+        // test que no aparecen en el area de en prueba ahora mismo". Estan corriendo; lo que
+        // pasa es que su veredicto es otro y la ficha vive donde le toca. Se dice, no se duplica.
+        const COMO: Record<string, string> = { "en-prueba": "En prueba", funciona: "Medido y en pie",
+          pendiente: "Pendiente", cerrado: "Cerrado" };
+        const enPrueba = new Set(ITEMS.filter((i) => i.estado === "en-prueba").flatMap((i) => i.cuadernos ?? []));
+        setFuera(
+          d.cuadernos
+            .filter((c: { id: string }) => cubiertos.has(c.id) && !enPrueba.has(c.id))
+            .map((c: { id: string; nombre: string; cerradas?: number }) => ({
+              id: c.id, nombre: c.nombre, cerradas: c.cerradas ?? 0,
+              donde: COMO[ITEMS.find((i) => (i.cuadernos ?? []).includes(c.id))?.estado ?? ""] ?? "otra sección" })));
       })
       .catch(() => {});
   }, []);
-  if (!sueltos.length) return null;
+  if (!sueltos.length && !fuera.length) return null;
   return (
     <div className="est-deriva">
+      {fuera.length ? (
+        <>
+          <b>📓 {fuera.length} cuadernos más se están midiendo ahora mismo</b>
+          <p>
+            Su ficha no está aquí sino en otra sección, porque ese es el veredicto de la
+            estrategia — el cuaderno corre justamente para comprobarlo:
+          </p>
+          <ul>
+            {fuera.map((c) => (
+              <li key={c.id}>
+                <b>{c.nombre}</b> — {c.cerradas ? `${c.cerradas} operaciones cerradas` : "sin operar todavia"}
+                {" · ficha en "}<b>{c.donde}</b>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
+      {sueltos.length ? (
       <b>⚠ {sueltos.length} cuadernos corriendo que no estan en esta lista.</b>
+      ) : null}
       <p>
         Estan escribiendo en Redis ahora mismo y no tienen ficha aqui. Salen todos en el marcador
         de arriba, pero esta seccion se escribe a mano y se ha quedado vieja:
       </p>
+      {sueltos.length ? (
       <ul>
         {sueltos.map((c) => (
           <li key={c.id}>
@@ -67,6 +100,7 @@ function CuadernosSinFicha() {
           </li>
         ))}
       </ul>
+      ) : null}
     </div>
   );
 }
