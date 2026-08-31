@@ -125,9 +125,15 @@ function MuestraViva({ ids }: { ids: string[] }) {
       const partes = mios.map((c: any) => {
         const cer = c.cerradas ?? 0, abi = c.abiertas ?? 0;
         if (!cer && !abi) return `${mios.length > 1 ? c.nombre + ": " : ""}sin operar todavia`;
-        const res = c.media == null ? ""
+        // DÓLARES SIEMPRE que se puedan. Antes los que miden en % salían solo en porcentaje y
+        // las ganancias no se leían como dinero, mientras las pérdidas sí. Lester, 31-ago.
+        const d = (x: number) => (x < 0 ? "−$" : "$") + Math.abs(Math.round(x)).toLocaleString("es-ES");
+        const res = c.mediaUsd != null
+          ? ` · ${d(c.mediaUsd)} por operación · ${d(c.totalUsd ?? 0)} total` +
+            (c.media != null ? ` · ${c.media >= 0 ? "+" : "−"}${Math.abs(c.media).toFixed(2)}% ${(c.unidad || "").replace("% sobre", "sobre")}` : "")
+          : c.media == null ? ""
           : c.unidad?.startsWith("$")
-            ? ` · ${c.media < 0 ? "−$" : "$"}${Math.abs(Math.round(c.media)).toLocaleString("es-ES")} por operacion`
+            ? ` · ${d(c.media)} por operación · ${d(c.total ?? c.media * (c.cerradas ?? 1))} total`
             : ` · ${c.media >= 0 ? "+" : "−"}${Math.abs(c.media).toFixed(2)}% ${c.unidad.replace("% sobre", "sobre")}`;
         const ac = c.acierto != null ? ` · acierta ${Math.round(c.acierto * 100)}%` : "";
         // El TOTAL delante: Lester pregunto tres veces "¿cuantas operaciones tradeo?" y la
@@ -139,7 +145,15 @@ function MuestraViva({ ids }: { ids: string[] }) {
     });
   }, [ids]);
   if (!txt) return null;
-  return <p className="est-muestra"><span aria-hidden="true">📓</span> En directo: {txt}</p>;
+  // Era una linea de 12,5px en azul debajo del numero y Lester no la veia — la dijo TRES veces.
+  // Que exista en el DOM no sirve de nada si se lee como una nota al pie. Ahora es una banda con
+  // borde, etiqueta y las cifras grandes: no se puede confundir con el texto de la ficha.
+  return (
+    <div className="est-muestra">
+      <span className="est-muestra-chip">EN DIRECTO</span>
+      <b>{txt}</b>
+    </div>
+  );
 }
 
 function Tarjeta({ it }: { it: Item }) {
