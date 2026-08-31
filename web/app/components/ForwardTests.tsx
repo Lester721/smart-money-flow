@@ -61,7 +61,7 @@ export default function ForwardTests() {
               <thead>
                 <tr>
                   <th>cuaderno</th><th>desde</th><th>operaciones</th><th>cerradas</th>
-                  <th>resultado</th><th>acierto</th><th>sin operar</th>
+                  <th>resultado</th><th>acierto</th><th>días sin señal</th>
                 </tr>
               </thead>
               <tbody>
@@ -89,7 +89,14 @@ export default function ForwardTests() {
                         {res ?? (c.abiertas ? `${c.abiertas} abiertas, ninguna cerrada` : "sin operar todavía")}
                       </td>
                       <td>{c.acierto != null ? Math.round(c.acierto * 100) + "%" : "—"}</td>
-                      <td className="ftest-tenue">{c.sinSenal ? `${c.sinSenal} sin señal` : ""}</td>
+                      {/* No basta con "5 sin señal": sin saber sobre cuántos días, no se puede
+                          juzgar si la regla es exigente o si simplemente no encuentra nada.
+                          "5 de 7 días" dice las dos cosas de un vistazo. Lester, 31-ago-2026. */}
+                      <td className="ftest-tenue">
+                        {c.sinSenal
+                          ? `${c.sinSenal} de ${c.filas ?? c.sinSenal} días`
+                          : ""}
+                      </td>
                     </tr>
                   );
                 })}
@@ -104,9 +111,10 @@ export default function ForwardTests() {
             </div>
           ) : (
             <p className="ftest-pie">
-              <b>«Sin operar»</b> son los días que el cuaderno miró y decidió no entrar porque no se
-              cumplían sus condiciones. Se apuntan a propósito: sin ellos, «miró y no operó» y
-              «no miró» se ven igual.<br />
+              <b>«Días sin señal»</b> son los días que el cuaderno miró y decidió no entrar porque no
+              se cumplían sus condiciones. <b>«5 de 7 días»</b> quiere decir que de 7 días que
+              buscó oportunidad, en 5 no la hubo y en 2 sí. Se apuntan a propósito: sin ellos,
+              «miró y no operó» y «no miró» se ven igual.<br />
               Las filas con <span className="ftest-aviso">⚠</span> tienen algo en contra — pulsa para leerla.
               <br />
               <strong>Nada de esto es dinero real:</strong> son cuadernos en papel. Y con pocas
