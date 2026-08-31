@@ -22,6 +22,12 @@ export type Item = {
   id: string;
   titulo: string;
   estado: EstadoItem;
+  /** Ids de /api/forward-tests que esta entrada cubre. Sirve para que la pagina detecte SOLA
+   *  cuando hay un cuaderno corriendo que no esta en la lista. Sin esto, la lista escrita a
+   *  mano y los cuadernos que escriben en Redis se separan y nadie se entera: el 31 de agosto
+   *  la seccion decia "2 en prueba" habiendo DIEZ cuadernos escribiendo, con el credit spread
+   *  marcado como CERRADO mientras acumulaba 253 operaciones. */
+  cuadernos?: string[];
   /** Una línea, en palabras llanas. Sin jerga. */
   queEs: string;
   /** El número que resume. En dólares al año siempre que se pueda. */
@@ -49,6 +55,7 @@ export const ITEMS: Item[] = [
     estado: "en-prueba",
     queEs:
       "A las 11:00, tres preguntas: ¿SPX sobre su media de 5 sesiones? ¿sobre la de 50? ¿el cóndor de ±45 con alas de 50 paga al menos $100? Los tres síes → 1 contrato, y se aguanta al cierre.",
+    cuadernos: ["tres-sies"],
     numero: "$6.380 al año con 1 contrato",
     evidencia: [
       "201 operaciones · 94% de acierto · $127 de media por operación",
@@ -111,6 +118,7 @@ export const ITEMS: Item[] = [
     prioridad: 1,
     queEs:
       "A las 15:00, y sólo si el SPX está por encima de su media de 5 cierres Y de la de 50: vender la mariposa de hierro al dinero sobre SPXW del mismo día (vender la call y la put del strike pegado al precio, comprar la call 50 puntos arriba y la put 50 abajo). Un contrato. NO se cierra nunca: se deja vencer.",
+    cuadernos: ["mariposa", "mariposa-umbral"],
     numero: "$11.405/año con un contrato · caída máxima $5.321 · peor día $3.247 · acierta 2 de cada 3",
     evidencia: [
       "gana MÁS y asusta MENOS que el cóndor de los tres síes medido sobre los mismos días ($6.722/año con caída de $7.092)",

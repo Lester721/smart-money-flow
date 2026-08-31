@@ -11,7 +11,7 @@
 //
 // El contenido vive en lib/estadoProyecto.ts. Esta página sólo lo pinta.
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import NavTabs from "@/app/components/NavTabs";
 import EvaLogo from "@/app/components/EvaLogo";
 import EstrategiasTabla from "@/app/components/EstrategiasTabla";
@@ -24,6 +24,52 @@ const GRUPOS: { estado: EstadoItem; titulo: string; sub: string; icono: string }
   { estado: "pendiente", titulo: "Pendiente", sub: "por orden de lo que yo haría primero", icono: "📋" },
   { estado: "cerrado", titulo: "Cerrado", sub: "medido y descartado — está aquí para no volver a proponerlo", icono: "⛔" },
 ];
+
+/** ¿Hay algun cuaderno CORRIENDO que no este en la lista de "En prueba ahora mismo"?
+ *
+ *  El 31 de agosto de 2026 Lester lo vio: la seccion decia "2 en prueba" habiendo DIEZ cuadernos
+ *  escribiendo en Redis — con el credit spread marcado como CERRADO mientras acumulaba 253
+ *  operaciones, y el Wheel como PENDIENTE ("crear backtest y monitoreo") llevando 274 posiciones
+ *  desde el 4 de agosto. La lista se escribe a mano y los cuadernos escriben solos: se separan y
+ *  nadie se entera.
+ *
+ *  Rellenar la lista no arregla nada — se volveria a quedar vieja al siguiente despliegue. Lo que
+ *  arregla es que la pagina lo DIGA. Cada entrada declara que cuadernos cubre (`cuadernos`) y
+ *  esto avisa de los que no cubre nadie. */
+function CuadernosSinFicha() {
+  const [sueltos, setSueltos] = useState<{ id: string; nombre: string; cerradas: number }[]>([]);
+  useEffect(() => {
+    fetch("/api/forward-tests")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d?.ok || !Array.isArray(d.cuadernos)) return;
+        const cubiertos = new Set(ITEMS.flatMap((i) => i.cuadernos ?? []));
+        setSueltos(
+          d.cuadernos
+            .filter((c: { id: string }) => !cubiertos.has(c.id))
+            .map((c: { id: string; nombre: string; cerradas?: number }) => ({
+              id: c.id, nombre: c.nombre, cerradas: c.cerradas ?? 0 })));
+      })
+      .catch(() => {});
+  }, []);
+  if (!sueltos.length) return null;
+  return (
+    <div className="est-deriva">
+      <b>⚠ {sueltos.length} cuadernos corriendo que no estan en esta lista.</b>
+      <p>
+        Estan escribiendo en Redis ahora mismo y no tienen ficha aqui. Salen todos en el marcador
+        de arriba, pero esta seccion se escribe a mano y se ha quedado vieja:
+      </p>
+      <ul>
+        {sueltos.map((c) => (
+          <li key={c.id}>
+            <b>{c.nombre}</b> — {c.cerradas ? `${c.cerradas} operaciones cerradas` : "sin operar todavia"}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 function Tarjeta({ it }: { it: Item }) {
   const [abierto, setAbierto] = useState(false);
@@ -127,6 +173,7 @@ export default function EstadoPage() {
                 </button>
               ) : null}
             </header>
+            {g.estado === "en-prueba" ? <CuadernosSinFicha /> : null}
             {!plegado ? <div className="est-lista">{items.map((it) => <Tarjeta key={it.id} it={it} />)}</div> : null}
           </section>
         );
