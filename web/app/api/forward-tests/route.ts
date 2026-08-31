@@ -138,6 +138,16 @@ export async function GET() {
         abiertas,
         sinSenal,
         media: vals.length ? media(vals) : null,
+        // LA MUESTRA DE VERDAD: las ultimas operaciones cerradas, una a una, con su resultado.
+        // Lester lo pidio cuatro veces y yo le daba un RESUMEN. "La muestra de lo que han
+        // tradeado con su respectivo resultado" son las operaciones, no un promedio.
+        ultimas: cerradas.slice(-10).reverse().map((f) => ({
+          que: String(f.ticker ?? f.tk ?? f.symbol ?? c.nombre),
+          cuando: String(f.exitDate ?? f.diaSalida ?? f[campoDia] ?? ""),
+          usd: c.usd ? c.usd(f) : (typeof f[campoRes] === "number" && c.unidad.startsWith("$") ? (f[campoRes] as number) : null),
+          pct: typeof f[campoRes] === "number" && !c.unidad.startsWith("$") ? (f[campoRes] as number) : null,
+          nota: String(f.closedReason ?? f.exitReason ?? f.motivo ?? ""),
+        })),
         // en DOLARES, para los que miden en % — asi las ganancias se leen igual que las perdidas
         totalUsd: c.usd ? (() => { const v = cerradas.map(c.usd!).filter((x): x is number => typeof x === "number");
           return v.length ? v.reduce((a, b) => a + b, 0) : null; })() : null,

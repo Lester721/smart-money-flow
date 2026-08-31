@@ -17,7 +17,9 @@ const eur = (x: number) => (x < 0 ? "−$" : "$") + Math.round(Math.abs(x)).toLo
 const signo = (x: number) => (x > 0 ? "pos" : x < 0 ? "neg" : "");
 
 export default function EstrategiasTabla() {
-  const [abierta, setAbierta] = useState<string | null>(datos.tablas[0]?.nombre ?? null);
+  // CERRADA al abrir la pagina. Antes arrancaba con la primera desplegada y eso empuja todo lo
+  // demas media pantalla hacia abajo cada vez que se refresca. Lester, 31-ago-2026.
+  const [abierta, setAbierta] = useState<string | null>(null);
 
   return (
     <section className="est-grupo">

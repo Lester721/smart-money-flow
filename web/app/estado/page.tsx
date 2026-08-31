@@ -115,8 +115,10 @@ function CuadernosSinFicha() {
 let _cache: Promise<any> | null = null;
 const traerCuadernos = () => (_cache ??= fetch("/api/forward-tests").then((r) => r.json()).catch(() => null));
 
+type Op = { que: string; cuando: string; usd: number | null; pct: number | null; nota: string };
 function MuestraViva({ ids }: { ids: string[] }) {
   const [txt, setTxt] = useState<string | null>(null);
+  const [ops, setOps] = useState<Op[]>([]);
   useEffect(() => {
     traerCuadernos().then((d) => {
       if (!d?.ok || !Array.isArray(d.cuadernos)) return;
@@ -142,16 +144,37 @@ function MuestraViva({ ids }: { ids: string[] }) {
         return `${mios.length > 1 ? c.nombre + ": " : ""}${ops} operaciones (${cer} cerradas${abi ? `, ${abi} abiertas` : ""})${res}${ac}`;
       });
       setTxt(partes.join("  ·  "));
+      setOps(mios.flatMap((c: { ultimas?: Op[] }) => c.ultimas ?? []).slice(0, 10));
     });
   }, [ids]);
   if (!txt) return null;
   // Era una linea de 12,5px en azul debajo del numero y Lester no la veia — la dijo TRES veces.
   // Que exista en el DOM no sirve de nada si se lee como una nota al pie. Ahora es una banda con
   // borde, etiqueta y las cifras grandes: no se puede confundir con el texto de la ficha.
+  const d = (x: number) => (x < 0 ? "−$" : "$") + Math.abs(Math.round(x)).toLocaleString("es-ES");
   return (
     <div className="est-muestra">
-      <span className="est-muestra-chip">EN DIRECTO</span>
-      <b>{txt}</b>
+      <div className="est-muestra-cab">
+        <span className="est-muestra-chip">EN DIRECTO</span>
+        <b>{txt}</b>
+      </div>
+      {ops.length ? (
+        <table className="est-muestra-tabla">
+          <thead><tr><th>qué</th><th>cerró</th><th>resultado</th><th></th></tr></thead>
+          <tbody>
+            {ops.map((o, i) => (
+              <tr key={i}>
+                <td>{o.que}</td>
+                <td>{o.cuando ? o.cuando.slice(5) : "—"}</td>
+                <td className={(o.usd ?? o.pct ?? 0) >= 0 ? "pos" : "neg"}>
+                  {o.usd != null ? d(o.usd) : o.pct != null ? `${o.pct >= 0 ? "+" : "−"}${Math.abs(o.pct).toFixed(2)}%` : "—"}
+                </td>
+                <td className="est-muestra-nota">{o.nota}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : null}
     </div>
   );
 }

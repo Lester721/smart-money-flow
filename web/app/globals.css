@@ -1434,3 +1434,17 @@ tfoot .totals td {
 .est-muestra-chip { font-size: 9.5px; font-weight: 700; letter-spacing: .08em;
   text-transform: uppercase; color: #7aa2ff; border: 1px solid rgba(122,162,255,.5);
   border-radius: 999px; padding: 2px 8px; white-space: nowrap; }
+
+/* La muestra: las operaciones de verdad, una a una. Lester lo pidio cuatro veces y yo le daba
+   un promedio. "La muestra de lo que han tradeado con su respectivo resultado" son las
+   operaciones, no un resumen. */
+.est-muestra { flex-direction: column; align-items: stretch; }
+.est-muestra-cab { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.est-muestra-tabla { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px;
+  font-variant-numeric: tabular-nums; }
+.est-muestra-tabla th { text-align: left; font-size: 9.5px; text-transform: uppercase;
+  letter-spacing: .05em; color: rgba(122,162,255,.75); padding: 0 10px 4px 0; font-weight: 600; }
+.est-muestra-tabla td { padding: 3px 10px 3px 0; color: #cfe0ff; border-top: 1px solid rgba(122,162,255,.15); }
+.est-muestra-tabla td.pos { color: #3fb950; font-weight: 700; }
+.est-muestra-tabla td.neg { color: #f85149; font-weight: 700; }
+.est-muestra-nota { color: rgba(207,224,255,.55) !important; font-weight: 400 !important; }
