@@ -105,7 +105,7 @@ function MuestraViva({ ids }: { ids: string[] }) {
 
 function Tarjeta({ it }: { it: Item }) {
   const [abierto, setAbierto] = useState(false);
-  const hayDetalle = Boolean(it.evidencia?.length || it.pega || it.siguiente);
+  const hayDetalle = Boolean(it.evidencia?.length || it.enContra || it.siguiente);
 
   return (
     <article className={`est-item est-${it.estado}`}>
@@ -136,10 +136,10 @@ function Tarjeta({ it }: { it: Item }) {
               <ul>{it.evidencia.map((e, i) => <li key={i}>{e}</li>)}</ul>
             </div>
           ) : null}
-          {it.pega ? (
-            <div className="est-bloque est-pega">
-              <h4>La pega</h4>
-              <p>{it.pega}</p>
+          {it.enContra ? (
+            <div className="est-bloque est-encontra">
+              <h4>En contra</h4>
+              <p>{it.enContra}</p>
             </div>
           ) : null}
           {it.siguiente ? (
@@ -171,7 +171,7 @@ export default function EstadoPage() {
       <section className="est-intro">
         <h1>Qué hemos medido</h1>
         <p>
-          Desde el <strong>{RESUMEN.desde}</strong>. Cada entrada lleva su pega escrita al lado:
+          Desde el <strong>{RESUMEN.desde}</strong>. Cada entrada lleva lo que hay en contra escrito al lado:
           un hallazgo sin su objeción es propaganda, no una nota de trabajo.
         </p>
         <div className="est-cuentas">

@@ -7,7 +7,7 @@
 // en el web cómo es que deberíamos usarlo."
 //
 // No se equivoca, y eso es lo que pone aquí. La única excepción medida —los días de gamma positiva
-// son mejores para vender prima— está escrita con su número y con su pega (que nuestra regla ya
+// son mejores para vender prima— está escrita con su número y con lo que hay en contra (que nuestra regla ya
 // elige esos días por otro camino).
 //
 // REGLA DE ESTE PANEL: ningún número sin su medición detrás. Si alguien lee esto dentro de seis
@@ -122,8 +122,8 @@ export default function GexQueSignifica() {
                 <strong>$85 por operación</strong> esos días y pierde <strong>−$49</strong> los días
                 de gamma negativa. Diferencia de $134 con t=1,89, sobre 1.112 días.
               </p>
-              <p className="gexi-pega">
-                <strong>La pega:</strong> nuestra regla desplegada (los tres síes) ya elige esos
+              <p className="gexi-encontra">
+                <strong>La enContra:</strong> nuestra regla desplegada (los tres síes) ya elige esos
                 mismos días por otro camino. Dentro de sus 201 operaciones, los días de gamma
                 positiva dan $132 y los de negativa $109 — diferencia de $22 con t=0,15, o sea nada.
                 Añadir el GEX como cuarto filtro quitaría el 22% de los días y bajaría el resultado

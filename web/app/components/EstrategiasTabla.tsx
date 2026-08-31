@@ -94,8 +94,11 @@ export default function EstrategiasTabla() {
                     </table>
                   </div>
                   {t.nota ? (
-                    <div className="est-bloque est-pega">
-                      <h4>La pega</h4>
+                    // El titulo NO es solo "En contra": este bloque muestra `nota`, que trae la
+                    // regla entera Y sus avisos juntos. Con el nombre viejo pasaba desapercibido;
+                    // al renombrarlo quedo a la vista que la etiqueta mentia. Se dice lo que hay.
+                    <div className="est-bloque est-encontra">
+                      <h4>Cómo funciona, y lo que va en contra</h4>
                       <p>{t.nota}</p>
                     </div>
                   ) : null}

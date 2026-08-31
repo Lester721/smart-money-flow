@@ -35,7 +35,7 @@ export type Item = {
   /** Los hechos que lo sostienen (o que lo mataron). */
   evidencia?: string[];
   /** La objeción honesta. Obligatoria en todo lo que no esté cerrado. */
-  pega?: string;
+  enContra?: string;
   /** Qué haría falta para moverlo. */
   siguiente?: string;
   /** Sólo en pendientes: 1 es lo primero. */
@@ -67,7 +67,7 @@ export const ITEMS: Item[] = [
       "pre-registrado ANTES de medirlo, con sus cuatro debilidades escritas",
       "en forward test desde el 21 de agosto (cuaderno forward:tres-sies) — al 22 de agosto lleva UN día y aún no ha operado",
     ],
-    pega:
+    enContra:
       "El 2022 que parece salvarlo son 13 operaciones: eso no prueba que resista un año malo, prueba que casi no juega — y cuál de esos 13 días le tocó puede ser suerte. No cruza el listón de Bonferroni: t=3,57 contra el 4,0 que le tocaría por las ~300 configuraciones probadas sobre los mismos días. Opera cada vez más (6% de los días en 2022, 40% en 2026), así que casi toda la evidencia viene de los últimos meses. Con 2 contratos la caída máxima sería −$14.187, el número que Lester dijo que le destroza.",
     siguiente: "Dejar correr el forward test. Es lo único que puede resolverlo.",
     actualizado: "2026-08-21",
@@ -83,7 +83,7 @@ export const ITEMS: Item[] = [
       "peaje del 1,81% contra el 12,75% de un contrato cualquiera",
       "es lo único de MarketSnack que ha resistido todas las pruebas",
     ],
-    pega:
+    enContra:
       "Es ejecución, no señal: dice CÓMO comprar barato, no QUÉ comprar. Sin una estrategia que necesite comprar opciones, no vale nada. Y medido sobre los prints de ≥$1M, comprar al precio del print sólo ahorra un 0,2% más que el ask de la cadena — el ahorro grande aparece en otra población.",
     siguiente: "Guardado para cuando exista algo que comprar.",
     actualizado: "2026-08-21",
@@ -102,7 +102,7 @@ export const ITEMS: Item[] = [
       "máximo 5 perdedoras seguidas · 59% de acierto",
       "la put está PLANA en las bajadas (correlación 0,50 con el índice)",
     ],
-    pega:
+    enContra:
       "GANA MENOS DINERO que comprar QQQ a secas: $5.906 al año contra $6.792. Lo que compra no es rentabilidad, es tranquilidad — y hay que decidir si esos $886 al año valen dormir mejor. Y NO está en forward test: es el hueco más grande de la lista. No vender al cierre; eso ya se midió y empeora.",
     siguiente: "Montarle un forward test como el del cóndor. Prioridad alta.",
     actualizado: "2026-08-21",
@@ -129,7 +129,7 @@ export const ITEMS: Item[] = [
       "castigada con un 10% más de horquilla en contra en cada pata sigue dando $10.943/año con todos los años en positivo",
       "colateral $5.000 en Robinhood, el mismo que el cóndor que ya corre",
     ],
-    pega:
+    enContra:
       "NO cruza el listón de las muchas puertas: 468 casillas en este encargo más ~300 previas del proyecto ponen el listón cerca de 4 y da 3,41 — el mismo agujero que tiene el cóndor. Se está apagando (primera mitad $14.872/año, segunda $7.939). El filtro de las medias NO es nuevo: salió de un barrido sobre estos mismos días al construir los tres síes, así que reutilizarlo no es comprobación independiente. Y 2022 casi no está probado: sólo 40 operaciones, porque el filtro apaga el mercado bajista, que es justo el año que decidiría si aguanta un susto.",
     siguiente:
       "Pre-registrarla APARTE, con la geometría y la hora congeladas por escrito, y abrir cuaderno en Railway como se hizo con el cóndor. NO tocar la regla del cóndor que ya está corriendo. El forward test es la única prueba fuera de muestra que queda: todo lo medible sobre 2022-2026 ya se usó para elegirla.",
@@ -150,7 +150,7 @@ export const ITEMS: Item[] = [
       "un barrido multiagente encontró que la call 10% dentro bate a la de 25%: cuesta un 41% menos y entra donde la cara no cabía",
       "sobrevive a quitar 2020 y 2025 enteros, y a pagar la horquilla dos veces",
     ],
-    pega:
+    enContra:
       "El Sharpe apenas supera a comprar SPY y dormir (0,73 contra 0,70): se gana más porque se asume más, no por acertar más. El 65% del dinero lo pone el SPY parado, no las opciones. Y con una cuenta de $60.000 cada hueco es de $1.440, así que sólo caben 18 de 58 empresas — y las que caben son las de PEOR horquilla (VZ 10,4%, ZTS 9,0%). La primera posición real entró pagando un 14,29%.",
     siguiente:
       "Ver si el corte de horquilla menor del 3% aguanta: da Sharpe 0,80-0,82 con la caída de SPY en los dos universos, pero son ~6 operaciones al año. El cuaderno apunta la horquilla de cada entrada sin filtrar, para poder leerlo de las dos maneras dentro de un año.",
@@ -169,7 +169,7 @@ export const ITEMS: Item[] = [
       "22,2% al año con caída del 10%",
       "con 673 controles, los días CON golpe dieron +10,40% y los días SIN golpe −0,51%: la señal elige el día",
     ],
-    pega:
+    enContra:
       "Todo eso es EN MUESTRA, sobre el único ticker alrededor del cual se construyó la regla, con 34 operaciones. La tabla mágica, como regla general, está CERRADA: falló dos exámenes fuera de muestra y su lado dominante pierde −5,21% con t=−5,36 sobre 580 entradas. En TSLA no se pudo tumbar, pero 34 señales sobre UN nombre es exactamente donde vive la casualidad. No queda historia con la que validarlo: sólo se puede hacia adelante.",
     actualizado: "2026-08-31",
   },
@@ -185,7 +185,7 @@ export const ITEMS: Item[] = [
       "el control en GEX negativo da CERO: la separación no es un artefacto del cóndor",
       "cuatro de cuatro fuera de muestra en la primera medición",
     ],
-    pega:
+    enContra:
       "Es la versión con PEOR caída de las tres con GEX: −$20.356 en el backtest. Y el GEX vivo, medido aparte sobre 85.021 barras con interés abierto real, NO predice el precio — describe dónde hay muros. Que aquí funcione y allí no es una contradicción sin resolver.",
     actualizado: "2026-08-31",
   },
@@ -201,7 +201,7 @@ export const ITEMS: Item[] = [
       "sin un control, un filtro que no aporta nada se ve igual que uno que sí",
       "en el backtest, el cóndor crudo perdió $22.074 en 2022 mientras el de los tres síes ganaba los 13 días que operó",
     ],
-    pega:
+    enContra:
       "No se opera nunca. Si algún día sale mejor que los filtrados, la conclusión no es operarlo: es que los filtros no valen y hay que cerrarlos.",
     actualizado: "2026-08-31",
   },
@@ -217,7 +217,7 @@ export const ITEMS: Item[] = [
       "los tres síes son tres condiciones a la vez; sin desmontarlas no se sabe cuál aporta",
       "si este da lo mismo que los tres síes, la condición del crédito de $100 sobra",
     ],
-    pega:
+    enContra:
       "Con dos cuadernos midiendo variantes de lo mismo, el riesgo es leer el que salga mejor. Los dos se leen juntos o no se leen.",
     actualizado: "2026-08-31",
   },
@@ -236,7 +236,7 @@ export const ITEMS: Item[] = [
       "sobre los 1.112 días el efecto SÍ existe y es sólido: 19 menos por operación los días de alarma",
       "añadirlo hoy subiría de .541 a .134 al año, pero eso sale de quitar 21 días de 201 que ya sabíamos malos DESPUÉS de pasar",
     ],
-    pega:
+    enContra:
       "La tercera luz (el skew de puts) está encendida el 99% de los días, así que en realidad es un DOBLE negativo con una bombilla decorativa. Y su etiqueta de «bajista» es falsa: esos días SPX sube +0,03% de media, no baja.",
     siguiente:
       "ESPERAR. El forward test va añadiendo días de esos 62 por su cuenta. Cuando lleguen a unos 200 se puede decidir de verdad; con 62 no. Revisar en unos meses, no antes — y si entonces sale bien, se pre-registra APARTE y se abre cuaderno nuevo, sin tocar la regla que está corriendo.",
@@ -255,7 +255,7 @@ export const ITEMS: Item[] = [
       "eso no es algo que descubra un cuaderno en papel: es una decisión de cuánto riesgo quiere llevar, y ya está medida sobre la historia entera",
       "el cóndor sí necesitaba cuaderno porque su ventaja depende de precios de ejecución que sólo se ven en directo. La mezcla se ejecuta con dos órdenes de mercado al mes",
     ],
-    pega:
+    enContra:
       "Lo que SÍ queda abierto es la decisión, no la medición: cuánto de la cuenta va a la mezcla. Eso está en el pendiente de la combinación por horizontes.",
     actualizado: "2026-08-22",
   },
@@ -266,7 +266,7 @@ export const ITEMS: Item[] = [
     prioridad: 3,
     queEs:
       "Comprar el cono antes de resultados es la apuesta de movimiento clásica y nunca la hemos medido. Tenemos cadenas de 2016-2026 para 40 tickers.",
-    pega:
+    enContra:
       "El listón ya lo sabemos y es duro: comprar la opción cuesta ~3% por operación. La ventaja tiene que superar eso, no cero.",
     siguiente: "Cruzar el calendario de resultados con las cadenas en disco.",
     actualizado: "2026-08-21",
@@ -280,7 +280,7 @@ export const ITEMS: Item[] = [
     prioridad: 4,
     queEs: "Falta hacerle lo mismo que al credit spread: backtest completo y forward test en directo.",
     evidencia: ["los 5 activos medidos salen positivos pero ninguno es concluyente (HOOD +0,52, PLTR +0,48)"],
-    pega: "La inclinación es débil; sólo un forward test puede resolverla.",
+    enContra: "La inclinación es débil; sólo un forward test puede resolverla.",
     actualizado: "2026-08-21",
   },
   {
@@ -289,7 +289,7 @@ export const ITEMS: Item[] = [
     estado: "pendiente",
     prioridad: 5,
     queEs: "Los dos huecos vacíos de la combinación por horizontes.",
-    pega:
+    enContra:
       "El semestral no llega al mínimo de muestra con 8 tickers (170 < 200). Hay que bajar unos 20 símbolos más antes de poder medirlo.",
     actualizado: "2026-08-21",
   },
@@ -308,7 +308,7 @@ export const ITEMS: Item[] = [
     titulo: "Quitar el nombre viejo del proyecto",
     estado: "cerrado",
     queEs: "De todas partes del repo.",
-    pega:
+    enContra:
       "Cuidado: la carpeta de memoria de Claude se deriva de la ruta del proyecto. Si se renombra sin llevársela, se pierde todo el historial.",
     actualizado: "2026-08-21",
   },
@@ -329,7 +329,7 @@ export const ITEMS: Item[] = [
       "el comprador con prisa (paga por encima del ask) lleva MENOS información, no más: 0,1% contra 0,3%",
       "ni el tamaño del print ni el plazo agrandan el efecto",
     ],
-    pega:
+    enContra:
       "Regla que sale de aquí: antes de medir otra idea de comprar opciones direccionales, comprobar si la ventaja esperada supera el ~3% que cuesta la operación. Si no lo supera, no hace falta medirla.",
     actualizado: "2026-08-21",
   },
@@ -344,7 +344,7 @@ export const ITEMS: Item[] = [
       "separar las patas de spread de las solas: las SOLAS son las más flojas (t=0,37) — la explicación que teníamos era falsa",
       "el corte por tamaño de print rebota sin orden: $1M t=1,78 · $10M t=−0,42 · $25M t=0,70",
     ],
-    pega:
+    enContra:
       "Lo único que se salva es el mapa de liquidez, que es ejecución. Como señal, no renovar la suscripción.",
     actualizado: "2026-08-21",
   },
@@ -387,7 +387,7 @@ export const ITEMS: Item[] = [
       "EL IMÁN BARAJADO LO HACE MEJOR QUE EL REAL: 0,124 puntos a 30 min (t=3,1) contra −0,021 del verdadero",
       "lo bueno: los muros vivos SÍ son independientes (correlación 0,229 con el precio, se mueven el 7-10% de las barras) — no son un espejo del precio",
     ],
-    pega:
+    enContra:
       "Que el barajado gane al real no es señal débil: es ausencia de señal. El positivo del barajado es la deriva del mercado por el sesgo direccional del interés abierto. El GEX vivo vale como MAPA (dónde está la posición grande), no como brújula. Sigue vivo y sin contradicción el GEX como FILTRO del cóndor 0DTE, que es elegir días, no dirección.",
     actualizado: "2026-08-21",
   },
@@ -401,7 +401,7 @@ export const ITEMS: Item[] = [
       "1.122 días con muros y punto de giro calculados",
       "la estrategia derivada da −$1.988 al año contra $7.951 de simplemente comprar SPY",
     ],
-    pega: "Describe, no predice. Falta medir la versión VIVA, que es lo pendiente número 1.",
+    enContra: "Describe, no predice. Falta medir la versión VIVA, que es lo pendiente número 1.",
     actualizado: "2026-08-21",
   },
   {
@@ -430,7 +430,7 @@ export const ITEMS: Item[] = [
       "acercarse al dinero empeora y los stops pierden 19 de 20",
       "el filtro de amplitud se cae fuera de muestra: $11.552/año en vez de $18.770, y 2023 pierde",
     ],
-    pega: "Lo único que escala el cóndor es el tamaño, y el tamaño escala el susto igual.",
+    enContra: "Lo único que escala el cóndor es el tamaño, y el tamaño escala el susto igual.",
     actualizado: "2026-08-21",
   },
 ];

@@ -12,7 +12,7 @@
 import { useEffect, useState } from "react";
 
 type Cuaderno = {
-  id: string; clave: string; nombre: string; familia: "condor" | "riesgo"; unidad: string; pega?: string;
+  id: string; clave: string; nombre: string; familia: "condor" | "riesgo"; unidad: string; enContra?: string;
   filas: number; vacio: boolean;
   desde?: string | null; hasta?: string | null;
   cerradas?: number; abiertas?: number; sinSenal?: number;
@@ -75,10 +75,10 @@ export default function ForwardTests() {
                   return (
                     <tr key={c.id}
                         className={`${c.vacio ? "ftest-vacio" : ""} ${on ? "ftest-on" : ""}`}
-                        onClick={() => c.pega && setAbierto(on ? null : c.id)}>
+                        onClick={() => c.enContra && setAbierto(on ? null : c.id)}>
                       <td className="ftest-nombre">
                         {c.nombre}
-                        {c.pega ? <span className="ftest-aviso" title="tiene una pega — pulsa">⚠</span> : null}
+                        {c.enContra ? <span className="ftest-aviso" title="tiene algo en contra — pulsa">⚠</span> : null}
                       </td>
                       <td>{dia(c.desde)}</td>
                       <td>{c.filas || "—"}</td>
@@ -96,13 +96,13 @@ export default function ForwardTests() {
           </div>
 
           {abierto ? (
-            <div className="est-bloque est-pega ftest-pega">
-              <h4>La pega de «{cs.find((c) => c.id === abierto)?.nombre}»</h4>
-              <p>{cs.find((c) => c.id === abierto)?.pega}</p>
+            <div className="est-bloque est-encontra ftest-encontra">
+              <h4>En contra de «{cs.find((c) => c.id === abierto)?.nombre}»</h4>
+              <p>{cs.find((c) => c.id === abierto)?.enContra}</p>
             </div>
           ) : (
             <p className="ftest-pie">
-              Las filas con <span className="ftest-aviso">⚠</span> tienen una pega — pulsa para leerla.
+              Las filas con <span className="ftest-aviso">⚠</span> tienen algo en contra — pulsa para leerla.
               <br />
               <strong>Nada de esto es dinero real:</strong> son cuadernos en papel. Y con pocas
               operaciones cerradas, un resultado bueno o malo puede ser simple suerte.
