@@ -39,7 +39,13 @@ type Familia = "condor" | "riesgo";
 const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; unidad: string; enContra?: string;
                    filtro?: (f: Record<string, unknown>) => boolean;
                    extrae?: (raw: unknown) => Record<string, unknown>[];
-                   campoRes?: string }[] = [
+                   campoRes?: string;
+                   /** Dolares de una operacion cerrada. Sin esto, los cuadernos que miden en %
+                    *  salian SOLO en porcentaje mientras los que miden en $ salian en dolares:
+                    *  las perdidas se leian como dinero real y las ganancias como una abstraccion.
+                    *  Lester, 31-ago-2026: "por que demonios no puedes colocar el dinero que
+                    *  estamos ganando en las positivas?". */
+                   usd?: (f: Record<string, unknown>) => number | null }[] = [
   { id: "la-palanca", clave: "forward:la-palanca", nombre: "LA PALANCA", familia: "condor",
     unidad: "$ por operación · cartera de $60.000 · 60 grandes capitalizaciones",
     // El cuaderno guarda un OBJETO con `abiertas` y `operaciones` (las cerradas), no un array.
@@ -69,6 +75,7 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
     enContra: "Es el control: opera todos los días. Sirve para saber cuánto aportan los filtros, no para operarlo." },
   { id: "condor-tendencia", clave: "forward:condor-tendencia", nombre: "Cóndor · filtro de tendencia", familia: "condor", unidad: "$ por operación" },
   { id: "ledger", clave: "forward:ledger", nombre: "Credit spread", familia: "riesgo", unidad: "% sobre el riesgo",
+    usd: (f) => (typeof f.pnlPerSpread === "number" ? f.pnlPerSpread : null),
     enContra: "RESUELTO el 31 de agosto: no hay contradicción con el backtest. Aquel −2,53% es la celda de 5 días a 1σ medida sobre CUATRO AÑOS con un crash dentro; aquí esa misma celda da +1,07% sobre 78 operaciones de DIECISIETE DÍAS tranquilos. Ya estaba medido que el edge de 5 días es un artefacto del año calmo y se cae al incluir una caída — el robusto era el de 90 días. Así que este +1,25% no desmiente nada: confirma que vender prima en un mes sin sustos acierta el 95% de las veces. LA FORMA YA SE VE, y es la de vender prima: 240 ganadoras de +3,84% de media contra 13 perdedoras de −46,7%, TRES de ellas pérdida total del riesgo (−100%). Hacen falta 13 ganadoras para pagar UNA perdedora media. Con esa geometría, el resultado lo deciden las perdedoras, no el 95% de acierto — y 17 días no traen suficientes. Y el número tampoco es directamente tuyo: son 669 spreads en 6 combinaciones distintas a la vez (5@1, 7@1, 5@1.5, 7@1.5, 21@1.5, 90@1), una rejilla para ver qué celda sirve, no una cartera." },
   { id: "wheel", clave: "forward:wheel", nombre: "Wheel", familia: "riesgo", unidad: "% sobre el colateral",
     // El Wheel guarda el resultado en `retOnColl` (sobre el COLATERAL, que es lo correcto para una
@@ -76,8 +83,11 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
     // de media. Es la MISMA trampa que ya dio por muertos a credit spread, wheel e ideas en agosto:
     // cada familia guarda con SUS nombres y leerlos con los del vecino devuelve vacio, no un error.
     campoRes: "retOnColl",
-    enContra: "Las 274 operaciones NO son 274 apuestas: son 19 días × hasta 48 combinaciones (12 acciones × 2 deltas × 2 plazos). Es una rejilla que prueba todas las celdas en paralelo para ver cuál sirve, no una cartera. El colateral comprometido suma $10.609.650 — unas 140 veces la cuenta real, así que el +0,24% de media NO es dinero que se pueda ganar: es el rendimiento de una celda, no de una cartera. Y el 100% de acierto no dice nada: vender puts a 0,15 de delta acierta casi siempre por construcción, y todavía NO ha habido ni una asignación. Con 0,15 de delta toca ~1 asignación de cada 7 operaciones, y ganando 0,24% cada vez, una sola que cueste más del 1,7% se lleva la racha entera. Pendiente: 12 puts vencieron el 28 de agosto y siguen sin liquidar (las otras 255 abiertas vencen entre hoy y el 2 de octubre, y están bien)." },
+    usd: (f) => (typeof f.retOnColl === "number" && typeof f.collateral === "number" ? (f.retOnColl / 100) * f.collateral : null),
+    enContra: "Son 274 puts vendidos de verdad, repartidos en sólo 19 días: cada día abre hasta 48 a la vez (12 acciones × 2 deltas × 2 plazos). Es una rejilla que prueba todas las celdas en paralelo para ver cuál sirve, no una cartera. El colateral comprometido suma $10.609.650 — unas 140 veces la cuenta real, así que el +0,24% de media NO es dinero que se pueda ganar: es el rendimiento de una celda, no de una cartera. Y el 100% de acierto no dice nada: vender puts a 0,15 de delta acierta casi siempre por construcción, y todavía NO ha habido ni una asignación. Con 0,15 de delta toca ~1 asignación de cada 7 operaciones, y ganando 0,24% cada vez, una sola que cueste más del 1,7% se lleva la racha entera. Pendiente: 12 puts vencieron el 28 de agosto y siguen sin liquidar (las otras 255 abiertas vencen entre hoy y el 2 de octubre, y están bien)." },
   { id: "ideas", clave: "forward:ideas", nombre: "Ideas (scorecard de EVA)", familia: "riesgo", unidad: "% sobre el riesgo",
+    // Ideas NO guarda dolares: solo retOnRisk, sin el riesgo en dolares al lado. No se puede
+    // convertir sin inventarse el tamano, y eso no se hace. Se dice y se queda en %.
     enContra: "El scorecard está medido y cerrado (19.465 operaciones, no separa). Esto es la comprobación en directo de esa conclusión." },
 ];
 
@@ -128,6 +138,11 @@ export async function GET() {
         abiertas,
         sinSenal,
         media: vals.length ? media(vals) : null,
+        // en DOLARES, para los que miden en % — asi las ganancias se leen igual que las perdidas
+        totalUsd: c.usd ? (() => { const v = cerradas.map(c.usd!).filter((x): x is number => typeof x === "number");
+          return v.length ? v.reduce((a, b) => a + b, 0) : null; })() : null,
+        mediaUsd: c.usd ? (() => { const v = cerradas.map(c.usd!).filter((x): x is number => typeof x === "number");
+          return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; })() : null,
         total: esCondor && vals.length ? vals.reduce((a, b) => a + b, 0) : null,
         acierto: vals.length ? vals.filter((x) => x > 0).length / vals.length : null,
         vacio: false,

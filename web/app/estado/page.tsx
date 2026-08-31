@@ -130,7 +130,10 @@ function MuestraViva({ ids }: { ids: string[] }) {
             ? ` · ${c.media < 0 ? "−$" : "$"}${Math.abs(Math.round(c.media)).toLocaleString("es-ES")} por operacion`
             : ` · ${c.media >= 0 ? "+" : "−"}${Math.abs(c.media).toFixed(2)}% ${c.unidad.replace("% sobre", "sobre")}`;
         const ac = c.acierto != null ? ` · acierta ${Math.round(c.acierto * 100)}%` : "";
-        return `${mios.length > 1 ? c.nombre + ": " : ""}${cer} cerradas${abi ? ` y ${abi} abiertas` : ""}${res}${ac}`;
+        // El TOTAL delante: Lester pregunto tres veces "¿cuantas operaciones tradeo?" y la
+        // muestra solo decia cerradas y abiertas. El numero que buscaba es la suma.
+        const ops = cer + abi;
+        return `${mios.length > 1 ? c.nombre + ": " : ""}${ops} operaciones (${cer} cerradas${abi ? `, ${abi} abiertas` : ""})${res}${ac}`;
       });
       setTxt(partes.join("  ·  "));
     });

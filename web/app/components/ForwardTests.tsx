@@ -17,6 +17,7 @@ type Cuaderno = {
   desde?: string | null; hasta?: string | null;
   cerradas?: number; abiertas?: number; sinSenal?: number;
   media?: number | null; total?: number | null; acierto?: number | null;
+  totalUsd?: number | null; mediaUsd?: number | null;
 };
 
 const usd = (x: number) => (x < 0 ? "−$" : "$") + Math.abs(Math.round(x)).toLocaleString("es-ES");
@@ -43,7 +44,7 @@ export default function ForwardTests() {
   return (
     <section className="est-grupo">
       <header className="est-grupo-head">
-        <h2><span aria-hidden="true">📡</span> Lo que está pasando AHORA</h2>
+        <h2><span aria-hidden="true">📡</span> LO QUE ESTÁ PASANDO AHORA</h2>
         <p>los cuadernos que corren en Railway · se lee de Redis al abrir la página</p>
       </header>
 
@@ -72,7 +73,12 @@ export default function ForwardTests() {
                       ? `${usd(c.media)} por operación${c.total != null ? ` · ${usd(c.total)} total` : ""}`
                       // La unidad NO se escribe a mano: cada cuaderno trae la suya. El Wheel mide
                       // sobre el COLATERAL y decia "sobre el riesgo" porque este texto estaba fijo.
-                      : pct(c.media) + " " + (c.unidad || "").replace(/^%\s*/, "");
+                      // Los dolares PRIMERO tambien aqui: antes los que miden en % salian solo
+                      // en porcentaje y las ganancias no se leian como dinero. Lester, 31-ago.
+                      : c.mediaUsd != null
+                        ? `${usd(c.mediaUsd)} por operación · ${usd(c.totalUsd ?? 0)} total` +
+                          ` · ${pct(c.media)} ${(c.unidad || "").replace(/^%\s*/, "")}`
+                        : pct(c.media) + " " + (c.unidad || "").replace(/^%\s*/, "");
                   const bueno = (c.media ?? 0) > 0;
                   return (
                     <tr key={c.id}
@@ -116,10 +122,6 @@ export default function ForwardTests() {
             </div>
           ) : (
             <p className="ftest-pie">
-              <b>«Días sin señal»</b> son los días que el cuaderno miró y decidió no entrar porque no
-              se cumplían sus condiciones. <b>«5 de 7 días»</b> quiere decir que de 7 días que
-              buscó oportunidad, en 5 no la hubo y en 2 sí. Se apuntan a propósito: sin ellos,
-              «miró y no operó» y «no miró» se ven igual.<br />
               Las filas con <span className="ftest-aviso">⚠</span> tienen algo en contra — pulsa para leerla.
               <br />
               <strong>Nada de esto es dinero real:</strong> son cuadernos en papel. Y con pocas

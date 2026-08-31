@@ -47,6 +47,8 @@ interface WPut {
    *  distinguir lo que produce el servicio de lo que produce una prueba mía. */
   origen?: string;
   exitDate?: string; exitSpot?: number; retOnColl?: number; assigned?: boolean; closedReason?: string;
+  /** Vencida y sin poder liquidar: se apunta en el DATO, no solo en el registro de Railway. */
+  liquidacionFallida?: { desde: string; motivo: string; intentos: number };
 }
 
 let redis: Redis | null = null;
@@ -211,7 +213,27 @@ function pctile(v: number[], p: number): number | null { if (!v.length) return n
   for (const s of rescate.sinResolver) console.warn(`[${s.ticker}] ⚠ NO se pudieron bajar barras — sus puts vencidos NO liquidan: ${s.motivo}`);
 
   let settled = 0;
-  for (const p of ledger) { if (p.status !== "open") continue; const bars = barsByTicker.get(p.ticker); if (!bars) continue; if (Date.now() < p.expiryMs) continue; if (await settle(p, bars)) settled++; }
+  // ⚠️ UN SALTO EN SILENCIO ERA EL FALLO. Antes esto decía `if (!bars) continue`: la posición
+  //    vencida se quedaba abierta y NADA en los datos decía por qué. El aviso moría en el registro
+  //    de Railway y en la web esas posiciones se veían como abiertas normales. Y no fallan al azar:
+  //    fallan siempre los tickers con problemas de datos, así que las que desaparecen de las
+  //    estadísticas son justo las de una familia concreta — y eso empuja el acierto hacia arriba.
+  //    Ahora la posición lleva escrito que se intentó y por qué no se pudo.
+  const sinDatos = new Map(rescate.sinResolver.map((s) => [s.ticker, s.motivo]));
+  let mudas = 0;
+  for (const p of ledger) {
+    if (p.status !== "open") continue;
+    if (Date.now() < p.expiryMs) continue;
+    const bars = barsByTicker.get(p.ticker);
+    if (!bars) {
+      p.liquidacionFallida = { desde: new Date().toISOString().slice(0, 10),
+        motivo: sinDatos.get(p.ticker) ?? "sin barras para ese ticker",
+        intentos: (p.liquidacionFallida?.intentos ?? 0) + 1 };
+      mudas++;
+      continue; }
+    delete p.liquidacionFallida;            // si hoy sí se pudo, deja de estar marcada
+    if (await settle(p, bars)) settled++; }
+  if (mudas) console.warn(`⚠ ${mudas} posiciones vencidas NO se pudieron liquidar y quedan MARCADAS en el ledger`);
 
   const zombis = vencidasSinLiquidar(ledger, Date.now());
   if (zombis.length) console.warn(`⚠ ${zombis.length} puts VENCIDOS siguen abiertos: ${zombis.map((z) => `${z.ticker}/${z.expiryDate}`).join(", ")}`);
