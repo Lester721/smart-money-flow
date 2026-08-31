@@ -114,7 +114,11 @@ const ALIAS = { "gex-condor": "Cóndor", "condor-sinfiltro": "Cóndor", "credit-
                 "ideas-worker": "smart-money-flow",
                 // Los registros del cóndor viven todos en el MISMO servicio de Railway
                 // ("Forward · Cóndor 0DTE"), cada uno con su propio ledger en Redis.
-                "tres-sies": "Cóndor", "condor-tendencia": "Cóndor", "mariposa-15h": "Cóndor" };
+                "tres-sies": "Cóndor", "condor-tendencia": "Cóndor", "mariposa-15h": "Cóndor",
+                // Anadidos el 2026-08-31. Sin estar aqui, el vigilante los daba por "nombre
+                // inventado" y NO los miraba: un servicio que el monitor no conoce es un
+                // servicio que nadie vigila. Ver "auditar-el-propio-monitor" en memoria.
+                "tsla-missile": "Missile", "la-palanca": "La Palanca" };
 function buscarDespliegue(mapa, servicio) {
   if (!mapa) return null;
   const pista = (ALIAS[servicio] || servicio).toLowerCase();
@@ -164,7 +168,7 @@ console.log("\n── SERVICIOS ────────────────
 // pero el vigilante no los tenía en la lista, así que si se morían nadie se enteraba: salían como
 // "latido con un nombre que no es de ningún servicio esperado" y no sumaban aviso. Ese es
 // justo el fallo que esta lista existe para impedir — un monitor tiene que fallar CERRADO.
-const ESPERADOS = (process.env.SERVICIOS_ESPERADOS || "gex-condor,condor-sinfiltro,condor-tendencia,tres-sies,mariposa-15h,credit-spread,wheel,ideas,ideas-worker")
+const ESPERADOS = (process.env.SERVICIOS_ESPERADOS || "gex-condor,condor-sinfiltro,condor-tendencia,tres-sies,mariposa-15h,credit-spread,wheel,ideas,ideas-worker,tsla-missile,la-palanca")
   .split(",").map((x) => x.trim()).filter(Boolean);
 const sueltos = (await r.keys("latido:*")).map((k) => k.replace("latido:", "")).filter((n) => !ESPERADOS.includes(n));
 if (sueltos.length) {
