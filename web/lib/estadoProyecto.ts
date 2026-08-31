@@ -222,6 +222,62 @@ export const ITEMS: Item[] = [
     actualizado: "2026-08-31",
   },
   {
+    id: "fwd-credit-spread",
+    titulo: "Credit spread · el cuaderno en directo",
+    estado: "en-prueba",
+    cuadernos: ["ledger"],
+    queEs:
+      "Vende un vertical de crédito a la distancia que marca la volatilidad del subyacente, en seis combinaciones de plazo y distancia a la vez, y lo deja vencer. Corre desde el 3 de agosto.",
+    numero: "la estrategia está CERRADA como conclusión — este cuaderno existe para comprobarla",
+    evidencia: [
+      "el 31 de agosto se resolvió la contradicción que llevaba semanas escrita: NO la había",
+      "el backtest dio −2,53% en la celda de 5 días a 1σ sobre CUATRO AÑOS con un crash dentro",
+      "el cuaderno da +1,07% en esa misma celda sobre 17 días tranquilos: es el mismo hallazgo, no uno distinto",
+      "ya estaba medido que el edge de 5 días es artefacto del año calmo; el robusto era el de 90 días",
+    ],
+    enContra:
+      "La forma ya se ve y es la de vender prima: 240 ganadoras de +3,84% contra 13 perdedoras de −46,7%, TRES de ellas pérdida total del riesgo. Hacen falta 13 ganadoras para pagar UNA perdedora media, así que el resultado lo deciden las perdedoras y no el 95% de acierto. Y las 669 operaciones son una rejilla de seis combinaciones a la vez, no una cartera que puedas tener.",
+    siguiente:
+      "Esperar a la primera caída de verdad. Hasta entonces el número sólo dice que en 17 días tranquilos se acierta mucho, que ya lo sabíamos.",
+    actualizado: "2026-08-31",
+  },
+  {
+    id: "fwd-wheel",
+    titulo: "Wheel · el cuaderno en directo",
+    estado: "en-prueba",
+    cuadernos: ["wheel"],
+    queEs:
+      "Vende puts fuera del dinero a 0,15 y 0,25 de delta, a 15 y 30 días, sobre 12 acciones. Se cierra al recuperar la mitad de la prima o se deja vencer. Corre desde el 4 de agosto.",
+    numero: "274 puts vendidos · 7 cerrados · 267 vivos",
+    evidencia: [
+      "los 7 cerrados ganan los 7, con +0,24% de media sobre el colateral",
+      "motivos de cierre sensatos: «gestión 50%» y «expiró sin valor»",
+      "el backtest dejó 5 activos positivos pero NINGUNO concluyente (HOOD +0,52 · PLTR +0,48)",
+    ],
+    enContra:
+      "El 100% de acierto no dice nada: vender puts a 0,15 de delta acierta casi siempre por construcción, y todavía no ha habido NI UNA asignación — sólo hemos visto la mitad buena de la distribución. Con ese delta toca ~1 asignación de cada 7, y ganando 0,24% cada vez, una sola que cueste más del 1,7% se lleva la racha entera. Además las 274 operaciones comprometen $10,6 millones de colateral, unas 140 veces la cuenta real: el +0,24% es el rendimiento de una celda, no de una cartera que puedas tener.",
+    siguiente:
+      "Que ocurra la primera asignación. Y arreglar que 12 puts vencidos el 28 de agosto sigan abiertos: ThetaData devuelve «sin datos» para algunos tickers y el script los salta en silencio.",
+    actualizado: "2026-08-31",
+  },
+  {
+    id: "fwd-ideas",
+    titulo: "Ideas · el scorecard de EVA en directo",
+    estado: "en-prueba",
+    cuadernos: ["ideas"],
+    queEs:
+      "Toma las señales que el scorecard de EVA marca como de más convicción y abre con ellas un vertical de crédito. Corre desde el 19 de agosto.",
+    numero: "la conclusión del backtest es que NO separa — este cuaderno la comprueba en directo",
+    evidencia: [
+      "medido sobre 19.465 operaciones con precios reales: el scorecard no separa ganadoras de perdedoras",
+      "y comprando a largo tampoco: 0 de 12, concluyente",
+      "en directo va a −7,54% con 31% de acierto en 16 operaciones, coherente con esa conclusión",
+    ],
+    enContra:
+      "16 operaciones no confirman nada, ni a favor ni en contra. Y va en la misma dirección que el backtest, así que lo más probable es que sólo esté repitiendo lo que ya sabíamos. Si algún día saliera positivo, la primera sospecha sería la muestra, no el hallazgo.",
+    actualizado: "2026-08-31",
+  },
+  {
     id: "triple-negativo",
     titulo: "El «triple negativo» — reevaluar cuando haya muestra",
     estado: "pendiente",
@@ -273,7 +329,7 @@ export const ITEMS: Item[] = [
   },
   {
     id: "wheel",
-    cuadernos: ["wheel"],
+
     // El monitoreo YA existe y lleva escribiendo desde el 4 de agosto; lo que falta es el backtest a escala. OJO: el 100% de acierto no dice nada — vender puts a 0,15 de delta acierta casi siempre por construccion, y aun no ha habido NI UNA asignacion.
     titulo: "Wheel: backtest y monitoreo",
     estado: "pendiente",
@@ -362,7 +418,7 @@ export const ITEMS: Item[] = [
   },
   {
     id: "cerrado-eva",
-    cuadernos: ["ideas"],
+
     // El cuaderno sigue corriendo para comprobar en directo la conclusion del backtest (19.465 operaciones, no separa).
     titulo: "EVA · el scorecard",
     estado: "cerrado",
@@ -406,7 +462,7 @@ export const ITEMS: Item[] = [
   },
   {
     id: "cerrado-venta-prima",
-    cuadernos: ["ledger"],
+
     // El cuaderno sigue corriendo A PROPOSITO: el backtest con precios reales daba −2,53% y en directo sale POSITIVO. Uno de los dos esta mal y con 253 operaciones cerradas ya no se puede aplazar.
     titulo: "La familia de venta de prima (credit spreads, calls cubiertas)",
     estado: "cerrado",

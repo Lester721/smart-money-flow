@@ -86,12 +86,14 @@ function CuadernosSinFicha() {
         </>
       ) : null}
       {sueltos.length ? (
-      <b>⚠ {sueltos.length} cuadernos corriendo que no estan en esta lista.</b>
+        <>
+          <b>⚠ {sueltos.length} cuadernos corriendo que no estan en esta lista.</b>
+          <p>
+            Estan escribiendo en Redis ahora mismo y no tienen ficha aqui. Salen todos en el
+            marcador de arriba, pero esta seccion se escribe a mano y se ha quedado vieja:
+          </p>
+        </>
       ) : null}
-      <p>
-        Estan escribiendo en Redis ahora mismo y no tienen ficha aqui. Salen todos en el marcador
-        de arriba, pero esta seccion se escribe a mano y se ha quedado vieja:
-      </p>
       {sueltos.length ? (
       <ul>
         {sueltos.map((c) => (
