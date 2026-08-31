@@ -15,7 +15,7 @@ const TOKEN = process.env.RAILWAY_TOKEN;
 const API = 'https://backboard.railway.com/graphql/v2';
 const APLICAR = process.argv.includes('--aplicar');
 const REF = '${{Redis.REDIS_URL}}';
-const ARREGLAR = ["TSLA's Missile", 'Forward · La Palanca'];
+const ARREGLAR = process.env.SVC ? [process.env.SVC] : ["TSLA's Missile", 'Forward · La Palanca'];
 async function g(q, v = {}) {
   const r = await fetch(API, { method:'POST',
     headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOKEN},

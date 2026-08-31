@@ -114,7 +114,10 @@ const ALIAS = { "gex-condor": "Cóndor", "condor-sinfiltro": "Cóndor", "credit-
                 "ideas-worker": "smart-money-flow",
                 // Los registros del cóndor viven todos en el MISMO servicio de Railway
                 // ("Forward · Cóndor 0DTE"), cada uno con su propio ledger en Redis.
-                "tres-sies": "Cóndor", "condor-tendencia": "Cóndor", "mariposa-15h": "Cóndor",
+                "tres-sies": "Cóndor", "condor-tendencia": "Cóndor",
+                // La mariposa YA NO vive en el servicio del condor: desde el 31-ago tiene el suyo,
+                // porque necesita la foto de las 15:00 NY y el condor corre a las 11:10.
+                "mariposa-15h": "Mariposa",
                 // Anadidos el 2026-08-31. Sin estar aqui, el vigilante los daba por "nombre
                 // inventado" y NO los miraba: un servicio que el monitor no conoce es un
                 // servicio que nadie vigila. Ver "auditar-el-propio-monitor" en memoria.
