@@ -115,7 +115,36 @@ function CuadernosSinFicha() {
 let _cache: Promise<any> | null = null;
 const traerCuadernos = () => (_cache ??= fetch("/api/forward-tests").then((r) => r.json()).catch(() => null));
 
-type Op = { que: string; cuando: string; usd: number | null; pct: number | null; nota: string };
+/** LOS CUATRO NUMEROS DE ARRIBA.
+ *
+ *  Contaban IDEAS (10 en prueba, 2 en pie, 5 pendientes, 10 cerradas) en una pagina donde todo
+ *  lo demas cuenta OPERACIONES. Lester lo enseño cuatro veces y al final lo dijo entero:
+ *  "NO TIENES NINGUN FORWARD TEST CERRADO" y "NO TIENES NI PENDIENTES". Tenia razon las dos
+ *  veces: no hay ni un forward test cerrado ni uno pendiente. Los numeros eran ciertos para su
+ *  definicion y falsos para cualquiera que los leyera.
+ *
+ *  Ahora cuentan lo mismo que el resto de la pagina y salen de Redis, no de una constante. */
+function Contadores() {
+  const [v, setV] = useState<{ vivos: number; cerradas: number; abiertas: number } | null>(null);
+  useEffect(() => { traerCuadernos().then((j) => {
+    if (!j?.ok) return;
+    const c = j.cuadernos as { filas?: number; cerradas?: number; abiertas?: number }[];
+    setV({ vivos: c.filter((x) => (x.filas ?? 0) > 0).length,
+           cerradas: c.reduce((a, x) => a + (x.cerradas ?? 0), 0),
+           abiertas: c.reduce((a, x) => a + (x.abiertas ?? 0), 0) });
+  }); }, []);
+  return (
+    <div className="est-cuentas">
+      <div><b>{v ? v.vivos : "—"}</b><span>cuadernos operando</span></div>
+      <div><b>{v ? v.cerradas.toLocaleString("es-ES") : "—"}</b><span>operaciones cerradas</span></div>
+      <div><b>{v ? v.abiertas.toLocaleString("es-ES") : "—"}</b><span>operaciones abiertas</span></div>
+      <div className="est-cuenta-muerta"><b>{RESUMEN.cerrado}</b><span>ideas descartadas</span></div>
+    </div>
+  );
+}
+
+type Op = { accion: string; opcion: string; spot: number | null; abrio: string; vence: string;
+  dias: number | null; que: string; cuando: string; usd: number | null; pct: number | null; nota: string };
 function MuestraViva({ ids }: { ids: string[] }) {
   const [txt, setTxt] = useState<string | null>(null);
   const [ops, setOps] = useState<Op[]>([]);
@@ -159,12 +188,21 @@ function MuestraViva({ ids }: { ids: string[] }) {
         <b>{txt}</b>
       </div>
       {ops.length ? (
+        <div className="est-muestra-scroll">
         <table className="est-muestra-tabla">
-          <thead><tr><th>qué</th><th>cerró</th><th>resultado</th><th></th></tr></thead>
+          <thead><tr>
+            <th>acción</th><th>opción</th><th>acción al abrir</th>
+            <th>abrió</th><th>vence</th><th>días</th><th>cerró</th><th>resultado</th><th>motivo</th>
+          </tr></thead>
           <tbody>
             {ops.map((o, i) => (
               <tr key={i}>
-                <td>{o.que}</td>
+                <td>{o.accion}</td>
+                <td className="est-muestra-patas">{o.opcion}</td>
+                <td>{o.spot != null ? d(o.spot) : "—"}</td>
+                <td>{o.abrio ? o.abrio.slice(5) : "—"}</td>
+                <td>{o.vence ? o.vence.slice(5) : "—"}</td>
+                <td>{o.dias != null ? o.dias : "—"}</td>
                 <td>{o.cuando ? o.cuando.slice(5) : "—"}</td>
                 <td className={(o.usd ?? o.pct ?? 0) >= 0 ? "pos" : "neg"}>
                   {o.usd != null ? d(o.usd) : o.pct != null ? `${o.pct >= 0 ? "+" : "−"}${Math.abs(o.pct).toFixed(2)}%` : "—"}
@@ -174,6 +212,7 @@ function MuestraViva({ ids }: { ids: string[] }) {
             ))}
           </tbody>
         </table>
+        </div>
       ) : null}
     </div>
   );
@@ -250,12 +289,13 @@ export default function EstadoPage() {
           Desde el <strong>{RESUMEN.desde}</strong>. Cada entrada lleva lo que hay en contra escrito al lado:
           un hallazgo sin su objeción es propaganda, no una nota de trabajo.
         </p>
-        <div className="est-cuentas">
-          <div><b>{RESUMEN.enPrueba}</b><span>en prueba</span></div>
-          <div><b>{RESUMEN.loQueFunciona}</b><span>en pie</span></div>
-          <div><b>{RESUMEN.pendiente}</b><span>pendientes</span></div>
-          <div className="est-cuenta-muerta"><b>{RESUMEN.cerrado}</b><span>cerrados</span></div>
-        </div>
+        <Contadores />
+        {/* SELLO DE VERSION. Lester enseño cuatro veces una captura con "10 CERRADOS" mientras el
+            servidor ya mandaba "ideas descartadas": su navegador tenia la pagina vieja en cache y
+            no habia forma rapida de saberlo — se fue una sesion entera en averiguarlo. Con el sello
+            a la vista, "¿estas viendo lo ultimo?" se contesta en un segundo. Si el numero de aqui
+            no coincide con el que yo diga, es cache: Ctrl+Shift+R. */}
+        <p className="est-sello">versión {ACTUALIZADO}</p>
       </section>
 
       {/* ARRIBA DEL TODO: lo que esta pasando en directo va antes que el backtest.

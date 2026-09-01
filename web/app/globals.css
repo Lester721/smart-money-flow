@@ -1440,11 +1440,22 @@ tfoot .totals td {
    operaciones, no un resumen. */
 .est-muestra { flex-direction: column; align-items: stretch; }
 .est-muestra-cab { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.est-muestra-tabla { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px;
+.est-muestra-tabla { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 720px;
   font-variant-numeric: tabular-nums; }
-.est-muestra-tabla th { text-align: left; font-size: 9.5px; text-transform: uppercase;
-  letter-spacing: .05em; color: rgba(122,162,255,.75); padding: 0 10px 4px 0; font-weight: 600; }
-.est-muestra-tabla td { padding: 3px 10px 3px 0; color: #cfe0ff; border-top: 1px solid rgba(122,162,255,.15); }
+/* Todo CENTRADO menos la primera columna: son cifras, y centrarlas las alinea; el nombre de la
+   accion se lee mejor pegado a la izquierda. Lester, 31-ago-2026. */
+.est-muestra-tabla th { text-align: center; font-size: 9.5px; text-transform: uppercase;
+  letter-spacing: .05em; color: rgba(122,162,255,.75); padding: 0 10px 5px; font-weight: 600;
+  white-space: nowrap; }
+.est-muestra-tabla td { padding: 4px 10px; color: #cfe0ff; text-align: center;
+  border-top: 1px solid rgba(122,162,255,.15); white-space: nowrap; }
+.est-muestra-tabla th:first-child, .est-muestra-tabla td:first-child { text-align: left; padding-left: 0; }
+.est-muestra-patas { text-align: left !important; color: #a9c4ff !important; white-space: normal !important; }
+.est-muestra-scroll { overflow-x: auto; margin-top: 8px; }
+.est-muestra-scroll::-webkit-scrollbar { height: 6px; }
+.est-muestra-scroll::-webkit-scrollbar-thumb { background: rgba(122,162,255,.3); border-radius: 3px; }
 .est-muestra-tabla td.pos { color: #3fb950; font-weight: 700; }
 .est-muestra-tabla td.neg { color: #f85149; font-weight: 700; }
 .est-muestra-nota { color: rgba(207,224,255,.55) !important; font-weight: 400 !important; }
+
+.est-sello { margin-top: 10px; font-size: 11px; letter-spacing: .04em; color: var(--dim, #667); }
