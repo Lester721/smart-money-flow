@@ -61,9 +61,9 @@ export const ITEMS: Item[] = [
     cuadernos: ["tres-sies"],
     numero: "$6.380 al año con 1 contrato",
     evidencia: [
-      "201 operaciones · 94% de acierto · $127 de media por operación",
+      "en el backtest: 201 operaciones · 94% de acierto · $127 de media por operación",
       "peor operación −$4.725 · caída máxima acumulada −$7.093",
-      "MÁXIMO 2 PERDEDORAS SEGUIDAS en 201 operaciones (el cóndor crudo encadena 6)",
+      "MÁXIMO 2 PERDEDORAS SEGUIDAS en las 201 del backtest (el cóndor crudo encadena 6)",
       "año a año: 2022 $4.328 · 2023 $887 · 2024 $5.053 · 2025 $5.713 · 2026 $9.504",
       "en 2022 operó sólo 13 días de 219 y ganó los 13; el mismo cóndor sin filtro perdió $22.074 ese año",
       "retiene ~$5.000 de colateral por contrato",
@@ -239,7 +239,7 @@ export const ITEMS: Item[] = [
       "ya estaba medido que el edge de 5 días es artefacto del año calmo; el robusto era el de 90 días",
     ],
     enContra:
-      "La forma ya se ve y es la de vender prima: 240 ganadoras de +3,84% contra 13 perdedoras de −46,7%, TRES de ellas pérdida total del riesgo. Hacen falta 13 ganadoras para pagar UNA perdedora media, así que el resultado lo deciden las perdedoras y no el 95% de acierto. Y las 669 operaciones son una rejilla de seis combinaciones a la vez, no una cartera que puedas tener.",
+      "La forma ya se ve y es la de vender prima: 240 ganadoras de +3,84% contra 13 perdedoras de −46,7%, TRES de ellas pérdida total del riesgo. Hacen falta 13 ganadoras para pagar UNA perdedora media, así que el resultado lo deciden las perdedoras y no el 95% de acierto. Y esas operaciones son una rejilla de seis combinaciones a la vez, no una cartera que puedas tener.",
     siguiente:
       "Esperar a la primera caída de verdad. Hasta entonces el número sólo dice que en 17 días tranquilos se acierta mucho, que ya lo sabíamos.",
     actualizado: "2026-08-31",
@@ -251,14 +251,16 @@ export const ITEMS: Item[] = [
     cuadernos: ["wheel"],
     queEs:
       "Vende puts fuera del dinero a 0,15 y 0,25 de delta, a 15 y 30 días, sobre 12 acciones. Se cierra al recuperar la mitad de la prima o se deja vencer. Corre desde el 4 de agosto.",
-    numero: "274 puts vendidos · 7 cerrados · 267 vivos",
+    // Sin cifras a mano: el recuento vive en la banda de "lo que esta pasando ahora", justo
+    // debajo de esta ficha. Cuando estuvo escrito aqui decia "7 cerrados" con 19 en la tabla.
+    numero: "12 acciones · 2 deltas × 2 plazos, todas las celdas a la vez",
     evidencia: [
-      "los 7 cerrados ganan los 7, con +0,24% de media sobre el colateral",
+      "las cerradas van ganando TODAS, con algo menos de un cuarto de punto de media sobre el colateral",
       "motivos de cierre sensatos: «gestión 50%» y «expiró sin valor»",
       "el backtest dejó 5 activos positivos pero NINGUNO concluyente (HOOD +0,52 · PLTR +0,48)",
     ],
     enContra:
-      "El 100% de acierto no dice nada: vender puts a 0,15 de delta acierta casi siempre por construcción, y todavía no ha habido NI UNA asignación — sólo hemos visto la mitad buena de la distribución. Con ese delta toca ~1 asignación de cada 7, y ganando 0,24% cada vez, una sola que cueste más del 1,7% se lleva la racha entera. Además las 274 operaciones comprometen $10,6 millones de colateral, unas 140 veces la cuenta real: el +0,24% es el rendimiento de una celda, no de una cartera que puedas tener.",
+      "El 100% de acierto no dice nada: vender puts a 0,15 de delta acierta casi siempre por construcción, y todavía no ha habido NI UNA asignación — sólo hemos visto la mitad buena de la distribución. Con ese delta toca ~1 asignación de cada 7, y ganando 0,24% cada vez, una sola que cueste más del 1,7% se lleva la racha entera. Además el colateral comprometido pasa de $11 millones, más de 150 veces la cuenta real: el +0,24% es el rendimiento de una celda, no de una cartera que puedas tener.",
     siguiente:
       "Que ocurra la primera asignación. Y arreglar que 12 puts vencidos el 28 de agosto sigan abiertos: ThetaData devuelve «sin datos» para algunos tickers y el script los salta en silencio.",
     actualizado: "2026-08-31",
@@ -272,7 +274,7 @@ export const ITEMS: Item[] = [
       "Toma las señales que el scorecard de EVA marca como de más convicción y abre con ellas un vertical de crédito. Corre desde el 19 de agosto.",
     numero: "la conclusión del backtest es que NO separa — este cuaderno la comprueba en directo",
     evidencia: [
-      "medido sobre 19.465 operaciones con precios reales: el scorecard no separa ganadoras de perdedoras",
+      "medido en el backtest sobre 19.465 operaciones con precios reales: el scorecard no separa ganadoras de perdedoras",
       "y comprando a largo tampoco: 0 de 12, concluyente",
       "en directo va a −7,54% con 31% de acierto en 16 operaciones, coherente con esa conclusión",
     ],
@@ -427,7 +429,7 @@ export const ITEMS: Item[] = [
     estado: "cerrado",
     queEs: "El sistema de puntuación con pesos, medido en grande y con precios reales.",
     evidencia: [
-      "19.465 operaciones: no separa. Una ventaja del 10% se habría visto y no está",
+      "en el backtest, 19.465 operaciones: no separa. Una ventaja del 10% se habría visto y no está",
       "comprando a largo: 0 de 12, concluyente. El +0,7% que parecía hallazgo era peaje de liquidez",
       "ninguno de sus ingredientes es estable: el proxy de IV pasa de t=+6,7 a t=−3,8 en el período siguiente",
     ],

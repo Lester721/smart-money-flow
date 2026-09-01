@@ -36,7 +36,17 @@ type Familia = "condor" | "riesgo";
 // un OBJETO `{operaciones:[...]}` en vez de un array, y llama `resultado` a lo que los demás
 // llaman `pl`. Sin esto se leería vacío y saldría con cero operaciones — que es exactamente el
 // fallo que ya dio por muertos a credit spread, wheel e ideas una vez.
-const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; unidad: string; enContra?: string;
+/** Los numeros VIVOS de un cuaderno, para que el texto los saque de la MISMA consulta que la
+ *  tabla. Una cifra escrita a mano al lado de una tabla viva es una mentira en espera: la ficha
+ *  del Wheel decia "7 cerrados" mientras su propia tabla, dos centimetros mas abajo, decia 19. */
+type Vivo = { filas: number; cerradas: number; abiertas: number; dias: number; acierto: number | null;
+              media: number | null; ganadoras: number; perdedoras: number; mediaGana: number | null;
+              mediaPierde: number | null; ruina: number; colateral: number };
+const n = (x: number) => x.toLocaleString("es-ES");
+const pc = (x: number | null, d = 2) => (x == null ? "—" : (x >= 0 ? "+" : "") + x.toFixed(d).replace(".", ",") + "%");
+const usdN = (x: number) => "$" + Math.round(x).toLocaleString("es-ES");
+
+const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; unidad: string; enContra?: string | ((v: Vivo) => string);
                    filtro?: (f: Record<string, unknown>) => boolean;
                    extrae?: (raw: unknown) => Record<string, unknown>[];
                    campoRes?: string;
@@ -76,7 +86,7 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
   { id: "condor-tendencia", clave: "forward:condor-tendencia", nombre: "Cóndor · filtro de tendencia", familia: "condor", unidad: "$ por operación" },
   { id: "ledger", clave: "forward:ledger", nombre: "Credit spread", familia: "riesgo", unidad: "% sobre el riesgo",
     usd: (f) => (typeof f.pnlPerSpread === "number" ? f.pnlPerSpread : null),
-    enContra: "RESUELTO el 31 de agosto: no hay contradicción con el backtest. Aquel −2,53% es la celda de 5 días a 1σ medida sobre CUATRO AÑOS con un crash dentro; aquí esa misma celda da +1,07% sobre 78 operaciones de DIECISIETE DÍAS tranquilos. Ya estaba medido que el edge de 5 días es un artefacto del año calmo y se cae al incluir una caída — el robusto era el de 90 días. Así que este +1,25% no desmiente nada: confirma que vender prima en un mes sin sustos acierta el 95% de las veces. LA FORMA YA SE VE, y es la de vender prima: 240 ganadoras de +3,84% de media contra 13 perdedoras de −46,7%, TRES de ellas pérdida total del riesgo (−100%). Hacen falta 13 ganadoras para pagar UNA perdedora media. Con esa geometría, el resultado lo deciden las perdedoras, no el 95% de acierto — y 17 días no traen suficientes. Y el número tampoco es directamente tuyo: son 669 spreads en 6 combinaciones distintas a la vez (5@1, 7@1, 5@1.5, 7@1.5, 21@1.5, 90@1), una rejilla para ver qué celda sirve, no una cartera." },
+    enContra: (v) => `RESUELTO el 31 de agosto: no hay contradicción con el backtest. Aquel −2,53% es la celda de 5 días a 1σ medida sobre CUATRO AÑOS con un crash dentro; aquí se mide sobre ${v.dias} días tranquilos, que no traen ni una caída. Ya estaba medido que el edge de 5 días es un artefacto del año calmo y se cae al incluir un crash — el robusto era el de 90 días. Así que este ${pc(v.media)} no desmiente nada. LA FORMA YA SE VE, y es la de vender prima: ${n(v.ganadoras)} ganadoras de ${pc(v.mediaGana)} de media contra ${n(v.perdedoras)} perdedoras de ${pc(v.mediaPierde)}${v.ruina ? `, ${v.ruina} de ellas pérdida total del riesgo (−100%)` : ""}. Hacen falta ${v.mediaGana && v.mediaPierde ? Math.ceil(Math.abs(v.mediaPierde / v.mediaGana)) : "—"} ganadoras para pagar UNA perdedora media. Con esa geometría el resultado lo deciden las perdedoras, no el acierto de ${pc(v.acierto == null ? null : v.acierto * 100, 0)} — y ${v.dias} días no traen suficientes. Y el número tampoco es directamente tuyo: son ${n(v.filas)} spreads en 6 combinaciones a la vez (5@1, 7@1, 5@1.5, 7@1.5, 21@1.5, 90@1), una rejilla para ver qué celda sirve, no una cartera.` },
   { id: "wheel", clave: "forward:wheel", nombre: "Wheel", familia: "riesgo", unidad: "% sobre el colateral",
     // El Wheel guarda el resultado en `retOnColl` (sobre el COLATERAL, que es lo correcto para una
     // put vendida), no en `retOnRisk`. Sin esto la web decia "0 cerradas" habiendo 7 con +23,57%
@@ -84,12 +94,40 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
     // cada familia guarda con SUS nombres y leerlos con los del vecino devuelve vacio, no un error.
     campoRes: "retOnColl",
     usd: (f) => (typeof f.retOnColl === "number" && typeof f.collateral === "number" ? (f.retOnColl / 100) * f.collateral : null),
-    enContra: "Son 274 puts vendidos de verdad, repartidos en sólo 19 días: cada día abre hasta 48 a la vez (12 acciones × 2 deltas × 2 plazos). Es una rejilla que prueba todas las celdas en paralelo para ver cuál sirve, no una cartera. El colateral comprometido suma $10.609.650 — unas 140 veces la cuenta real, así que el +0,24% de media NO es dinero que se pueda ganar: es el rendimiento de una celda, no de una cartera. Y el 100% de acierto no dice nada: vender puts a 0,15 de delta acierta casi siempre por construcción, y todavía NO ha habido ni una asignación. Con 0,15 de delta toca ~1 asignación de cada 7 operaciones, y ganando 0,24% cada vez, una sola que cueste más del 1,7% se lleva la racha entera. Pendiente: 12 puts vencieron el 28 de agosto y siguen sin liquidar (las otras 255 abiertas vencen entre hoy y el 2 de octubre, y están bien)." },
+    enContra: (v) => `Son ${n(v.filas)} puts vendidos de verdad, repartidos en sólo ${v.dias} días: cada día abre hasta 48 a la vez (12 acciones × 2 deltas × 2 plazos). Es una rejilla que prueba todas las celdas en paralelo para ver cuál sirve, no una cartera. El colateral comprometido suma ${usdN(v.colateral)} — unas ${Math.round(v.colateral / 73874)} veces la cuenta real, así que el ${pc(v.media)} de media NO es dinero que se pueda ganar: es el rendimiento de una celda, no de una cartera. Y el acierto de ${pc(v.acierto == null ? null : v.acierto * 100, 0)} no dice nada: vender puts a 0,15 de delta acierta casi siempre por construcción, y de las ${v.cerradas} cerradas NO ha habido ni una asignación. Con 0,15 de delta toca ~1 asignación de cada 7 operaciones, y ganando ${pc(v.media)} cada vez, una sola que cueste más del 1,7% se lleva la racha entera.` },
   { id: "ideas", clave: "forward:ideas", nombre: "Ideas (scorecard de EVA)", familia: "riesgo", unidad: "% sobre el riesgo",
     // Ideas NO guarda dolares: solo retOnRisk, sin el riesgo en dolares al lado. No se puede
     // convertir sin inventarse el tamano, y eso no se hace. Se dice y se queda en %.
     enContra: "El scorecard está medido y cerrado (19.465 operaciones, no separa). Esto es la comprobación en directo de esa conclusión." },
 ];
+
+/** Describe LAS PATAS de una operacion en palabras: "Venta Put $292,5 / Compra Put $287,5".
+ *
+ *  Lester, 31-ago-2026: "describe mejor lo que estas comprando las patas". Sin esto la tabla
+ *  decia solo el ticker, y un credit spread, un condor y una put vendida se veian identicos.
+ *  Cada familia guarda los strikes con SUS nombres — leerlos con los del vecino da vacio. */
+const $$ = (x: unknown) => "$" + Number(x).toLocaleString("es-ES", { maximumFractionDigits: 2 });
+function patas(f: Record<string, unknown>): string {
+  // condor de hierro: cuatro patas
+  if (f.callCorta != null && f.putCorta != null)
+    return `Venta Call ${$$(f.callCorta)} / Compra Call ${$$(f.callLarga)} · Venta Put ${$$(f.putCorta)} / Compra Put ${$$(f.putLarga)}`;
+  // vertical de credito: dos patas del mismo lado
+  if (f.shortK != null && f.longK != null) {
+    const t = String(f.type ?? "").toLowerCase().startsWith("c") ? "Call" : "Put";
+    return `Venta ${t} ${$$(f.shortK)} / Compra ${t} ${$$(f.longK)}`; }
+  // put vendida suelta (Wheel)
+  if (f.strike != null && f.collateral != null) return `Venta Put ${$$(f.strike)}`;
+  // opcion comprada suelta (Ideas, La Palanca, Missile)
+  if (f.optStrike != null) return `Compra ${String(f.optType ?? "").toLowerCase().startsWith("c") ? "Call" : "Put"} ${$$(f.optStrike)}`;
+  if (f.K != null) return `Compra Call ${$$(f.K)}`;
+  if (f.strike != null) return `Venta Put ${$$(f.strike)}`;
+  return "—";
+}
+/** Dias entre la compra y el vencimiento. Se calcula, no se lee: `dte` es el OBJETIVO, no lo real. */
+function diasHasta(entrada: unknown, vence: unknown): number | null {
+  const a = Date.parse(String(entrada ?? "")), b = Date.parse(String(vence ?? "").replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3"));
+  return Number.isFinite(a) && Number.isFinite(b) ? Math.round((b - a) / 86400000) : null;
+}
 
 const media = (v: number[]) => (v.length ? v.reduce((a, b) => a + b, 0) / v.length : NaN);
 
@@ -128,9 +166,23 @@ export async function GET() {
       const vals = cerradas.map((f) => f[campoRes] as number);
       const abiertas = filas.filter((f) => f[campoEstado] === (esCondor ? "abierta" : "open")).length;
       const sinSenal = filas.filter((f) => f[campoEstado] === "sin señal").length;
+      const gana = vals.filter((x) => x > 0), pierde = vals.filter((x) => x <= 0);
+      const prom = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+      const vivo: Vivo = {
+        filas: filas.length, cerradas: cerradas.length, abiertas, dias: dias.length,
+        acierto: vals.length ? gana.length / vals.length : null,
+        media: prom(vals), ganadoras: gana.length, perdedoras: pierde.length,
+        mediaGana: prom(gana), mediaPierde: prom(pierde),
+        ruina: pierde.filter((x) => x <= -99).length,
+        colateral: filas.reduce((a, f) => a + (typeof f.collateral === "number" ? f.collateral : 0), 0),
+      };
 
       salida.push({
         ...c,
+        // El texto se RESUELVE con los numeros de ESTA consulta, la misma que llena la tabla.
+        // Una cifra escrita a mano al lado de una tabla viva es una mentira en espera: esta
+        // ficha decia "7 cerrados" mientras su propia tabla, dos centimetros abajo, decia 19.
+        enContra: typeof c.enContra === "function" ? c.enContra(vivo) : c.enContra,
         filas: filas.length,
         desde: dias[0] ?? null,
         hasta: dias[dias.length - 1] ?? null,
@@ -142,6 +194,12 @@ export async function GET() {
         // Lester lo pidio cuatro veces y yo le daba un RESUMEN. "La muestra de lo que han
         // tradeado con su respectivo resultado" son las operaciones, no un promedio.
         ultimas: cerradas.slice(-10).reverse().map((f) => ({
+          accion: String(f.ticker ?? f.tk ?? (c.familia === "condor" && !f.ticker ? "SPX" : f.symbol) ?? "—"),
+          opcion: patas(f),
+          spot: typeof f.spot === "number" ? f.spot : null,
+          abrio: String(f.entryDate ?? f.dia ?? f.dC ?? ""),
+          vence: String(f.expiryDate ?? f.exp ?? f.optExpiry ?? f.dia ?? ""),
+          dias: diasHasta(f.entryDate ?? f.dia ?? f.dC, f.expiryDate ?? f.exp ?? f.optExpiry ?? f.dia),
           que: String(f.ticker ?? f.tk ?? f.symbol ?? c.nombre),
           cuando: String(f.exitDate ?? f.diaSalida ?? f[campoDia] ?? ""),
           usd: c.usd ? c.usd(f) : (typeof f[campoRes] === "number" && c.unidad.startsWith("$") ? (f[campoRes] as number) : null),
