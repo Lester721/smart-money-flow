@@ -115,30 +115,23 @@ function CuadernosSinFicha() {
 let _cache: Promise<any> | null = null;
 const traerCuadernos = () => (_cache ??= fetch("/api/forward-tests").then((r) => r.json()).catch(() => null));
 
-/** LOS CUATRO NUMEROS DE ARRIBA.
+/** LOS CUATRO NUMEROS DE ARRIBA — los pidio Lester asi, literalmente, el 31-ago-2026:
+ *  "coloca cuantos forward test tenemos abiertos y cuantos cerrados. No se a que te refieres
+ *   con en pie 2. Tenemos 5 TEMAS pendientes y aparentemente 10 IDEAS cerradas."
  *
- *  Contaban IDEAS (10 en prueba, 2 en pie, 5 pendientes, 10 cerradas) en una pagina donde todo
- *  lo demas cuenta OPERACIONES. Lester lo enseño cuatro veces y al final lo dijo entero:
- *  "NO TIENES NINGUN FORWARD TEST CERRADO" y "NO TIENES NI PENDIENTES". Tenia razon las dos
- *  veces: no hay ni un forward test cerrado ni uno pendiente. Los numeros eran ciertos para su
- *  definicion y falsos para cualquiera que los leyera.
- *
- *  Ahora cuentan lo mismo que el resto de la pagina y salen de Redis, no de una constante. */
+ *  Antes contaban IDEAS mientras el resto de la pagina contaba OPERACIONES, y ademas habia un
+ *  "2 en pie" que no significaba nada para quien lo leia. Los cuatro salen calculados de ITEMS:
+ *  un forward test es una ficha CON cuaderno enganchado. Cerrados salen 0, y es correcto: la
+ *  unica ficha cerrada que se llama "forward test" es una que se decidio NO arrancar.
+ */
 function Contadores() {
-  const [v, setV] = useState<{ vivos: number; cerradas: number; abiertas: number } | null>(null);
-  useEffect(() => { traerCuadernos().then((j) => {
-    if (!j?.ok) return;
-    const c = j.cuadernos as { filas?: number; cerradas?: number; abiertas?: number }[];
-    setV({ vivos: c.filter((x) => (x.filas ?? 0) > 0).length,
-           cerradas: c.reduce((a, x) => a + (x.cerradas ?? 0), 0),
-           abiertas: c.reduce((a, x) => a + (x.abiertas ?? 0), 0) });
-  }); }, []);
+  const conCuaderno = (e: string) => ITEMS.filter((x) => x.estado === e && (x.cuadernos?.length ?? 0) > 0).length;
   return (
     <div className="est-cuentas">
-      <div><b>{v ? v.vivos : "—"}</b><span>cuadernos operando</span></div>
-      <div><b>{v ? v.cerradas.toLocaleString("es-ES") : "—"}</b><span>operaciones cerradas</span></div>
-      <div><b>{v ? v.abiertas.toLocaleString("es-ES") : "—"}</b><span>operaciones abiertas</span></div>
-      <div className="est-cuenta-muerta"><b>{RESUMEN.cerrado}</b><span>ideas descartadas</span></div>
+      <div><b>{conCuaderno("en-prueba")}</b><span>forward tests abiertos</span></div>
+      <div><b>{conCuaderno("cerrado")}</b><span>forward tests cerrados</span></div>
+      <div><b>{RESUMEN.pendiente}</b><span>temas pendientes</span></div>
+      <div className="est-cuenta-muerta"><b>{RESUMEN.cerrado}</b><span>ideas cerradas</span></div>
     </div>
   );
 }
