@@ -158,3 +158,80 @@ for (const t of MEGA) { const L = M.filter((x) => x.tk === t); if (!L.length) { 
     "   [" + L.filter((x) => x.l === "C").length + " calls, " + L.filter((x) => x.l === "P").length + " puts]"); }
 console.log("  sin ninguna señal: " + MEGA.filter((t) => !M.some((x) => x.tk === t)).join(", "));
 console.log("");
+
+// ══════════════════════════════════════════════════════════════════════════════════════════
+// EMITIR LA FILA PARA LA TABLA "ESTRATEGIAS VALIDADAS" (sólo con EMITIR=1)
+//
+// Lester, 31-ago-2026: "metelo con esos numeros". Se calcula TODO aqui, del mismo recorrido
+// de capital que imprime la tabla de arriba — nada copiado a mano de la pantalla. `cuenta`
+// devuelve solo el final, asi que abajo va una copia suya que ademas APUNTA cada operacion
+// cerrada en dolares; sin eso no hay peor operacion, ni peor caida, ni rachas reales, y
+// rellenarlos a ojo seria inventarse un backtest.
+// ══════════════════════════════════════════════════════════════════════════════════════════
+if (process.env.EMITIR === "1") {
+  const { readFileSync: leer, writeFileSync: escribir } = await import("node:fs");
+
+  function recorrido({ L, capital, hasta = DIAS[DIAS.length - 1], tipo = 0.033 }) {
+    const intD = Math.pow(1 + tipo, 1 / 252) - 1;
+    const dias = DIAS.filter((d) => d <= hasta);
+    let caja = capital, ab = [], pico = capital, peor = 0;
+    const cerradas = [], porDia = new Map();
+    for (const x of L) { if (!porDia.has(x.dC)) porDia.set(x.dC, []); porDia.get(x.dC).push(x); }
+    for (const hoy of dias) { caja *= (1 + intD);
+      for (let i = ab.length - 1; i >= 0; i--) if (ab[i].dSal <= hoy) {
+        const vuelve = ab[i].dinero * ab[i].mult;
+        cerradas.push({ dia: hoy, ano: hoy.slice(0, 4), pl: vuelve - ab[i].dinero });
+        caja += vuelve; ab.splice(i, 1); }
+      const inv = () => ab.reduce((a, b) => a + b.dinero, 0);
+      for (const x of (porDia.get(hoy) || [])) { if (ab.length >= 4) continue;
+        const tope = (caja + inv()) * 0.25 * (x.confirma ? 2 : 1);
+        const n = Math.floor(Math.min(tope, caja) / (x.ask * 100)); if (n < 1) continue;
+        caja -= n * x.ask * 100; ab.push({ ...x, dinero: n * x.ask * 100 }); }
+      const v = caja + inv(); if (v > pico) pico = v; const dd = 1 - v / pico; if (dd > peor) peor = dd; }
+    let fin = caja; for (const x of ab) fin += x.dinero * x.mult;
+    return { final: fin, caida: 100 * peor, cerradas };
+  }
+
+  const rachas = (pl) => { let rp = 0, rg = 0, p = 0, g = 0;
+    for (const x of pl) { if (x > 0) { g++; p = 0; } else { p++; g = 0; }
+      if (p > rp) rp = p; if (g > rg) rg = g; } return { rachaPerd: rp, rachaGan: rg }; };
+  const caidaDe = (pl) => { let s = 0, pico = 0, peor = 0;
+    for (const x of pl) { s += x; if (s > pico) pico = s; if (s - pico < peor) peor = s - pico; } return peor; };
+
+  const R = recorrido({ L: M, capital: 60000 });
+  const anos = ["2021","2022","2023","2024","2025","2026"];
+  let valorAnterior = 60000;
+  const porAno = anos.map((y) => {
+    const c = R.cerradas.filter((x) => x.ano === y).map((x) => x.pl);
+    const fin = [...DIAS].reverse().find((d) => d.startsWith(y));
+    const v = fin ? cuenta({ L: M.filter((x) => x.dC <= fin), capital: 60000, hasta: fin }).final : null;
+    const ant = valorAnterior; if (v != null) valorAnterior = v;
+    return { ano: y, ops: c.length, ganancia: v == null ? 0 : v - ant,
+      gananciaSPY: null, gananciaTrade: null,
+      peorOp: c.length ? Math.min(...c) : 0, peorCaida: caidaDe(c), ...rachas(c) };
+  });
+  const todas = R.cerradas.map((x) => x.pl);
+  const fecha = (d) => { const t = String(d); return Date.parse(t.slice(0, 4) + "-" + t.slice(4, 6) + "-" + t.slice(6, 8)); };
+  const dias0 = M.map((x) => x.dC).sort();
+  const anosT = (fecha(R.cerradas[R.cerradas.length - 1].dia) - fecha(dias0[0])) / (365.25 * 86400000);
+  const fila = {
+    nombre: "TSLA's MISSILE · sólo TSLA",
+    unidad: "cartera de $60.000 · sólo TSLA · el ocioso al 3,3%",
+    nota: "Una sola operación de más de $500.000 pagada al ask después de las 14:00, en un contrato que vale 12 veces o más su interés abierto. Dispara MUY poco: 34 veces en seis años, y en 2024 ninguna. La regla madre falló dos exámenes fuera de muestra; TSLA es el único nombre donde no se pudo tumbar, y 34 señales sobre un solo nombre es donde vive la casualidad. Por eso corre en forward test.",
+    porAno,
+    total: { ops: todas.length, ganancia: R.final - 60000, alAno: (R.final - 60000) / anosT,
+      peorOp: Math.min(...todas), peorCaida: caidaDe(todas), ...rachas(todas),
+      acierto: todas.filter((x) => x > 0).length / todas.length,
+      porOperacion: (R.final - 60000) / todas.length,
+      desde: dias0[0], hasta: R.cerradas[R.cerradas.length - 1].dia },
+  };
+  const P = "lib/estrategias-por-ano.json";
+  const j = JSON.parse(leer(P, "utf8"));
+  j.tablas = j.tablas.filter((t) => !t.nombre.startsWith("TSLA")).concat([fila]);
+  escribir(P, JSON.stringify(j, null, 2));
+  console.log("\n  ══ FILA EMITIDA ══");
+  console.log("  " + fila.nombre + "  ·  " + fila.total.ops + " ops  ·  al año " + D(fila.total.alAno) +
+    "  ·  peor op " + D(fila.total.peorOp) + "  ·  peor caída " + D(fila.total.peorCaida) +
+    "  ·  acierta " + (fila.total.acierto * 100).toFixed(0) + "%  ·  " + fila.total.desde + " → " + fila.total.hasta);
+  for (const a of porAno) console.log("    " + a.ano + "  " + String(a.ops).padStart(2) + " ops  " + D(a.ganancia).padStart(10) + "   peor op " + D(a.peorOp).padStart(9));
+}
