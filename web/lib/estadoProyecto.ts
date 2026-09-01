@@ -150,6 +150,7 @@ export const ITEMS: Item[] = [
       "mide lo que ningún otro cuaderno puede: CUÁNTO SE ESTORBAN las dos reglas al compartir una sola cuenta, apuntado una a una",
       "en el backtest este reparto da $55.923 al año, con Sharpe 0,83 — el mejor de los cuatro repartos medidos",
       "en la primera corrida abrió DAL ($1.970) y CVS ($1.815), donde el reparto congelado no abría NINGUNA de las seis señales",
+      "la caída, PARTIDA: la parte del SPY (que se cura sola) es −$46.097 y la de la estrategia (que sólo se cura si sigues) −$64.187",
     ],
     enContra:
       "Los $55.923 salen de los MISMOS datos que produjeron la regla, así que no son una prueba: son la misma opinión repetida. Este cuaderno existe para convertirlos en prueba, o para tumbarlos. Y la caída del backtest es −51% de TODA la cuenta, no de lo arriesgado: sobre $60.000 son $29.400. Esa caída tiene dos mitades que no duelen igual — la parte de SPY se recupera sola si no vendes, y la parte de la estrategia sólo se recupera si sigues abriendo posiciones, que es lo difícil.",
@@ -167,10 +168,12 @@ export const ITEMS: Item[] = [
     numero: "compras de $3.600 · «mi próximo paso, quiero ver cómo se siente»",
     evidencia: [
       "con la mediana de lo que cuesta un contrato hoy en $3.620, es el primer reparto que alcanza a comprar la mitad de las señales",
-      "en el backtest gana algo más que el de 6 huecos ($57.971 contra $55.923) y asusta casi igual (−52% contra −51%)",
+      "en el backtest gana algo más que el de 6 huecos y la caída total parece casi igual (−53% contra −51%)",
+      "PERO al partir la caída deja de parecerse: la parte que sólo se cura si sigues operando pasa de −$64.187 a −$120.821, casi el doble",
+      "y no compensa por el otro lado: con 4 huecos la ESTRATEGIA gana menos ($338.617 contra $376.506); lo que sube es lo que aporta el SPY parado",
     ],
     enContra:
-      "Concentra: cada compra pesa el 6% de la cuenta, así que una que salga mal duele más. Corre al lado del de 6 huecos a propósito — la comparación entre los dos sólo vale hacia adelante, porque en el backtest los dos números salen de los mismos datos.",
+      "Concentra el doble del dolor que no se cura solo, y para sacarle MENOS a la parte que lo produce. Cada compra pesa el 6% de la cuenta, así que una que salga mal duele más. Corre al lado del de 6 huecos a propósito — la comparación entre los dos sólo vale hacia adelante, porque en el backtest los dos números salen de los mismos datos.",
     siguiente:
       "Compararlo con el de 6 huecos dentro de un año: cuál compró más señales y cuál se pudo aguantar sin abandonarlo.",
     actualizado: "2026-09-01",
