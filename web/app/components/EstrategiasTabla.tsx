@@ -24,18 +24,18 @@ export default function EstrategiasTabla() {
   return (
     <section className="est-grupo">
       <header className="est-grupo-head">
-        <h2><span aria-hidden="true">📊</span> Las estrategias, año por año</h2>
+        <h2><span aria-hidden="true">📊</span> ESTRATEGIAS VALIDADAS</h2>
         <p>lo que habría ganado, lo peor que habría pasado, y cuántas seguidas se pierden</p>
       </header>
 
-      <p className="etab-aviso">
-        Esto es <strong>backtest</strong>, no resultados. El cóndor va <strong>por contrato</strong> y
-        la mezcla sobre <strong>{eur(datos.capital)}</strong> de capital: no son la misma unidad y no
-        se suman.
-      </p>
-
       <div className="est-lista">
-        {datos.tablas.map((t) => {
+        {/* DE LA QUE MAS GENERA A LA QUE MENOS. Lester, 31-ago-2026: "quiero que coloques las
+            estrategias de la mejor, la que mas genera, a la menor segun los backtest".
+            Se ordena por dinero al año. OJO al leerlo: no todas ocupan el mismo capital — el
+            condor va POR CONTRATO (retiene ~$5.000) y las de cartera sobre $50.000-$60.000.
+            Esa unidad se pinta en la propia fila, debajo del nombre, para que la comparacion
+            se haga con el dato delante y no con un parrafo de aviso encima. */}
+        {[...datos.tablas].sort((x, y) => y.total.alAno - x.total.alAno).map((t) => {
           const on = abierta === t.nombre;
           const tot = t.total;
           return (

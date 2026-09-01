@@ -19,7 +19,7 @@ import ForwardTests from "@/app/components/ForwardTests";
 import { ITEMS, RESUMEN, ACTUALIZADO, type EstadoItem, type Item } from "@/lib/estadoProyecto";
 
 const GRUPOS: { estado: EstadoItem; titulo: string; sub: string; icono: string }[] = [
-  { estado: "en-prueba", titulo: "EN PRUEBA AHORA MISMO", sub: "desplegado y midiéndose en directo", icono: "🔬" },
+  { estado: "en-prueba", titulo: "EN PRUEBA AHORA MISMO", sub: "desplegado en Railway", icono: "🔬" },
   { estado: "funciona", titulo: "Medido y en pie", sub: "sobrevivió a las pruebas, listo para usar", icono: "🟢" },
   { estado: "pendiente", titulo: "Pendiente", sub: "por orden de lo que yo haría primero", icono: "📋" },
   { estado: "cerrado", titulo: "Cerrado", sub: "medido y descartado — está aquí para no volver a proponerlo", icono: "⛔" },
