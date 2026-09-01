@@ -44,9 +44,18 @@
 //   CONFIRMA     la dominancia de la cinta del día del golpe va a favor de la señal (>= 0,30)
 //                O el contrato recibió entre 2 y 9 golpes ese día.
 //   TAMAÑO       25% del capital · el DOBLE (50%) si confirma · 4 huecos como máximo.
-//   CAPITAL      $60.000 iniciales. El efectivo ocioso NO rinde en este registro (0%), para que
-//                el resultado sea el de la SEÑAL y no el del aparcadero. Lo de aparcar en SPY
-//                está medido aparte y se puede sumar después.
+//   CAPITAL      $60.000 iniciales, con el ocioso DESCANSANDO EN SPY. Se vende SPY para pagar
+//                una compra y lo que sobra vuelve a SPY, igual que en La Palanca y en el
+//                cuaderno combinado.
+//
+//                CAMBIADO el 2026-08-31 por orden de Lester: «en TSLA Missile colócala
+//                descansando en SPY los $60.000». Antes el ocioso rendía CERO, con el argumento
+//                de medir la SEÑAL y no el aparcadero. El argumento era razonable pero el
+//                efecto no: dejaba los $25.107/año de este cuaderno y los $36.702 de La Palanca
+//                sin poder compararse ni sumarse, uno con el dinero muerto y el otro con el
+//                ocioso trabajando. Y el backtest de este mismo Missile usaba un TERCER modelo
+//                (efectivo al 3,3%). Tres modelos del mismo dinero parado. Ahora hay uno.
+//                Se cambió con CERO operaciones registradas, así que no se pierde historia.
 //
 // ╔═══ LO QUE EL BACKTEST DICE QUE DEBE PASAR ═══╗
 //   · ~6 señales al año (34 en 5,6 años). En 2024 hubo CERO: eso es normal, no un fallo.
@@ -71,6 +80,8 @@
 import {
   B, SYM, LEDGER, REDIS_KEY, STORE, SECO, CAPITAL_INICIAL, GOLPE_MIN, VS_OI_MIN, COSTE_MIN, DTE_MIN, HORA_MIN, MA_DIAS, MA_MIN, HUECOS, TAM, OBJETIVO, SUELO, MOV_CONFIRMA, MOV_NO, TOPE_DIAS, DOM_MIN, GOLPES_MIN, GOLPES_MAX, arg, limpia, lado, ymd, iso, ms, dteDe, D, dormir, csv, cadena, spotDeCadena, golpesDe, oiDe, diaAnterior, sembrarSpots, ultimaSesion,
 } from "./missile-lib.mjs";
+// el lector de cierres del subyacente se comparte con La Palanca: una sola fuente para SPY
+import { cierres } from "./palanca-lib.mjs";
 
 // ── almacenamiento ───────────────────────────────────────────────────────────
 let _redis = null;
@@ -122,6 +133,29 @@ function origen() {
   if (!L.operaciones) L.operaciones = [];
   if (!L.creado) L.creado = new Date().toISOString();
 
+  // ── EL OCIOSO DESCANSA EN SPY ────────────────────────────────────────────────
+  // Lester, 2026-08-31: «en TSLA Missile colócala descansando en SPY los $60.000».
+  //
+  // Antes este registro NO tenía ni caja ni cartera: llevaba sólo la lista de operaciones y
+  // daba por bueno "capital + realizado". La cabecera lo justificaba —medir la SEÑAL y no el
+  // aparcadero— pero el efecto era que sus $25.107 al año y los $36.702 de La Palanca NO se
+  // podían comparar: uno con el dinero muerto al 0% y el otro con el ocioso trabajando. Y su
+  // propio backtest usaba un TERCER modelo, efectivo al 3,3%. Tres modelos del mismo dinero
+  // parado. Ahora los dos cuadernos y el combinado usan el mismo: SPY.
+  const spyC = await cierres('SPY', ymd(new Date(ms(HOY) - 20 * 86400000).toISOString().slice(0, 10)), HOY);
+  const SPYP = spyC ? spyC[spyC.length - 1][1] : null;
+  if (L.caja == null) { L.caja = CAPITAL_INICIAL; L.spyAcc = 0; }
+  if (SPYP == null) console.log('  ⚠️ sin cierre de SPY hoy: el ocioso se queda en caja, no se compra ni se vende');
+  else console.log('  SPY $' + SPYP.toFixed(2) + '   ·   ocioso: ' + Math.round(L.spyAcc) +
+    ' participaciones ($' + Math.round(L.spyAcc * SPYP).toLocaleString('en-US') + ') + caja $' +
+    Math.round(L.caja).toLocaleString('en-US'));
+  // vender SPY para financiar una compra, igual que hace el motor del backtest
+  const financiar = (necesito) => {
+    if (SPYP == null) return;
+    const falta = necesito - L.caja;
+    if (falta > 0 && L.spyAcc > 0) { const v = Math.min(L.spyAcc, falta / SPYP); L.spyAcc -= v; L.caja += v * SPYP; }
+  };
+
   const chHoy = await cadena(HOY);
   if (!chHoy) { console.log('  no hay cadena de hoy (festivo o mercado cerrado). No se hace nada.\n'); return; }
   const spotHoy = spotDeCadena(chHoy, HOY);
@@ -164,6 +198,7 @@ function origen() {
     if (cerrar) {
       o.estado = 'cerrada'; o.dSal = HOY; o.multSal = Math.round(mCierre * 1000) / 1000;
       o.motivo = cerrar; o.resultado = Math.round(o.dinero * (mCierre - 1));
+      L.caja += o.dinero * mCierre;          // lo cobrado vuelve a la caja, y de ahí al SPY
       console.log('  CIERRA  ' + o.exp + ' ' + o.K + o.l + '  ×' + mCierre.toFixed(2) + '  ' + D(o.resultado) + '  (' + cerrar + ')');
     } else {
       console.log('  abierta ' + o.exp + ' ' + o.K + o.l + '  ×' + mult.toFixed(2) + '  día ' + abierta + '/' + TOPE_DIAS +
@@ -241,13 +276,20 @@ function origen() {
       const c = candidatas[0];
       const acorde = dom == null ? 0 : (c.l === 'P' ? -1 : 1) * dom;
       const confirma = acorde >= DOM_MIN || (c.golpes >= GOLPES_MIN && c.golpes <= GOLPES_MAX);
-      const realizado = L.operaciones.filter((o) => o.estado === 'cerrada').reduce((s, o) => s + (o.resultado || 0), 0);
-      const patrimonio = CAPITAL_INICIAL + realizado;
+      // El patrimonio ya NO es "capital + realizado": es lo que hay de verdad — caja, SPY y lo
+      // que valen las posiciones abiertas. Con el ocioso en SPY, el capital que respalda el
+      // tamaño de la próxima compra sube y baja con el mercado, como pasaría en la cuenta real.
+      const abiertasAhora = L.operaciones.filter((o) => o.estado === 'abierta');
+      const libroAbierto = abiertasAhora.reduce((s, o) => s + o.dinero * (o.ultimoMult ?? 1), 0);
+      const patrimonio = L.caja + (SPYP == null ? 0 : L.spyAcc * SPYP) + libroAbierto;
       const tope = patrimonio * TAM * (confirma ? 2 : 1);
-      const n = Math.floor(tope / (c.ask * 100));
+      financiar(Math.min(tope, patrimonio));      // se vende SPY para pagar la compra
+      const n = Math.floor(Math.min(tope, L.caja) / (c.ask * 100));
       if (n < 1) {
-        console.log('  ⚠️ la señal existe pero NO CABE: el contrato cuesta ' + D(c.ask * 100) + ' y el tope es ' + D(tope));
+        console.log('  ⚠️ la señal existe pero NO CABE: el contrato cuesta ' + D(c.ask * 100) +
+          ', el tope es ' + D(tope) + ' y en caja hay ' + D(L.caja));
       } else {
+        L.caja -= n * c.ask * 100;
         L.operaciones.push({
           dia: AYER, dC: HOY, exp: c.exp, K: c.K, l: c.l, spot: spotHoy, ma: ma == null ? null : Math.round(ma * 100) / 100,
           ask: c.ask, bidCompra: c.bid, prof: Math.round(c.prof * 10000) / 10000, dte: dteDe(HOY, c.exp),
@@ -270,7 +312,18 @@ function origen() {
   const invertido = abi.reduce((s, o) => s + o.dinero, 0);
   const flotante = abi.reduce((s, o) => s + (o.ultimoMult != null ? o.dinero * (o.ultimoMult - 1) : 0), 0);
   const gana = cer.filter((o) => (o.resultado || 0) > 0).length;
-  const valor = CAPITAL_INICIAL + realizado + flotante;
+  // ── el ocioso, a SPY ─────────────────────────────────────────────────────────
+  // Lo último del día: lo que quede en caja se aparca en SPY. Antes esto no existía y el
+  // dinero parado rendía CERO, que es la única razón por la que este cuaderno y el de La
+  // Palanca no se podían comparar.
+  if (SPYP != null && L.caja > SPYP) {
+    const compra = Math.floor(L.caja / SPYP);
+    L.spyAcc += compra; L.caja -= compra * SPYP;
+    if (compra) console.log('  💤 el ocioso a SPY: ' + compra + ' participaciones');
+  }
+  const enSPY = SPYP == null ? 0 : L.spyAcc * SPYP;
+  const libro = abi.reduce((s, o) => s + o.dinero * (o.ultimoMult ?? 1), 0);
+  const valor = L.caja + enSPY + libro;
   let rep = '';
   const linea = (s) => { console.log(s); rep += s + '\n'; };
   console.log('');
@@ -279,6 +332,7 @@ function origen() {
         ' (' + cer.length + ' cerradas, ' + abi.length + ' abiertas)');
   if (cer.length) linea('  cerradas: ' + gana + ' ganadoras de ' + cer.length + ' (' + (100 * gana / cer.length).toFixed(0) + '%)   ·   realizado ' + D(realizado));
   if (abi.length) linea('  abiertas: ' + D(invertido) + ' invertidos   ·   flotante ' + D(flotante));
+  linea('  ocioso en SPY: ' + D(enSPY) + '   ·   caja ' + D(L.caja) + '   ·   opciones ' + D(libro));
   linea('  valor de la cuenta: ' + D(valor) + '   (de ' + D(CAPITAL_INICIAL) + ')');
   linea('  ⚠️ ~6 señales al año. Antes de ~30 operaciones nuevas, cualquier lectura es prematura.');
   console.log('');

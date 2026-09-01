@@ -61,8 +61,21 @@ async function guardar(E, reporte, resumen){
   // ⚠️ La firma es (redis, servicio, resultado). Llamarla con un argumento daba
   //    "redis.set is not a function" y el latido no se escribía: el vigilante habría visto
   //    este servicio como MUERTO aunque corriera bien.
-  try{ const {escribirLatido}=await import("../lib/origenEjecucion.ts");
-       await escribirLatido(r, "la-palanca", resumen || "corrida"); }catch{}
+  await latir(resumen || "corrida");
+}
+// ⚠️ EL LATIDO, EN TODAS LAS SALIDAS Y SIN TRAGARSE EL ERROR.
+// Faltaba `latido:la-palanca` en Redis mientras los otros NUEVE cuadernos dejaban el suyo, y
+// eran dos fallos juntos:
+//   1. las salidas tempranas ("ya se procesó este día", "sin cierres de SPY") terminaban ANTES
+//      de llamar a guardar(), o sea que el servicio parecía muerto justo los días en que hacía
+//      lo correcto. Sin latido, «corrió y no encontró nada» y «lleva días muerto» se ven IGUAL.
+//   2. el catch estaba VACÍO, así que si fallaba tampoco se enteraba nadie.
+async function latir(resultado) {
+  if (STORE !== "redis") return;
+  try { const {escribirLatido} = await import("../lib/origenEjecucion.ts");
+        await escribirLatido(await redis(), "la-palanca", resultado); }
+  catch(e) { console.error("  ⛔ NO SE PUDO ESCRIBIR EL LATIDO: " + (e?.message ?? e));
+             process.exitCode = 3; }
 }
 // ⚠️ Y HAY QUE CERRAR REDIS. Sin esto el proceso no termina NUNCA: ioredis deja el socket
 //    abierto y en Railway, con restartPolicyType NEVER, el cron se quedaría colgado para
@@ -78,7 +91,8 @@ console.log("\n  ╔═══ LA PALANCA · forward-test ═══╗   día " +
 
 // el calendario de sesiones sale de SPY: es la referencia de "días de mercado"
 const spyC = await cierres("SPY", desde, HOY);
-if (!spyC) { console.log("  ⛔ sin cierres de SPY — no hay datos hoy. No se escribe nada."); await cerrar(); process.exit(0); }
+if (!spyC) { console.log("  ⛔ sin cierres de SPY — no hay datos hoy. No se escribe nada.");
+  await latir("sin cierres de SPY: no había datos"); await cerrar(); process.exit(0); }
 const SES = spyC.map(x=>x[0]);
 const DIA = SES[SES.length-1];                    // la última sesión REAL con datos
 const SPYP = spyC[spyC.length-1][1];
@@ -89,7 +103,8 @@ if (!E) {                                          // primera corrida: se siembr
   E = { creado:new Date().toISOString(), regla:R, capital:R.capital,
         caja:R.capital, spyAcc:0, abiertas:[], operaciones:[], ultimoDia:null, sesiones:[] };
   console.log("  cuaderno NUEVO: se siembra con $" + R.capital.toLocaleString("en-US")); }
-if (E.ultimoDia === DIA) { console.log("  ya se procesó " + iso(DIA) + " — no se repite. Salgo."); await cerrar(); process.exit(0); }
+if (E.ultimoDia === DIA) { console.log("  ya se procesó " + iso(DIA) + " — no se repite. Salgo.");
+  await latir(iso(DIA) + " ya estaba procesado — nada que hacer hoy"); await cerrar(); process.exit(0); }
 if (!E.sesiones.includes(DIA)) E.sesiones.push(DIA);
 E.sesiones.sort();
 const nSes = (d)=>{ const i=E.sesiones.indexOf(d); return i<0?0:E.sesiones.length-1-i; };
