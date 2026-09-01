@@ -43,7 +43,10 @@ export type Item = {
   actualizado: string;
 };
 
-export const ACTUALIZADO = "2026-08-22";
+// Se calcula al final del fichero, a partir de la fecha más nueva de las fichas.
+// Escrito a mano decía 2026-08-22 cuando la ficha más reciente era del 31: nueve días de
+// retraso en la frase que dice cuándo se actualizó. Lester, 31-ago-2026: "asegúrate de que
+// esto siempre está actualizado".
 
 export const ITEMS: Item[] = [
   // ══════════════════════════════════════════════════════════════════════════
@@ -490,6 +493,9 @@ export const ITEMS: Item[] = [
     actualizado: "2026-08-21",
   },
 ];
+
+/** La fecha más nueva de todas las fichas. NUNCA a mano. */
+export const ACTUALIZADO = ITEMS.map((i) => i.actualizado).filter(Boolean).sort().pop() ?? "";
 
 export const RESUMEN = {
   desde: "2026-07-24",

@@ -31,4 +31,23 @@ for (const c of j.cuadernos) {
     console.log("      datos de hoy: " + (c.cerradas ?? 0) + " cerradas · " + (c.abiertas ?? 0) + " abiertas · " + (c.filas ?? 0) + " filas"); }
 }
 console.log(malos ? `\n  ⛔ ${malos} textos contradicen los datos\n` : "  ✅ ningún texto contradice los datos\n");
+
+// ── y que los contadores de /estado no se hayan quedado viejos ──────────────────────────────
+// Lester, 31-ago-2026: "asegurate que esto siempre esta actualizado". Los contadores YA se
+// calculan solos desde ITEMS, pero ACTUALIZADO estaba escrito a mano y decia 2026-08-22 con la
+// ficha mas nueva del 31: nueve dias de retraso justo en la frase que dice cuando se actualizo.
+try {
+  const m = await import("../lib/estadoProyecto.ts");
+  const porEstado = (e) => m.ITEMS.filter((i) => i.estado === e).length;
+  const mal = [];
+  if (m.RESUMEN.enPrueba !== porEstado("en-prueba")) mal.push("enPrueba");
+  if (m.RESUMEN.loQueFunciona !== porEstado("funciona")) mal.push("loQueFunciona");
+  if (m.RESUMEN.pendiente !== porEstado("pendiente")) mal.push("pendiente");
+  if (m.RESUMEN.cerrado !== porEstado("cerrado")) mal.push("cerrado");
+  const masNueva = m.ITEMS.map((i) => i.actualizado).filter(Boolean).sort().pop();
+  if (m.ACTUALIZADO !== masNueva) mal.push(`ACTUALIZADO dice ${m.ACTUALIZADO} y la ficha mas nueva es ${masNueva}`);
+  if (mal.length) { malos++; console.log(`  contadores de /estado NO cuadran: ${mal.join(", ")}`); }
+  else console.log(`  contadores al dia: ${porEstado("en-prueba")} en prueba, ${porEstado("funciona")} en pie, ${porEstado("pendiente")} pendientes, ${porEstado("cerrado")} cerrados, actualizado ${m.ACTUALIZADO}`);
+} catch (e) { console.log("  no se pudo comprobar estadoProyecto: " + e.message); }
+
 process.exit(malos ? 1 : 0);
