@@ -34,7 +34,9 @@
     "missile:theta": "node scripts/with-theta.mjs npm run missile",
     "palanca": "node scripts/forward-la-palanca.mjs",
     "palanca:theta": "node scripts/with-theta.mjs npm run palanca",
-    "mariposa:theta": "node scripts/with-theta.mjs npm run mariposa-15h"
+    "mariposa:theta": "node scripts/with-theta.mjs npm run mariposa-15h",
+    "combinado": "node scripts/forward-combinado.mjs",
+    "combinado:theta": "node scripts/with-theta.mjs npm run combinado"
   },
   "engines": {
     "node": ">=22"

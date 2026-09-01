@@ -10,7 +10,7 @@
 // ╔═══ QUÉ MIDE ESTE CUADERNO QUE LOS OTROS DOS NO PUEDEN ═══╗
 // Cada una por separado supone que tiene los $60.000 enteros para ella sola. Juntas NO los
 // tienen, y ahí está lo único que este cuaderno puede medir: CUÁNTO SE ESTORBAN.
-//   · La Palanca pide 2,4% del patrimonio por hueco, 10 huecos → hasta el 24%.
+//   · La Palanca pide el 24% del patrimonio en total (ver EL REPARTO más abajo).
 //   · El Missile pide 25% por posición, el DOBLE si confirma, 4 huecos → hasta el 200%.
 // O sea que el Missile él solo puede vaciar la cuenta. Dispara ~4 veces al año y aguanta 60
 // días como mucho, así que el choque es raro, pero cuando pasa se lo come todo.
@@ -41,7 +41,23 @@ import { GOLPE_MIN, VS_OI_MIN, COSTE_MIN, DTE_MIN, HORA_MIN, MA_DIAS, MA_MIN,
          GOLPES_MIN, GOLPES_MAX, dteDe, D, cadena, spotDeCadena, golpesDe, oiDe,
          diaAnterior, sembrarSpots, ultimaSesion } from "./missile-lib.mjs";
 
-const CLAVE = "forward:combinado";
+// ── EL REPARTO, que es lo único que cambia entre las dos versiones ────────────────────────
+// Lester, 2026-09-01: «monta una con 6 huecos x 4% y otra de 4 x 6%. 6 huecos es lo que yo
+// normalmente me atrevería a comprar pero 4 huecos sería mi próximo paso y quiero ver cómo se
+// siente».
+//
+// HUECO = una compra viva a la vez. Con 6 huecos puede tener hasta 6 posiciones abiertas al
+// mismo tiempo; llenas las seis, una señal nueva no entra hasta que se cierre alguna. El TAM es
+// cuánto de la cuenta va en cada una. Los dos repartos comprometen lo mismo (el 24%): 6×4% son
+// compras de $2.400 y 4×6% de $3.600.
+//
+// El congelado original era 10 huecos × 2,4% = compras de $1.440, y NO SE MONTA porque con
+// $60.000 no alcanza para casi ningún contrato: sólo el 8% de las señales de 2026 caben ahí.
+// El cuaderno de La Palanca a solas lleva 0 compras de 6 señales por esto mismo.
+const HUECOS_P = Number(process.env.COMBI_HUECOS || 6);
+const TAM_P    = Number(process.env.COMBI_TAM || 0.04);
+const ID       = process.env.COMBI_ID || (HUECOS_P + "x" + Math.round(TAM_P * 1000) / 10);
+const CLAVE = "forward:combinado-" + ID;
 const STORE = (process.env.COMBI_STORE || (process.env.REDIS_URL ? "redis" : "file")).toLowerCase();
 const CAPITAL = 60000;
 
@@ -57,7 +73,7 @@ const origen = () => process.env.RAILWAY_SERVICE_NAME ? ("railway:" + process.en
 async function leer() {
   if (STORE !== "redis") {
     const { readFileSync } = await import("node:fs");
-    try { return JSON.parse(readFileSync("data/forward/combinado.json", "utf8")); } catch { return null; }
+    try { return JSON.parse(readFileSync("data/forward/combinado-" + ID + ".json", "utf8")); } catch { return null; }
   }
   const c = await (await redis()).get(CLAVE);
   return c ? JSON.parse(c) : null;
@@ -67,7 +83,7 @@ async function guardar(E, reporte, resumen) {
   if (STORE !== "redis") {
     const { writeFileSync, mkdirSync } = await import("node:fs");
     mkdirSync("data/forward", { recursive: true });
-    writeFileSync("data/forward/combinado.json", s);
+    writeFileSync("data/forward/combinado-" + ID + ".json", s);
     return;
   }
   const r = await redis();
@@ -76,10 +92,21 @@ async function guardar(E, reporte, resumen) {
   // La firma es (redis, servicio, resultado). Llamarla con un argumento daba
   // "redis.set is not a function" y el latido no se escribía: el vigilante habría visto
   // este servicio como MUERTO aunque corriera perfectamente.
+  await latir(resumen || "corrida");
+}
+// ⚠️ EL LATIDO, EN TODAS LAS SALIDAS Y SIN TRAGARSE EL ERROR.
+// A La Palanca le faltaba el latido en Redis por dos cosas a la vez: las salidas tempranas
+// terminaban antes de escribirlo, y el catch estaba vacío. Sin latido, «corrió y no encontró
+// nada» y «lleva días muerto» se ven IGUAL desde fuera. Aquí nace ya arreglado.
+async function latir(resultado) {
+  if (STORE !== "redis") return;
   try {
     const { escribirLatido } = await import("../lib/origenEjecucion.ts");
-    await escribirLatido(r, "combinado", resumen || "corrida");
-  } catch {}
+    await escribirLatido(await redis(), "combinado-" + ID, resultado);
+  } catch (e) {
+    console.error("  ⛔ NO SE PUDO ESCRIBIR EL LATIDO: " + (e?.message ?? e));
+    process.exitCode = 3;
+  }
 }
 // Sin esto el proceso NO TERMINA: ioredis deja el socket abierto y el cron se queda colgado.
 async function cerrar() { if (_r) { try { await _r.quit(); } catch {} _r = null; } }
@@ -105,13 +132,15 @@ console.log("\n  ╔═══ COMBINADO · La Palanca + TSLA's Missile ═══
 
 // el calendario de sesiones sale de SPY, igual que en el cuaderno de La Palanca
 const spyC = await cierres("SPY", desde, HOY);
-if (!spyC) { console.log("  ⛔ sin cierres de SPY — no hay datos hoy. NO se escribe nada."); await cerrar(); process.exit(0); }
+if (!spyC) { console.log("  ⛔ sin cierres de SPY — no hay datos hoy. NO se escribe nada.");
+  await latir("sin cierres de SPY: no había datos"); await cerrar(); process.exit(0); }
 const SES = spyC.map(x => x[0]);
 // El día lo pone la cadena de TSLA; de SPY se coge el cierre DE ESE MISMO día. Cruzar el cierre
 // de un día con la cadena de otro es la trampa de mezclar series de orígenes distintos, que ya
 // nos coló un look-ahead una vez.
 const iDia = SES.lastIndexOf(HOY);
-if (iDia < 0) { console.log("  ⛔ SPY no tiene cierre de " + iso(HOY) + " — NO se escribe nada."); await cerrar(); process.exit(0); }
+if (iDia < 0) { console.log("  ⛔ SPY no tiene cierre de " + iso(HOY) + " — NO se escribe nada.");
+  await latir("SPY no tenía cierre de " + iso(HOY)); await cerrar(); process.exit(0); }
 const DIA = SES[iDia];
 const SPYP = spyC[iDia][1];
 console.log("  última sesión con datos: " + iso(DIA) + "   ·   SPY $" + SPYP.toFixed(2));
@@ -122,7 +151,8 @@ if (!E) {
         abiertas: [], operaciones: [], spots: {}, sesiones: [], estorbos: [], sinSenal: [], ultimoDia: null };
   console.log("  cuaderno NUEVO: se siembra con $" + CAPITAL.toLocaleString("en-US"));
 }
-if (E.ultimoDia === DIA) { console.log("  ya se procesó " + iso(DIA) + " — no se repite. Salgo."); await cerrar(); process.exit(0); }
+if (E.ultimoDia === DIA) { console.log("  ya se procesó " + iso(DIA) + " — no se repite. Salgo.");
+  await latir(iso(DIA) + " ya estaba procesado — nada que hacer hoy"); await cerrar(); process.exit(0); }
 if (!E.sesiones.includes(DIA)) E.sesiones.push(DIA);
 E.sesiones.sort();
 const nSes = (d) => { const i = E.sesiones.indexOf(d); return i < 0 ? 0 : E.sesiones.length - 1 - i; };
@@ -307,13 +337,13 @@ console.log("  Palanca: " + seniales.length + " señales" + (seniales.length ? "
   seniales.slice(0, 8).map(s => s.tk + " " + (100 * s.ma).toFixed(1) + "%").join("  ") : ""));
 
 for (const s of seniales) {
-  if (vivasPalanca().length >= R.huecos) break;
+  if (vivasPalanca().length >= HUECOS_P) break;
   if (abiertosTk.has(s.tk)) continue;
   const cad = await calls(s.tk, DIA);
   if (!cad) { console.log("    ⚠️ " + s.tk + ": sin cadena, no se opera"); continue; }
   const c = elegir(cad, s.spot, DIA);
   if (!c) { console.log("    · " + s.tk + ": ningún contrato dentro de las tolerancias"); continue; }
-  const tope = P0 * R.tam, coste1 = c.ask * 100;
+  const tope = P0 * TAM_P, coste1 = c.ask * 100;
   financiar(Math.min(tope, P0));
   const n = Math.floor(Math.min(tope, E.caja) / coste1);
   if (n < 1) {
@@ -353,7 +383,7 @@ const patrFin = patr();
 const reporte =
   "COMBINADO · La Palanca + TSLA's Missile · " + iso(DIA) + "\n" +
   "patrimonio $" + Math.round(patrFin).toLocaleString("en-US") + "  (partió de $" + CAPITAL.toLocaleString("en-US") + ")\n" +
-  "abiertas " + E.abiertas.length + " (palanca " + vivasPalanca().length + "/" + R.huecos +
+  "abiertas " + E.abiertas.length + " (palanca " + vivasPalanca().length + "/" + HUECOS_P +
   " · missile " + E.abiertas.filter(p => p.estrategia === "missile").length + "/" + HUECOS + ")\n" +
   "cerradas " + cer.length + (cer.length ? " · acierta " + Math.round(100 * gan.length / cer.length) + "%" +
     " · palanca " + D(suma(porE("palanca"))) + " · missile " + D(suma(porE("missile"))) : "") + "\n" +
