@@ -139,6 +139,43 @@ export const ITEMS: Item[] = [
     actualizado: "2026-08-22",
   },
   {
+    id: "combi-6x4",
+    titulo: "COMBINADO · La Palanca + Missile, 6 huecos × 4%",
+    estado: "en-prueba",
+    cuadernos: ["combi6x4"],
+    queEs:
+      "Las DOS reglas sobre UNA sola cuenta de $60.000, con el dinero parado descansando en SPY. Un HUECO es una compra viva a la vez: aquí caben 6, y en cada una entran $2.400. Cada día cierra lo que toca, luego mira el Missile (su señal caduca: el golpe fue ayer y se compra hoy) y luego La Palanca con lo que quede. Corre desde el 1 de septiembre de 2026.",
+    numero: "compras de $2.400 · el reparto que Lester dice que se atrevería a llevar",
+    evidencia: [
+      "mide lo que ningún otro cuaderno puede: CUÁNTO SE ESTORBAN las dos reglas al compartir una sola cuenta, apuntado una a una",
+      "en el backtest este reparto da $55.923 al año, con Sharpe 0,83 — el mejor de los cuatro repartos medidos",
+      "en la primera corrida abrió DAL ($1.970) y CVS ($1.815), donde el reparto congelado no abría NINGUNA de las seis señales",
+    ],
+    enContra:
+      "Los $55.923 salen de los MISMOS datos que produjeron la regla, así que no son una prueba: son la misma opinión repetida. Este cuaderno existe para convertirlos en prueba, o para tumbarlos. Y la caída del backtest es −51% de TODA la cuenta, no de lo arriesgado: sobre $60.000 son $29.400. Esa caída tiene dos mitades que no duelen igual — la parte de SPY se recupera sola si no vendes, y la parte de la estrategia sólo se recupera si sigues abriendo posiciones, que es lo difícil.",
+    siguiente:
+      "Dejarlo correr. Con ~6 señales al año del Missile más las de La Palanca, antes de un año cualquier lectura es prematura.",
+    actualizado: "2026-09-01",
+  },
+  {
+    id: "combi-4x6",
+    titulo: "COMBINADO · La Palanca + Missile, 4 huecos × 6%",
+    estado: "en-prueba",
+    cuadernos: ["combi4x6"],
+    queEs:
+      "El mismo cuaderno que el de arriba con una sola diferencia: el dinero va en 4 compras de $3.600 en vez de 6 de $2.400. Mismo capital comprometido, repartido en menos manos. Corre desde el 1 de septiembre de 2026.",
+    numero: "compras de $3.600 · «mi próximo paso, quiero ver cómo se siente»",
+    evidencia: [
+      "con la mediana de lo que cuesta un contrato hoy en $3.620, es el primer reparto que alcanza a comprar la mitad de las señales",
+      "en el backtest gana algo más que el de 6 huecos ($57.971 contra $55.923) y asusta casi igual (−52% contra −51%)",
+    ],
+    enContra:
+      "Concentra: cada compra pesa el 6% de la cuenta, así que una que salga mal duele más. Corre al lado del de 6 huecos a propósito — la comparación entre los dos sólo vale hacia adelante, porque en el backtest los dos números salen de los mismos datos.",
+    siguiente:
+      "Compararlo con el de 6 huecos dentro de un año: cuál compró más señales y cuál se pudo aguantar sin abandonarlo.",
+    actualizado: "2026-09-01",
+  },
+  {
     id: "la-palanca",
     titulo: "LA PALANCA · calls muy dentro del dinero",
     estado: "en-prueba",

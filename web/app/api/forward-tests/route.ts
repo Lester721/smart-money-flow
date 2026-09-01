@@ -87,6 +87,25 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
   { id: "ledger", clave: "forward:ledger", nombre: "Credit spread", familia: "riesgo", unidad: "% sobre el riesgo",
     usd: (f) => (typeof f.pnlPerSpread === "number" ? f.pnlPerSpread : null),
     enContra: (v) => `RESUELTO el 31 de agosto: no hay contradicción con el backtest. Aquel −2,53% es la celda de 5 días a 1σ medida sobre CUATRO AÑOS con un crash dentro; aquí se mide sobre ${v.dias} días tranquilos, que no traen ni una caída. Ya estaba medido que el edge de 5 días es un artefacto del año calmo y se cae al incluir un crash — el robusto era el de 90 días. Así que este ${pc(v.media)} no desmiente nada. LA FORMA YA SE VE, y es la de vender prima: ${n(v.ganadoras)} ganadoras de ${pc(v.mediaGana)} de media contra ${n(v.perdedoras)} perdedoras de ${pc(v.mediaPierde)}${v.ruina ? `, ${v.ruina} de ellas pérdida total del riesgo (−100%)` : ""}. Hacen falta ${v.mediaGana && v.mediaPierde ? Math.ceil(Math.abs(v.mediaPierde / v.mediaGana)) : "—"} ganadoras para pagar UNA perdedora media. Con esa geometría el resultado lo deciden las perdedoras, no el acierto de ${pc(v.acierto == null ? null : v.acierto * 100, 0)} — y ${v.dias} días no traen suficientes. Y el número tampoco es directamente tuyo: son ${n(v.filas)} spreads en 6 combinaciones a la vez (5@1, 7@1, 5@1.5, 7@1.5, 21@1.5, 90@1), una rejilla para ver qué celda sirve, no una cartera.` },
+  // ── LOS DOS COMBINADOS (La Palanca + TSLA's Missile sobre UNA cuenta de $60.000) ──
+  // Guardan las cerradas en `operaciones` con `resultado` YA EN DOLARES, y las vivas en
+  // `abiertas`. Cada posicion lleva `estrategia` para saber quien la abrio.
+  { id: "combi6x4", clave: "forward:combinado-6x4", nombre: "Combinado · 6 huecos × 4%", familia: "riesgo",
+    unidad: "$ por operación · cuenta de $60.000, el ocioso en SPY",
+    extrae: (raw) => (raw && typeof raw === "object" && !Array.isArray(raw)
+      ? [...((raw as { operaciones?: unknown }).operaciones as Record<string, unknown>[] ?? []),
+         ...((raw as { abiertas?: unknown }).abiertas as Record<string, unknown>[] ?? [])] : []),
+    campoRes: "resultado",
+    usd: (f) => (typeof f.resultado === "number" ? f.resultado : null),
+    enContra: (v) => `Compras de $2.400. Es el reparto que Lester dice que se atrevería a llevar. Mide lo que NINGÚN otro cuaderno puede: cuánto se estorban las dos reglas al compartir una sola cuenta — lleva ${v.filas} operaciones y ${v.cerradas} cerradas. El backtest de este reparto da $55.923 al año con caída del 51%, PERO ese número sale de los mismos datos que produjeron la regla, así que no es prueba: es la misma opinión repetida. Esto es lo que la convierte en prueba, o no.` },
+  { id: "combi4x6", clave: "forward:combinado-4x6", nombre: "Combinado · 4 huecos × 6%", familia: "riesgo",
+    unidad: "$ por operación · cuenta de $60.000, el ocioso en SPY",
+    extrae: (raw) => (raw && typeof raw === "object" && !Array.isArray(raw)
+      ? [...((raw as { operaciones?: unknown }).operaciones as Record<string, unknown>[] ?? []),
+         ...((raw as { abiertas?: unknown }).abiertas as Record<string, unknown>[] ?? [])] : []),
+    campoRes: "resultado",
+    usd: (f) => (typeof f.resultado === "number" ? f.resultado : null),
+    enContra: (v) => `Compras de $3.600 — el mismo dinero en menos manos. Lester: «4 huecos sería mi próximo paso y quiero ver cómo se siente». Con la mediana de un contrato hoy en $3.620, este es el primer reparto que alcanza a comprar la mitad de las señales; el de 6 se queda corto en muchas. En el backtest gana más ($57.971 contra $55.923) y asusta casi igual (−52% contra −51%), pero concentra: cada posición pesa el 6% de la cuenta.` },
   { id: "wheel", clave: "forward:wheel", nombre: "Wheel", familia: "riesgo", unidad: "% sobre el colateral",
     // El Wheel guarda el resultado en `retOnColl` (sobre el COLATERAL, que es lo correcto para una
     // put vendida), no en `retOnRisk`. Sin esto la web decia "0 cerradas" habiendo 7 con +23,57%
