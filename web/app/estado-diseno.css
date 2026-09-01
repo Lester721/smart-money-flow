@@ -1,0 +1,138 @@
+/* ╔══════════════════════════════════════════════════════════════════════════════════════════╗
+   ║  /estado — SEPARACIÓN Y JERARQUÍA                                                        ║
+   ╚══════════════════════════════════════════════════════════════════════════════════════════╝
+
+   Lester, 2026-08-31: «que se vea más limpio, que se distinga más entre una área y otra,
+   sobretodo cuando una está encima de la otra. Que se vea más profesional».
+
+   EL DIAGNÓSTICO. Las secciones sólo se separaban con `margin-bottom: 34px`. Todo lo demás
+   —fondo, borde, tipografía— era idéntico dentro y fuera, así que al apilar «FORWARD TEST»
+   encima de «ESTRATEGIAS VALIDADAS» el ojo no tenía dónde apoyarse: veía una lista larga de
+   tarjetas iguales, no dos áreas distintas.
+
+   LO QUE SE HACE, y por qué cada cosa:
+     1. Cada sección es un PANEL con fondo propio y borde. Un contenedor separa mucho mejor que
+        un hueco: el hueco se lee como «sigue lo mismo», el borde como «esto es otra cosa».
+     2. El panel va sobre un fondo un punto más oscuro que la página, no más claro. Así las
+        tarjetas de dentro (que sí son claras) siguen siendo lo que más resalta.
+     3. La cabecera de sección se separa del contenido con una línea y con espacio, y el título
+        sube de tamaño y peso. Antes competía en tamaño con los títulos de las tarjetas.
+     4. Más aire ENTRE secciones (34px → 48px) que DENTRO (10px). Que la distancia diga la
+        jerarquía es la mitad del trabajo: se lee antes de leer una palabra.
+     5. Números tabulares en todo lo que sea cifra, para que las columnas cuadren de verdad.
+
+   Este fichero va aparte a propósito: globals.css lo comparten todas las páginas y aquí sólo
+   se toca /estado. */
+
+/* ── el panel de sección ─────────────────────────────────────────────────────────────────── */
+.est-grupo {
+  margin-bottom: 48px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0));
+  border: 1px solid var(--border-soft, #1b2233);
+  border-radius: 14px;
+  padding: 20px 20px 22px;
+}
+.est-grupo:last-of-type { margin-bottom: 32px; }
+
+/* la cabecera manda sobre su contenido: más grande, con línea debajo y aire de sobra */
+.est-grupo-head {
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-soft, #1b2233);
+}
+.est-grupo-head h2 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.est-grupo-head p {
+  font-size: 12.5px;
+  color: var(--faint, #6b7688);
+}
+
+/* ── la cabecera de la página ────────────────────────────────────────────────────────────── */
+.est-intro {
+  margin-bottom: 40px;
+  padding-bottom: 26px;
+  border-bottom: 1px solid var(--border, #232b3d);
+}
+.est-intro h1 { letter-spacing: -0.02em; }
+
+/* los contadores, en fila de fichas: se leen como un panel de mandos, no como texto suelto */
+.est-cuentas {
+  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+}
+.est-cuentas > div {
+  background: var(--panel, #141a26);
+  border: 1px solid var(--border-soft, #1b2233);
+  border-radius: 10px;
+  padding: 13px 15px;
+  gap: 3px;
+}
+.est-cuentas b {
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.est-cuentas span {
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  color: var(--faint, #6b7688);
+  line-height: 1.35;
+}
+.est-sello {
+  margin-top: 14px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: var(--faint, #6b7688);
+}
+
+/* ── las tarjetas de dentro ──────────────────────────────────────────────────────────────── */
+.est-lista { gap: 9px; }
+.est-item {
+  background: var(--panel, #141a26);
+  border-color: var(--border, #232b3d);
+  border-radius: 10px;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.est-item:hover { border-color: #2f3a52; }
+.est-head { padding: 15px 17px; }
+.est-titulo { font-weight: 650; letter-spacing: -0.005em; }
+.est-numero { font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+
+/* el detalle abierto se hunde un punto, para que se vea que cuelga de la tarjeta */
+.est-detalle {
+  background: rgba(0, 0, 0, 0.16);
+  border-top-color: var(--border, #232b3d);
+  padding: 4px 17px 16px;
+}
+.est-bloque h4 { letter-spacing: 0.09em; color: var(--faint, #6b7688); }
+
+/* ── la banda de datos en vivo ───────────────────────────────────────────────────────────── */
+.est-muestra {
+  border-radius: 8px;
+  border-color: var(--border, #232b3d);
+}
+.est-muestra-tabla { font-variant-numeric: tabular-nums; }
+.est-muestra-tabla th {
+  font-size: 10.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--faint, #6b7688);
+}
+
+/* ── responsive ──────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .est-grupo { padding: 16px 14px 18px; margin-bottom: 34px; border-radius: 12px; }
+  .est-cuentas { grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); }
+  .est-cuentas b { font-size: 23px; }
+}

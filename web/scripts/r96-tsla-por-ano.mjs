@@ -223,7 +223,7 @@ if (process.env.EMITIR === "1") {
       peorOp: Math.min(...todas), peorCaida: caidaDe(todas), ...rachas(todas),
       acierto: todas.filter((x) => x > 0).length / todas.length,
       porOperacion: (R.final - 60000) / todas.length,
-      desde: dias0[0], hasta: R.cerradas[R.cerradas.length - 1].dia },
+      desde: iso(dias0[0]), hasta: iso(R.cerradas[R.cerradas.length - 1].dia) },
   };
   const P = "lib/estrategias-por-ano.json";
   const j = JSON.parse(leer(P, "utf8"));
