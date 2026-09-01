@@ -139,6 +139,27 @@ export const ITEMS: Item[] = [
     actualizado: "2026-08-22",
   },
   {
+    id: "calls-hood",
+    titulo: "CALLS CUBIERTAS SOBRE TUS 500 HOOD — la estrategia",
+    estado: "pendiente",
+    queEs:
+      "Cuándo vender calls sobre las 500 acciones de HOOD que tienes, a qué strike y a qué plazo. Sale de DOS fuentes reales: tus 242 órdenes de opciones sobre HOOD desde mayo de 2025, y 857 muestras de cadenas de HOOD de dos años medidas a distancia y plazo fijos.",
+    numero: "las puts te dan $13.181 y las calls sólo $2.028 · tu suelo es $113,53",
+    evidencia: [
+      "TU SUELO SON $115. El coste medio de tus 500 acciones es $113,53: una call por debajo, si te asignan, te fija la pérdida. Esto ya lo haces bien.",
+      "EL PLAZO MANDA SOBRE EL STRIKE. Medido en 1.278 sesiones de HOOD: a un 10% de distancia te la tocan el 28% a 7 días, el 47% a 14 y el 60% a 30. Mismo strike, el triple de riesgo.",
+      "A DISTANCIA Y PLAZO FIJOS, LA CAÍDA PAGA MÁS: 1,13% por semana tras caer contra 0,89% tras subir (10% fuera, 7 días). Consistente en las 12 celdas medidas.",
+      "PERO TU SUELO ES UN DÓLAR, NO UN PORCENTAJE: si HOOD cae a $95, tus $115 quedan al 21% y la prima se hunde a ~$22. Por eso lo vives como «cuando baja no consigo prima» — y tienes razón, aunque la volatilidad esté pagando mejor.",
+      "TUS RECOMPRAS VAN BIEN: emparejadas una a una, +$509 (24 con ganancia, 7 con pérdida). No cierras por pánico, cobras ganadoras temprano.",
+      "TUS PÉRDIDAS ESTÁN EN UN SOLO DÍA: el 29-sep-2025 HOOD saltó +10,5% en una sesión; vendiste K125 y K129 esa mañana y las recompraste el mismo día. −$820 de tus −$1.285 totales.",
+    ],
+    enContra:
+      "Esta estrategia sale de MIRAR datos pasados, no de un examen fuera de muestra: es una descripción de lo que ya pasó, y eso siempre se ve mejor de lo que resulta hacia adelante. Además el análisis se equivocó DOS veces antes de llegar aquí, y las dos las cazó Lester: comparé recompras sin emparejar, y comparé primas de opciones a 83 días contra otras a 14 como si fueran lo mismo. Las cifras de arriba son las que sobrevivieron a rehacerlo bien, pero el listón para creerlas es el forward test, no esta ficha. Y hay un límite duro: las calls cubiertas salieron NEGATIVAS 9 de 9 en el backtest general — puede que la respuesta correcta sea vender menos calls, no venderlas mejor.",
+    siguiente:
+      "Falta una decisión de Lester que cambia la regla entera: si le da igual que le asignen a $115 puede vender mucho más cerca y cobrar el triple; si quiere conservar las acciones hay que quedarse al 10% de distancia y aceptar ~$100 por contrato. Con esa respuesta se congela la regla y arranca el forward test.",
+    actualizado: "2026-09-01",
+  },
+  {
     id: "combi-6x4",
     titulo: "COMBINADO · La Palanca + Missile, 6 huecos × 4%",
     estado: "en-prueba",
