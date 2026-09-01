@@ -44,8 +44,8 @@ export default function ForwardTests() {
   return (
     <section className="est-grupo">
       <header className="est-grupo-head">
-        <h2><span aria-hidden="true">📡</span> LO QUE ESTÁ PASANDO AHORA</h2>
-        <p>los cuadernos que corren en Railway · se lee de Redis al abrir la página</p>
+        <h2><span aria-hidden="true">📡</span> FORWARD TEST</h2>
+        <p>datos en vivo, actualizados por Railway</p>
       </header>
 
       {!d.ok ? (
