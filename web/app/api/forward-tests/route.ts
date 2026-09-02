@@ -50,6 +50,12 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
                    filtro?: (f: Record<string, unknown>) => boolean;
                    extrae?: (raw: unknown) => Record<string, unknown>[];
                    campoRes?: string;
+                   /** Cómo llama ESTE cuaderno a sus campos. Sin esto se deducen de la familia,
+                    *  y ahí está la trampa nº1 de la lista: los combinados guardan
+                    *  `estado: "abierta"` mientras la familia "riesgo" hace buscar
+                    *  `status: "open"`. La API leía 2 filas y decía "sin operar todavía" —
+                    *  vacío, no un error. Se escribe explícito y se acaba la adivinanza. */
+                   campoEstado?: string; abiertoEs?: string; cerradoEs?: string; campoDia?: string;
                    /** Dolares de una operacion cerrada. Sin esto, los cuadernos que miden en %
                     *  salian SOLO en porcentaje mientras los que miden en $ salian en dolares:
                     *  las perdidas se leian como dinero real y las ganancias como una abstraccion.
@@ -91,6 +97,7 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
   // Guardan las cerradas en `operaciones` con `resultado` YA EN DOLARES, y las vivas en
   // `abiertas`. Cada posicion lleva `estrategia` para saber quien la abrio.
   { id: "combi6x4", clave: "forward:combinado-6x4", nombre: "Combinado · 6 huecos × 4%", familia: "riesgo",
+    campoEstado: "estado", abiertoEs: "abierta", cerradoEs: "cerrada", campoDia: "dia",
     unidad: "$ por operación · cuenta de $60.000, el ocioso en SPY",
     extrae: (raw) => (raw && typeof raw === "object" && !Array.isArray(raw)
       ? [...((raw as { operaciones?: unknown }).operaciones as Record<string, unknown>[] ?? []),
@@ -99,6 +106,7 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
     usd: (f) => (typeof f.resultado === "number" ? f.resultado : null),
     enContra: (v) => `Compras de $2.400. Es el reparto que Lester dice que se atrevería a llevar. Mide lo que NINGÚN otro cuaderno puede: cuánto se estorban las dos reglas al compartir una sola cuenta — lleva ${v.filas} operaciones y ${v.cerradas} cerradas. El backtest de este reparto da $55.923 al año con caída del 51%, PERO ese número sale de los mismos datos que produjeron la regla, así que no es prueba: es la misma opinión repetida. Esto es lo que la convierte en prueba, o no.` },
   { id: "combi4x6", clave: "forward:combinado-4x6", nombre: "Combinado · 4 huecos × 6%", familia: "riesgo",
+    campoEstado: "estado", abiertoEs: "abierta", cerradoEs: "cerrada", campoDia: "dia",
     unidad: "$ por operación · cuenta de $60.000, el ocioso en SPY",
     extrae: (raw) => (raw && typeof raw === "object" && !Array.isArray(raw)
       ? [...((raw as { operaciones?: unknown }).operaciones as Record<string, unknown>[] ?? []),
@@ -148,6 +156,16 @@ function diasHasta(entrada: unknown, vence: unknown): number | null {
   return Number.isFinite(a) && Number.isFinite(b) ? Math.round((b - a) / 86400000) : null;
 }
 
+/** Los días llegan en DOS formatos: los cuadernos viejos escriben "2026-08-28" y los combinados
+ *  "20260828". El segundo revienta cualquier `new Date(...)` y en pantalla salía "Invalid Date"
+ *  y un año "2022" sacado de la nada. Se normaliza AQUÍ, en un solo sitio, en vez de esperar que
+ *  cada cuaderno escriba igual — porque ya sabemos que no lo hacen. Es la misma familia de fallo
+ *  que los nombres de campo: cada uno escribe a su manera y el lector tiene que absorberlo. */
+const isoDia = (d: unknown): string => {
+  const t = String(d ?? "");
+  return /^\d{8}$/.test(t) ? t.slice(0, 4) + "-" + t.slice(4, 6) + "-" + t.slice(6, 8) : t;
+};
+
 const media = (v: number[]) => (v.length ? v.reduce((a, b) => a + b, 0) / v.length : NaN);
 
 export async function GET() {
@@ -175,15 +193,16 @@ export async function GET() {
 
       // Cada familia con SUS nombres de campo. Nunca al revés.
       const esCondor = c.familia === "condor";
-      const campoDia = esCondor ? "dia" : "entryDate";
-      const campoEstado = esCondor ? "estado" : "status";
-      const cerrado = esCondor ? "cerrada" : "closed";
+      const campoDia = c.campoDia ?? (esCondor ? "dia" : "entryDate");
+      const campoEstado = c.campoEstado ?? (esCondor ? "estado" : "status");
+      const cerrado = c.cerradoEs ?? (esCondor ? "cerrada" : "closed");
+      const abierto = c.abiertoEs ?? (esCondor ? "abierta" : "open");
       const campoRes = c.campoRes ?? (esCondor ? "pl" : "retOnRisk");
 
-      const dias = [...new Set(filas.map((f) => f[campoDia]).filter(Boolean))].sort() as string[];
+      const dias = [...new Set(filas.map((f) => isoDia(f[campoDia])).filter(Boolean))].sort() as string[];
       const cerradas = filas.filter((f) => f[campoEstado] === cerrado && typeof f[campoRes] === "number");
       const vals = cerradas.map((f) => f[campoRes] as number);
-      const abiertas = filas.filter((f) => f[campoEstado] === (esCondor ? "abierta" : "open")).length;
+      const abiertas = filas.filter((f) => f[campoEstado] === abierto).length;
       const sinSenal = filas.filter((f) => f[campoEstado] === "sin señal").length;
       const gana = vals.filter((x) => x > 0), pierde = vals.filter((x) => x <= 0);
       const prom = (a: number[]) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
@@ -216,11 +235,11 @@ export async function GET() {
           accion: String(f.ticker ?? f.tk ?? (c.familia === "condor" && !f.ticker ? "SPX" : f.symbol) ?? "—"),
           opcion: patas(f),
           spot: typeof f.spot === "number" ? f.spot : null,
-          abrio: String(f.entryDate ?? f.dia ?? f.dC ?? ""),
-          vence: String(f.expiryDate ?? f.exp ?? f.optExpiry ?? f.dia ?? ""),
+          abrio: isoDia(f.entryDate ?? f.dia ?? f.dC ?? ""),
+          vence: isoDia(f.expiryDate ?? f.exp ?? f.optExpiry ?? f.dia ?? ""),
           dias: diasHasta(f.entryDate ?? f.dia ?? f.dC, f.expiryDate ?? f.exp ?? f.optExpiry ?? f.dia),
           que: String(f.ticker ?? f.tk ?? f.symbol ?? c.nombre),
-          cuando: String(f.exitDate ?? f.diaSalida ?? f[campoDia] ?? ""),
+          cuando: isoDia(f.exitDate ?? f.diaSalida ?? f[campoDia] ?? ""),
           usd: c.usd ? c.usd(f) : (typeof f[campoRes] === "number" && c.unidad.startsWith("$") ? (f[campoRes] as number) : null),
           pct: typeof f[campoRes] === "number" && !c.unidad.startsWith("$") ? (f[campoRes] as number) : null,
           nota: String(f.closedReason ?? f.exitReason ?? f.motivo ?? ""),
