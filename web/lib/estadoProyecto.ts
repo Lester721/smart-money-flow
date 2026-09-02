@@ -341,7 +341,7 @@ export const ITEMS: Item[] = [
     ],
     enContra:
       "las operaciones cerradas hasta ahora no confirman nada, ni a favor ni en contra. Y va en la misma dirección que el backtest, así que lo más probable es que sólo esté repitiendo lo que ya sabíamos. Si algún día saliera positivo, la primera sospecha sería la muestra, no el hallazgo.",
-    actualizado: "2026-08-31",
+    actualizado: "2026-09-02",
   },
   {
     id: "triple-negativo",
