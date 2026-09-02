@@ -337,10 +337,10 @@ export const ITEMS: Item[] = [
     evidencia: [
       "medido en el backtest sobre 19.465 operaciones con precios reales: el scorecard no separa ganadoras de perdedoras",
       "y comprando a largo tampoco: 0 de 12, concluyente",
-      "en directo va a −7,54% con 31% de acierto en 16 operaciones, coherente con esa conclusión",
+      "en directo va en negativo y acertando menos de un tercio, coherente con esa conclusión",
     ],
     enContra:
-      "16 operaciones no confirman nada, ni a favor ni en contra. Y va en la misma dirección que el backtest, así que lo más probable es que sólo esté repitiendo lo que ya sabíamos. Si algún día saliera positivo, la primera sospecha sería la muestra, no el hallazgo.",
+      "las operaciones cerradas hasta ahora no confirman nada, ni a favor ni en contra. Y va en la misma dirección que el backtest, así que lo más probable es que sólo esté repitiendo lo que ya sabíamos. Si algún día saliera positivo, la primera sospecha sería la muestra, no el hallazgo.",
     actualizado: "2026-08-31",
   },
   {
