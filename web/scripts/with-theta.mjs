@@ -100,7 +100,17 @@ async function cerrar() { shutdown(); await soltarCandado(); }
 // que yo inventé y NO puse en ningún sitio: cada parada habría escrito en `latido:with-theta`,
 // una clave fantasma que (1) dejaba al servicio de verdad pareciendo sano y (2) avisaría para
 // siempre de un servicio que no existe. Se deriva del nombre real que inyecta Railway.
-const SERVICIOS = { "cóndor": "gex-condor", condor: "gex-condor", wheel: "wheel",
+// ⚠️ ESTE MAPA HAY QUE AMPLIARLO CON CADA SERVICIO NUEVO.
+// El 2026-09-01 los dos combinados no pudieron coger el candado de ThetaData y el aviso de «no
+// corrí» NO se escribió en ninguna parte, porque aquí sólo estaban los cinco viejos. El log lo
+// dijo — «no sé bajo qué servicio dejar el aviso: RAILWAY_SERVICE_NAME="Forward · Combinado 6x4"»
+// — pero ese log vive dentro de Railway y nadie lo mira. Resultado: dos servicios un día entero
+// sin correr y CERO rastro en los latidos, que es justo lo que los latidos existen para evitar.
+// Lo específico va ANTES que lo general: "combinado 6x4" tiene que mirarse antes de cualquier
+// pista más corta que también case.
+const SERVICIOS = { "combinado 6x4": "combinado-6x4", "combinado 4x6": "combinado-4x6",
+                    "la palanca": "la-palanca", missile: "tsla-missile", mariposa: "mariposa-15h",
+                    "cóndor": "gex-condor", condor: "gex-condor", wheel: "wheel",
                     "credit spread": "credit-spread", ideas: "ideas" };
 function nombreLatido() {
   if (process.env.LATIDO_SERVICIO) return process.env.LATIDO_SERVICIO;
@@ -196,7 +206,10 @@ function empezarRenovacion() {
         clearInterval(_renovador); _renovador = null;
         await avisarNoCorrio(`ABORTADO: perdí el candado de ThetaData a mitad (lo tiene ${dueño})`);
         shutdown();
-        process.exit(75);
+        // Cero por lo mismo que abajo: perder el candado es un problema de TURNO, no del trabajo.
+        // Salir con error dejaría el despliegue CRASHED y Railway apagaría el cron para siempre.
+        // El latido de arriba ya dice ABORTADO, así que el fallo queda a la vista sin matar nada.
+        process.exit(0);
       }
       await _lockCli.expire(LOCK_KEY, LOCK_TTL);
     } catch (e) { log(`(no pude renovar el candado: ${e.message})`); }
@@ -223,7 +236,21 @@ async function soltarCandado() {
   if (!USA_CANDADO) log(`sin candado (${STAGE ? "sesión STAGE, no compite con los cron" : "desactivado a mano"}).`);
   if (USA_CANDADO && !(await cogerCandado())) {
     await avisarNoCorrio(`NO CORRIÓ: la sesión de ThetaData seguía ocupada tras ${LOCK_ESPERA}s`);
-    await soltarCandado(); process.exit(75);                                   // 75 = EX_TEMPFAIL
+    await soltarCandado();
+    // ⚠️ SALE CON CERO, Y ES DELIBERADO. Antes salía con 75 (EX_TEMPFAIL), que es lo correcto en
+    // Unix pero CATASTRÓFICO en Railway: cualquier código distinto de cero marca el despliegue
+    // como CRASHED, y un servicio CRASHED **deja de disparar su cron**. O sea que una colisión de
+    // treinta minutos por el candado no costaba un día — costaba el calendario ENTERO, para
+    // siempre y en silencio.
+    //
+    // Pasó el 2026-09-01: un push redesplegó los nueve servicios a la vez, los nueve pidieron
+    // ThetaData a la vez, los dos combinados esperaron 1800s, salieron con 75 y quedaron CRASHED.
+    // Al día siguiente no corrieron ni a la 01:00 ni a la 02:00. Lo cazó Lester, no el vigilante.
+    //
+    // No coger el candado NO es un fallo del trabajo: es un día que no toca. Se apunta en el
+    // latido (arriba) y se sale limpio, para que mañana el cron vuelva a dispararse.
+    // Los fallos de VERDAD del trabajo siguen saliendo con su código: el del hijo pasa tal cual.
+    process.exit(0);
   }
 
   // Java: preferIPv4Stack evita el cuelgue por IPv6 al contactar el servidor de auth.
