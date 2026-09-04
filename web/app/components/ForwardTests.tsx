@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 
 type Cuaderno = {
   id: string; clave: string; nombre: string; familia: "condor" | "riesgo"; unidad: string; enContra?: string;
-  filas: number; vacio: boolean;
+  filas: number; vacio: boolean; ultima?: string | null; dijo?: string | null;
   desde?: string | null; hasta?: string | null;
   cerradas?: number; abiertas?: number; sinSenal?: number;
   media?: number | null; total?: number | null; acierto?: number | null;
@@ -53,7 +53,7 @@ export default function ForwardTests() {
       ) : (
         <>
           <p className="ftest-resumen">
-            <strong>{cs.filter((c) => !c.vacio).length} cuadernos</strong> escribiendo ·{" "}
+            <strong>{cs.filter((c) => !c.vacio || c.ultima).length} cuadernos</strong> corriendo ·{" "}
             <strong>{totalCierres} operaciones cerradas</strong> entre todos
           </p>
 
@@ -82,7 +82,7 @@ export default function ForwardTests() {
                   const bueno = (c.media ?? 0) > 0;
                   return (
                     <tr key={c.id}
-                        className={`${c.vacio ? "ftest-vacio" : ""} ${on ? "ftest-on" : ""}`}
+                        className={`${c.vacio && !c.ultima ? "ftest-vacio" : ""} ${on ? "ftest-on" : ""}`}
                         onClick={() => c.enContra && setAbierto(on ? null : c.id)}>
                       <td className="ftest-nombre">
                         {c.nombre}
@@ -97,7 +97,13 @@ export default function ForwardTests() {
                       <td><b>{c.cerradas ?? 0}</b></td>
                       <td className="ftest-tenue">{c.abiertas ? c.abiertas : "—"}</td>
                       <td className={res ? (bueno ? "pos" : "neg") : "ftest-tenue"}>
-                        {res ?? (c.abiertas ? `${c.abiertas} abiertas, ninguna cerrada` : "sin operar todavía")}
+                        {res ?? (c.abiertas ? `${c.abiertas} abiertas, ninguna cerrada`
+                          /* SIN OPERACIONES NO ES SIN CORRER. La Palanca y el Missile llevaban
+                             dias corriendo cada noche sin abrir nada, y esta celda decia solo
+                             "sin operar todavia" en gris: se leia como que no existian. Ahora la
+                             fila dice CUANDO corrio por ultima vez y QUE dijo. Lester, 4-sep. */
+                          : c.ultima ? `corriendo · sin abrir nada todavía · última: ${c.ultima}`
+                          : "sin señales de vida")}
                       </td>
                       <td>{c.acierto != null ? Math.round(c.acierto * 100) + "%" : "—"}</td>
                       {/* No basta con "5 sin señal": sin saber sobre cuántos días, no se puede

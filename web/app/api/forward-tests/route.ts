@@ -61,6 +61,9 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
                     *  las perdidas se leian como dinero real y las ganancias como una abstraccion.
                     *  Lester, 31-ago-2026: "por que demonios no puedes colocar el dinero que
                     *  estamos ganando en las positivas?". */
+                   /** Clave del latido si no coincide con el id (la mariposa guarda
+                    *  latido:mariposa-15h y el credit spread latido:credit-spread). */
+                   latido?: string;
                    usd?: (f: Record<string, unknown>) => number | null }[] = [
   { id: "la-palanca", clave: "forward:la-palanca", nombre: "LA PALANCA", familia: "condor",
     unidad: "$ por operación · cartera de $60.000 · 60 grandes capitalizaciones",
@@ -78,9 +81,9 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
       ? (raw as { operaciones: Record<string, unknown>[] }).operaciones : []),
     campoRes: "resultado",
     enContra: "La tabla mágica está CERRADA como regla general: falló dos exámenes fuera de muestra y su lado dominante (puts dentro del dinero con la acción bajo su media) pierde −5,21% con t=−5,36 sobre 580 entradas independientes. En TSLA no se pudo tumbar (34 señales, +11,34% por operación, t=4,23, seis de seis años positivos), pero 34 señales sobre UN solo nombre es exactamente donde vive la casualidad. Este cuaderno es la única prueba que le queda. Arrancó el 28 de agosto de 2026." },
-  { id: "mariposa", clave: "forward:mariposa-15h", nombre: "Mariposa de hierro · 15:00", familia: "condor", unidad: "$ por operación",
+  { id: "mariposa", latido: "mariposa-15h", clave: "forward:mariposa-15h", nombre: "Mariposa de hierro · 15:00", familia: "condor", unidad: "$ por operación",
     enContra: "La mejor candidata medida: $11.405/año contra los $6.722 del cóndor, y con menos susto. PERO no cruza el listón de las muchas puertas (t=3,41 con el listón en 4) y se va apagando (primera mitad $14.872/año, segunda $7.939). Este cuaderno es la única prueba fuera de muestra que le queda. Arrancó el 22 de agosto." },
-  { id: "mariposa-umbral", clave: "forward:mariposa-15h", nombre: "Mariposa · con umbral de crédito", familia: "condor", unidad: "$ por operación",
+  { id: "mariposa-umbral", latido: "mariposa-15h", clave: "forward:mariposa-15h", nombre: "Mariposa · con umbral de crédito", familia: "condor", unidad: "$ por operación",
     filtro: (f) => typeof f.creditoSobreCuna === "number" && f.creditoSobreCuna >= 0.30,
     enContra: "MISMO cuaderno que la de arriba, leído con una condición añadida: sólo las operaciones donde el crédito llegó al 30% de la cuna de la mañana. En el backtest da el MISMO dinero operando un 28% menos días ($11.140 contra $11.405) y con mejor peor día (−$2.965 contra −$3.247). El umbral se eligió mirando el backtest, así que no es independiente — por eso corre al lado de la regla sin filtro y no dentro de ella." },
   { id: "tres-sies", clave: "forward:tres-sies", nombre: "Cóndor · los tres síes", familia: "condor", unidad: "$ por operación",
@@ -90,13 +93,13 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
   { id: "condor-sinfiltro", clave: "forward:condor-sinfiltro", nombre: "Cóndor · sin filtro", familia: "condor", unidad: "$ por operación",
     enContra: "Es el control: opera todos los días. Sirve para saber cuánto aportan los filtros, no para operarlo." },
   { id: "condor-tendencia", clave: "forward:condor-tendencia", nombre: "Cóndor · filtro de tendencia", familia: "condor", unidad: "$ por operación" },
-  { id: "ledger", clave: "forward:ledger", nombre: "Credit spread", familia: "riesgo", unidad: "% sobre el riesgo",
+  { id: "ledger", latido: "credit-spread", clave: "forward:ledger", nombre: "Credit spread", familia: "riesgo", unidad: "% sobre el riesgo",
     usd: (f) => (typeof f.pnlPerSpread === "number" ? f.pnlPerSpread : null),
     enContra: (v) => `RESUELTO el 31 de agosto: no hay contradicción con el backtest. Aquel −2,53% es la celda de 5 días a 1σ medida sobre CUATRO AÑOS con un crash dentro; aquí se mide sobre ${v.dias} días tranquilos, que no traen ni una caída. Ya estaba medido que el edge de 5 días es un artefacto del año calmo y se cae al incluir un crash — el robusto era el de 90 días. Así que este ${pc(v.media)} no desmiente nada. LA FORMA YA SE VE, y es la de vender prima: ${n(v.ganadoras)} ganadoras de ${pc(v.mediaGana)} de media contra ${n(v.perdedoras)} perdedoras de ${pc(v.mediaPierde)}${v.ruina ? `, ${v.ruina} de ellas pérdida total del riesgo (−100%)` : ""}. Hacen falta ${v.mediaGana && v.mediaPierde ? Math.ceil(Math.abs(v.mediaPierde / v.mediaGana)) : "—"} ganadoras para pagar UNA perdedora media. Con esa geometría el resultado lo deciden las perdedoras, no el acierto de ${pc(v.acierto == null ? null : v.acierto * 100, 0)} — y ${v.dias} días no traen suficientes. Y el número tampoco es directamente tuyo: son ${n(v.filas)} spreads en 6 combinaciones a la vez (5@1, 7@1, 5@1.5, 7@1.5, 21@1.5, 90@1), una rejilla para ver qué celda sirve, no una cartera.` },
   // ── LOS DOS COMBINADOS (La Palanca + TSLA's Missile sobre UNA cuenta de $60.000) ──
   // Guardan las cerradas en `operaciones` con `resultado` YA EN DOLARES, y las vivas en
   // `abiertas`. Cada posicion lleva `estrategia` para saber quien la abrio.
-  { id: "combi6x4", clave: "forward:combinado-6x4", nombre: "Combinado · 6 huecos × 4%", familia: "riesgo",
+  { id: "combi6x4", latido: "combinado-6x4", clave: "forward:combinado-6x4", nombre: "Combinado · 6 huecos × 4%", familia: "riesgo",
     campoEstado: "estado", abiertoEs: "abierta", cerradoEs: "cerrada", campoDia: "dia",
     unidad: "$ por operación · cuenta de $60.000, el ocioso en SPY",
     extrae: (raw) => (raw && typeof raw === "object" && !Array.isArray(raw)
@@ -105,7 +108,7 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
     campoRes: "resultado",
     usd: (f) => (typeof f.resultado === "number" ? f.resultado : null),
     enContra: (v) => `Compras de $2.400. Es el reparto que Lester dice que se atrevería a llevar. Mide lo que NINGÚN otro cuaderno puede: cuánto se estorban las dos reglas al compartir una sola cuenta — lleva ${v.filas} operaciones y ${v.cerradas} cerradas. El backtest de este reparto da $55.923 al año con caída del 51%, PERO ese número sale de los mismos datos que produjeron la regla, así que no es prueba: es la misma opinión repetida. Esto es lo que la convierte en prueba, o no.` },
-  { id: "combi4x6", clave: "forward:combinado-4x6", nombre: "Combinado · 4 huecos × 6%", familia: "riesgo",
+  { id: "combi4x6", latido: "combinado-4x6", clave: "forward:combinado-4x6", nombre: "Combinado · 4 huecos × 6%", familia: "riesgo",
     campoEstado: "estado", abiertoEs: "abierta", cerradoEs: "cerrada", campoDia: "dia",
     unidad: "$ por operación · cuenta de $60.000, el ocioso en SPY",
     extrae: (raw) => (raw && typeof raw === "object" && !Array.isArray(raw)
@@ -177,6 +180,18 @@ export async function GET() {
 
   try {
     const salida = [];
+    /** CUANDO corrio por ultima vez y QUE dijo. Se le pone a TODAS las filas, no solo a las
+     *  vacias: un cuaderno sin operaciones cerradas tampoco sabia decir si seguia vivo -- la
+     *  mariposa con umbral salia como "sin senales de vida" llevando dias corriendo. */
+    const pulso = async (c: { id: string; latido?: string }) => {
+      const lat = await r.get("latido:" + (c.latido ?? c.id));
+      if (!lat) return { ultima: null as string | null, dijo: null as string | null };
+      try { const j = JSON.parse(lat);
+            return { ultima: (j.cuandoET ?? j.cuandoISO ?? null) as string | null,
+                     dijo: (j.resultado ?? null) as string | null }; }
+      catch { return { ultima: null as string | null, dijo: null as string | null }; }
+    };
+
     for (const c of CUADERNOS) {
       let filas: Record<string, unknown>[] = [];
       try {
@@ -187,7 +202,13 @@ export async function GET() {
       // condición. Las que no la cumplen no son "sin señal" para ella: simplemente no opera.
       if (c.filtro && Array.isArray(filas)) filas = filas.filter((f) => f.estado === "sin señal" || c.filtro!(f));
       if (!Array.isArray(filas) || !filas.length) {
-        salida.push({ ...c, filas: 0, vacio: true });
+        // SIN OPERACIONES NO ES SIN CORRER. Lester, 2026-09-04: "por que en el web no se ve el
+        // estatus del forward test de la palanca y el TSLA missile?". Porque llevan dias
+        // corriendo TODAS las noches y no han abierto nada -- La Palanca ve senales y las
+        // descarta, el Missile no ha disparado -- asi que salian como fila vacia y gris, que se
+        // lee como "esto no existe". Un cuaderno sano que dice "hoy no" es una RESPUESTA, no un
+        // hueco. Se le adjunta su latido para que la fila diga cuando corrio y que dijo.
+        salida.push({ ...c, filas: 0, vacio: true, ...(await pulso(c)) });
         continue;
       }
 
@@ -252,6 +273,7 @@ export async function GET() {
         total: esCondor && vals.length ? vals.reduce((a, b) => a + b, 0) : null,
         acierto: vals.length ? vals.filter((x) => x > 0).length / vals.length : null,
         vacio: false,
+        ...(await pulso(c)),
       });
     }
     // ═══ EL VIGILANTE, EN LA MISMA VISITA ══════════════════════════════════════════════════
