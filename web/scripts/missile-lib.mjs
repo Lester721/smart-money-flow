@@ -18,7 +18,11 @@ const SYM = 'TSLA';
 const LEDGER = process.env.MISSILE_LEDGER || 'data/forward/tsla-missile.json';
 const REDIS_KEY = process.env.MISSILE_REDIS_KEY || 'forward:tsla-missile';
 const STORE = (process.env.MISSILE_STORE || (process.env.REDIS_URL ? 'redis' : 'file')).toLowerCase();
-const SECO = process.argv.includes('--seco');
+// SECO = mira y NO guarda. Tambien por variable de entorno: en Railway no se puede pasar un
+// argumento sin cambiar el startCommand. Sirve para preguntarle a un dia PASADO que habria
+// hecho, sin tocar el registro -- que es la unica forma honesta de contestar 'deberiamos
+// haber tenido una posicion ese dia?' sin inventar el numero ni ensuciar el forward test.
+const SECO = process.argv.includes('--seco') || process.env.THETA_SECO === '1';
 
 // ── parámetros pre-registrados. NO TOCAR. ────────────────────────────────────
 const CAPITAL_INICIAL = 60000;
