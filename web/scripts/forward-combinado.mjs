@@ -78,7 +78,14 @@ async function leer() {
   const c = await (await redis()).get(CLAVE);
   return c ? JSON.parse(c) : null;
 }
+// SECO = mira y NO guarda. Sirve para preguntarle a un dia PASADO que habria hecho sin tocar el
+// registro. Lester, 2026-09-04: "no inventes numeros, mira los reales. Debimos haber tenido una
+// posicion abierta ese dia?". Decir "ese dia se perdio" sin comprobar si habria pasado algo es
+// dejar la pregunta a medias -- y correrlo de verdad ensuciaria el forward test.
+const SECO = process.argv.includes("--seco") || process.env.THETA_SECO === "1";
+
 async function guardar(E, reporte, resumen) {
+  if (SECO) { console.log("\n  --seco: NO se ha guardado nada\n"); return; }
   const s = JSON.stringify(E);
   if (STORE !== "redis") {
     const { writeFileSync, mkdirSync } = await import("node:fs");
