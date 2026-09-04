@@ -136,3 +136,23 @@
   .est-cuentas { grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); }
   .est-cuentas b { font-size: 23px; }
 }
+
+/* EL VIGILANTE. Rojo y arriba del todo a proposito: un aviso que hay que buscar no es un aviso.
+   Idea de Lester el 2026-09-04, despues de que le dijera que Railway estaba bien llevando dos
+   dias parado. Lo verde tambien se pinta: "no hay problemas" tiene que distinguirse de "no se
+   ha comprobado", que es justo la diferencia que se me escapo. */
+.est-alarma {
+  margin: 0 0 18px; padding: 14px 16px; border-radius: 10px;
+  border: 1px solid #b42318; background: #fef3f2; color: #7a271a;
+  font-size: 14px; line-height: 1.5;
+}
+.est-alarma strong { display: block; margin-bottom: 6px; font-size: 15px; }
+.est-alarma ul { margin: 6px 0 0; padding-left: 18px; }
+.est-alarma li { margin: 3px 0; }
+.est-alarma-ok {
+  border-color: #067647; background: #ecfdf3; color: #085d3a;
+}
+@media (prefers-color-scheme: dark) {
+  .est-alarma { border-color: #f97066; background: #2d1211; color: #fda29b; }
+  .est-alarma-ok { border-color: #47cd89; background: #0f2419; color: #75e0a7; }
+}

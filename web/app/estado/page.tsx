@@ -36,6 +36,55 @@ const GRUPOS: { estado: EstadoItem; titulo: string; sub: string; icono: string }
  *  Rellenar la lista no arregla nada — se volveria a quedar vieja al siguiente despliegue. Lo que
  *  arregla es que la pagina lo DIGA. Cada entrada declara que cuadernos cubre (`cuadernos`) y
  *  esto avisa de los que no cubre nadie. */
+/** EL VIGILANTE, CADA VEZ QUE SUBE LA PAGINA.
+ *
+ *  Idea de Lester, 2026-09-04: "por que el vigilante no puede correr automaticamente cada vez que
+ *  sube la pagina?". Porque si depende de que YO me acuerde de pasarlo, ya sabemos como acaba: el
+ *  3 y el 4 de septiembre los NUEVE forward tests estuvieron parados y yo le dije que Railway
+ *  estaba bien. La verdad tiene que estar donde el ya mira, no en un comando que hay que recordar.
+ *
+ *  Se pinta ARRIBA DEL TODO y en rojo a proposito. Un aviso que hay que buscar no es un aviso.
+ *  Y si no se puede comprobar (Redis caido, la ruta falla) tambien lo dice: callar seria la misma
+ *  falsa tranquilidad que estamos arreglando. */
+function Vigilante() {
+  const [salud, setSalud] = useState<{ ok: boolean;
+    problemas: { servicio: string; que: string; detalle: string }[] } | null>(null);
+  const [roto, setRoto] = useState<string | null>(null);
+  useEffect(() => {
+    fetch("/api/forward-tests")
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d?.ok) { setRoto(String(d?.motivo ?? "la respuesta no trae datos")); return; }
+        if (!d.salud) { setRoto("el servidor no manda el parte de salud (¿versión vieja?)"); return; }
+        setSalud(d.salud);
+      })
+      .catch((e) => setRoto(e?.message ?? "no se pudo preguntar"));
+  }, []);
+
+  if (roto) return (
+    <div className="est-alarma">
+      <strong>No he podido comprobar si los forward tests están corriendo.</strong> {roto}
+    </div>
+  );
+  if (!salud) return null;
+  if (salud.ok) return (
+    <div className="est-alarma est-alarma-ok">
+      Los forward tests están corriendo: ningún latido dice que se saltara su turno.
+    </div>
+  );
+  return (
+    <div className="est-alarma">
+      <strong>{salud.problemas.length === 1 ? "1 servicio no está corriendo" :
+        salud.problemas.length + " servicios no están corriendo"}</strong>
+      <ul>
+        {salud.problemas.map((p, i) => (
+          <li key={i}><b>{p.servicio}</b> — {p.que}: {p.detalle}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function CuadernosSinFicha() {
   const [sueltos, setSueltos] = useState<{ id: string; nombre: string; cerradas: number }[]>([]);
   const [fuera, setFuera] = useState<{ id: string; nombre: string; cerradas: number; donde: string }[]>([]);
@@ -275,6 +324,8 @@ export default function EstadoPage() {
         </div>
         <NavTabs />
       </div>
+
+      <Vigilante />
 
       <section className="est-intro">
         <h1>Qué hemos medido</h1>

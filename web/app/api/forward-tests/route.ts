@@ -254,8 +254,63 @@ export async function GET() {
         vacio: false,
       });
     }
+    // ═══ EL VIGILANTE, EN LA MISMA VISITA ══════════════════════════════════════════════════
+    //
+    // Idea de Lester, 2026-09-04: "¿por qué el vigilante no puede correr automáticamente cada
+    // vez que sube la página?". Puede, y es mejor que un servicio aparte: las DOS comprobaciones
+    // que habrían cazado el apagón de 43 horas -- lo que DICE el latido y quién tiene el candado
+    // -- sólo necesitan Redis, con el que esta ruta ya está hablando. Cero conexiones de más.
+    //
+    // Lo que se comprueba, y por qué cada una:
+    //   1. lo que DICE el latido. Un servicio que dispara puntual y escribe "NO CORRÍ" todas las
+    //      noches se ve igual de fresco que uno sano: eso tapó dos días enteros sin datos.
+    //   2. la EDAD del latido. Un servicio muerto deja de escribir, y el silencio no salta solo.
+    //   3. el CANDADO de ThetaData. Si su dueño lleva horas sin latir, está colgado y está
+    //      bloqueando a todos los demás. Esto solo habría cazado el apagón en un segundo.
+    const salud = await (async () => {
+      const problemas: { servicio: string; que: string; detalle: string }[] = [];
+      const MALO = /^(NO CORRI|NO CORRIÓ|ABORTADO|COLGADO|ERROR)/i;
+      const latidos: Record<string, { cuandoISO?: string; resultado?: string; horas: number }> = {};
+
+      const claves = await r.keys("latido:*");
+      for (const k of claves) {
+        const crudo = await r.get(k);
+        if (!crudo) continue;
+        let j: { cuandoISO?: string; resultado?: string };
+        try { j = JSON.parse(crudo); } catch { continue; }
+        const nombre = k.replace("latido:", "");
+        const horas = j.cuandoISO ? (Date.now() - Date.parse(j.cuandoISO)) / 36e5 : Infinity;
+        latidos[nombre] = { ...j, horas };
+        if (MALO.test(String(j.resultado ?? "")))
+          problemas.push({ servicio: nombre, que: "no corrió", detalle: String(j.resultado ?? "").slice(0, 120) });
+        else if (horas > 26)
+          problemas.push({ servicio: nombre, que: "callado", detalle: `sin latir desde hace ${horas.toFixed(0)} h` });
+      }
+      if (!claves.length) problemas.push({ servicio: "todos", que: "sin latidos", detalle: "no hay ni un latido en Redis" });
+
+      // El candado: su dueño se identifica como "<servicio de Railway>:<pid>", que NO es la clave
+      // del latido. Se empareja por prefijo, y si no se reconoce se dice en vez de callar.
+      // NO se mide por "cuanto hace que su dueno latio": eso da FALSO POSITIVO justo cuando un
+      // servicio esta haciendo su primera corrida buena en dias (su latido es viejo porque aun
+      // no ha terminado). Se mide por CUANTO LLEVA COGIDO, que es la pregunta de verdad. El
+      // vigilante del lanzador mata a los 35 min, asi que pasar de 45 significa que ha fallado
+      // hasta el vigilante. Si no hay hora de cogida (imagen vieja) no se inventa: no se avisa.
+      const dueño = await r.get("lock:theta");
+      let candado: { dueño: string; ttl: number; minutos: number | null } | null = null;
+      if (dueño) {
+        const ttl = await r.ttl("lock:theta");
+        const desde = await r.get("lock:theta:desde");
+        const min = desde ? (Date.now() - Date.parse(desde)) / 60000 : null;
+        candado = { dueño, ttl, minutos: min };
+        if (min != null && min > 45)
+          problemas.push({ servicio: dueño, que: "candado colgado",
+            detalle: `lleva ${min.toFixed(0)} min con la sesión de ThetaData: bloquea a los demás` });
+      }
+      return { ok: problemas.length === 0, problemas, candado };
+    })();
+
     await r.quit().catch(() => {});
-    return NextResponse.json({ ok: true, generado: new Date().toISOString(), cuadernos: salida });
+    return NextResponse.json({ ok: true, generado: new Date().toISOString(), cuadernos: salida, salud });
   } catch (e) {
     await r.quit().catch(() => {});
     return NextResponse.json({ ok: false, motivo: e instanceof Error ? e.message : "error leyendo Redis" });

@@ -177,6 +177,12 @@ async function cogerCandado() {
   let avisado = false;
   while (Date.now() - t0 < LOCK_ESPERA * 1000) {
     const puesto = await cli.set(LOCK_KEY, QUIEN, "EX", LOCK_TTL, "NX");
+    // DESDE CUANDO lo tengo. Sin esto, "¿esta colgado?" solo se puede responder mirando cuanto
+    // hace que su dueno latio -- y eso da FALSO POSITIVO justo cuando el servicio esta haciendo
+    // su primera corrida buena en dias: el latido es viejo porque aun no ha terminado. Con la
+    // hora de cogida la pregunta es exacta: si lleva mas que el vigilante (35 min), esta colgado.
+    // Vive 6 h para que no se quede huerfana si el proceso muere de golpe.
+    if (puesto) await cli.set(LOCK_KEY + ":desde", new Date().toISOString(), "EX", 21600).catch(() => {});
     if (puesto === "OK") {
       log(`candado de ThetaData cogido por ${QUIEN}`);
       return true;
@@ -224,7 +230,7 @@ async function soltarCandado() {
   try {
     // Sólo se suelta si el candado es MÍO: si ya expiró y lo cogió otro, no se le quita.
     const dueño = await cli.get(LOCK_KEY);
-    if (dueño === QUIEN) { await cli.del(LOCK_KEY); log("candado soltado."); }
+    if (dueño === QUIEN) { await cli.del(LOCK_KEY); await cli.del(LOCK_KEY + ":desde").catch(() => {}); log("candado soltado."); }
     await cli.quit();
   } catch { /* nos vamos igual */ }
   _lockCli = null;
