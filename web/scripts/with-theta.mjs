@@ -364,7 +364,28 @@ async function soltarCandado() {
   log(`Terminal listo en ${((Date.now() - t0) / 1000).toFixed(0)}s — corriendo: ${cmd.join(" ")}`);
 
   const child = runChild();
-  child.on("exit", async (code) => { await cerrar(); process.exit(code ?? 1); });
+
+  // VIGILANTE DE CUELGUE. El 2026-09-03 La Palanca TERMINO su trabajo -- imprimio su resumen y
+  // escribio su latido -- y aun asi el proceso no salio nunca: le quedaba un cliente de Redis
+  // abierto (el del propio latido), y un socket abierto mantiene vivo el bucle de eventos. El
+  // padre se quedo esperando un "exit" que no iba a llegar, renovando el candado de ThetaData
+  // durante 43 HORAS. Los otros ocho servicios dispararon puntuales, esperaron 30 min y se
+  // rindieron, dia tras dia. Un cuaderno colgado apago el calendario ENTERO.
+  //
+  // Por eso el limite vive AQUI y no en cada cuaderno: protege tambien a los que aun no existen.
+  // Sale con CERO a proposito -- colgarse es un problema de TURNO; salir con error dejaria el
+  // despliegue CRASHED y Railway apagaria el cron para siempre. El latido deja el motivo escrito.
+  const MAX_MIN = Number(process.env.THETA_MAX_MIN || 35);
+  const vigilante = setTimeout(async () => {
+    log(`x el comando lleva ${MAX_MIN} min sin terminar. Lo mato y suelto el candado.`);
+    try { child.kill("SIGKILL"); } catch { /* ya estaba muerto */ }
+    await avisarNoCorrio(`COLGADO: el comando no termino en ${MAX_MIN} min; matado para no ` +
+      `bloquear a los demas. El trabajo pudo hacerse: mirar el log antes de darlo por perdido.`);
+    await cerrar();
+    process.exit(0);
+  }, MAX_MIN * 60_000);
+
+  child.on("exit", async (code) => { clearTimeout(vigilante); await cerrar(); process.exit(code ?? 1); });
   child.on("error", async (e) => {
     console.error(`[with-theta] no pude correr el comando: ${e.message}`);
     await avisarNoCorrio(`NO CORRIÓ: no se pudo lanzar el comando (${e.message})`);

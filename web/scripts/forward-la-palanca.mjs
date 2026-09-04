@@ -212,3 +212,10 @@ await guardar(E, reporte, iso(DIA) + ": " + abiertasHoy + " abiertas, " + cerrad
 console.log("");
 console.log("  " + reporte.split("\n").join("\n  "));
 console.log("");
+
+// EL CIERRE DE LA RUTA BUENA. El aviso de arriba estaba escrito desde el 2026-08-30 y las salidas
+// tempranas si lo cumplian -- pero ESTA, la que corre TODOS los dias buenos, no. El 2026-09-03 el
+// proceso termino su trabajo y se quedo vivo con el socket abierto: 43 h renovando el candado de
+// ThetaData y los otros OCHO servicios rindiendose cada noche. Un aviso que no se aplica en la
+// ruta principal no protege de nada.
+await cerrar();
