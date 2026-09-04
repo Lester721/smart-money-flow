@@ -39,7 +39,14 @@ const CLAVE = { "Forward · Combinado 6x4": "combinado-6x4", "Forward · Combina
   "Forward · Cóndor 0DTE": "gex-condor", "Forward · Wheel": "wheel", "Forward · Credit Spread": "credit-spread",
   "Forward · Ideas": "ideas" };
 
-console.log("\n  servicio                    despliegue    cron           Redis   último latido      h");
+// AVISO LEER LO QUE DICE EL LATIDO, NO SOLO CUANDO SE ESCRIBIO. El 2026-09-04 este auditor dio
+// OCHO servicios por buenos mientras los ocho escribian "NO CORRIO" todas las noches: miraba la
+// FRESCURA y no el CONTENIDO. Un servicio que dispara puntual y avisa de que no hizo nada se ve
+// igual que uno sano. Un latido fresco solo prueba que el proceso llego a escribir.
+const MALAS = ["NO CORRIÓ", "NO CORRIO", "ABORTADO", "COLGADO", "ERROR"];
+const esMalo = (r) => MALAS.some((m) => String(r ?? "").toUpperCase().startsWith(m));
+
+console.log("\n  servicio                    despliegue    cron           Redis   último latido      h  qué dijo");
 let fallos = [];
 for (const s of SV) {
   const si = s.serviceInstances.edges.map(e => e.node).find(x => x.environmentId === ENV.id);
@@ -59,9 +66,24 @@ for (const s of SV) {
   if (cl && redis === "COPIA") fallos.push(s.name + ": Redis COPIADO, no por referencia");
   if (cl && !si?.cronSchedule) fallos.push(s.name + ": SIN cron");
   if (cl && h != null && h > 26) fallos.push(s.name + ": latido de hace " + h.toFixed(0) + "h");
+  if (cl && lat && esMalo(lat.resultado)) fallos.push(s.name + ": su ultimo latido dice " + String(lat.resultado).slice(0, 70));
   console.log("  " + (fallos.some(f => f.startsWith(s.name)) ? "⛔ " : "   ") + s.name.padEnd(26) +
     est.padEnd(13) + String(si?.cronSchedule ?? "—").padEnd(15) + redis.padEnd(8) +
-    (lat ? (lat.cuandoET ?? "?").padEnd(19) + (h?.toFixed(1) ?? "").padStart(5) : "(sin latido)"));
+    (lat ? (lat.cuandoET ?? "?").padEnd(19) + (h?.toFixed(1) ?? "").padStart(5) + "  " +
+           (esMalo(lat.resultado) ? "!! " : "") + String(lat.resultado ?? "").slice(0, 46) : "(sin latido)"));
 }
+// EL CANDADO. Un dueno con TTL vivo que no sale es lo que apago el calendario 43 horas;
+// mirarlo aqui cuesta una linea y lo caza en un segundo.
+const dueno = await rd.get("lock:theta");
+const ttl = await rd.ttl("lock:theta");
+console.log("\n  candado ThetaData: " + (dueno ? dueno + "  (ttl " + ttl + "s)" : "LIBRE"));
+if (dueno) {
+  const suyo = Object.entries(CLAVE).find(([n]) => String(dueno).startsWith(n));
+  const latD = suyo ? latidos[suyo[1]] : null;
+  const hd = latD ? (Date.now() - Date.parse(latD.cuandoISO)) / 36e5 : null;
+  if (hd != null && hd > 2) fallos.push("el candado de ThetaData lo tiene " + dueno +
+    ", que no late desde hace " + hd.toFixed(0) + "h: esta COLGADO y bloquea a los demas");
+}
+
 console.log("\n  " + (fallos.length ? "⛔ " + fallos.length + " PROBLEMAS:\n     " + fallos.join("\n     ") : "✅ los servicios con cuaderno están bien"));
 await rd.quit();
