@@ -85,7 +85,19 @@ async function leer() {
 const SECO = process.argv.includes("--seco") || process.env.THETA_SECO === "1";
 
 async function guardar(E, reporte, resumen) {
-  if (SECO) { console.log("\n  --seco: NO se ha guardado nada\n"); return; }
+  if (SECO) {
+    // EN SECO LA RESPUESTA SE DEJA EN UNA CLAVE APARTE. Los logs de una corrida lanzada a
+    // mano NO se enganchan al despliegue en Railway (solo los del cron), asi que preguntarle
+    // a un dia pasado por el log no funciona: se agotan 10 minutos con cero lineas. Redis si
+    // es fiable. La clave lleva prefijo seco: para no pisar ni el registro ni el latido.
+    console.log("\n  --seco: NO se ha guardado nada\n");
+    if (STORE === "redis") { try { const rr = await redis();
+      await rr.set("seco:" + CLAVE + ":" + (process.env.COMBI_DIA ?? "hoy"), JSON.stringify(
+        { cuando: new Date().toISOString(), reporte, resumen }), "EX", 86400);
+      console.log("  (respuesta dejada en seco:" + CLAVE + ")"); }
+      catch (e) { console.error("  no pude dejar la respuesta: " + (e?.message ?? e)); } }
+    return;
+  }
   const s = JSON.stringify(E);
   if (STORE !== "redis") {
     const { writeFileSync, mkdirSync } = await import("node:fs");
