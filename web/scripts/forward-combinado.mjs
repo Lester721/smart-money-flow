@@ -154,6 +154,19 @@ if (!E) {
         abiertas: [], operaciones: [], spots: {}, sesiones: [], estorbos: [], sinSenal: [], ultimoDia: null };
   console.log("  cuaderno NUEVO: se siembra con $" + CAPITAL.toLocaleString("en-US"));
 }
+// NI UN DIA HACIA ATRAS. El guardian de arriba solo compara IGUALDAD, asi que pedir un dia
+// ANTERIOR al ya procesado colaba: el cuaderno gestionaria posiciones abiertas DESPUES con
+// precios de ANTES de abrirlas -- viaje en el tiempo, y el resultado saldria inventado sin que
+// nada fallara. Cazado el 2026-09-04 intentando rellenar el 2 de septiembre despues del 3.
+// Sale con CERO: pedir un dia imposible es un error de quien lo pide, no un fallo del trabajo,
+// y salir con error dejaria el despliegue CRASHED (que apaga el cron para siempre).
+if (E.ultimoDia && DIA < E.ultimoDia) {
+  console.log("  ⛔ me piden " + iso(DIA) + " pero ya voy por " + iso(E.ultimoDia) + "." +
+    " Retroceder inventaria resultados. NO se toca nada.");
+  await latir("RECHAZADO: me pidieron " + iso(DIA) + " estando ya en " + iso(E.ultimoDia));
+  await cerrar(); process.exit(0);
+}
+
 if (E.ultimoDia === DIA) { console.log("  ya se procesó " + iso(DIA) + " — no se repite. Salgo.");
   await latir(iso(DIA) + " ya estaba procesado — nada que hacer hoy"); await cerrar(); process.exit(0); }
 if (!E.sesiones.includes(DIA)) E.sesiones.push(DIA);
