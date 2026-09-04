@@ -49,6 +49,26 @@ export type Item = {
 // esto siempre está actualizado".
 
 export const ITEMS: Item[] = [
+  {
+    id: "apagon-thetadata-sept",
+    titulo: "APAGÓN de 43 horas — un cuaderno colgado paró los NUEVE forward tests",
+    estado: "funciona",
+    queEs:
+      "Del 3 al 4 de septiembre de 2026 NINGÚN forward test recibió datos. La Palanca terminó su trabajo el día 3 a las 00:03 y su proceso no salió nunca: le quedó un socket de Redis abierto, y eso mantiene vivo el bucle de eventos. El lanzador se quedó esperando un final que no llegaba y siguió renovando el candado de ThetaData —que sólo admite UNA sesión— durante 43 horas. Los otros ocho dispararon puntuales cada noche, esperaron sus 30 minutos y se rindieron.",
+    numero: "2 días de mercado perdidos · el 2 de septiembre del Missile y los dos combinados NO se puede recuperar",
+    evidencia: [
+      "LO QUE MÁS DUELE: el auditor de Railway daba ocho servicios por BUENOS. Comprobaba que el latido fuera RECIENTE, no lo que DECÍA. Un servicio que dispara puntual y escribe «NO CORRÍ» todas las noches se ve igual que uno sano.",
+      "arreglado y probado contra la realidad: el auditor pasó de señalar 1 problema a señalar los 8 reales, y ahora también mira el candado (si su dueño lleva más de 2 h sin latir, está colgado).",
+      "el cuaderno cierra Redis en la ruta buena. El aviso que lo pedía llevaba escrito en ese mismo fichero desde el 30 de agosto y las salidas tempranas sí lo cumplían: faltaba justo en la que corre todos los días.",
+      "vigilante de cuelgue en el lanzador: si un cuaderno pasa de 35 minutos, lo mata, deja el motivo en el latido y sale con CERO. Vive ahí y no en cada cuaderno para proteger también a los que aún no existen.",
+      "el cron NO era el culpable: los combinados dispararon solos a la 01:00 y 02:00 UTC como debían. El arreglo del 2 de septiembre era correcto.",
+    ],
+    enContra:
+      "El relleno de los días perdidos falló dos veces antes de salir bien, y las dos por lo mismo. Primero: «Run now» ejecuta el comando en el contenedor que YA está vivo, con el entorno con el que arrancó, así que las variables puestas por API no llegaron al proceso — once corridas dijeron OK y las once procesaron el mismo día. Segundo: di esas once por buenas porque el latido CAMBIÓ y no empezaba por «NO CORRIÓ», que es exactamente el fallo que acababa de arreglar en el auditor, repetido en la herramienta de al lado. Cambiar no es acertar. El 2 de septiembre del Missile y de los dos combinados queda PERDIDO: sus punteros ya van por el día 3, y procesarlo ahora gestionaría posiciones abiertas el 3 con precios del 2. Saldrían números, y serían inventados.",
+    siguiente:
+      "El auditor hay que correrlo, no tenerlo. Queda por decidir si se lanza solo (un servicio más en Railway que avise cuando algún latido diga «NO CORRIÓ») o se mira a mano al abrir. Mientras no se decida, esto se vuelve a caer en silencio.",
+    actualizado: "2026-09-04",
+  },
   // ══════════════════════════════════════════════════════════════════════════
   // LO QUE ESTÁ VIVO
   // ══════════════════════════════════════════════════════════════════════════
