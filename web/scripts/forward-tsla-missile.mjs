@@ -123,7 +123,10 @@ function origen() {
 /** el día de mercado anterior CON datos de cadena */
 
 (async () => {
-  const pedido = arg('--dia');
+  // Tambien por variable de entorno: en Railway el dia no se puede pasar por linea de
+  // comandos sin cambiar el startCommand (y eso redespliega). Con esto se rellena un dia
+  // perdido poniendo la variable, lanzando la corrida y quitandola.
+  const pedido = arg('--dia') || process.env.MISSILE_DIA || null;
   const HOY = pedido ? ymd(pedido) : await ultimaSesion();
   if (!HOY) throw new Error('no se encontro ninguna sesion cerrada con datos en los ultimos 8 dias');
   console.log("\n  ╔═══ TSLA's MISSILE ═══╗   día " + iso(HOY) + '   ·   origen ' + origen() + '   ·   store ' + STORE + '\n');

@@ -113,7 +113,10 @@ async function cerrar() { if (_r) { try { await _r.quit(); } catch {} _r = null;
 
 // ══ EL DÍA ════════════════════════════════════════════════════════════════════════════════
 const arg = (n) => { const i = process.argv.indexOf(n); return i > 0 ? process.argv[i + 1] : null; };
-const pedido = arg("--dia");
+// Tambien por variable de entorno: en Railway el dia no se puede pasar por linea de
+// comandos sin cambiar el startCommand (y eso redespliega). Con esto se rellena un dia
+// perdido poniendo la variable, lanzando la corrida y quitandola.
+const pedido = arg("--dia") || process.env.COMBI_DIA || null;
 const hoyYMD = () => {
   const p = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York",
     year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
