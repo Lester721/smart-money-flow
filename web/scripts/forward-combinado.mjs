@@ -118,6 +118,9 @@ async function guardar(E, reporte, resumen) {
 // terminaban antes de escribirlo, y el catch estaba vacío. Sin latido, «corrió y no encontró
 // nada» y «lleva días muerto» se ven IGUAL desde fuera. Aquí nace ya arreglado.
 async function latir(resultado) {
+  // En seco el latido REAL no se toca: si no, una simulacion deja al servicio marcado
+  // con un resultado que nunca ocurrio. Paso con "RECHAZADO" el 2026-09-04.
+  if (SECO) { console.log("  (seco: no se escribe el latido)"); return; }
   if (STORE !== "redis") return;
   try {
     const { escribirLatido } = await import("../lib/origenEjecucion.ts");
@@ -179,7 +182,10 @@ if (!E) {
 // nada fallara. Cazado el 2026-09-04 intentando rellenar el 2 de septiembre despues del 3.
 // Sale con CERO: pedir un dia imposible es un error de quien lo pide, no un fallo del trabajo,
 // y salir con error dejaria el despliegue CRASHED (que apaga el cron para siempre).
-if (E.ultimoDia && DIA < E.ultimoDia) {
+// EN SECO NO APLICA: el guardian existe para no ensuciar el registro, y en seco no se
+// escribe nada. Sin esta excepcion el guardian bloquea la propia medicion que sirve para
+// contestar "que habria pasado ese dia" -- me paso el 2026-09-04 con el 2 de septiembre.
+if (!SECO && E.ultimoDia && DIA < E.ultimoDia) {
   console.log("  ⛔ me piden " + iso(DIA) + " pero ya voy por " + iso(E.ultimoDia) + "." +
     " Retroceder inventaria resultados. NO se toca nada.");
   await latir("RECHAZADO: me pidieron " + iso(DIA) + " estando ya en " + iso(E.ultimoDia));

@@ -52,6 +52,14 @@ async function leer(){
     try{ return JSON.parse(readFileSync("data/forward/la-palanca.json","utf8")); }catch{ return null; } }
   const c=await (await redis()).get(CLAVE); return c?JSON.parse(c):null; }
 async function guardar(E, reporte, resumen){
+  if (SECO) {
+    console.log("\n  --seco: NO se ha guardado nada\n");
+    if (STORE === "redis") { try { const rr = await redis();
+      await rr.set("seco:" + CLAVE + ":" + (process.env.PALANCA_DIA ?? "hoy"), JSON.stringify(
+        { cuando: new Date().toISOString(), reporte, resumen }), "EX", 86400); }
+      catch (e) { console.error("  no pude dejar la respuesta: " + (e?.message ?? e)); } }
+    return;
+  }
   const s=JSON.stringify(E);
   if(STORE!=="redis"){ const {writeFileSync,mkdirSync}=await import("node:fs");
     mkdirSync("data/forward",{recursive:true}); writeFileSync("data/forward/la-palanca.json",s); return; }
@@ -70,7 +78,14 @@ async function guardar(E, reporte, resumen){
 //      de llamar a guardar(), o sea que el servicio parecía muerto justo los días en que hacía
 //      lo correcto. Sin latido, «corrió y no encontró nada» y «lleva días muerto» se ven IGUAL.
 //   2. el catch estaba VACÍO, así que si fallaba tampoco se enteraba nadie.
+// SECO = mira y NO guarda. Para preguntarle a un dia pasado que habria hecho sin tocar el
+// registro. La respuesta se deja en seco:<clave>:<dia> (los logs de Railway no valen).
+const SECO = process.argv.includes("--seco") || process.env.THETA_SECO === "1";
+
 async function latir(resultado) {
+  // En seco el latido REAL no se toca: si no, una simulacion deja al servicio marcado
+  // con un resultado que nunca ocurrio. Paso con "RECHAZADO" el 2026-09-04.
+  if (SECO) { console.log("  (seco: no se escribe el latido)"); return; }
   if (STORE !== "redis") return;
   try { const {escribirLatido} = await import("../lib/origenEjecucion.ts");
         await escribirLatido(await redis(), "la-palanca", resultado); }
@@ -109,7 +124,10 @@ if (!E) {                                          // primera corrida: se siembr
 // nada fallara. Cazado el 2026-09-04 intentando rellenar el 2 de septiembre despues del 3.
 // Sale con CERO: pedir un dia imposible es un error de quien lo pide, no un fallo del trabajo,
 // y salir con error dejaria el despliegue CRASHED (que apaga el cron para siempre).
-if (E.ultimoDia && DIA < E.ultimoDia) {
+// EN SECO NO APLICA: el guardian existe para no ensuciar el registro, y en seco no se
+// escribe nada. Sin esta excepcion el guardian bloquea la propia medicion que sirve para
+// contestar "que habria pasado ese dia" -- me paso el 2026-09-04 con el 2 de septiembre.
+if (!SECO && E.ultimoDia && DIA < E.ultimoDia) {
   console.log("  ⛔ me piden " + iso(DIA) + " pero ya voy por " + iso(E.ultimoDia) + "." +
     " Retroceder inventaria resultados. NO se toca nada.");
   await latir("RECHAZADO: me pidieron " + iso(DIA) + " estando ya en " + iso(E.ultimoDia));
