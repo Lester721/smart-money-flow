@@ -50,6 +50,26 @@ export type Item = {
 
 export const ITEMS: Item[] = [
   {
+    id: "condor-tendencia-cerrado",
+    titulo: "CERRADO — Cóndor · filtro de tendencia (±30 + MA20/MA50)",
+    estado: "cerrado",
+    queEs:
+      "Vender un cóndor de hierro 0DTE sobre SPXW a las 11:00, a ±30 puntos con alas de 50, sólo los días en que el SPX estuviera por encima de sus medias de 20 y de 50 sesiones. Cerrado por Lester el 4 de septiembre de 2026: «cierra el filtro de tendencia como un fracaso».",
+    numero: "−$438 por operación · −$3.065 en 7 operaciones · un TERCIO de las pérdidas de toda la familia del cóndor",
+    evidencia: [
+      "YA ESTABA MUERTO ANTES DE CORRER. El backtest lo declaró RETIRADO por morir fuera de muestra: en 2022-2023, sólo las medias daban −$5.233 al año contra +$222 de la base sin filtro.",
+      "lo único que hacía de verdad era OPERAR MENOS DÍAS. Bajaba la caída porque se quedaba en el banquillo, no porque eligiera mejor — y eso se consigue gratis comprando menos contratos.",
+      "había pasado 19 agentes de revisión, bootstrap del 98% y jackknife 0 de 32. Todo eso, y dos años de datos nuevos lo tumbaron en veinte minutos.",
+      "en vivo confirmó el diagnóstico: de sus 7 operaciones cerradas, dos días de tendencia (20 y 28 de agosto) le costaron −$4.008 y borraron los otros cinco.",
+      "el registro completo se conserva en Redis bajo «cerrado:condor-tendencia». No se ha borrado nada.",
+    ],
+    enContra:
+      "El fallo no fue la estrategia: fue MÍO por dejarla corriendo. Estaba declarada retirada en el propio proyecto y aun así seguía en la tabla junto a los candidatos, sumando sus pérdidas al total que Lester leía como «los cóndores están perdiendo». Un forward test que corre una idea ya descartada no informa: contamina. Lo cazó él mirando la tabla, no yo auditándola.",
+    siguiente:
+      "Nada. Está cerrado. Si alguien lo vuelve a proponer, esta ficha es la respuesta: no basta con que un filtro reduzca la caída si lo consigue operando menos.",
+    actualizado: "2026-09-04",
+  },
+  {
     id: "apagon-thetadata-sept",
     titulo: "APAGÓN de 43 horas — un cuaderno colgado paró los NUEVE forward tests",
     estado: "funciona",

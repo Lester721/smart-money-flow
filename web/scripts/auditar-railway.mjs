@@ -43,8 +43,7 @@ const CLAVE = { "Forward · Combinado 6x4": "combinado-6x4", "Forward · Combina
 // OCHO servicios por buenos mientras los ocho escribian "NO CORRIO" todas las noches: miraba la
 // FRESCURA y no el CONTENIDO. Un servicio que dispara puntual y avisa de que no hizo nada se ve
 // igual que uno sano. Un latido fresco solo prueba que el proceso llego a escribir.
-const MALAS = ["NO CORRIÓ", "NO CORRIO", "ABORTADO", "COLGADO", "ERROR"];
-const esMalo = (r) => MALAS.some((m) => String(r ?? "").toUpperCase().startsWith(m));
+const { latidoMalo: esMalo } = await import("../lib/latidoMalo.mjs");
 
 console.log("\n  servicio                    despliegue    cron           Redis   último latido      h  qué dijo");
 let fallos = [];

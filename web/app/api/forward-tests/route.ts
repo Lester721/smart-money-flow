@@ -92,7 +92,11 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
     enContra: "Usa ±25, que es la geometría con la peor caída de las tres versiones con GEX (−$20.356 en el backtest)." },
   { id: "condor-sinfiltro", clave: "forward:condor-sinfiltro", nombre: "Cóndor · sin filtro", familia: "condor", unidad: "$ por operación",
     enContra: "Es el control: opera todos los días. Sirve para saber cuánto aportan los filtros, no para operarlo." },
-  { id: "condor-tendencia", clave: "forward:condor-tendencia", nombre: "Cóndor · filtro de tendencia", familia: "condor", unidad: "$ por operación" },
+  // condor-tendencia RETIRADO el 2026-09-04 por orden de Lester: "cierra el filtro de
+  // tendencia como un fracaso". Corria el filtro +-30 + MA20/MA50 que el proyecto ya tenia
+  // declarado muerto fuera de muestra, y aparentaba ser candidato en la tabla. Su registro
+  // queda en Redis bajo "cerrado:condor-tendencia" y su ficha en /estado como CERRADO,
+  // para que nadie lo vuelva a proponer sin leer por que murio.
   { id: "ledger", latido: "credit-spread", clave: "forward:ledger", nombre: "Credit spread", familia: "riesgo", unidad: "% sobre el riesgo",
     usd: (f) => (typeof f.pnlPerSpread === "number" ? f.pnlPerSpread : null),
     enContra: (v) => `RESUELTO el 31 de agosto: no hay contradicción con el backtest. Aquel −2,53% es la celda de 5 días a 1σ medida sobre CUATRO AÑOS con un crash dentro; aquí se mide sobre ${v.dias} días tranquilos, que no traen ni una caída. Ya estaba medido que el edge de 5 días es un artefacto del año calmo y se cae al incluir un crash — el robusto era el de 90 días. Así que este ${pc(v.media)} no desmiente nada. LA FORMA YA SE VE, y es la de vender prima: ${n(v.ganadoras)} ganadoras de ${pc(v.mediaGana)} de media contra ${n(v.perdedoras)} perdedoras de ${pc(v.mediaPierde)}${v.ruina ? `, ${v.ruina} de ellas pérdida total del riesgo (−100%)` : ""}. Hacen falta ${v.mediaGana && v.mediaPierde ? Math.ceil(Math.abs(v.mediaPierde / v.mediaGana)) : "—"} ganadoras para pagar UNA perdedora media. Con esa geometría el resultado lo deciden las perdedoras, no el acierto de ${pc(v.acierto == null ? null : v.acierto * 100, 0)} — y ${v.dias} días no traen suficientes. Y el número tampoco es directamente tuyo: son ${n(v.filas)} spreads en 6 combinaciones a la vez (5@1, 7@1, 5@1.5, 7@1.5, 21@1.5, 90@1), una rejilla para ver qué celda sirve, no una cartera.` },
@@ -291,7 +295,7 @@ export async function GET() {
     //      bloqueando a todos los demás. Esto solo habría cazado el apagón en un segundo.
     const salud = await (async () => {
       const problemas: { servicio: string; que: string; detalle: string }[] = [];
-      const MALO = /^(NO CORRI|NO CORRIÓ|ABORTADO|COLGADO|ERROR)/i;
+      const { latidoMalo } = await import("@/lib/latidoMalo.mjs");
       const latidos: Record<string, { cuandoISO?: string; resultado?: string; horas: number }> = {};
 
       const claves = await r.keys("latido:*");
@@ -303,7 +307,7 @@ export async function GET() {
         const nombre = k.replace("latido:", "");
         const horas = j.cuandoISO ? (Date.now() - Date.parse(j.cuandoISO)) / 36e5 : Infinity;
         latidos[nombre] = { ...j, horas };
-        if (MALO.test(String(j.resultado ?? "")))
+        if (latidoMalo(j.resultado))
           problemas.push({ servicio: nombre, que: "no corrió", detalle: String(j.resultado ?? "").slice(0, 120) });
         else if (horas > 26)
           problemas.push({ servicio: nombre, que: "callado", detalle: `sin latir desde hace ${horas.toFixed(0)} h` });
