@@ -29,7 +29,7 @@
     "tres-sies:theta": "node scripts/with-theta.mjs npm run tres-sies",
     "ms-cadena": "node scripts/marketsnack/cron-cadena-strike.mjs",
     "condor-aviso": "node scripts/avisar-condor-telegram.mjs",
-    "condor-todos": "npm run condor-forward; npm run condor-sinfiltro; npm run tres-sies",
+    "condor-todos": "npm run condor-forward",
     "missile": "node scripts/forward-tsla-missile.mjs",
     "missile:theta": "node scripts/with-theta.mjs npm run missile",
     "palanca": "node scripts/forward-la-palanca.mjs",

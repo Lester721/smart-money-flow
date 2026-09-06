@@ -46,6 +46,9 @@ const n = (x: number) => x.toLocaleString("es-ES");
 const pc = (x: number | null, d = 2) => (x == null ? "—" : (x >= 0 ? "+" : "") + x.toFixed(d).replace(".", ",") + "%");
 const usdN = (x: number) => "$" + Math.round(x).toLocaleString("es-ES");
 
+// APAGADOS el 2026-09-06 por orden de Lester: mariposa, mariposa-umbral, tres-sies y
+// condor-sinfiltro. Sus registros quedan en Redis bajo "cerrado:*". Se queda el cóndor de
+// GEX, que es la mejor candidata medida (+3,93%, t=2,09, positiva en los 3 años).
 const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; unidad: string; enContra?: string | ((v: Vivo) => string);
                    filtro?: (f: Record<string, unknown>) => boolean;
                    extrae?: (raw: unknown) => Record<string, unknown>[];
@@ -81,17 +84,8 @@ const CUADERNOS: { id: string; clave: string; nombre: string; familia: Familia; 
       ? (raw as { operaciones: Record<string, unknown>[] }).operaciones : []),
     campoRes: "resultado",
     enContra: "La tabla mágica está CERRADA como regla general: falló dos exámenes fuera de muestra y su lado dominante (puts dentro del dinero con la acción bajo su media) pierde −5,21% con t=−5,36 sobre 580 entradas independientes. En TSLA no se pudo tumbar (34 señales, +11,34% por operación, t=4,23, seis de seis años positivos), pero 34 señales sobre UN solo nombre es exactamente donde vive la casualidad. Este cuaderno es la única prueba que le queda. Arrancó el 28 de agosto de 2026." },
-  { id: "mariposa", latido: "mariposa-15h", clave: "forward:mariposa-15h", nombre: "Mariposa de hierro · 15:00", familia: "condor", unidad: "$ por operación",
-    enContra: "La mejor candidata medida: $11.405/año contra los $6.722 del cóndor, y con menos susto. PERO no cruza el listón de las muchas puertas (t=3,41 con el listón en 4) y se va apagando (primera mitad $14.872/año, segunda $7.939). Este cuaderno es la única prueba fuera de muestra que le queda. Arrancó el 22 de agosto." },
-  { id: "mariposa-umbral", latido: "mariposa-15h", clave: "forward:mariposa-15h", nombre: "Mariposa · con umbral de crédito", familia: "condor", unidad: "$ por operación",
-    filtro: (f) => typeof f.creditoSobreCuna === "number" && f.creditoSobreCuna >= 0.30,
-    enContra: "MISMO cuaderno que la de arriba, leído con una condición añadida: sólo las operaciones donde el crédito llegó al 30% de la cuna de la mañana. En el backtest da el MISMO dinero operando un 28% menos días ($11.140 contra $11.405) y con mejor peor día (−$2.965 contra −$3.247). El umbral se eligió mirando el backtest, así que no es independiente — por eso corre al lado de la regla sin filtro y no dentro de ella." },
-  { id: "tres-sies", clave: "forward:tres-sies", nombre: "Cóndor · los tres síes", familia: "condor", unidad: "$ por operación",
-    enContra: "Es la regla que damos como buena, y en directo va PERDIENDO: −$530 por operación. Con 2 operaciones cerradas eso no decide nada — hacen falta unas 30 — pero conviene mirarlo junto a los otros tres cóndores, que también van los cuatro en rojo, incluido el que no lleva filtro. Arrancó el 21 de agosto." },
   { id: "gex-condor", clave: "forward:gex-condor", nombre: "Cóndor · filtro de GEX", familia: "condor", unidad: "$ por operación",
     enContra: "Usa ±25, que es la geometría con la peor caída de las tres versiones con GEX (−$20.356 en el backtest)." },
-  { id: "condor-sinfiltro", clave: "forward:condor-sinfiltro", nombre: "Cóndor · sin filtro", familia: "condor", unidad: "$ por operación",
-    enContra: "Es el control: opera todos los días. Sirve para saber cuánto aportan los filtros, no para operarlo." },
   // condor-tendencia RETIRADO el 2026-09-04 por orden de Lester: "cierra el filtro de
   // tendencia como un fracaso". Corria el filtro +-30 + MA20/MA50 que el proyecto ya tenia
   // declarado muerto fuera de muestra, y aparentaba ser candidato en la tabla. Su registro
