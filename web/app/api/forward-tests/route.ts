@@ -295,6 +295,13 @@ export async function GET() {
     //      bloqueando a todos los demás. Esto solo habría cazado el apagón en un segundo.
     const salud = await (async () => {
       const problemas: { servicio: string; que: string; detalle: string }[] = [];
+      // EL FIN DE SEMANA NO ES UN FALLO. Con un techo fijo de 26 h este aviso daba por muertos
+      // los DOCE servicios cada domingo: la mayoria sólo corre de lunes a viernes, así que su
+      // último latido es del viernes y son 40 h de silencio PERFECTAMENTE NORMALES. Un vigilante
+      // que grita en falso todos los fines de semana se acaba ignorando, y entonces no avisa
+      // el día que pasa algo de verdad. Cazado el 2026-09-06, en domingo.
+      const diaSemana = new Date().getUTCDay();               // 0 domingo · 6 sábado
+      const techoSilencio = (diaSemana === 0 || diaSemana === 6 || diaSemana === 1) ? 80 : 26;
       const { latidoMalo } = await import("@/lib/latidoMalo.mjs");
       const latidos: Record<string, { cuandoISO?: string; resultado?: string; horas: number }> = {};
 
@@ -309,7 +316,7 @@ export async function GET() {
         latidos[nombre] = { ...j, horas };
         if (latidoMalo(j.resultado))
           problemas.push({ servicio: nombre, que: "no corrió", detalle: String(j.resultado ?? "").slice(0, 120) });
-        else if (horas > 26)
+        else if (horas > techoSilencio)
           problemas.push({ servicio: nombre, que: "callado", detalle: `sin latir desde hace ${horas.toFixed(0)} h` });
       }
       if (!claves.length) problemas.push({ servicio: "todos", que: "sin latidos", detalle: "no hay ni un latido en Redis" });

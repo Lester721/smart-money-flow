@@ -46,6 +46,11 @@ const CLAVE = { "Forward · Combinado 6x4": "combinado-6x4", "Forward · Combina
 const { latidoMalo: esMalo } = await import("../lib/latidoMalo.mjs");
 
 console.log("\n  servicio                    despliegue    cron           Redis   último latido      h  qué dijo");
+// El fin de semana no es un fallo: la mayoria de los cuadernos sólo corre de lunes a viernes,
+// asi que en domingo llevan 40 h calladas y es NORMAL. Con techo fijo de 26 h esto daba doce
+// falsos positivos cada domingo. Cazado el 2026-09-06.
+const DS = new Date().getUTCDay();
+const TECHO = (DS === 0 || DS === 6 || DS === 1) ? 80 : 26;
 let fallos = [];
 for (const s of SV) {
   const si = s.serviceInstances.edges.map(e => e.node).find(x => x.environmentId === ENV.id);
@@ -64,7 +69,7 @@ for (const s of SV) {
   if (est === "CRASHED" || est === "FAILED") fallos.push(s.name + ": despliegue " + est);
   if (cl && redis === "COPIA") fallos.push(s.name + ": Redis COPIADO, no por referencia");
   if (cl && !si?.cronSchedule) fallos.push(s.name + ": SIN cron");
-  if (cl && h != null && h > 26) fallos.push(s.name + ": latido de hace " + h.toFixed(0) + "h");
+  if (cl && h != null && h > TECHO) fallos.push(s.name + ": latido de hace " + h.toFixed(0) + "h");
   if (cl && lat && esMalo(lat.resultado)) fallos.push(s.name + ": su ultimo latido dice " + String(lat.resultado).slice(0, 70));
   console.log("  " + (fallos.some(f => f.startsWith(s.name)) ? "⛔ " : "   ") + s.name.padEnd(26) +
     est.padEnd(13) + String(si?.cronSchedule ?? "—").padEnd(15) + redis.padEnd(8) +

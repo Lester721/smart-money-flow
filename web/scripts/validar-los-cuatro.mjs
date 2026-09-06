@@ -36,6 +36,9 @@ const CUATRO = [
 // vigilante fue lo que hizo que este dijera "los cuatro bien" con un "PARADO" delante.
 const { latidoMalo: MALOfn } = await import("../lib/latidoMalo.mjs");
 const MALO = { test: MALOfn };
+// El fin de semana no es un fallo (ver auditar-railway.mjs).
+const DS = new Date().getUTCDay();
+const TECHO = (DS === 0 || DS === 6 || DS === 1) ? 80 : 26;
 let fallos = [];
 
 // ── 1. ¿ESTÁ VIVO? ────────────────────────────────────────────────────────────────────────
@@ -58,7 +61,7 @@ for (const c of CUATRO) {
   if (!si?.cronSchedule) fallos.push(c.nombre + ": SIN cron");
   if (!lat) fallos.push(c.nombre + ": SIN latido");
   else if (MALO.test(lat.resultado ?? "")) fallos.push(c.nombre + ": " + String(lat.resultado).slice(0, 70));
-  else if (h > 26) fallos.push(c.nombre + ": lleva " + h.toFixed(0) + " h sin latir");
+  else if (h > TECHO) fallos.push(c.nombre + ": lleva " + h.toFixed(0) + " h sin latir");
   console.log("  " + (fallos.some((f) => f.startsWith(c.nombre)) ? "⛔" : "  ") + c.nombre.replace("Forward · ", "").padEnd(24) +
     est.padEnd(12) + String(si?.cronSchedule ?? "—").padEnd(15) + String(lat?.cuandoET ?? "—").padEnd(18) +
     String(lat?.resultado ?? "").slice(0, 40));
