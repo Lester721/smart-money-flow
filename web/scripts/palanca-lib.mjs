@@ -16,7 +16,18 @@ const CLAVE = "forward:la-palanca";
 const STORE = (process.env.PALANCA_STORE || (process.env.REDIS_URL ? "redis" : "file")).toLowerCase();
 // ── la regla, congelada ──
 const R = { umbral:-0.07, roto:-0.30, mediaN:50, prof:0.10, tolProf:0.45,
-            dte:400, tolDte:0.55, huecos:10, tam:0.024, aguante:120, suelo:0.50, capital:60000 };
+            dte:400, tolDte:0.55, huecos:4, tam:0.1667, aguante:120, suelo:0.50, capital:60000 };
+// ⚠️ EL HUECO CAMBIO EL 2026-09-05: era huecos:10, tam:0.024 -> $1.440 por hueco.
+//    Con eso el cuaderno NO PODIA COMPRAR NADA: en sus primeros 8 dias vio 6-7 señales diarias y
+//    abrio CERO, porque el contrato mas barato que aparecio costaba $4.350 y la mediana $9.300.
+//    No estaba rota: pedia comprar con un hueco que no llegaba al precio de la mercancia.
+//    Ahora 4 huecos x 1/6 del patrimonio = $10.000 cada uno; dos tercios invertidos como maximo
+//    y un tercio descansando en SPY. Lester lo eligio sobre las alternativas medidas:
+//      $1.440 -> 0 de 20 señales · $6.000 -> 5 de 20 · $10.000 -> 12 de 20 · $20.000 -> 20 de 20
+//
+// 🔴 EL BACKTEST NO CUBRE ESTA VERSION. Se midio con $1.440 por hueco. Hay que rehacerlo con
+//    4 x $10.000 antes de creerse ningun numero de rentabilidad -- si no, tendriamos otra vez un
+//    forward test que no corresponde a lo que se midio, que es lo que se auditó el 4 de sept.
 const TK = NUEVOS;                       // los 60 de A+B; los 27 quedan fuera a propósito
 
 const iso=(d)=>d.slice(0,4)+"-"+d.slice(4,6)+"-"+d.slice(6,8);
