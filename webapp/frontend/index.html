@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agente Tito Metralleta — Open Interest</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --border: #30363d; --muted: #8b949e;
+    --text: #e6edf3; --accent: #2f81f7; --ok: #3fb950; --warn: #d29922; --bad: #f85149;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 64px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 24px; font-size: 13px; }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  form { display: flex; gap: 10px; flex-wrap: wrap; }
+  input[type=text] {
+    flex: 1 1 200px; min-width: 160px; padding: 12px 14px; font-size: 16px; letter-spacing: .5px;
+    background: #0d1117; border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+    text-transform: uppercase;
+  }
+  input[type=text]:focus { outline: none; border-color: var(--accent); }
+  button {
+    padding: 12px 22px; font-size: 15px; font-weight: 600; cursor: pointer;
+    background: var(--accent); color: #fff; border: none; border-radius: 8px;
+  }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+
+  .steps { margin-top: 22px; display: none; }
+  .steps.show { display: block; }
+  .step { display: flex; align-items: center; gap: 12px; padding: 7px 2px; color: var(--muted); }
+  .step .dot {
+    width: 20px; height: 20px; border-radius: 50%; flex: 0 0 20px; border: 2px solid var(--border);
+    display: grid; place-items: center; font-size: 12px;
+  }
+  .step.run { color: var(--text); }
+  .step.run .dot { border-color: var(--accent); animation: pulse 1s infinite; }
+  .step.done { color: var(--text); }
+  .step.done .dot { border-color: var(--ok); background: var(--ok); color: #0d1117; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(47,129,247,.5);} 50%{ box-shadow: 0 0 0 6px rgba(47,129,247,0);} }
+
+  .result { margin-top: 24px; display: none; }
+  .result.show { display: block; }
+  .summary { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 16px; }
+  .kpi { background: #0d1117; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+  .kpi b { display: block; font-size: 18px; }
+  .kpi span { color: var(--muted); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { text-align: right; padding: 9px 10px; border-bottom: 1px solid var(--border); }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+  tbody tr:hover { background: #1c2430; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+  .liq-ok { background: rgba(63,185,80,.15); color: var(--ok); }
+  .liq-media { background: rgba(210,153,34,.15); color: var(--warn); }
+  .liq-baja { background: rgba(248,81,73,.15); color: var(--bad); }
+  .liq-sin_datos { background: rgba(139,148,158,.15); color: var(--muted); }
+  .err { display:none; margin-top:18px; padding:14px; border-radius:8px;
+         background: rgba(248,81,73,.12); border:1px solid var(--bad); color:#ffb4ae; }
+  .err.show { display:block; }
+  .note { color: var(--muted); font-size: 12px; margin-top: 14px; }
+
+  .section-title { font-size: 15px; margin: 26px 0 10px; display:flex; align-items:center; gap:8px; }
+  #chart { width: 100%; height: 380px; border: 1px solid var(--border); border-radius: 10px; background:#0d1117; }
+  .chart-warn { color: var(--warn); font-size: 12px; margin-top: 8px; }
+  .top5 { margin-top: 14px; }
+  .rank { display:inline-grid; place-items:center; width:22px; height:22px; border-radius:6px;
+          font-weight:700; font-size:12px; color:#0d1117; }
+  .side-call { color: var(--ok); font-weight:600; }
+  .side-put { color: var(--bad); font-weight:600; }
+  .legend-dot { display:inline-block; width:10px; height:2px; vertical-align:middle; margin-right:6px; }
+  .maxvol-badge { font-size:11px; padding:1px 7px; border-radius:999px; font-weight:600;
+                  background: rgba(210,153,34,.18); color: var(--warn); white-space:nowrap; }
+  tr.maxvol td { background: rgba(210,153,34,.07); }
+
+  .liq-banner { display:none; border-radius:10px; padding:14px 16px; margin-bottom:18px;
+                border:1px solid var(--border); }
+  .liq-banner.show { display:block; }
+  .liq-banner .lh { font-weight:700; font-size:15px; display:flex; align-items:center; gap:8px; }
+  .liq-banner .lm { font-size:13px; margin-top:5px; }
+  .liq-banner .lstats { font-size:12px; color:var(--muted); margin-top:9px; display:flex;
+                        flex-wrap:wrap; gap:14px; }
+  .liq-banner .lstats b { color:var(--text); }
+  .liq-ok-b     { background:rgba(63,185,80,.10);  border-color:rgba(63,185,80,.45); }
+  .liq-ok-b .lh { color:var(--ok); }
+  .liq-alerta-b { background:rgba(210,153,34,.10); border-color:rgba(210,153,34,.5); }
+  .liq-alerta-b .lh { color:var(--warn); }
+  .liq-poco_fiable-b { background:rgba(248,81,73,.12); border-color:rgba(248,81,73,.55); }
+  .liq-poco_fiable-b .lh { color:var(--bad); }
+  .liq-sin_datos-b { background:rgba(139,148,158,.10); border-color:var(--border); }
+  .liq-sin_datos-b .lh { color:var(--muted); }
+  .liq-media-b { background:rgba(210,153,34,.10); border-color:rgba(210,153,34,.5); }
+  .liq-media-b .lh { color:var(--warn); }
+  .liq-baja-b { background:rgba(248,81,73,.12); border-color:rgba(248,81,73,.55); }
+  .liq-baja-b .lh { color:var(--bad); }
+  .liq-banner .lcmp { font-size:12.5px; margin-top:7px; }
+  .liq-banner .lctx { font-size:11.5px; color:var(--muted); margin-top:7px;
+                      padding-top:7px; border-top:1px dashed var(--border); }
+  td .muted { color: var(--muted); font-size:11px; }
+
+  .flow-signals { display:flex; flex-direction:column; gap:7px; margin-bottom:14px; }
+  .flow-sig { font-size:13px; padding:8px 12px; border-radius:8px; background:#0d1117;
+              border:1px solid var(--border); }
+  .flow-sig b { color:var(--accent); }
+  .flow-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:640px) { .flow-grid { grid-template-columns:1fr; } }
+  .flow-h { font-size:13px; font-weight:600; margin-bottom:6px; }
+  .flow-res { color:var(--bad); }
+  .flow-sup { color:var(--ok); }
+
+  .sector-banner { border-radius:10px; padding:14px 16px; margin-bottom:14px; border:1px solid var(--border); }
+  .sector-banner .lh { font-weight:700; font-size:15px; }
+  .sector-banner .lm { font-size:13px; margin-top:5px; }
+  .sector-banner .lstats { font-size:12px; color:var(--muted); margin-top:9px; display:flex; flex-wrap:wrap; gap:14px; }
+  .sec-individual { background:rgba(47,129,247,.10); border-color:rgba(47,129,247,.5); }
+  .sec-individual .lh { color:var(--accent); }
+  .sec-sectorial { background:rgba(139,148,158,.08); }
+  .sec-sectorial .lh { color:var(--text); }
+
+  .news-list { display:flex; flex-direction:column; }
+  .news-item { padding:9px 2px; border-bottom:1px solid var(--border); }
+  .news-item a { color:var(--text); text-decoration:none; font-size:14px; }
+  .news-item a:hover { color:var(--accent); text-decoration:underline; }
+  .news-meta { color:var(--muted); font-size:11.5px; margin-top:3px; }
+</style>
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1>🔫 Agente Tito Metralleta</h1>
+    <p class="sub">Open Interest por vencimiento · fuente: Schwab (solo lectura)</p>
+
+    <div class="card">
+      <form id="form">
+        <input id="ticker" type="text" placeholder="Ticker (ej. AAPL)" autocomplete="off" autofocus />
+        <button id="btn" type="submit">Analizar</button>
+      </form>
+
+      <div class="steps" id="steps"></div>
+      <div class="err" id="err"></div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="liq-banner" id="liqBanner"></div>
+      <div class="summary" id="summary"></div>
+
+      <div id="sectorSection" style="display:none">
+        <div class="section-title">🏦 ¿Sectorial o individual? (Tarea 3)</div>
+        <div id="sectorBanner" class="sector-banner"></div>
+        <div style="overflow-x:auto"><table>
+          <thead><tr><th>Ticker</th><th>Put/Call OI</th><th>Turnover (Vol/OI)</th><th>Volumen</th></tr></thead>
+          <tbody id="sectorBody"></tbody>
+        </table></div>
+        <p class="note" id="sectorNote"></p>
+      </div>
+
+      <div class="section-title">🎯 Flujo Call/Put — soporte y resistencia (Tarea 4)</div>
+      <div id="flowSignals" class="flow-signals"></div>
+      <div class="flow-grid">
+        <div>
+          <div class="flow-h flow-res">🔴 Resistencia — muros de Call OI (arriba del precio)</div>
+          <div style="overflow-x:auto"><table>
+            <thead><tr><th>Strike</th><th>Call OI</th><th>Call Vol</th></tr></thead>
+            <tbody id="resBody"></tbody>
+          </table></div>
+        </div>
+        <div>
+          <div class="flow-h flow-sup">🟢 Soporte — muros de Put OI (debajo del precio)</div>
+          <div style="overflow-x:auto"><table>
+            <thead><tr><th>Strike</th><th>Put OI</th><th>Put Vol</th></tr></thead>
+            <tbody id="supBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+      <p class="note" id="flowNote"></p>
+
+      <div class="section-title">📈 Top 5 contratos por Notional Value</div>
+      <div id="chart"></div>
+      <div class="chart-warn" id="chartWarn" style="display:none"></div>
+      <div class="top5" style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Contrato</th><th>Tipo</th><th>Strike</th><th>Vencimiento</th>
+              <th>Open Interest</th><th>Notional</th><th>Open Premium</th><th>Liquidez</th>
+            </tr>
+          </thead>
+          <tbody id="top5body"></tbody>
+        </table>
+      </div>
+      <p class="note">Notional = OI × 100 × Strike · Open Premium = OI × Bid. Cada línea del
+        gráfico marca el strike de un contrato del Top 5
+        (<span class="legend-dot" style="background:var(--ok)"></span>call /
+        <span class="legend-dot" style="background:var(--bad)"></span>put).</p>
+
+      <div class="section-title">🧮 Open Interest por vencimiento</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Vencimiento</th><th>OI Total</th><th>Call OI</th><th>Put OI</th>
+              <th>Volumen</th><th>Contratos</th><th>Spread medio</th><th>Liquidez</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <p class="note">OI ordenado de mayor a menor (Tarea 1). El badge de liquidez usa el spread
+        medio bid/ask; si es <b>baja</b>, cuidado al operar esa fecha.
+        La fila con <span class="maxvol-badge">🔥 máx vol</span> es la expiración de mayor
+        volumen de hoy (Tarea 2).</p>
+
+      <div class="section-title">📅 Histórico de volumen (5 días)</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr><th>Fecha</th><th>Volumen total</th><th>OI total</th><th>Exp. de mayor volumen</th></tr>
+          </thead>
+          <tbody id="histbody"></tbody>
+        </table>
+      </div>
+      <p class="note" id="histNote"></p>
+
+      <div class="section-title">📰 Noticias del activo (Tarea 7)</div>
+      <div id="newsList" class="news-list"></div>
+      <p class="note" id="newsNote"></p>
+    </div>
+  </div>
+
+<script>
+const form = document.getElementById('form');
+const tickerInput = document.getElementById('ticker');
+const btn = document.getElementById('btn');
+const stepsEl = document.getElementById('steps');
+const errEl = document.getElementById('err');
+const resultEl = document.getElementById('result');
+const summaryEl = document.getElementById('summary');
+const tbody = document.getElementById('tbody');
+let es = null;
+
+const fmt = (n) => (n ?? 0).toLocaleString('en-US');
+const RANK_COLORS = ['#f0b429', '#e8853a', '#2f81f7', '#a371f7', '#8b949e'];
+let chart = null, chartSeries = null;
+
+function money(n) {
+  n = n || 0;
+  const abs = Math.abs(n);
+  if (abs >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+  if (abs >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+  if (abs >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
+  return '$' + n.toFixed(0);
+}
+
+function renderLiquidity(lc) {
+  const el = document.getElementById('liqBanner');
+  if (!lc || !lc.headline) { el.className = 'liq-banner'; return; }
+  const level = lc.headline.level;  // ok / media / baja / sin_datos
+  const icons = { ok: '✅', media: '⚠️', baja: '⛔', sin_datos: 'ℹ️' };
+  el.className = `liq-banner show liq-${level}-b`;
+  const ch = lc.chain || {};
+  const mkt = !lc.market_status_known ? 'Estado de mercado desconocido'
+            : (lc.market_open ? '🟢 Mercado abierto' : '🔴 Mercado cerrado');
+
+  const cmpLine = (cmp) => {
+    if (!cmp) return '';
+    const fl = { ok: '✅', media: '⚠️', baja: '⛔' }[cmp.flag] || '';
+    const parts = [];
+    if (cmp.spread_ratio != null) parts.push(`spread <b>${cmp.spread_ratio}×</b> vs prom.`);
+    if (cmp.vol_ratio != null) parts.push(`volumen <b>${(cmp.vol_ratio * 100).toFixed(0)}%</b> del prom.`);
+    return `<div class="lcmp">${fl} vs <b>${cmp.label}</b> (${cmp.n}): ${parts.join(' · ')}</div>`;
+  };
+
+  let nc = '';
+  const ncx = lc.notional_context;
+  if (ncx && ncx.ratio_pct != null) {
+    nc = `<div class="lctx">Contexto (regla original — nocional vs. 7 Magníficas):
+      ${money(ncx.my_notional)} = <b>${ncx.ratio_pct}%</b> del promedio ${money(ncx.avg_notional)}.
+      El nocional depende del precio del subyacente, por eso es solo contexto, no la señal principal.</div>`;
+  }
+
+  el.innerHTML = `
+    <div class="lh">${icons[level] || ''} ${lc.headline.headline}</div>
+    <div class="lstats">
+      <span>Spread repr.${ch.spread_method ? ' (por ' + ch.spread_method + ')' : ''}: <b>${ch.spread_pct != null ? ch.spread_pct + '%' : '—'}</b></span>
+      <span>Volumen cadena: <b>${fmt(ch.total_volume)}</b></span>
+      <span>OI cadena: <b>${fmt(ch.total_oi)}</b></span>
+      <span>${mkt}</span>
+      ${lc.sector ? `<span>Sector: <b>${lc.sector}</b></span>` : '<span>Sector: <b>n/d</b></span>'}
+    </div>
+    ${cmpLine(lc.sector_cmp)}
+    ${cmpLine(lc.m7_cmp)}
+    ${nc}`;
+}
+
+function renderNews(nd) {
+  const list = document.getElementById('newsList');
+  const note = document.getElementById('newsNote');
+  if (!nd) { list.innerHTML = ''; note.textContent = ''; return; }
+  const hasMatched = nd.matched && nd.matched.length;
+  const items = hasMatched ? nd.matched : (nd.general || []);
+  list.innerHTML = items.map(n => `
+    <div class="news-item">
+      <a href="${n.link}" target="_blank" rel="noopener noreferrer">${n.title}</a>
+      <div class="news-meta">${n.source}${n.pubDate ? ' · ' + n.pubDate : ''}</div>
+    </div>`).join('') || '<div class="news-meta">Sin noticias disponibles en los feeds.</div>';
+  const who = nd.company_name || 'este activo';
+  note.textContent = hasMatched
+    ? `${nd.found} noticia(s) de ${who} en los feeds RSS (CNBC, Investing.com).`
+    : `Sin noticias específicas de ${who} en los feeds ahora mismo; se muestran titulares generales de mercado (${nd.feeds_ok} feeds leídos).`;
+}
+
+function renderSector(sf, myTicker) {
+  const sec = document.getElementById('sectorSection');
+  if (!sf) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  const b = document.getElementById('sectorBanner');
+  const isInd = sf.label === 'individual';
+  b.className = 'sector-banner ' + (isInd ? 'sec-individual' : 'sec-sectorial');
+  b.innerHTML =
+    `<div class="lh">${isInd ? '🎯 Actividad INDIVIDUAL' : '🌐 Actividad SECTORIAL'}</div>
+     <div class="lm">${isInd
+       ? `El flujo destaca frente a los líderes de <b>${sf.sector}</b> — parece específico de ${myTicker}.`
+       : `El flujo va en línea con los líderes de <b>${sf.sector}</b> — parece un movimiento de todo el sector.`}</div>
+     <div class="lstats">${(sf.reasons || []).map(r => `<span>• ${r}</span>`).join('')}</div>`;
+  let rows = `<tr class="maxvol"><td><b>${myTicker}</b> (consultado)</td>
+      <td>${sf.my_pcr_oi ?? '—'}</td><td>${sf.my_turnover ?? '—'}</td><td>—</td></tr>`;
+  rows += (sf.leaders || []).map(l =>
+    `<tr><td>${l.ticker}</td><td>${l.pcr_oi ?? '—'}</td>
+       <td>${l.turnover ?? '—'}</td><td>${fmt(l.volume)}</td></tr>`).join('');
+  rows += `<tr><td><i>Sector (prom.)</i></td><td>${sf.avg_pcr_oi ?? '—'}</td>
+      <td>${sf.avg_turnover ?? '—'}</td><td>—</td></tr>`;
+  document.getElementById('sectorBody').innerHTML = rows;
+  document.getElementById('sectorNote').innerHTML =
+    'Turnover = Volumen/OI (intensidad de actividad), sobre strikes cerca del precio. ' +
+    'Etiqueta <b>individual</b> si el turnover supera 1.6× al del sector o el sentimiento (PCR) es opuesto.';
+}
+
+function renderFlow(f) {
+  const sig = document.getElementById('flowSignals');
+  const resB = document.getElementById('resBody');
+  const supB = document.getElementById('supBody');
+  const note = document.getElementById('flowNote');
+  if (!f) { sig.innerHTML = ''; resB.innerHTML = ''; supB.innerHTML = ''; note.textContent = ''; return; }
+  sig.innerHTML = (f.signals || []).map(s =>
+    `<div class="flow-sig"><b>${s.cat}:</b> ${s.text}</div>`).join('');
+  resB.innerHTML = (f.resistance || []).map(r =>
+    `<tr><td>$${r.strike}</td><td><b>${fmt(r.call_oi)}</b></td><td>${fmt(r.call_vol)}</td></tr>`).join('')
+    || '<tr><td colspan="3" class="muted">Sin strikes sobre el precio.</td></tr>';
+  supB.innerHTML = (f.support || []).map(r =>
+    `<tr><td>$${r.strike}</td><td><b>${fmt(r.put_oi)}</b></td><td>${fmt(r.put_vol)}</td></tr>`).join('')
+    || '<tr><td colspan="3" class="muted">Sin strikes bajo el precio.</td></tr>';
+  const t = f.totals || {}, a = f.aggressor || {};
+  note.innerHTML =
+    `Precio de referencia (spot): <b>${f.spot != null ? '$' + f.spot : '—'}</b> — línea que separa ` +
+    `resistencia (Call OI arriba) de soporte (Put OI abajo). ` +
+    `Put/Call OI: <b>${t.pcr_oi ?? '—'}</b> · Put/Call Volumen: <b>${t.pcr_vol ?? '—'}</b>. ` +
+    `Los muros de OI (soporte/resistencia) son sólidos. El sesgo comprador/vendedor es una ` +
+    `<b>heurística</b> (último trade vs. punto medio bid/ask), cubre el ${a.coverage_pct || 0}% ` +
+    `del volumen y NO sustituye al tape de operaciones — tómalo como inferencia, no certeza.`;
+}
+
+function renderChart(ticker, candles, top5) {
+  const el = document.getElementById('chart');
+  const warn = document.getElementById('chartWarn');
+  if (chart) { chart.remove(); chart = null; }
+  if (!window.LightweightCharts) {
+    warn.style.display = 'block';
+    warn.textContent = '⚠️ No se pudo cargar la librería de gráficos (sin conexión al CDN).';
+    return;
+  }
+  if (!candles || !candles.length) {
+    warn.style.display = 'block';
+    warn.textContent = '⚠️ Sin histórico de precios del subyacente para el gráfico.';
+    return;
+  }
+  warn.style.display = 'none';
+  el.innerHTML = '';
+
+  // rango que incluye velas y los 5 strikes para que todas las lineas sean visibles
+  const prices = [];
+  candles.forEach(c => { prices.push(c.high, c.low); });
+  top5.forEach(t => prices.push(t.strike));
+  const lo = Math.min(...prices), hi = Math.max(...prices);
+  const pad = (hi - lo) * 0.05 || 1;
+
+  chart = LightweightCharts.createChart(el, {
+    height: 380,
+    layout: { background: { color: '#0d1117' }, textColor: '#8b949e' },
+    grid: { vertLines: { color: '#1c2430' }, horzLines: { color: '#1c2430' } },
+    rightPriceScale: { borderColor: '#30363d' },
+    timeScale: { borderColor: '#30363d' },
+    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+  });
+  chartSeries = chart.addCandlestickSeries({
+    upColor: '#3fb950', downColor: '#f85149', borderVisible: false,
+    wickUpColor: '#3fb950', wickDownColor: '#f85149',
+    autoscaleInfoProvider: () => ({ priceRange: { minValue: lo - pad, maxValue: hi + pad } }),
+  });
+  chartSeries.setData(candles);
+
+  top5.forEach((c, i) => {
+    chartSeries.createPriceLine({
+      price: c.strike,
+      color: c.side === 'CALL' ? '#3fb950' : '#f85149',
+      lineWidth: 2,
+      lineStyle: LightweightCharts.LineStyle.Dashed,
+      axisLabelVisible: true,
+      title: `#${i + 1} ${c.side} ${c.strike} · ${money(c.notional)} · ${c.expiration}`,
+    });
+  });
+  chart.timeScale().fitContent();
+}
+
+function renderSteps(current, total, label, doneUpTo) {
+  // Construye/actualiza la lista de pasos
+  let rows = [];
+  for (let i = 1; i <= total; i++) {
+    let cls = 'step', mark = i;
+    if (i < current) { cls += ' done'; mark = '✓'; }
+    else if (i === current) { cls += ' run'; mark = '•'; }
+    const text = (i === current) ? label : (stepsEl.dataset['l'+i] || '…');
+    if (i === current) stepsEl.dataset['l'+i] = label;
+    rows.push(`<div class="${cls}"><span class="dot">${mark}</span><span>Paso ${i}/${total}: ${text}</span></div>`);
+  }
+  stepsEl.innerHTML = rows.join('');
+}
+
+function reset() {
+  errEl.classList.remove('show'); errEl.textContent = '';
+  resultEl.classList.remove('show');
+  stepsEl.classList.add('show'); stepsEl.innerHTML = '';
+  for (const k of Object.keys(stepsEl.dataset)) delete stepsEl.dataset[k];
+}
+
+form.addEventListener('submit', (ev) => {
+  ev.preventDefault();
+  const ticker = tickerInput.value.trim().toUpperCase();
+  if (!ticker) return;
+  if (es) es.close();
+  reset();
+  btn.disabled = true; btn.textContent = 'Analizando…';
+
+  es = new EventSource(`/api/analyze?ticker=${encodeURIComponent(ticker)}`);
+
+  es.addEventListener('step', (e) => {
+    const d = JSON.parse(e.data);
+    renderSteps(d.n, d.total, d.label);
+  });
+
+  es.addEventListener('result', (e) => {
+    const d = JSON.parse(e.data);
+    // marca todos los pasos como done
+    stepsEl.querySelectorAll('.step').forEach(s => { s.className = 'step done'; s.querySelector('.dot').textContent = '✓'; });
+
+    // REGLA CRÍTICA — banner de liquidez (siempre al frente)
+    renderLiquidity(d.liquidity_check);
+    // Sectorial vs. individual (Tarea 3)
+    renderSector(d.sector_flow, d.ticker);
+    // Flujo Call/Put — soporte/resistencia (Tarea 4)
+    renderFlow(d.flow);
+
+    summaryEl.innerHTML = `
+      <div class="kpi"><b>${d.ticker}</b><span>Ticker</span></div>
+      <div class="kpi"><b>${d.underlying_price != null ? '$'+d.underlying_price : '—'}</b><span>Subyacente</span></div>
+      <div class="kpi"><b>${d.expirations}</b><span>Vencimientos</span></div>
+      <div class="kpi"><b>${fmt(d.total_contracts)}</b><span>Contratos</span></div>`;
+    // Top 5 por Notional: gráfico + tabla
+    const top5 = d.top5 || [];
+    renderChart(d.ticker, d.candles || [], top5);
+    if (d.chart_warning) {
+      const warn = document.getElementById('chartWarn');
+      warn.style.display = 'block'; warn.textContent = '⚠️ ' + d.chart_warning;
+    }
+    document.getElementById('top5body').innerHTML = top5.map((c, i) => `
+      <tr>
+        <td><span class="rank" style="background:${RANK_COLORS[i]}">${i + 1}</span></td>
+        <td>${c.symbol || '—'}</td>
+        <td class="side-${(c.side||'').toLowerCase()}">${c.side}</td>
+        <td>$${c.strike}</td>
+        <td>${c.expiration}</td>
+        <td>${fmt(c.open_interest)}</td>
+        <td><b>${money(c.notional)}</b></td>
+        <td>${money(c.open_premium)}</td>
+        <td><span class="badge liq-${c.liquidity}">${(c.liquidity||'').replace('_',' ')}</span>
+            ${c.spread_pct != null ? '<span class="muted">'+c.spread_pct+'%</span>' : ''}</td>
+      </tr>`).join('');
+
+    tbody.innerHTML = d.rows.map(r => {
+      const isMax = r.expiration === d.max_vol_exp;
+      return `
+      <tr class="${isMax ? 'maxvol' : ''}">
+        <td>${r.expiration}</td>
+        <td><b>${fmt(r.total_oi)}</b></td>
+        <td>${fmt(r.call_oi)}</td>
+        <td>${fmt(r.put_oi)}</td>
+        <td>${fmt(r.volume)} ${isMax ? '<span class="maxvol-badge">🔥 máx vol</span>' : ''}</td>
+        <td>${fmt(r.contracts)}</td>
+        <td>${r.avg_spread_pct != null ? r.avg_spread_pct + '%' : '—'}</td>
+        <td><span class="badge liq-${r.liquidity}">${r.liquidity.replace('_',' ')}</span></td>
+      </tr>`;
+    }).join('');
+
+    // Histórico de volumen (Tarea 2)
+    const hist = d.history || [];
+    document.getElementById('histbody').innerHTML = hist.map(h => `
+      <tr>
+        <td>${h.date}</td>
+        <td>${fmt(h.total_volume)}</td>
+        <td>${fmt(h.total_oi)}</td>
+        <td>${h.max_vol_exp || '—'} ${h.max_vol_exp ? '(' + fmt(h.max_vol_value) + ')' : ''}</td>
+      </tr>`).join('');
+    // Noticias RSS (Tarea 7)
+    renderNews(d.news);
+
+    document.getElementById('histNote').textContent =
+      `${hist.length} de 5 días acumulados para ${d.ticker}. ` +
+      (hist.length < 5
+        ? 'El histórico se completa con cada día que consultes este ticker; con ≥5 días se detectan patrones de volumen recurrentes.'
+        : 'Ya hay ventana completa de 5 días para detectar patrones de volumen recurrentes.');
+
+    resultEl.classList.add('show');
+    es.close(); btn.disabled = false; btn.textContent = 'Analizar';
+  });
+
+  es.addEventListener('error', (e) => {
+    let msg = 'Se perdio la conexion con el servidor.';
+    try { if (e.data) msg = JSON.parse(e.data).message; } catch (_) {}
+    errEl.textContent = '⚠️ ' + msg; errEl.classList.add('show');
+    stepsEl.classList.remove('show');
+    es.close(); btn.disabled = false; btn.textContent = 'Analizar';
+  });
+});
+</script>
+</body>
+</html>

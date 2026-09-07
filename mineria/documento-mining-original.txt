@@ -1,0 +1,1869 @@
+
+
+1 Qué es mining (explicación técnica)
+Definición breve: Minería es el proceso por el cual una red blockchain basada en prueba de trabajo (Proof of Work, PoW) valida transacciones y asegura la cadena resolviendo problemas criptográficos (hashing). Los mineros compiten para encontrar un nonce que produzca un hash por debajo de un objetivo; el ganador crea el siguiente bloque y recibe una recompensa (subsidio de bloque + comisiones).
+Componentes conceptuales clave
+Hashing y dificultad: La red ajusta la dificultad para mantener el tiempo medio de bloque constante; mayor dificultad → más potencia computacional necesaria.
+Recompensa y halving: En Bitcoin la recompensa por bloque se reduce periódicamente (halving), afectando ingresos por bloque.
+Pools vs solo mining: Minería en pool reparte recompensas según contribución de hash; reduce varianza y es la opción práctica para la mayoría de mineros individuales.
+2 Qué monedas se pueden minar hoy (estado actual y limitaciones)
+Bitcoin (BTC): Sigue siendo PoW y se mina con ASICs especializados. Es la referencia para minería rentable a escala.
+Ethereum (ETH): Desde la "Merge" Ethereum cambió a Proof of Stake (PoS) y ya no es minable con GPU/ASIC. Cualquier guía de minería debe excluir ETH como objetivo de PoW. Si ves referencias antiguas a "minar Ethereum", son obsoletas.
+Otras criptomonedas listadas en Robinhood: Robinhood ofrece compra/venta de una selección de criptomonedas (Bitcoin, Ethereum como activo negociable pero no minable, y otras como Litecoin, Bitcoin Cash, Dogecoin, etc.). Muchas de esas monedas tienen distintos mecanismos: algunas son PoW (ej. Litecoin), otras PoS o híbridas. Antes de planear minería, verifica si la moneda es PoW y su algoritmo (SHA-256, Scrypt, Ethash ya obsoleto para ETH, Equihash, etc.).
+Regla práctica: Solo planifica minería para monedas PoW activas; para monedas listadas en Robinhood, confirma el mecanismo de consenso individualmente.
+3 Requisitos mínimos de equipo (por moneda y general)
+Nota: “Mínimo” significa hardware con el que técnicamente puedes participar; no implica rentabilidad.
+Bitcoin (BTC) — mínimo
+ASIC básico: Un ASIC de generación anterior (ej. modelos económicos usados) con eficiencia moderada. Necesitas:
+Fuente de alimentación adecuada (PSU) con certificación y capacidad.
+Conexión a internet estable.
+Refrigeración básica (ventiladores).
+Software de minería compatible (firmware del fabricante o cgminer/btcminer según modelo).
+Expectativa: Probablemente no rentable con ASICs muy antiguos si la electricidad es cara.
+Altcoins PoW (GPU-minables) — mínimo
+PC con GPU: Una sola GPU moderna (ej. serie RTX 30xx/40xx o AMD equivalente) con 6–8 GB VRAM para algunos algoritmos; para otros se requiere 8+ GB.
+Placa base, CPU básica, RAM 8–16 GB, SSD 120 GB, PSU 80+.
+Software: miners como TeamRedMiner, T-Rex, NBminer, etc., según algoritmo.
+Expectativa: Puedes minar monedas de menor capitalización; rentabilidad depende fuertemente del coste eléctrico y del algoritmo.
+4 Equipo óptimo (profesional individual)
+Objetivo: maximizar hash por vatio y minimizar coste total de propiedad (TCO).
+Para Bitcoin (óptimo)
+ASICs modernos de alta eficiencia (ejemplos de la categoría top: Antminer S19 series, MicroBT Whatsminer M-series o sus sucesores). Busca hashrate por consumo óptimo (TH/s por W).
+Infraestructura eléctrica: circuito dedicado, medidor de consumo, protección contra sobretensiones, PDU con monitorización.
+Refrigeración: flujo de aire optimizado, ventilación forzada; en climas cálidos considera refrigeración por aire industrial o soluciones líquidas a escala.
+Gestión y monitoreo: software de gestión de granja (HiveOS, Braiins OS o paneles del fabricante), alertas, reinicios automáticos.
+Redundancia: UPS para controladores, plan de mantenimiento.
+Para GPU mining (óptimo)
+Rigs con múltiples GPUs (6–12 GPUs por rig) usando GPUs con mejor eficiencia por algoritmo objetivo (por ejemplo, ciertas RTX 40xx o AMD RX 7000 series según algoritmo).
+Placas base y risers de calidad, PSU con margen (80+ Gold/Platinum), chasis abierto para flujo de aire.
+Optimización de BIOS y undervolt/overclock para maximizar eficiencia (bajar consumo manteniendo hash).
+Software: HiveOS o sistemas Linux con miners automatizados, scripts de failover, monitorización remota.
+5 Costes operativos y cálculo de rentabilidad (qué medir)
+Variables críticas
+Precio de la electricidad ($/kWh) — factor decisivo.
+Hashrate y consumo (W) del equipo.
+Pool fees y comisiones.
+Tasa de cambio de la moneda (volatilidad).
+Dificultad de la red y recompensas por bloque.
+Costes de capital (CAPEX): compra de hardware, instalación.
+Costes OPEX: electricidad, internet, mantenimiento, reemplazo de hardware.
+Fórmula simplificada de ingresos brutos diarios
+Calcula la fracción de tu hash frente al total de la red, multiplícalo por recompensas diarias de la red; resta comisiones y coste eléctrico. Usa calculadoras de rentabilidad actualizadas.
+6 Configuración práctica paso a paso (ejecución por Claude)
+Esta sección está pensada para que un agente automatizado ejecute tareas operativas.
+A. Investigación previa (tareas automáticas)
+Verificar qué monedas PoW son viables: consultar lista de monedas PoW con capitalización y algoritmo.
+Calcular rentabilidad local: introducir precio local de electricidad, coste de hardware y parámetros de hashrate en calculadora.
+Seleccionar pool: comparar fees, método de pago (PPS, PPLNS), reputación y latencia.
+Plan de cumplimiento: revisar requisitos fiscales locales y límites regulatorios.
+B. Preparación del hardware
+Compra: priorizar eficiencia (hash/W) y tiempo de entrega; evitar hardware con garantía dudosa.
+Instalación eléctrica: circuito dedicado, medición de consumo por rig, protección.
+Montaje: ensamblar rigs, instalar OS ligero (HiveOS o Linux), configurar miners.
+Optimización: undervolt y ajustes de memoria/clock para GPUs; configurar frecuencia y voltaje en ASICs si el firmware lo permite.
+C. Software y operaciones
+Sistema operativo: HiveOS o Linux con scripts de arranque.
+Minero y pool: configurar credenciales del pool, wallet de recepción (dirección propia, no custodial si quieres control total).
+Monitoreo: configurar alertas por caída de hash, temperatura alta, reinicios.
+Automatización: scripts para cambiar de moneda/algoritmo según rentabilidad (auto-switchers), pero ten cuidado con fees y latencia.
+7 Seguridad y custodia de recompensas
+Wallets: usa wallets no custodiales para control total (hardware wallets para almacenamiento a largo plazo). Para pagos de pool, configura direcciones de retiro seguras.
+Seguridad física: asegurar el local, control de acceso, cámaras si el valor es significativo.
+Seguridad de red: VLAN separada para rigs, firewall, actualizaciones de firmware firmadas.
+Backups: claves privadas y seed phrases en almacenamiento offline y copias seguras.
+8 Impuestos, cumplimiento y riesgos legales
+Declaración de ingresos: recompensas minadas suelen considerarse ingreso imponible en el momento de recepción; las reglas varían por jurisdicción. Registra producción diaria/semana/mes y valor en moneda fiat al momento de recepción.
+Regulación local: algunas jurisdicciones tienen requisitos de licencias o restricciones energéticas; verifica leyes locales y, en Puerto Rico, consulta asesor fiscal local.
+Riesgos: fluctuación de precios, obsolescencia del hardware, cambios de protocolo (p. ej. migración a PoS), cortes eléctricos, y riesgos de seguridad.
+9 Estrategias para maximizar rentabilidad (profesional individual)
+Optimizar coste eléctrico: negociar tarifas, usar horarios de tarifa reducida, ubicar rigs donde la electricidad sea barata.
+Eficiencia energética: elegir hardware con mejor hash/W y optimizar undervolt/OC.
+Diversificación de monedas: minar la moneda más rentable por hora y convertir a BTC/fiat según estrategia de riesgo.
+Venta y tesorería: decidir política de venta (vender inmediatamente, promediar, HODL parte). No doy recomendaciones de inversión.
+Reinversión calculada: comparar ROI de reinvertir en más hardware vs vender recompensas.
+Mantenimiento proactivo: plan de reemplazo de ventiladores, limpieza, y monitorización para minimizar downtime.
+10 Checklist operativo para Claude (tareas automatizables)
+Recolectar datos: precio electricidad, coste hardware, latencia a pools, lista PoW actual.
+Calcular rentabilidad: para cada candidato (BTC, LTC, BCH, DOGE si PoW, etc.).
+Seleccionar hardware: comparar modelos por $/TH y eficiencia.
+Configurar rigs: flashear firmware seguro, configurar miner y pool, establecer wallet.
+Monitoreo: configurar alertas y dashboards.
+Reportes diarios: ingresos, consumo, temperatura, uptime.
+Gestión de tesorería: mover fondos a wallet seguro según reglas.
+Mantenimiento: programar limpieza y revisión mensual.
+11 Limitaciones, riesgos y consideraciones éticas
+Ethereum ya no es minable; cualquier plan que incluya ETH como objetivo de PoW está obsoleto.
+Rentabilidad depende fuertemente del precio de la moneda y electricidad; no hay garantía de ganancias.
+Impacto energético: minería PoW consume mucha energía; considera impacto ambiental y regulaciones locales.
+Cumplimiento fiscal: registra todo y consulta un profesional.
+12 Fuentes clave (para las afirmaciones más importantes)
+Explicación técnica y estado de Bitcoin mining.
+Estado de Ethereum tras la Merge (PoS, no minable).
+Lista de criptomonedas soportadas por Robinhood y notas sobre custodial vs no custodial.
+Comparativas y recomendaciones de ASICs y eficiencia energética.
+Guías de GPU mining, optimización y calculadoras de rentabilidad.
+13 Primeros pasos recomendados (acción inmediata)
+Audita tu coste eléctrico y calcula umbral de rentabilidad para BTC y para las altcoins PoW que te interesen.
+Decide escala: ¿1–2 GPUs para experimentar o 1–10 ASICs para operar seriamente?
+Compra hardware eficiente en función del ROI calculado.
+Configura pool y wallet no custodial; prueba con 1 rig y monitoriza 7–14 días.
+Documenta todo: ingresos, consumo, tiempos de inactividad, y costes de mantenimiento.
+Entrega: Script técnico paso a paso para instalar y optimizar rigs (GPU y ASIC) y checklist operativo + plantillas de reporte
+A continuación tienes dos entregables listos para que Claude (o un operador humano) los ejecute como playbooks operativos:
+Parte B: Scripts y comandos paso a paso para instalar y optimizar un rig GPU y un ASIC Bitcoin. Incluye configuración de OS, miner, ajustes de undervolt/OC, monitorización y automatización.
+Parte C: Checklist operativo diario/semana/mes y plantillas de reporte (diario, semanal, mensual) para ingresos, consumo, mantenimiento y cumplimiento fiscal.
+Voy directo al grano técnico y operativo; cada sección es accionable y está pensada para ejecución automática por un agente. No doy recomendaciones de inversión.
+B — Script paso a paso: Rig GPU (6–8 GPUs)
+Resumen del objetivo
+Instalar un rig GPU con 6 GPUs para minar monedas PoW (no Ethereum), optimizar eficiencia (hash/W), configurar monitorización y auto-restart.
+Requisitos previos (hardware)
+6 GPUs compatibles con el algoritmo objetivo (8+ GB VRAM según moneda).
+Placa base con 6+ PCIe, risers PCIe x1, CPU básica, 16 GB RAM, SSD 120 GB, PSU(s) 80+ Gold con margen.
+Chasis abierto o estantería, ventilación adecuada, medidor de consumo.
+Wallet no custodial y cuenta en pool elegido (dirección de wallet lista).
+Sistema operativo recomendado
+HiveOS (o Ubuntu Server 22.04 con scripts). Aquí doy comandos para Ubuntu (más control) y notas para HiveOS.
+1. Preparar la máquina (Ubuntu Server)
+bash
+# 1. Actualizar sistema
+sudo apt update && sudo apt upgrade -y
+
+# 2. Instalar dependencias básicas
+sudo apt install -y build-essential git curl wget jq
+
+# 3. Instalar drivers NVIDIA (si GPUs NVIDIA)
+# Detectar versión recomendada con nvidia-detect o desde sitio del fabricante
+sudo add-apt-repository ppa:graphics-drivers/ppa -y
+sudo apt update
+sudo apt install -y nvidia-driver-535 nvidia-utils-535
+
+# 4. Reiniciar para cargar drivers
+sudo reboot
+Nota: Para AMD, instala los drivers ROCm o los drivers oficiales AMDGPU-PRO según modelo.
+2. Instalar Docker (opcional, para aislar miners)
+bash
+# Instalar Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+# Cerrar sesión y volver a entrar para aplicar grupo docker
+3. Instalar y configurar miner (ejemplo: T-Rex para NVIDIA)
+bash
+# Crear carpeta de trabajo
+mkdir -p ~/miner && cd ~/miner
+
+# Descargar T-Rex (ejemplo)
+wget https://github.com/trexminer/T-Rex/releases/download/0.26.0/t-rex-0.26.0-linux.tar.gz
+tar -xzf t-rex-0.26.0-linux.tar.gz
+chmod +x t-rex
+
+# Archivo de configuración de ejemplo (start.sh)
+cat > start.sh <<'EOF'
+#!/bin/bash
+POOL=stratum+tcp://pool.example:3333
+WALLET=tu_wallet_direccion
+WORKER=$(hostname)
+./t-rex -a kawpow -o $POOL -u $WALLET.$WORKER -p x --api-bind-http 0.0.0.0:4067 --log-path ./t-rex.log
+EOF
+chmod +x start.sh
+
+# Ejecutar en background con tmux o systemd
+./start.sh
+Sustituye pool.example, kawpow y tu_wallet_direccion por pool, algoritmo y wallet reales.
+4. Optimización de GPU: undervolt y ajustes (NVIDIA)
+Objetivo: reducir consumo manteniendo hash estable.
+Herramientas: nvidia-smi, nvidia-settings, nvidia-smi -pm 1 y perfiles de overclock/undervolt con nvidia-smi o nvfancontrol.
+Ejemplo de script para aplicar ajustes por GPU (valores ilustrativos; ajustar por modelo):
+bash
+# Habilitar persistence mode
+sudo nvidia-smi -pm 1
+
+# Ejemplo: aplicar power limit y clocks (reemplazar GPU index y valores)
+sudo nvidia-smi -i 0 -pl 180        # power limit 180W
+sudo nvidia-smi -i 0 -ac 5001,2100  # memory clock, graphics clock (valores de ejemplo)
+
+# Para aplicar undervolt en Linux se usan herramientas específicas del fabricante o flasheo de BIOS.
+# Alternativa: usar perfiles de miner que permiten limitar consumo (--power-limit)
+./t-rex --power-limit 180
+Proceso recomendado:
+Empieza con power limit conservador (ej. 80% TDP).
+Mide hash y consumo 30–60 min.
+Reduce voltaje/power en pasos de 5–10W hasta ver caída de hash o inestabilidad.
+Registra el punto óptimo (hash/W máximo estable).
+5. Monitorización y auto-restart (systemd + alertas)
+systemd service para el miner:
+ini
+# /etc/systemd/system/miner.service
+[Unit]
+Description=GPU Miner
+After=network.target
+
+[Service]
+Type=simple
+User=tu_usuario
+WorkingDirectory=/home/tu_usuario/miner
+ExecStart=/home/tu_usuario/miner/start.sh
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+bash
+sudo systemctl daemon-reload
+sudo systemctl enable miner.service
+sudo systemctl start miner.service
+Alertas:
+Instalar netdata o prometheus + node_exporter para métricas.
+Configurar alertas por correo/Telegram/Slack cuando: hash caído >5 min, temp GPU >85°C, consumo anómalo, rig offline.
+6. Automatización de cambio de moneda (auto-switch)
+Usa herramientas como hiveon/minerstat/scripts propios que consulten rentabilidad y cambien start.sh con el algoritmo/pool más rentable.
+Precaución: switching frecuente puede causar fees y downtime; establece umbral mínimo de mejora (ej. +10%) y ventana mínima de permanencia (ej. 4 horas).
+7. Mantenimiento y seguridad
+Backups: script que exporte configuración y wallet address a archivo cifrado local.
+Seguridad de red: VLAN separada, firewall, deshabilitar SSH password (usar keys), fail2ban.
+Mantenimiento físico: limpieza mensual, reemplazo de ventiladores cada 12–18 meses.
+B — Script paso a paso: ASIC Bitcoin (Antminer/Whatsminer)
+Resumen del objetivo
+Instalar un ASIC moderno, conectarlo a pool, optimizar configuración de red, monitorizar y asegurar.
+Requisitos previos (hardware)
+ASIC (ej. Antminer S19 o similar), PSU compatible, cableado de red, circuito eléctrico dedicado, medidor de consumo, ventilación.
+1. Preparación eléctrica y red
+Instalar circuito dedicado con protección (breaker) y cableado según consumo del ASIC.
+Conectar ASIC a red Ethernet con IP estática o DHCP reservada. Asegurar acceso a internet estable.
+2. Acceso al ASIC y configuración básica
+Conectar y encender.
+Encontrar IP del ASIC (router DHCP table o escaneo nmap).
+Acceder vía web UI (http://IP) con credenciales por defecto (cambiar inmediatamente).
+Configuración en UI:
+Pool: añadir URL del pool, worker name y password.
+Wallet: en la mayoría de ASICs se configura el worker con wallet en el pool; usa wallet no custodial en la cuenta del pool o en la configuración del pool.
+Network: asignar IP estática, DNS confiable.
+Miner firmware: actualizar a firmware oficial o Braiins OS+ si quieres control avanzado.
+3. Optimización y ajustes
+Power limit: algunos modelos permiten ajustar consumo; si firmware lo permite, reduce hasta punto estable.
+Ventilación: mantener intake y exhaust libres; medir temperatura interna.
+Firmware alternativo: Braiins OS (open-source) permite mejor monitorización y control de frecuencia/power. Flashear solo si entiendes riesgos y tienes respaldo.
+4. Monitorización y alertas
+Configurar SNMP o API del ASIC para integrarlo en el panel (HiveOS, Awesome Miner, Prometheus).
+Alertas por: hash drop >5%, temp >85°C, fan failure, offline.
+5. Seguridad y mantenimiento
+Cambiar credenciales por defecto, limitar acceso a UI desde LAN, usar VPN para acceso remoto.
+Plan de mantenimiento: limpieza de polvo trimestral, revisión de capacitores y ventiladores cada 6–12 meses.
+C — Checklist operativo y plantillas de reporte
+Checklist diario (operador o agente)
+[ ] Verificar uptime de cada rig/ASIC (esperado >99%).
+[ ] Confirmar hashrate por rig dentro de ±5% del baseline.
+[ ] Revisar temperaturas (GPU <75–80°C; ASIC <85°C).
+[ ] Revisar consumo eléctrico total y por rig; comparar con baseline.
+[ ] Confirmar pagos del pool recibidos (si aplica) y que wallet esté activo.
+[ ] Revisar alertas y logs de reinicios.
+[ ] Registrar ingresos del día (moneda y valor fiat al momento de recepción).
+[ ] Verificar backups de configuración y seeds (si hubo cambios).
+Checklist semanal
+[ ] Revisión de eficiencia (hash/W) por rig; ajustar undervolt si hay margen.
+[ ] Limpieza ligera (quitar polvo superficial).
+[ ] Verificar integridad de ventiladores y conexiones.
+[ ] Reconciliar pagos del pool con registros internos.
+[ ] Revisar y aplicar actualizaciones de firmware/OS en entorno de staging antes de producción.
+[ ] Generar reporte semanal y enviar a la carpeta segura.
+Checklist mensual
+[ ] Limpieza profunda y revisión física (ventiladores, cables, risers).
+[ ] Medición detallada de consumo y cálculo de coste eléctrico mensual.
+[ ] Revisión de ROI y comparación con previsiones.
+[ ] Revisión de cumplimiento fiscal: consolidar ingresos minados y su valor fiat.
+[ ] Prueba de recuperación: restaurar configuración desde backup en entorno controlado.
+[ ] Inventario de hardware y plan de reemplazo.
+Plantilla de reporte diario (texto plano, para automatizar)
+Code
+Asunto: Reporte Diario Minería - [YYYY-MM-DD]
+
+Resumen:
+- Fecha: [YYYY-MM-DD]
+- Uptime global: [xx.xx]%
+- Ingresos minados: [X.XXXX BTC] / [X.XXXX LTC] / Otros: [lista]
+- Valor fiat total (al cierre): $[XXXX.XX]
+
+Detalle por equipo:
+- Rig/ASIC ID: [ID]
+  - Tipo: GPU/ASIC
+  - Hashrate: [XXX MH/s or TH/s]
+  - Consumo: [XXX W]
+  - Temp promedio: [XX °C]
+  - Estado: OK / Alerta (motivo)
+  - Notas: [cambios, reinicios, mantenimiento]
+
+Alertas críticas:
+- [Lista de alertas si las hay]
+
+Acciones realizadas hoy:
+- [Ej. reinicio rig-03, ajuste power limit rig-02 -5W, backup config]
+
+Tareas pendientes:
+- [Lista]
+
+Firma:
+- Operador/Agente: [Nombre o ID]
+Plantilla de reporte semanal (texto plano)
+Code
+Asunto: Reporte Semanal Minería - Semana [W] [YYYY-MM-DD a YYYY-MM-DD]
+
+Resumen ejecutivo:
+- Ingresos totales minados (por moneda): BTC [X.XXX], LTC [X.XXX], ...
+- Valor fiat promedio semanal: $[XXXX.XX]
+- Consumo eléctrico total: [kWh]
+- Coste eléctrico estimado: $[XXXX.XX]
+- Margen bruto estimado: $[XXXX.XX] (Ingresos - Coste eléctrico)
+
+Rendimiento y eficiencia:
+- Hashrate promedio global: [XXX TH/s]
+- Eficiencia promedio: [X.XX GH/W]
+
+Incidentes y resoluciones:
+- [Fecha] - [Incidente] - [Acción tomada] - [Resultado]
+
+Mantenimiento:
+- [Tareas realizadas]
+
+Recomendaciones:
+- [Ej. ajustar undervolt en rigs 2–4; considerar compra de repuestos]
+
+Anexos:
+- Logs de consumo (CSV)
+- Historial de pagos del pool
+
+Firma:
+- Operador/Agente: [Nombre o ID]
+Plantilla de reporte mensual (texto plano) — para contabilidad/fiscal
+Code
+Asunto: Reporte Mensual Minería - [YYYY-MM]
+
+Resumen financiero:
+- Ingresos minados (por moneda) y valor fiat al momento de recepción:
+  - BTC: [X.XXXX] BTC = $[XXXX.XX]
+  - LTC: [X.XXXX] LTC = $[XXXX.XX]
+  - Total ingresos fiat: $[XXXX.XX]
+
+Gastos operativos:
+- Electricidad: $[XXXX.XX] (kWh: [XXXX])
+- Mantenimiento y repuestos: $[XXXX.XX]
+- Otros gastos (internet, seguros): $[XXXX.XX]
+- Total gastos: $[XXXX.XX]
+
+Resultado operativo:
+- Beneficio bruto: $[Ingresos - Electricidad]
+- Beneficio neto estimado: $[Ingresos - Gastos totales]
+
+Inventario y depreciación:
+- Hardware adquirido: [lista con fecha y coste]
+- Depreciación mensual estimada: $[XXXX.XX]
+
+Cumplimiento fiscal:
+- Registro de ingresos por fecha y valor fiat (adjuntar CSV)
+- Recomendación: consultar asesor fiscal para tratamiento de ingresos minados y ventas.
+
+Acciones y plan:
+- [Reinversión, compra de hardware, reducción de consumo, etc.]
+
+Firma:
+- Operador/Agente: [Nombre o ID]
+Scripts auxiliares útiles (ejemplos rápidos)
+Exportar métricas a CSV (consumo, hash, temps) — cron job diario:
+bash
+# /usr/local/bin/export_metrics.sh
+#!/bin/bash
+OUT=/var/reports/mining_metrics_$(date +%F).csv
+echo "timestamp,rig,hashrate,consumo_w,temp_c" > $OUT
+# Ejemplo: obtener métricas desde API local del miner
+curl -s http://localhost:4067/api/summary | jq -r '.[] | "\(.time),\(.rig),\(.hashrate),\(.power),\(.temp)"' >> $OUT
+Backup config y seeds (cifrado GPG):
+bash
+tar czf config_backup_$(date +%F).tar.gz /home/tu_usuario/miner /etc/miner
+gpg --symmetric --cipher-algo AES256 config_backup_$(date +%F).tar.gz
+Notas finales y prioridades de implementación
+Prueba en pequeño: implementa un rig o un ASIC primero, monitoriza 7–14 días antes de escalar.
+Automatiza reportes: cron + scripts + subida segura a almacenamiento cifrado.
+Seguridad y cumplimiento: guarda seeds offline y registra cada ingreso con timestamp y valor fiat para impuestos.
+Mantenimiento preventivo: reduce downtime y pérdida de ingresos.
+Playbook de despliegue automatizado (Ansible + scripts) — Descripción breve
+Este playbook instala, configura y deja operativo un rig GPU o un ASIC en Ubuntu Server (22.04+). Incluye:
+Instalación de drivers (NVIDIA/AMD), Docker opcional, herramientas de monitorización.
+Despliegue del miner (ejemplo TRex para NVIDIA) con systemd para autorestart.
+Scripts para exportar métricas, backup cifrado de configuración y autoswitch básico.
+Roles separados para GPU y ASIC para que Claude o un operador ejecute por equipo.
+Ajusta las variables (wallet, pool, algoritmo, IP estática) antes de ejecutar.
+Estructura del proyecto (archivos principales)
+Code
+mining-playbook/
+├─ inventory.ini
+├─ playbook.yml
+├─ group_vars/
+│  └─ all.yml
+├─ roles/
+│  ├─ common/
+│  │  └─ tasks/main.yml
+│  ├─ gpu_miner/
+│  │  └─ tasks/main.yml
+│  └─ asic_miner/
+│     └─ tasks/main.yml
+├─ files/
+│  ├─ start_trex.sh
+│  ├─ miner.service
+│  ├─ export_metrics.sh
+│  └─ backup_config.sh
+1. inventory.ini (ejemplo)
+ini
+[rigs]
+rig1 ansible_host=192.168.1.100 ansible_user=ubuntu
+
+[asics]
+asic1 ansible_host=192.168.1.110 ansible_user=ubuntu
+2. group_vars/all.yml — variables globales (editar)
+yaml
+# Variables obligatorias: editar antes de ejecutar
+wallet_address: "TU_WALLET_DIRECCION"
+pool_url: "stratum+tcp://pool.example:3333"
+pool_worker: "worker01"
+algorithm: "kawpow"   # ejemplo para monedas GPU-minables
+use_docker: false
+nvidia_driver_version: "535"
+timezone: "America/Puerto_Rico"
+
+# Opcionales
+monitoring_user: "monitor"
+backup_gpg_passphrase: "CAMBIA_ESTA_PASSPHRASE"
+auto_switch_threshold_percent: 10
+auto_switch_min_hours: 4
+3. playbook.yml (Ansible)
+yaml
+- name: Desplegar entorno de minería
+  hosts: all
+  become: true
+  vars_files:
+    - group_vars/all.yml
+
+  roles:
+    - common
+
+- name: Desplegar miner GPU (solo hosts en grupo rigs)
+  hosts: rigs
+  become: true
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - gpu_miner
+
+- name: Configurar ASIC (solo hosts en grupo asics)
+  hosts: asics
+  become: true
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - asic_miner
+4. roles/common/tasks/main.yml
+yaml
+- name: Actualizar apt y paquetes
+  apt:
+    update_cache: yes
+    upgrade: dist
+    cache_valid_time: 3600
+
+- name: Instalar utilidades básicas
+  apt:
+    name:
+      - build-essential
+      - git
+      - curl
+      - wget
+      - jq
+      - tmux
+      - htop
+      - unzip
+      - python3-pip
+    state: present
+
+- name: Establecer timezone
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Crear usuario de monitorización
+  user:
+    name: "{{ monitoring_user }}"
+    shell: /bin/bash
+    create_home: yes
+    state: present
+
+- name: Instalar Netdata (monitorización ligera)
+  shell: bash <(curl -Ss https://my-netdata.io/kickstart.sh) --dont-wait
+  args:
+    creates: /usr/sbin/netdata
+5. roles/gpu_miner/tasks/main.yml
+yaml
+- name: Instalar drivers NVIDIA (si hay GPUs NVIDIA)
+  apt:
+    name: "nvidia-driver-{{ nvidia_driver_version }}"
+    state: present
+  when: "'nvidia' in ansible_facts['devices'] or true"  # heurística; ajustar según inventario
+
+- name: Instalar Docker (opcional)
+  shell: curl -fsSL https://get.docker.com | sh
+  when: use_docker
+
+- name: Crear carpeta de miner
+  file:
+    path: /opt/miner
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copiar script start_trex.sh
+  copy:
+    src: files/start_trex.sh
+    dest: /opt/miner/start_trex.sh
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+
+- name: Copiar systemd unit
+  copy:
+    src: files/miner.service
+    dest: /etc/systemd/system/miner.service
+    mode: '0644'
+
+- name: Recargar systemd y habilitar servicio
+  systemd:
+    daemon_reload: yes
+    name: miner.service
+    enabled: yes
+    state: started
+
+- name: Instalar script de export metrics
+  copy:
+    src: files/export_metrics.sh
+    dest: /usr/local/bin/export_metrics.sh
+    mode: '0755'
+
+- name: Instalar backup script
+  copy:
+    src: files/backup_config.sh
+    dest: /usr/local/bin/backup_config.sh
+    mode: '0755'
+6. roles/asic_miner/tasks/main.yml
+yaml
+- name: Asegurar herramientas de red
+  apt:
+    name:
+      - nmap
+      - snmp
+    state: present
+
+- name: Crear carpeta de asic management
+  file:
+    path: /opt/asic
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copiar backup script
+  copy:
+    src: files/backup_config.sh
+    dest: /usr/local/bin/backup_config.sh
+    mode: '0755'
+
+- name: Instalar script de export metrics
+  copy:
+    src: files/export_metrics.sh
+    dest: /usr/local/bin/export_metrics.sh
+    mode: '0755'
+7. files/start_trex.sh (editar pool/wallet según group_vars)
+bash
+#!/bin/bash
+# Start script para T-Rex (NVIDIA). Ajusta la URL y algoritmo en group_vars/all.yml
+WORKDIR="/opt/miner"
+cd $WORKDIR
+
+# Variables (si no se pasan desde Ansible)
+POOL="${POOL:-{{ pool_url }}}"
+WALLET="${WALLET:-{{ wallet_address }}}"
+WORKER="${WORKER:-{{ pool_worker }}}"
+ALGO="${ALGO:-{{ algorithm }}}"
+
+# Descargar T-Rex si no existe
+if [ ! -f t-rex ]; then
+  wget -q https://github.com/trexminer/T-Rex/releases/latest/download/t-rex-linux.tar.gz -O /tmp/t-rex.tar.gz
+  tar -xzf /tmp/t-rex.tar.gz -C $WORKDIR
+  chmod +x $WORKDIR/t-rex
+fi
+
+# Ejecutar con parámetros seguros
+./t-rex -a $ALGO -o $POOL -u $WALLET.$WORKER -p x --api-bind-http 0.0.0.0:4067 --log-path ./t-rex.log --no-watchdog
+8. files/miner.service (systemd)
+ini
+[Unit]
+Description=Miner service
+After=network.target
+
+[Service]
+Type=simple
+User={{ ansible_user }}
+WorkingDirectory=/opt/miner
+ExecStart=/opt/miner/start_trex.sh
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+9. files/export_metrics.sh
+bash
+#!/bin/bash
+OUTDIR="/var/reports"
+mkdir -p $OUTDIR
+OUT="$OUTDIR/mining_metrics_$(date +%F).csv"
+echo "timestamp,host,rig,hashrate,consumo_w,temp_c" > $OUT
+
+# Ejemplo: consulta API local de T-Rex
+if curl -s http://127.0.0.1:4067/summary >/dev/null 2>&1; then
+  curl -s http://127.0.0.1:4067/summary | jq -r --arg host "$(hostname)" \
+    '. | "\(.time),\($host),\(.miner),\(.hashrate),\(.power),\(.temp)"' >> $OUT
+fi
+10. files/backup_config.sh
+bash
+#!/bin/bash
+BACKUP_DIR="/var/backups/miner"
+mkdir -p $BACKUP_DIR
+TS=$(date +%F_%H%M)
+ARCHIVE="$BACKUP_DIR/config_backup_$TS.tar.gz"
+tar czf $ARCHIVE /opt/miner /etc/systemd/system/miner.service 2>/dev/null
+# Cifrar con GPG simétrico
+echo "{{ backup_gpg_passphrase }}" | gpg --batch --yes --passphrase-fd 0 -c --cipher-algo AES256 $ARCHIVE
+# Opcional: subir a almacenamiento seguro (no incluido)
+11. Autoswitch básico (concepto y script)
+Nota: switching frecuente puede causar fees y downtime. Este script es un ejemplo que compara rentabilidad simple y edita /opt/miner/start_trex.sh si hay mejora > auto_switch_threshold_percent y se cumple auto_switch_min_hours.
+bash
+#!/bin/bash
+# /usr/local/bin/auto_switch.sh (ejemplo conceptual)
+THRESHOLD={{ auto_switch_threshold_percent }}
+MIN_HOURS={{ auto_switch_min_hours }}
+# Implementación real requiere API de rentabilidad (3rd party) y manejo de credenciales.
+# Aquí solo plantilla: consultar servicio de rentabilidad y decidir.
+12. Cómo ejecutar (pasos)
+Editar group_vars/all.yml con tus valores reales (wallet, pool, etc.).
+Colocar inventario inventory.ini con IPs y usuarios.
+Desde la máquina de control con Ansible:
+bash
+cd mining-playbook
+ansible-playbook -i inventory.ini playbook.yml
+Verificar servicio:
+bash
+sudo systemctl status miner.service
+journalctl -u miner.service -f
+Programar cron jobs:
+bash
+# Export metrics diario a las 00:05
+echo "5 0 * * * root /usr/local/bin/export_metrics.sh" | sudo tee /etc/cron.d/export_metrics
+# Backup diario a las 03:00
+echo "0 3 * * * root /usr/local/bin/backup_config.sh" | sudo tee /etc/cron.d/backup_miner
+13. Seguridad, pruebas y recomendaciones finales
+Prueba en staging: antes de desplegar en 6+ GPUs o múltiples ASICs, prueba en 1 rig durante 7–14 días.
+SSH keys: usa claves, deshabilita password login.
+Red separada: VLAN para rigs; acceso remoto solo por VPN.
+Backups de seeds: siempre offline y en más de un lugar físico seguro.
+Monitoreo: integra Netdata/Prometheus y alertas a Telegram/Slack.
+Documentación: registra cambios de firmware, undervolt y resultados de pruebas (hash/W).
+Legal/fiscal: registra ingresos diarios con timestamp y valor fiat para impuestos.
+Comparación rápida: HiveOS vs Braiins OS (atributos relevantes)
+Atributo
+HiveOS
+Braiins OS
+Soporte hardware
+GPUs y ASICs; panel centralizado para ambos
+Principalmente ASICs; firmware/OS para control fino
+Facilidad de uso
+Interfaz web amigable; ideal para individuos
+Orientado a usuarios técnicos; más bajo nivel
+Optimización y control
+Buenas herramientas de OC/undervolt y autoswitch
+Control avanzado de frecuencia/power; eficiencia máxima
+Monitoreo y alertas
+Integrado, móvil y con marketplace
+API y logs robustos; integración técnica necesaria
+Coste y licencias
+Freemium; opciones pagas para features avanzados
+Open source (Braiins OS) o firmware del fabricante; sin panel centralizado
+Recomendación práctica y priorización
+Entrega prioritaria: HiveOS.
+Por qué: para un operador individual que quiere desplegar rápido, monitorizar fácilmente y gestionar tanto rigs GPU como algunos ASICs desde un único panel, HiveOS ofrece la mejor relación entre facilidad, automatización y escalabilidad.
+Entrega secundaria: Braiins OS para los ASICs más críticos.
+Por qué: cuando el objetivo sea exprimir eficiencia y control a nivel firmware en ASICs (p. ej. Antminer con Braiins), Braiins OS es superior, pero requiere más trabajo manual y pruebas.
+Estrategia recomendada: entregar dos artefactos en este orden:
+Playbook adaptado a HiveOS (entrega inmediata): configuración de rigs GPU, plantillas de flight sheets, scripts de monitorización, cron de backups, y procedimientos de seguridad.
+Playbook / guía para Braiins OS (entrega posterior): instrucciones de flasheo seguro, configuración de parámetros de power/freq, integración con panel de monitorización (Prometheus/Netdata), y rollback plan.
+Qué incluiré en la versión adaptada para HiveOS (entregable)
+Archivo de configuración (flight sheet) listo para pegar en HiveOS: pool, wallet, worker, algoritmo.
+Scripts listos para usar en HiveOS: undervolt presets, autorestart, export_metrics, backup cifrado.
+Playbook de despliegue paso a paso para registrar rigs en HiveOS y aplicar plantillas en lote.
+Checklist operativo integrado con alertas y runbook de incidentes.
+Plantillas de reporte (diario/semanal/mensual) automatizables desde las métricas de HiveOS.
+Guía de seguridad: VPN, claves SSH, separación de red, y manejo de seeds.
+Plan de entrega y tiempos (individual, listo para ejecutar)
+Fase 1 — HiveOS (24–48 horas)
+Generar flight sheet y scripts; empaquetar playbook; pruebas de sanity en 1 rig.
+Entrega: paquete ZIP con instrucciones paso a paso y comandos listos.
+Fase 2 — Braiins OS (48–72 horas adicionales)
+Guía de flasheo, parámetros recomendados por modelo ASIC, integración de monitorización.
+Entrega: guía técnica y scripts de configuración, checklist de rollback.
+
+Entregable: paquete adaptado para HiveOS (todo listo para copiar/pegar)
+A continuación tienes todo lo necesario para desplegar y operar rigs GPU en HiveOS: flight sheet listo, scripts para monitorización/backup/autoswitch, plantillas de OC (overclock/undervolt) y un playbook de despliegue paso a paso. Pega los bloques donde corresponda en HiveOS o en la consola del rig. Prueba en 1 rig antes de escalar.
+1 Flight sheet (plantilla) — copiar en HiveOS → Create Flight Sheet
+Campos y valores (reemplaza los valores entre <>):
+Wallet:
+Name: Wallet-Principal
+Coin: <moneda PoW objetivo, ej. LTC o RVN>
+Address: <TU_WALLET_DIRECCION>
+Tag/Extra: <opcional: etiqueta de contabilidad>
+Pool:
+Pool URL: <stratum+tcp://pool.example:3333>
+Worker: <NOMBRE_WORKER>
+Password: x (o según pool)
+Miner:
+Miner type: T-Rex (NVIDIA) / TeamRedMiner (AMD) / Custom (si usas binarios propios)
+Extra config: --api-bind-http 0.0.0.0:4067 --log-path /hive/miner_logs/t-rex.log --no-watchdog
+Flight sheet name: FS-<moneda>-<pool>-<fecha>
+Instrucciones rápidas:
+En HiveOS → Wallets → Add wallet: pega Address y guarda.
+Pools → Add pool: pega Pool URL y guarda.
+Flight Sheets → Create new: selecciona Wallet, Pool, Miner y guarda.
+Workers → Selecciona worker → Apply flight sheet.
+2 Scripts para HiveOS (colocar en /hive/miners/custom/<nombre>/ o usar User Scripts)
+start_miner.sh (ejemplo TRex)
+bash
+#!/bin/bash
+# /hive/miners/custom/t-rex/start_miner.sh
+WORKDIR="/hive/miners/custom/t-rex"
+cd $WORKDIR
+
+POOL="{{POOL_URL}}"        # reemplaza con tu pool
+WALLET="{{WALLET_ADDR}}"  # reemplaza con tu wallet
+WORKER="{{WORKER_NAME}}"  # reemplaza con worker
+
+# Descargar t-rex si no existe (solo la primera vez)
+if [ ! -f t-rex ]; then
+  wget -q https://github.com/trexminer/T-Rex/releases/latest/download/t-rex-linux.tar.gz -O /tmp/t-rex.tar.gz
+  tar -xzf /tmp/t-rex.tar.gz -C $WORKDIR
+  chmod +x $WORKDIR/t-rex
+fi
+
+# Ejecutar miner
+./t-rex -a {{ALGORITHM}} -o $POOL -u $WALLET.$WORKER -p x --api-bind-http 0.0.0.0:4067 --log-path ./t-rex.log --no-watchdog
+Cómo usar: en HiveOS, crea un Custom Miner apuntando a este script o pega el contenido en la sección “Extra config” del miner.
+export_metrics_hiveos.sh (usa HiveOS API)
+bash
+#!/bin/bash
+# /usr/local/bin/export_metrics_hiveos.sh
+# Reemplaza HIVE_API_KEY y HIVE_FARM_ID con tus valores
+HIVE_API_KEY="{{HIVE_API_KEY}}"
+FARM_ID="{{HIVE_FARM_ID}}"
+OUTDIR="/var/reports"
+mkdir -p $OUTDIR
+OUT="$OUTDIR/hiveos_metrics_$(date +%F).csv"
+echo "timestamp,worker,coin,hashrate,power,temp" > $OUT
+
+# Ejemplo de llamada a la API pública de HiveOS (ajusta endpoint según versión)
+curl -s -H "Authorization: Bearer $HIVE_API_KEY" "https://api.hiveos.farm/api/v2/farms/$FARM_ID/workers" \
+  | jq -r '.data[] | "\(.attributes.updated_at),\(.attributes.hostname),\(.attributes.coin),\(.attributes.hashrate),\(.attributes.power),\(.attributes.temp)"' >> $OUT
+Notas: sustituye HIVE_API_KEY y FARM_ID. Programa en cron en el rig de control o en un servidor central.
+backup_config_hiveos.sh (cifrado GPG)
+bash
+#!/bin/bash
+# /usr/local/bin/backup_config_hiveos.sh
+BACKUP_DIR="/var/backups/hiveos"
+mkdir -p $BACKUP_DIR
+TS=$(date +%F_%H%M)
+ARCHIVE="$BACKUP_DIR/hiveos_config_$TS.tar.gz"
+tar czf $ARCHIVE /hive/.hive /hive/miners 2>/dev/null
+# Cifrar con passphrase (reemplaza BACKUP_PASSPHRASE)
+echo "{{BACKUP_PASSPHRASE}}" | gpg --batch --yes --passphrase-fd 0 -c --cipher-algo AES256 $ARCHIVE
+Almacenamiento: guarda los .gpg en un almacenamiento offline o en un bucket cifrado con acceso restringido.
+auto_switch_hiveos.sh (plantilla conceptual)
+bash
+#!/bin/bash
+# /usr/local/bin/auto_switch_hiveos.sh
+# Plantilla: consulta servicio de rentabilidad externo y cambia flight sheet si mejora > UMBRAL
+THRESHOLD=10   # porcentaje mínimo de mejora
+MIN_HOURS=4    # tiempo mínimo entre switches
+
+# 1) Consultar API de rentabilidad (implementa tu proveedor)
+# 2) Comparar rentabilidad actual vs candidata
+# 3) Si mejora > THRESHOLD y tiempo desde último switch > MIN_HOURS:
+#    - Use HiveOS API para update worker flight sheet (PATCH request)
+#    - Registrar cambio en /var/log/auto_switch.log
+
+# Este script requiere: HIVE_API_KEY, lógica de consulta a API de rentabilidad y manejo de errores.
+Precaución: implementar con límites y ventanas para evitar switching excesivo.
+3 Plantillas de OC (valores iniciales; ajustar por modelo)
+GPU
+Power limit (W)
+Core clock (MHz)
+Memory clock (MHz)
+Fan target (%)
+RTX 3080 (NVIDIA)
+180–200 W
+-200
++700
+60–75
+RTX 3070 (NVIDIA)
+120–140 W
+-150
++700
+55–70
+RX 6800 XT (AMD)
+180–200 W
+-100
++600
+60–75
+Cómo aplicar en HiveOS:
+Workers → Overclock → Create OC → Pega valores (Power, Core, Memory, Fan).
+Testea 24–48 h y ajusta en pasos de 5–10 W.
+4 Playbook de despliegue para HiveOS (pasos operativos)
+Resumen: registrar wallet, crear flight sheet, aplicar OC, desplegar scripts, configurar backups y alertas.
+Preparación
+Crea wallet en HiveOS (Wallets → Add wallet).
+Añade pool (Pools → Add pool).
+Crear Flight Sheet
+Flight Sheets → Create new → Selecciona Wallet, Pool, Miner (Custom si usas script).
+Guarda y publica.
+Registrar worker
+En el rig: instala HiveOS image o flashea USB con HiveOS.
+Conecta worker a tu farm (usa Farm Hash).
+Aplicar Flight Sheet y OC
+En Workers → selecciona worker → Apply flight sheet.
+Workers → Overclock → Apply OC template.
+Instalar scripts
+Conecta por SSH al rig (ssh user@worker_ip).
+Crea carpeta /hive/miners/custom/t-rex/ y pega start_miner.sh.
+Pega export_metrics_hiveos.sh y backup_config_hiveos.sh en /usr/local/bin/ y da permisos chmod +x.
+Programar cron jobs (en rig de control o servidor central)
+Export metrics diario: 5 0 * * * /usr/local/bin/export_metrics_hiveos.sh
+Backup diario: 0 3 * * * /usr/local/bin/backup_config_hiveos.sh
+Alertas y monitorización
+HiveOS → Alerts: configurar notificaciones a Telegram/Email para: worker offline, temp alta, hash drop.
+Integrar Netdata/Prometheus si quieres métricas avanzadas.
+Pruebas
+Ejecuta 24–72 h en 1 rig: verifica hashrate, consumo, estabilidad y logs.
+Ajusta OC y power limits según resultados.
+5 Checklist operativo (resumen para ejecutar ahora)
+Antes de encender: circuito dedicado, medidor de consumo, ventilación.
+Primer día: aplicar flight sheet, iniciar miner, monitorizar 6–12 h.
+Primeros 7 días: registrar ingresos, consumo, temperaturas; ajustar OC.
+Automatización: programar export_metrics y backups; configurar alertas.
+Seguridad: deshabilitar SSH por contraseña, usar VPN para acceso remoto, guardar seeds offline.
+A Playbook Ansible — archivos y contenido
+Estructura del proyecto
+Code
+mining-playbook/
+├─ inventory.ini
+├─ playbook.yml
+├─ group_vars/
+│  └─ all.yml
+├─ roles/
+│  ├─ common/
+│  │  └─ tasks/main.yml
+│  ├─ gpu_miner/
+│  │  └─ tasks/main.yml
+│  └─ asic_miner/
+│     └─ tasks/main.yml
+├─ files/
+│  ├─ start_trex.sh
+│  ├─ miner.service
+│  ├─ export_metrics.sh
+│  └─ backup_config.sh
+1 inventory.ini
+ini
+[control]
+control ansible_host=192.168.1.10 ansible_user=ubuntu
+
+[rigs]
+rig1 ansible_host=192.168.1.100 ansible_user=ubuntu
+rig2 ansible_host=192.168.1.101 ansible_user=ubuntu
+
+[asics]
+asic1 ansible_host=192.168.1.110 ansible_user=ubuntu
+2 group_vars/all.yml (editar antes de ejecutar)
+yaml
+wallet_address: "TU_WALLET_DIRECCION"
+pool_url: "stratum+tcp://pool.example:3333"
+pool_worker: "worker01"
+algorithm: "kawpow"
+use_docker: false
+nvidia_driver_version: "535"
+timezone: "America/Puerto_Rico"
+monitoring_user: "monitor"
+backup_gpg_passphrase: "CAMBIA_ESTA_PASSPHRASE"
+auto_switch_threshold_percent: 10
+auto_switch_min_hours: 4
+hive_api_key: ""
+hive_farm_id: ""
+3 playbook.yml
+yaml
+- name: Desplegar entorno de minería - common
+  hosts: all
+  become: true
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - common
+
+- name: Desplegar miner GPU
+  hosts: rigs
+  become: true
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - gpu_miner
+
+- name: Configurar ASIC management
+  hosts: asics
+  become: true
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - asic_miner
+4 roles/common/tasks/main.yml
+yaml
+- name: Actualizar apt y paquetes
+  apt:
+    update_cache: yes
+    upgrade: dist
+    cache_valid_time: 3600
+
+- name: Instalar utilidades básicas
+  apt:
+    name:
+      - build-essential
+      - git
+      - curl
+      - wget
+      - jq
+      - tmux
+      - htop
+      - unzip
+      - python3-pip
+      - gnupg
+    state: present
+
+- name: Establecer timezone
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Crear usuario de monitorización
+  user:
+    name: "{{ monitoring_user }}"
+    shell: /bin/bash
+    create_home: yes
+    state: present
+5 roles/gpu_miner/tasks/main.yml
+yaml
+- name: Instalar drivers NVIDIA
+  apt:
+    name: "nvidia-driver-{{ nvidia_driver_version }}"
+    state: present
+  ignore_errors: yes
+
+- name: Crear carpeta de miner
+  file:
+    path: /opt/miner
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copiar start script
+  copy:
+    src: files/start_trex.sh
+    dest: /opt/miner/start_trex.sh
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+
+- name: Copiar systemd unit
+  copy:
+    src: files/miner.service
+    dest: /etc/systemd/system/miner.service
+    mode: '0644'
+
+- name: Recargar systemd y habilitar servicio
+  systemd:
+    daemon_reload: yes
+    name: miner.service
+    enabled: yes
+    state: started
+
+- name: Copiar export_metrics
+  copy:
+    src: files/export_metrics.sh
+    dest: /usr/local/bin/export_metrics.sh
+    mode: '0755'
+
+- name: Copiar backup script
+  copy:
+    src: files/backup_config.sh
+    dest: /usr/local/bin/backup_config.sh
+    mode: '0755'
+6 roles/asic_miner/tasks/main.yml
+yaml
+- name: Instalar herramientas de red
+  apt:
+    name:
+      - nmap
+      - snmp
+    state: present
+
+- name: Crear carpeta de asic management
+  file:
+    path: /opt/asic
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copiar export_metrics
+  copy:
+    src: files/export_metrics.sh
+    dest: /usr/local/bin/export_metrics.sh
+    mode: '0755'
+
+- name: Copiar backup script
+  copy:
+    src: files/backup_config.sh
+    dest: /usr/local/bin/backup_config.sh
+    mode: '0755'
+7 files/start_trex.sh
+bash
+#!/bin/bash
+WORKDIR="/opt/miner"
+cd $WORKDIR
+
+POOL="{{ pool_url }}"
+WALLET="{{ wallet_address }}"
+WORKER="{{ pool_worker }}"
+ALGO="{{ algorithm }}"
+
+if [ ! -f t-rex ]; then
+  wget -q https://github.com/trexminer/T-Rex/releases/latest/download/t-rex-linux.tar.gz -O /tmp/t-rex.tar.gz
+  tar -xzf /tmp/t-rex.tar.gz -C $WORKDIR
+  chmod +x $WORKDIR/t-rex
+fi
+
+./t-rex -a $ALGO -o $POOL -u $WALLET.$WORKER -p x --api-bind-http 0.0.0.0:4067 --log-path ./t-rex.log --no-watchdog
+8 files/miner.service
+ini
+[Unit]
+Description=Miner service
+After=network.target
+
+[Service]
+Type=simple
+User={{ ansible_user }}
+WorkingDirectory=/opt/miner
+ExecStart=/opt/miner/start_trex.sh
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+9 files/export_metrics.sh
+bash
+#!/bin/bash
+OUTDIR="/var/reports"
+mkdir -p $OUTDIR
+OUT="$OUTDIR/mining_metrics_$(date +%F).csv"
+echo "timestamp,host,rig,hashrate,power,temp" > $OUT
+
+if curl -s http://127.0.0.1:4067/summary >/dev/null 2>&1; then
+  curl -s http://127.0.0.1:4067/summary | jq -r --arg host "$(hostname)" \
+    '. | "\(.time),\($host),\(.miner),\(.hashrate),\(.power),\(.temp)"' >> $OUT
+fi
+10 files/backup_config.sh
+bash
+#!/bin/bash
+BACKUP_DIR="/var/backups/miner"
+mkdir -p $BACKUP_DIR
+TS=$(date +%F_%H%M)
+ARCHIVE="$BACKUP_DIR/config_backup_$TS.tar.gz"
+tar czf $ARCHIVE /opt/miner /etc/systemd/system/miner.service 2>/dev/null
+echo "{{ backup_gpg_passphrase }}" | gpg --batch --yes --passphrase-fd 0 -c --cipher-algo AES256 $ARCHIVE
+11 Ejecución (resumen)
+Edita group_vars/all.yml con tus valores.
+Desde la máquina de control:
+bash
+ansible-playbook -i inventory.ini playbook.yml
+Verifica servicios y logs:
+bash
+sudo systemctl status miner.service
+journalctl -u miner.service -f
+Programa cron jobs en el control para export_metrics y backup_config.
+B Guía técnica y playbook operativo para Braiins OS (ASICs)
+Resumen y objetivo
+Objetivo: flashear y operar ASICs (Antminer, Whatsminer, etc.) con Braiins OS / Braiins OS+ para maximizar eficiencia energética y control, manteniendo seguridad y capacidad de rollback. Incluye pasos seguros de flasheo, parámetros recomendados por modelo, monitorización y plan de pruebas.
+1 Preparación previa (obligatoria)
+Backup firmware stock: descarga y guarda la versión de firmware original del fabricante antes de cualquier flasheo.
+Documenta: modelo exacto, versión de hardware (PCB), número de serie.
+Fuente de energía estable: circuito dedicado, medición de consumo, UPS para controladores.
+Ambiente: buena ventilación, temperatura ambiente controlada.
+Cuenta Braiins: crea cuenta si usarás Braiins OS+ (si aplica) y descarga la imagen oficial desde el sitio de Braiins.
+Herramientas: cable Ethernet, PC con acceso a la red local, utilidades TFTP/FTP si el modelo lo requiere, y un USB de recuperación si el fabricante lo soporta.
+2 Flujo seguro de flasheo (pasos)
+Prueba en 1 unidad: nunca flashees toda la granja a la vez.
+Descarga imagen oficial: usa solo imágenes oficiales de Braiins (Braiins OS o Braiins OS+). Verifica checksum/firmware signature si está disponible.
+Modo de recuperación: revisa el manual del modelo para el método de flasheo seguro (web UI, TFTP, USB recovery).
+Backup de configuración: anota la configuración actual del pool y wallet.
+Flasheo:
+Conecta el ASIC a la red y accede a su UI stock.
+Si el fabricante permite, sube la imagen de Braiins desde la UI; si no, usa el método TFTP/USB recomendado.
+Primer arranque: tras flasheo, no pongas carga máxima. Deja el ASIC en modo conservador (frecuencia/power reducidos) para 1–2 horas.
+Verificación: confirma que la API/monitor reporta hashrate estable, temperaturas y ventiladores OK.
+Rollback plan: si hay problemas, re-flashea firmware stock desde el backup y documenta el incidente.
+3 Parámetros recomendados por modelo (valores iniciales conservadores)
+Nota: valores orientativos. Ajusta por unidad y por ambiente. Empieza conservador y sube en pasos.
+Antminer S19 / S19 Pro (familia S19)
+Modo inicial: -5% frecuencia / -5% power (usar Braiins UI para ajustar).
+Target temp: < 80 °C.
+Fan: auto; monitorizar RPM.
+Objetivo: encontrar punto con máximo TH/s por W estable.
+Whatsminer M30S / M30S++
+Modo inicial: reducir frecuencia 3–7% si Braiins lo permite.
+Target temp: < 80 °C.
+Observación: Whatsminer tolera ajustes finos; prueba 24 h antes de subir frecuencia.
+Antminer S19j Pro / S19 XP
+Modo inicial: conservador -5% power; medir hash/W.
+Target temp: < 78 °C.
+Proceso de ajuste:
+Reduce power/freq en 3–5% y prueba 2–4 h.
+Mide consumo y hash; calcula hash/W.
+Si estable, incrementa en 1–2% hasta encontrar máximo hash/W sin errores.
+Documenta cada cambio y su timestamp.
+4 Configuración de pools y wallets en Braiins
+Pool: configura pool principal y pool de backup. Usa worker name con identificador de unidad.
+Wallet: usa wallet no custodial; para seguridad, configura pagos a dirección controlada.
+Payout threshold: ajusta según política del pool y frecuencia de pagos deseada.
+API/Monitoring: habilita API local (puerto seguro) y restringe acceso por IP o VPN.
+5 Monitorización e integración (recomendado)
+Habilitar API de Braiins: Braiins OS expone métricas; configúralas y protégelas.
+Prometheus + node_exporter: usar un exporter que consulte la API del ASIC y exporte métricas a Prometheus.
+Alertas: configurar alertas para: hash drop >5%, temp >85°C, fan failure, offline. Enviar a Telegram/Slack/Email.
+Registro central: almacenar logs y métricas en servidor central para análisis y reportes (CSV/DB).
+6 Rollback y recuperación
+Rollback inmediato: re-flashear firmware stock desde backup. Mantén el archivo de firmware stock accesible.
+Recuperación de red: si el ASIC queda inaccesible, usar consola serial o método de recuperación del fabricante.
+Plan de contingencia:
+Mantén 1–2 unidades de repuesto sin flashear para pruebas.
+Documenta pasos de rollback y tiempos estimados.
+No flashees más unidades hasta validar la causa y la solución.
+7 Seguridad y buenas prácticas
+Acceso: restringe UI/API a LAN o VPN; no exponer a Internet.
+Credenciales: cambia credenciales por defecto y usa claves donde aplique.
+Backups: firmware stock + configuración del pool + scripts de monitor en almacenamiento cifrado.
+Mantenimiento físico: limpieza trimestral, reemplazo de ventiladores según horas de uso.
+Registro fiscal: registra cada pago con timestamp y valor fiat para impuestos.
+8 Checklist de implementación para Braiins (pasos mínimos)
+[ ] Descargar y verificar imagen Braiins (checksum).
+[ ] Backup firmware stock y configuración actual.
+[ ] Flasheo en 1 unidad de prueba.
+[ ] Monitorizar 24–72 h en modo conservador.
+[ ] Ajuste incremental de power/freq y registro de hash/W.
+[ ] Si OK, plan de rollout por lotes (5–10% de la flota por día).
+[ ] Documentar y almacenar logs de cada lote.
+9 Plantilla rápida de comandos y acciones (conceptual)
+Verificar API del ASIC (ejemplo conceptual):
+bash
+curl -s http://ASIC_IP/api/v1/status | jq .
+Exportar métricas a Prometheus: usar exporter que consulte la API y exponga /metrics.
+Re-flasheo (concepto): seguir método del fabricante (UI/TFTP/USB). Siempre validar checksum.
+1 Paquete ZIP con archivos Ansible y scripts (lista y contenido)
+Estructura del paquete mining-playbook-hiveos-braiins.zip
+Code
+mining-playbook-hiveos-braiins/
+├─ inventory.ini
+├─ playbook.yml
+├─ group_vars/all.yml
+├─ roles/
+│  ├─ common/tasks/main.yml
+│  ├─ gpu_miner/tasks/main.yml
+│  └─ asic_miner/tasks/main.yml
+├─ files/
+│  ├─ start_trex.sh
+│  ├─ miner.service
+│  ├─ export_metrics.sh
+│  └─ backup_config.sh
+├─ flasheo/
+│  ├─ asic_flasheo_playbook.yml
+│  ├─ roles/asic_flasheo/tasks/main.yml
+│  └─ files/firmware_placeholder.bin
+├─ exporters/
+│  └─ braiins_exporter.py
+└─ README_DEPLOY.md
+inventory.ini
+ini
+[control]
+control ansible_host=192.168.1.10 ansible_user=ubuntu
+
+[rigs]
+rig1 ansible_host=192.168.1.100 ansible_user=ubuntu
+rig2 ansible_host=192.168.1.101 ansible_user=ubuntu
+
+[asics]
+asic1 ansible_host=192.168.1.110 ansible_user=ubuntu
+group_vars/all.yml
+yaml
+wallet_address: "TU_WALLET_DIRECCION"
+pool_url: "stratum+tcp://pool.example:3333"
+pool_worker: "worker01"
+algorithm: "kawpow"
+use_docker: false
+nvidia_driver_version: "535"
+timezone: "America/Puerto_Rico"
+monitoring_user: "monitor"
+backup_gpg_passphrase: "CAMBIA_ESTA_PASSPHRASE"
+auto_switch_threshold_percent: 10
+auto_switch_min_hours: 4
+hive_api_key: ""
+hive_farm_id: ""
+braiins_api_user: ""
+braiins_api_pass: ""
+playbook.yml
+yaml
+- name: Desplegar entorno de minería - common
+  hosts: all
+  become: true
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - common
+
+- name: Desplegar miner GPU
+  hosts: rigs
+  become: true
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - gpu_miner
+
+- name: Configurar ASIC management
+  hosts: asics
+  become: true
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - asic_miner
+roles/common/tasks/main.yml
+yaml
+- name: Actualizar apt y paquetes
+  apt:
+    update_cache: yes
+    upgrade: dist
+    cache_valid_time: 3600
+
+- name: Instalar utilidades básicas
+  apt:
+    name:
+      - build-essential
+      - git
+      - curl
+      - wget
+      - jq
+      - tmux
+      - htop
+      - unzip
+      - python3-pip
+      - gnupg
+    state: present
+
+- name: Establecer timezone
+  timezone:
+    name: "{{ timezone }}"
+
+- name: Crear usuario de monitorización
+  user:
+    name: "{{ monitoring_user }}"
+    shell: /bin/bash
+    create_home: yes
+    state: present
+roles/gpu_miner/tasks/main.yml
+yaml
+- name: Instalar drivers NVIDIA
+  apt:
+    name: "nvidia-driver-{{ nvidia_driver_version }}"
+    state: present
+  ignore_errors: yes
+
+- name: Crear carpeta de miner
+  file:
+    path: /opt/miner
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copiar start script
+  copy:
+    src: files/start_trex.sh
+    dest: /opt/miner/start_trex.sh
+    mode: '0755'
+    owner: "{{ ansible_user }}"
+
+- name: Copiar systemd unit
+  copy:
+    src: files/miner.service
+    dest: /etc/systemd/system/miner.service
+    mode: '0644'
+
+- name: Recargar systemd y habilitar servicio
+  systemd:
+    daemon_reload: yes
+    name: miner.service
+    enabled: yes
+    state: started
+
+- name: Copiar export_metrics
+  copy:
+    src: files/export_metrics.sh
+    dest: /usr/local/bin/export_metrics.sh
+    mode: '0755'
+
+- name: Copiar backup script
+  copy:
+    src: files/backup_config.sh
+    dest: /usr/local/bin/backup_config.sh
+    mode: '0755'
+roles/asic_miner/tasks/main.yml
+yaml
+- name: Instalar herramientas de red
+  apt:
+    name:
+      - nmap
+      - snmp
+    state: present
+
+- name: Crear carpeta de asic management
+  file:
+    path: /opt/asic
+    state: directory
+    owner: "{{ ansible_user }}"
+    mode: '0755'
+
+- name: Copiar export_metrics
+  copy:
+    src: files/export_metrics.sh
+    dest: /usr/local/bin/export_metrics.sh
+    mode: '0755'
+
+- name: Copiar backup script
+  copy:
+    src: files/backup_config.sh
+    dest: /usr/local/bin/backup_config.sh
+    mode: '0755'
+files/start_trex.sh
+bash
+#!/bin/bash
+WORKDIR="/opt/miner"
+cd $WORKDIR
+
+POOL="{{ pool_url }}"
+WALLET="{{ wallet_address }}"
+WORKER="{{ pool_worker }}"
+ALGO="{{ algorithm }}"
+
+if [ ! -f t-rex ]; then
+  wget -q https://github.com/trexminer/T-Rex/releases/latest/download/t-rex-linux.tar.gz -O /tmp/t-rex.tar.gz
+  tar -xzf /tmp/t-rex.tar.gz -C $WORKDIR
+  chmod +x $WORKDIR/t-rex
+fi
+
+./t-rex -a $ALGO -o $POOL -u $WALLET.$WORKER -p x --api-bind-http 0.0.0.0:4067 --log-path ./t-rex.log --no-watchdog
+files/miner.service
+ini
+[Unit]
+Description=Miner service
+After=network.target
+
+[Service]
+Type=simple
+User={{ ansible_user }}
+WorkingDirectory=/opt/miner
+ExecStart=/opt/miner/start_trex.sh
+Restart=always
+RestartSec=10
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+files/export_metrics.sh
+bash
+#!/bin/bash
+OUTDIR="/var/reports"
+mkdir -p $OUTDIR
+OUT="$OUTDIR/mining_metrics_$(date +%F).csv"
+echo "timestamp,host,rig,hashrate,power,temp" > $OUT
+
+if curl -s http://127.0.0.1:4067/summary >/dev/null 2>&1; then
+  curl -s http://127.0.0.1:4067/summary | jq -r --arg host "$(hostname)" \
+    '. | "\(.time),\($host),\(.miner),\(.hashrate),\(.power),\(.temp)"' >> $OUT
+fi
+files/backup_config.sh
+bash
+#!/bin/bash
+BACKUP_DIR="/var/backups/miner"
+mkdir -p $BACKUP_DIR
+TS=$(date +%F_%H%M)
+ARCHIVE="$BACKUP_DIR/config_backup_$TS.tar.gz"
+tar czf $ARCHIVE /opt/miner /etc/systemd/system/miner.service 2>/dev/null
+echo "{{ backup_gpg_passphrase }}" | gpg --batch --yes --passphrase-fd 0 -c --cipher-algo AES256 $ARCHIVE
+flasheo/asic_flasheo_playbook.yml
+yaml
+- name: Flasheo seguro de ASICs con rollback
+  hosts: asics
+  become: true
+  vars_files:
+    - ../group_vars/all.yml
+  roles:
+    - asic_flasheo
+flasheo/roles/asic_flasheo/tasks/main.yml
+yaml
+- name: Verificar conectividad al ASIC
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 80
+    timeout: 10
+
+- name: Backup firmware stock si está disponible vía HTTP
+  uri:
+    url: "http://{{ inventory_hostname }}/firmware/download"
+    method: GET
+    return_content: yes
+  register: firmware_backup
+  ignore_errors: yes
+
+- name: Guardar backup firmware local
+  copy:
+    content: "{{ firmware_backup.content | default('') }}"
+    dest: "/opt/asic/firmware_stock_{{ inventory_hostname }}.bin"
+  when: firmware_backup is defined and firmware_backup.content != ''
+
+- name: Subir firmware Braiins (método HTTP)
+  uri:
+    url: "http://{{ inventory_hostname }}/firmware/upload"
+    method: POST
+    body: "{{ lookup('file','flasheo/files/firmware_placeholder.bin') }}"
+    headers:
+      Content-Type: application/octet-stream
+  register: flash_result
+  ignore_errors: yes
+
+- name: Esperar reinicio del ASIC
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 80
+    timeout: 120
+  when: flash_result is defined and flash_result.status == 200
+
+- name: Verificar estado post-flasheo
+  uri:
+    url: "http://{{ inventory_hostname }}/api/v1/status"
+    method: GET
+    return_content: yes
+  register: status_after
+  ignore_errors: yes
+
+- name: Fallback a firmware stock si el estado es erróneo
+  uri:
+    url: "http://{{ inventory_hostname }}/firmware/upload"
+    method: POST
+    body: "{{ lookup('file','/opt/asic/firmware_stock_{{ inventory_hostname }}.bin') }}"
+    headers:
+      Content-Type: application/octet-stream
+  when: status_after is defined and (status_after.status != 200 or status_after.content | default('') == '')
+  ignore_errors: yes
+Nota El playbook de flasheo usa tres métodos conceptuales HTTP/TFTP/SSH. Ajusta uri endpoints según el modelo y el método de flasheo soportado por el fabricante. No flashees en lote sin validar en una unidad.
+flasheo/files/firmware_placeholder.bin
+Archivo placeholder. Reemplaza por la imagen oficial de Braiins verificada por checksum.
+exporters/braiins_exporter.py
+python
+#!/usr/bin/env python3
+# braiins_exporter.py
+# Requiere: pip install requests prometheus_client
+
+import time
+import requests
+from prometheus_client import start_http_server, Gauge
+import os
+
+BRAIINS_USER = os.getenv("BRAIINS_USER", "")
+BRAIINS_PASS = os.getenv("BRAIINS_PASS", "")
+ASIC_IP = os.getenv("ASIC_IP", "127.0.0.1")
+POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", "15"))
+EXPORTER_PORT = int(os.getenv("EXPORTER_PORT", "9100"))
+
+g_hashrate = Gauge('asic_hashrate_hs', 'Hashrate reported by ASIC in H/s', ['host'])
+g_power = Gauge('asic_power_watts', 'Power consumption in watts', ['host'])
+g_temp = Gauge('asic_temp_celsius', 'ASIC temperature Celsius', ['host'])
+g_fan = Gauge('asic_fan_rpm', 'Fan RPM', ['host'])
+
+def fetch_status():
+    url = f"http://{ASIC_IP}/api/v1/status"
+    try:
+        r = requests.get(url, timeout=5, auth=(BRAIINS_USER, BRAIINS_PASS) if BRAIINS_USER else None)
+        r.raise_for_status()
+        return r.json()
+    except Exception as e:
+        return None
+
+def update_metrics():
+    status = fetch_status()
+    host = ASIC_IP
+    if not status:
+        return
+    # Ajusta las claves según la respuesta real de la API del ASIC/Braiins
+    # Ejemplo de mapeo
+    hashrate = status.get('hashrate', {}).get('total', 0)
+    power = status.get('power', {}).get('consumed', 0)
+    temp = status.get('temp', {}).get('chip', 0)
+    fan = status.get('fan', {}).get('rpm', 0)
+
+    g_hashrate.labels(host=host).set(hashrate)
+    g_power.labels(host=host).set(power)
+    g_temp.labels(host=host).set(temp)
+    g_fan.labels(host=host).set(fan)
+
+if __name__ == "__main__":
+    start_http_server(EXPORTER_PORT)
+    while True:
+        try:
+            update_metrics()
+        except Exception:
+            pass
+        time.sleep(POLL_INTERVAL)
+README_DEPLOY.md (resumen de uso)
+markdown
+1) Edita group_vars/all.yml con tus valores.
+2) Coloca la imagen de firmware Braiins en flasheo/files/firmware_placeholder.bin y verifica checksum.
+3) Crear ZIP:
+   zip -r mining-playbook-hiveos-braiins.zip mining-playbook-hiveos-braiins/
+4) Ejecutar playbook principal:
+   ansible-playbook -i inventory.ini playbook.yml
+5) Ejecutar playbook de flasheo en una unidad de prueba:
+   ansible-playbook -i inventory.ini flasheo/asic_flasheo_playbook.yml
+6) Desplegar exporter:
+   scp exporters/braiins_exporter.py control:/opt/exporters/
+   ssh control
+   pip3 install requests prometheus_client
+   nohup python3 /opt/exporters/braiins_exporter.py &
+2 Playbook Ansible para flasheo y rollback (detalles y precauciones)
+Resumen del playbook de flasheo
+Diseñado para flasheo por HTTP con fallback a firmware stock.
+Guarda backup del firmware stock si el ASIC lo permite.
+Espera reinicio y valida estado.
+Si el estado es erróneo, intenta rollback automático.
+Precauciones críticas
+Verifica compatibilidad del método de flasheo con el modelo exacto.
+Valida checksum de la imagen Braiins antes de flashear.
+Flashea una unidad de prueba y monitoriza 48–72 horas.
+Mantén firmware stock accesible y probado para rollback.
+No automatices flasheo masivo sin validación manual de la primera unidad.
+Cómo adaptar el playbook por modelo
+Si el modelo usa TFTP, reemplaza la tarea uri por un módulo shell que ejecute el comando TFTP apropiado.
+Si el modelo requiere SSH y comandos específicos, usa ansible.builtin.shell con los comandos del fabricante.
+Para Antminer con UI que acepta upload, la ruta http://ASIC_IP/firmware/upload es conceptual; reemplaza por la ruta real del fabricante.
+3 Exporter Prometheus para Braiins (despliegue y configuración)
+Requisitos
+Python 3.8+, pip install requests prometheus_client.
+Variables de entorno opcionales: BRAIINS_USER, BRAIINS_PASS, ASIC_IP, POLL_INTERVAL, EXPORTER_PORT.
+Despliegue rápido
+Copia braiins_exporter.py al servidor de control o a un contenedor.
+Exporta variables de entorno:
+bash
+export ASIC_IP=192.168.1.110
+export BRAIINS_USER=tu_usuario
+export BRAIINS_PASS=tu_pass
+export POLL_INTERVAL=15
+export EXPORTER_PORT=9100
+Ejecuta:
+bash
+pip3 install requests prometheus_client
+nohup python3 /opt/exporters/braiins_exporter.py >/var/log/braiins_exporter.log 2>&1 &
+En Prometheus añade job:
+yaml
+- job_name: 'braiins_asics'
+  static_configs:
+    - targets: ['control:9100']
+Ajustes y mapeo
+La estructura JSON devuelta por la API del ASIC puede variar. Ajusta las claves en braiins_exporter.py para mapear hashrate, power, temp y fan a los campos reales.
+Añade métricas adicionales según la API: uptime, rejected shares, hw errors, voltage, frequency.
+Pruebas, validación y checklist antes de producción
+Prueba 1 unidad: flasheo, monitor 48–72 h, validar estabilidad y métricas.
+Verificar rollback: simula fallo y confirma que el playbook restaura firmware stock.
+Verificar exporter: confirmar /metrics responde y Prometheus recoge datos.
+Seguridad: restringe acceso API/UI a LAN o VPN, cambia credenciales por defecto, guarda backups cifrados.
+Documentación: registra cada flasheo con timestamp, firmware version, checksum y resultados de pruebas.
+Cómo generar el ZIP localmente con los archivos anteriores
+Crea la estructura de carpetas y archivos con los contenidos provistos.
+Ejecuta desde la carpeta padre:
+bash
+zip -r mining-playbook-hiveos-braiins.zip mining-playbook-hiveos-braiins/
+Transfiere el ZIP al servidor de control y descomprímelo:
+bash
+scp mining-playbook-hiveos-braiins.zip control:/tmp/
+ssh control
+unzip /tmp/mining-playbook-hiveos-braiins.zip -d /opt/
+Crear un playbook Ansible adicional que verifique checksum y firma GPG de la imagen de firmware Braiins antes de flashear un ASIC, ejecute el flasheo solo si las verificaciones pasan, y automatice rollback a firmware stock si el estado postflasheo es erróneo. Incluye scripts auxiliares para verificar SHA256 y firma GPG, tareas de backup y validación, y un procedimiento seguro de ejecución por unidad de prueba.
+Estructura del paquete (archivos clave)
+Code
+asic-flash-safe/
+├─ inventory.ini
+├─ playbook_verify_and_flash.yml
+├─ group_vars/all.yml
+├─ roles/
+│  └─ safe_flasheo/
+│     ├─ tasks/main.yml
+│     ├─ files/
+│     │  ├─ firmware_braiins.bin
+│     │  ├─ firmware_braiins.bin.sha256
+│     │  └─ firmware_braiins.bin.sig
+│     └─ templates/
+│        └─ flash_command.sh.j2
+├─ scripts/
+│  ├─ verify_checksum.sh
+│  └─ verify_gpg.sh
+└─ README_SAFE_FLASH.md
+Variables (editar group_vars/all.yml)
+yaml
+# Variables obligatorias - editar antes de ejecutar
+braiins_firmware_path: "roles/safe_flasheo/files/firmware_braiins.bin"
+braiins_firmware_sha256: "roles/safe_flasheo/files/firmware_braiins.bin.sha256"
+braiins_firmware_sig: "roles/safe_flasheo/files/firmware_braiins.bin.sig"
+braiins_firmware_checksum: "REEMPLAZA_CON_SHA256_HEX"   # SHA256 esperado
+gpg_public_key_path: "/opt/asic/keys/braiins_pubkey.asc" # ruta en control/hosts
+flash_method: "http"   # opciones: http, tftp, ssh (ajustar por modelo)
+asic_firmware_upload_url: "http://{{ inventory_hostname }}/firmware/upload" # ejemplo HTTP
+firmware_backup_dir: "/opt/asic/firmware_backups"
+flashing_timeout: 120
+post_flash_check_url: "http://{{ inventory_hostname }}/api/v1/status"
+post_flash_expected_status: 200
+rollback_enabled: true
+Playbook principal (playbook_verify_and_flash.yml)
+yaml
+- name: Verificar checksum y firma GPG y flashear con rollback seguro
+  hosts: asics
+  become: true
+  vars_files:
+    - group_vars/all.yml
+  roles:
+    - safe_flasheo
+Role: tareas principales (roles/safe_flasheo/tasks/main.yml)
+yaml
+- name: Crear directorio de backups
+  file:
+    path: "{{ firmware_backup_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Intentar descargar firmware stock vía HTTP (si disponible)
+  uri:
+    url: "http://{{ inventory_hostname }}/firmware/download"
+    method: GET
+    return_content: yes
+    timeout: 10
+  register: firmware_stock
+  ignore_errors: yes
+
+- name: Guardar firmware stock localmente si se obtuvo
+  copy:
+    content: "{{ firmware_stock.content | default('') }}"
+    dest: "{{ firmware_backup_dir }}/firmware_stock_{{ inventory_hostname }}.bin"
+  when: firmware_stock is defined and firmware_stock.content != ''
+
+- name: Copiar imagen Braiins al host de control (si no existe)
+  copy:
+    src: "{{ braiins_firmware_path }}"
+    dest: "/tmp/firmware_braiins_{{ inventory_hostname }}.bin"
+    mode: '0644'
+  delegate_to: localhost
+
+- name: Copiar checksum al host de control
+  copy:
+    src: "{{ braiins_firmware_sha256 }}"
+    dest: "/tmp/firmware_braiins_{{ inventory_hostname }}.sha256"
+    mode: '0644'
+  delegate_to: localhost
+
+- name: Copiar firma GPG al host de control
+  copy:
+    src: "{{ braiins_firmware_sig }}"
+    dest: "/tmp/firmware_braiins_{{ inventory_hostname }}.sig"
+    mode: '0644'
+  delegate_to: localhost
+
+- name: Verificar checksum SHA256 localmente
+  command: "bash scripts/verify_checksum.sh /tmp/firmware_braiins_{{ inventory_hostname }}.bin {{ braiins_firmware_checksum }}"
+  args:
+    chdir: "{{ playbook_dir }}"
+  register: checksum_result
+  failed_when: checksum_result.rc != 0
+
+- name: Importar clave pública GPG al host de control (si no existe)
+  copy:
+    src: "{{ gpg_public_key_path }}"
+    dest: "/tmp/braiins_pubkey_{{ inventory_hostname }}.asc"
+    mode: '0644'
+  delegate_to: localhost
+  ignore_errors: yes
+
+- name: Verificar firma GPG localmente
+  command: "bash scripts/verify_gpg.sh /tmp/firmware_braiins_{{ inventory_hostname }}.bin /tmp/firmware_braiins_{{ inventory_hostname }}.sig /tmp/braiins_pubkey_{{ inventory_hostname }}.asc"
+  args:
+    chdir: "{{ playbook_dir }}"
+  register: gpg_result
+  failed_when: gpg_result.rc != 0
+
+- name: Subir firmware al ASIC (método HTTP)
+  uri:
+    url: "{{ asic_firmware_upload_url }}"
+    method: POST
+    body: "{{ lookup('file','/tmp/firmware_braiins_' + inventory_hostname + '.bin') }}"
+    headers:
+      Content-Type: application/octet-stream
+    status_code: 200,201,202
+    timeout: 60
+  register: flash_upload
+  when: flash_method == 'http'
+  ignore_errors: yes
+
+- name: Esperar reinicio del ASIC tras flasheo
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 80
+    timeout: "{{ flashing_timeout }}"
+  when: flash_upload is defined and flash_upload.status in [200,201,202]
+
+- name: Verificar estado post-flasheo
+  uri:
+    url: "{{ post_flash_check_url }}"
+    method: GET
+    return_content: yes
+    timeout: 10
+  register: status_after
+  ignore_errors: yes
+
+- name: Evaluar necesidad de rollback
+  set_fact:
+    need_rollback: "{{ (status_after.status is not defined) or (status_after.status != post_flash_expected_status) }}"
+
+- name: Ejecutar rollback a firmware stock si es necesario y rollback_enabled
+  block:
+    - name: Verificar existencia de firmware stock local
+      stat:
+        path: "{{ firmware_backup_dir }}/firmware_stock_{{ inventory_hostname }}.bin"
+      register: stock_stat
+
+    - name: Subir firmware stock para rollback (HTTP)
+      uri:
+        url: "http://{{ inventory_hostname }}/firmware/upload"
+        method: POST
+        body: "{{ lookup('file', firmware_backup_dir + '/firmware_stock_' + inventory_hostname + '.bin') }}"
+        headers:
+          Content-Type: application/octet-stream
+        status_code: 200,201,202
+        timeout: 60
+      when: stock_stat.stat.exists
+      register: rollback_result
+      ignore_errors: yes
+
+    - name: Registrar resultado de rollback
+      debug:
+        msg: "Rollback ejecutado: {{ rollback_result.status | default('no_attempt') }}"
+  when: need_rollback and rollback_enabled
+
+- name: Falla si post-flash no es correcto y rollback no pudo resolver
+  fail:
+    msg: "Estado post-flasheo inválido y rollback no disponible o falló. Requiere intervención manual."
+  when: need_rollback and (rollback_enabled == false or (rollback_result is defined and rollback_result.status not in [200,201,202]))
+Scripts auxiliares (scripts/verify_checksum.sh y scripts/verify_gpg.sh)
+scripts/verify_checksum.sh
+bash
+#!/bin/bash
+# Uso: verify_checksum.sh <archivo_firmware> <sha256_esperado>
+set -euo pipefail
+FILE="$1"
+EXPECTED="$2"
+
+if [ ! -f "$FILE" ]; then
+  echo "ERROR: archivo no encontrado: $FILE" >&2
+  exit 2
+fi
+
+CALC=$(sha256sum "$FILE" | awk '{print $1}')
+if [ "$CALC" != "$EXPECTED" ]; then
+  echo "ERROR: checksum mismatch. Calculado: $CALC, Esperado: $EXPECTED" >&2
+  exit 3
+fi
+
+echo "OK: checksum verificado ($CALC)"
+exit 0
+scripts/verify_gpg.sh
+bash
+#!/bin/bash
+# Uso: verify_gpg.sh <archivo_firmware> <firma_sig> <clave_pub.asc>
+set -euo pipefail
+FILE="$1"
+SIG="$2"
+PUBKEY="$3"
+
+if [ ! -f "$FILE" ] || [ ! -f "$SIG" ] || [ ! -f "$PUBKEY" ]; then
+  echo "ERROR: faltan archivos para verificación GPG" >&2
+  exit 2
+fi
+
+# Importar clave a un GNUPGHOME temporal
+TMPDIR=$(mktemp -d)
+export GNUPGHOME="$TMPDIR"
+gpg --import "$PUBKEY" >/dev/null 2>&1 || true
+
+# Verificar firma
+if gpg --verify "$SIG" "$FILE" >/dev/null 2>&1; then
+  echo "OK: firma GPG verificada"
+  rm -rf "$TMPDIR"
+  exit 0
+else
+  echo "ERROR: verificación GPG falló" >&2
+  rm -rf "$TMPDIR"
+  exit 4
+fi
+Plantilla de comando de flasheo (opcional) roles/safe_flasheo/templates/flash_command.sh.j2
+bash
+#!/bin/bash
+# Plantilla de flasheo (ajustar según modelo)
+# Método: {{ flash_method }}
+{% if flash_method == 'http' %}
+curl -s -X POST "{{ asic_firmware_upload_url }}" --data-binary @/tmp/firmware_braiins_{{ inventory_hostname }}.bin -H "Content-Type: application/octet-stream"
+{% elif flash_method == 'tftp' %}
+# Comando TFTP conceptual (ajustar)
+tftp {{ inventory_hostname }} -c put /tmp/firmware_braiins_{{ inventory_hostname }}.bin
+{% else %}
+# Método SSH/otros: implementar según fabricante
+echo "Implementar método de flasheo SSH/TFTP específico del modelo"
+{% endif %}
+Cómo ejecutar (pasos seguros)
+Editar group_vars/all.yml con braiins_firmware_checksum (SHA256 hex) y gpg_public_key_path.
+Colocar la imagen firmware_braiins.bin, su .sha256 y .sig en roles/safe_flasheo/files/.
+Verificar manualmente checksum y firma en tu máquina de control antes de correr Ansible:
+bash
+bash scripts/verify_checksum.sh roles/safe_flasheo/files/firmware_braiins.bin REEMPLAZA_CON_SHA256_HEX
+bash scripts/verify_gpg.sh roles/safe_flasheo/files/firmware_braiins.bin roles/safe_flasheo/files/firmware_braiins.bin.sig /ruta/a/braiins_pubkey.asc
+Ejecutar playbook en una sola unidad de prueba:
+bash
+ansible-playbook -i inventory.ini playbook_verify_and_flash.yml --limit asic1
+Monitorizar 48–72 horas la unidad de prueba. Si estable, planificar rollout por lotes (5–10% por día).
+Registrar en logs: checksum, firma, timestamp, resultado del flasheo y resultado del rollback si aplica.
+Notas de seguridad y buenas prácticas
+Nunca flashees toda la flota sin validar la primera unidad.
+Verifica checksum y firma GPG siempre; rechaza imágenes sin firma o con checksum distinto.
+Mantén firmware stock accesible y probado para rollback.
+Registra cada operación (archivo, checksum, firma, operador, timestamp).
+Aísla la red de flasheo y restringe acceso a UI/API por VPN o LAN.

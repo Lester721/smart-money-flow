@@ -54,3 +54,6 @@ web/scripts/puente-filas.json
 # Borradores de una sola corrida: los scripts de comprobacion que se escriben para mirar una
 # cosa y no se vuelven a usar. La convencion es el guion bajo delante.
 web/scripts/_*
+
+# Credenciales del agente (movidas desde OneDrive el 2026-09-06). NUNCA subir.
+API/
